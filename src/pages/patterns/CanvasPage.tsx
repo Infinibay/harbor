@@ -34,6 +34,11 @@ import {
 } from "../../lib/canvas-serialize";
 import { downloadPNG, downloadSVG } from "../../lib/canvas-export";
 import {
+  CanvasPresenceCursor,
+  CanvasVirtualized,
+} from "../../components";
+import { useCanvasPresence, type PresenceUser } from "../../lib/useCanvasPresence";
+import {
   MenuItem,
   MenuLabel,
   MenuSeparator,
@@ -176,6 +181,24 @@ export function CanvasPage() {
         intensity="soft"
       >
         <PersistDemo />
+      </Demo>
+
+      <Demo
+        title="Virtualization · 5,000 items"
+        hint="Only items in the viewport mount — count toggle + live FPS"
+        wide
+        intensity="soft"
+      >
+        <VirtualizationDemo />
+      </Demo>
+
+      <Demo
+        title="Presence · multi-cursor"
+        hint="BYO backend — here we scripted 3 remote cursors"
+        wide
+        intensity="soft"
+      >
+        <PresenceDemo />
       </Demo>
     </Group>
   );
@@ -1082,6 +1105,208 @@ function TimelineNode({
 }
 
 // === Stagger cascade =======================================
+
+// === Virtualization demo (Pack D) ================================
+
+function VirtualizationDemo() {
+  const [count, setCount] = useState(1000);
+  const [enabled, setEnabled] = useState(true);
+  const [fps, setFps] = useState(60);
+
+  const items = useMemo(() => {
+    const grid = Math.ceil(Math.sqrt(count));
+    const gap = 90;
+    const out: { id: string; x: number; y: number; width: number; height: number; hue: number }[] = [];
+    for (let i = 0; i < count; i++) {
+      const row = Math.floor(i / grid);
+      const col = i % grid;
+      out.push({
+        id: `v${i}`,
+        x: col * gap,
+        y: row * gap,
+        width: 64,
+        height: 64,
+        hue: (i * 137) % 360,
+      });
+    }
+    return out;
+  }, [count]);
+
+  // FPS meter
+  useEffect(() => {
+    let raf = 0;
+    let frames = 0;
+    let start = performance.now();
+    const tick = (now: number) => {
+      frames++;
+      if (now - start >= 500) {
+        setFps(Math.round((frames * 1000) / (now - start)));
+        start = now;
+        frames = 0;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="gap-2 items-center">
+        {[100, 500, 1000, 5000].map((n) => (
+          <Button
+            key={n}
+            size="sm"
+            variant={count === n ? "primary" : "ghost"}
+            onClick={() => setCount(n)}
+          >
+            {n.toLocaleString()}
+          </Button>
+        ))}
+        <span className="w-px h-5 bg-white/10 mx-1" />
+        <Button
+          size="sm"
+          variant={enabled ? "primary" : "ghost"}
+          onClick={() => setEnabled((v) => !v)}
+        >
+          Virtualize: {enabled ? "on" : "off"}
+        </Button>
+        <span className="flex-1" />
+        <span
+          className={`text-xs tabular-nums font-mono ${fps < 50 ? "text-rose-300" : fps < 58 ? "text-amber-300" : "text-emerald-300"}`}
+        >
+          {fps} fps
+        </span>
+        <span className="text-xs text-white/40 tabular-nums font-mono">
+          {count} items
+        </span>
+      </Row>
+      <Canvas
+        grid="dots"
+        gridSize={30}
+        className="h-[460px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+        minZoom={0.05}
+        defaultTransform={{ x: 40, y: 40, zoom: 0.5 }}
+      >
+        <CanvasVirtualized
+          items={items}
+          disabled={!enabled}
+          renderItem={(it) => (
+            <CanvasItem key={it.id} id={it.id} x={it.x} y={it.y}>
+              <div
+                style={{
+                  width: it.width,
+                  height: it.height,
+                  background: `hsl(${it.hue} 90% 60% / 0.25)`,
+                  border: `1px solid hsl(${it.hue} 90% 70% / 0.7)`,
+                }}
+                className="rounded-lg"
+              />
+            </CanvasItem>
+          )}
+        />
+      </Canvas>
+    </div>
+  );
+}
+
+// === Presence demo (Pack D) ======================================
+
+const PRESENCE_USERS_META: { id: string; name: string; color: string }[] = [
+  { id: "ada", name: "Ada", color: "#f472b6" },
+  { id: "ken", name: "Ken", color: "#38bdf8" },
+  { id: "rie", name: "Rie", color: "#34d399" },
+];
+
+function PresenceDemo() {
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const loop = (now: number) => {
+      setTick((now - start) / 1000);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const remoteUsers: PresenceUser[] = useMemo(() => {
+    // Pre-canned "recorded" mouse paths: each cursor traces a Lissajous
+    // curve at a slightly different frequency so they overlap and
+    // diverge naturally.
+    const t = tick;
+    return PRESENCE_USERS_META.map((u, i) => {
+      const a = 280 + Math.sin(t * 0.4 + i) * 80;
+      const b = 180 + Math.cos(t * 0.27 + i) * 80;
+      const fx = 0.6 + i * 0.3;
+      const fy = 0.9 + i * 0.2;
+      return {
+        id: u.id,
+        name: u.name,
+        color: u.color,
+        cursor: {
+          x: 340 + Math.sin(t * fx + i * 1.7) * a,
+          y: 220 + Math.cos(t * fy + i * 2.3) * b,
+        },
+      };
+    });
+  }, [tick]);
+
+  const presence = useCanvasPresence({ users: remoteUsers });
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="gap-2 items-center">
+        {presence.users.map((u) => (
+          <div
+            key={u.id}
+            className="flex items-center gap-1.5 text-xs text-white/75"
+          >
+            <span
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ background: u.color }}
+            />
+            {u.name}
+            <span className="text-white/30 tabular-nums font-mono text-[10px]">
+              {u.cursor?.x.toFixed(0)}, {u.cursor?.y.toFixed(0)}
+            </span>
+          </div>
+        ))}
+        <span className="flex-1" />
+        <span className="text-xs text-white/40 tabular-nums font-mono">
+          BYO backend — hand `users` to `useCanvasPresence`
+        </span>
+      </Row>
+      <Canvas
+        grid="dots"
+        gridSize={24}
+        className="h-[420px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+      >
+        {/* Some static items to give the cursors scenery */}
+        <CanvasItem x={120} y={140}>
+          <div className="w-40 h-24 rounded-xl bg-fuchsia-500/10 border border-fuchsia-400/40 flex items-center justify-center text-sm text-white/85">
+            Shared doc
+          </div>
+        </CanvasItem>
+        <CanvasItem x={420} y={100}>
+          <div className="w-48 h-20 rounded-xl bg-sky-500/10 border border-sky-400/40 flex items-center justify-center text-sm text-white/85">
+            Kanban
+          </div>
+        </CanvasItem>
+        <CanvasItem x={320} y={280}>
+          <div className="w-40 h-28 rounded-xl bg-emerald-500/10 border border-emerald-400/40 flex items-center justify-center text-sm text-white/85">
+            Whiteboard
+          </div>
+        </CanvasItem>
+        {presence.users.map((u) => (
+          <CanvasPresenceCursor key={u.id} user={u} />
+        ))}
+      </Canvas>
+    </div>
+  );
+}
 
 // === Persist + export demo (Pack C) =============================
 
