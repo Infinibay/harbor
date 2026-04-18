@@ -14,9 +14,11 @@ export interface ExpandingSearchProps {
 }
 
 /**
- * Magnifier that *morphs* into a full-width search field. When placed inside
- * a MorphBar, declare it as `grow={open ? 1 : 0}` and siblings can hide via
- * `hidden={open}` or `collapsed={open}` to give this one the space.
+ * Circle magnifier + sliding input. The circle keeps its shape and size
+ * (it's a distinct pill-button with its own bg/border); when open, an
+ * input field slides in beside it with its own pill. Drop inside a
+ * MorphBar with `grow={open ? 1 : 0}` on the MorphItem and siblings
+ * with `hidden={open}` to make room.
  */
 export function ExpandingSearch({
   placeholder = "Search",
@@ -58,63 +60,69 @@ export function ExpandingSearch({
     <motion.div
       layout
       className={cn(
-        "relative flex items-center rounded-full transition-colors",
-        isOpen
-          ? "bg-white/5 border border-white/10 px-3 h-10 w-full"
-          : "bg-white/5 border border-white/10 w-10 h-10 justify-center",
+        "flex items-center",
+        isOpen ? "w-full gap-2" : "w-10",
         className,
       )}
-      onClick={() => {
-        if (!isOpen) setOpen(true);
-      }}
     >
-      <motion.svg
+      <motion.button
         layout
-        animate={{ rotate: isOpen ? -8 : 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        width={iconSize}
-        height={iconSize}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={cn("text-white/70 shrink-0", isOpen ? "mr-2" : "")}
+        type="button"
+        onClick={() => setOpen(!isOpen)}
+        className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-white/70 hover:bg-white/10 transition-colors"
       >
-        <circle cx="11" cy="11" r="7" />
-        <path d="m20 20-3.5-3.5" />
-      </motion.svg>
+        <motion.svg
+          animate={{ rotate: isOpen ? -8 : 0 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </motion.svg>
+      </motion.button>
       <AnimatePresence initial={false}>
         {isOpen ? (
-          <motion.input
-            key="input"
-            ref={inputRef}
-            initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: "auto" }}
-            exit={{ opacity: 0, width: 0 }}
-            transition={{ duration: 0.2 }}
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onKeyDown={onKey}
-            onBlur={onBlur}
-            placeholder={placeholder}
-            className="flex-1 min-w-0 bg-transparent outline-none text-sm text-white placeholder:text-white/30"
-          />
+          <motion.div
+            key="field"
+            layout
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -8 }}
+            transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
+            className="flex-1 min-w-0 h-10 rounded-full bg-white/5 border border-white/10 flex items-center px-3"
+          >
+            <input
+              ref={inputRef}
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={onKey}
+              onBlur={onBlur}
+              placeholder={placeholder}
+              className="flex-1 min-w-0 bg-transparent outline-none text-sm text-white placeholder:text-white/30"
+            />
+            {q ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setQ("");
+                  inputRef.current?.focus();
+                }}
+                className="text-white/40 hover:text-white text-sm ml-2 shrink-0"
+              >
+                ×
+              </button>
+            ) : null}
+          </motion.div>
         ) : null}
       </AnimatePresence>
-      {isOpen && q ? (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setQ("");
-            inputRef.current?.focus();
-          }}
-          className="text-white/40 hover:text-white text-sm ml-1 shrink-0"
-        >
-          ×
-        </button>
-      ) : null}
     </motion.div>
   );
 }
