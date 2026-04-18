@@ -45,7 +45,6 @@ export function Demo({
 }>) {
   const ref = useRef<HTMLDivElement | null>(null);
   function onMove(e: MouseEvent<HTMLDivElement>) {
-    if (calm) return;
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -58,7 +57,9 @@ export function Demo({
       onMouseMove={onMove}
       className={cn(
         "glass rounded-2xl p-5 flex flex-col gap-4 min-h-[160px]",
-        calm ? "border border-white/8" : "spotlight glow-border",
+        calm
+          ? "spotlight-quiet border border-white/8"
+          : "spotlight glow-border",
         wide && "md:col-span-2",
       )}
     >
