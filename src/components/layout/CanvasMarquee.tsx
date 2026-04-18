@@ -17,6 +17,14 @@ export interface CanvasMarqueeProps {
   onDrag?: (rect: CanvasMarqueeRect) => void;
   /** Called on release with the final rect. Always normalized (positive w/h). */
   onSelect?: (rect: CanvasMarqueeRect) => void;
+  /** When provided, Marquee hit-tests these items against the drag rect
+   *  and emits the intersecting IDs — both live (`onSelectionDrag`) and
+   *  on release (`onSelection`). */
+  items?: ReadonlyArray<{ id: string; x: number; y: number; width?: number; height?: number }>;
+  /** Live stream of selected IDs as the drag grows/shrinks (requires `items`). */
+  onSelectionDrag?: (ids: string[]) => void;
+  /** Final selected IDs on release (requires `items`). */
+  onSelection?: (ids: string[]) => void;
   /** Modifier that must be held to activate the marquee.
    *  - `none` (default): any left-drag on empty canvas
    *  - `shift` | `alt` | `ctrl`: require the key
@@ -37,6 +45,9 @@ export interface CanvasMarqueeProps {
 export function CanvasMarquee({
   onDrag,
   onSelect,
+  items,
+  onSelection,
+  onSelectionDrag,
   modifier = "none",
   enabled = true,
   className,
@@ -85,6 +96,23 @@ export function CanvasMarquee({
         };
       }
 
+      function hitIds(rect: CanvasMarqueeRect): string[] {
+        if (!items) return [];
+        const out: string[] = [];
+        for (const it of items) {
+          if (
+            rectContains(rect, {
+              x: it.x,
+              y: it.y,
+              width: it.width ?? 0,
+              height: it.height ?? 0,
+            })
+          ) {
+            out.push(it.id);
+          }
+        }
+        return out;
+      }
       function onMove(ev: MouseEvent) {
         const w = ev.clientX - vRect.left - startScreenX;
         const h = ev.clientY - vRect.top - startScreenY;
@@ -94,12 +122,16 @@ export function CanvasMarquee({
           width: w,
           height: h,
         });
-        onDrag?.(toWorldRect(startScreenX, startScreenY, w, h));
+        const world = toWorldRect(startScreenX, startScreenY, w, h);
+        onDrag?.(world);
+        if (onSelectionDrag && items) onSelectionDrag(hitIds(world));
       }
       function onUp(ev: MouseEvent) {
         const w = ev.clientX - vRect.left - startScreenX;
         const h = ev.clientY - vRect.top - startScreenY;
-        onSelect?.(toWorldRect(startScreenX, startScreenY, w, h));
+        const world = toWorldRect(startScreenX, startScreenY, w, h);
+        onSelect?.(world);
+        if (onSelection && items) onSelection(hitIds(world));
         setRect(null);
         window.removeEventListener("mousemove", onMove);
         window.removeEventListener("mouseup", onUp);
@@ -114,7 +146,7 @@ export function CanvasMarquee({
     return () => {
       vp.removeEventListener("mousedown", onDown);
     };
-  }, [ctx, enabled, modifier, onDrag, onSelect]);
+  }, [ctx, enabled, modifier, onDrag, onSelect, items, onSelection, onSelectionDrag]);
 
   if (!rect) return null;
   const nx = rect.width < 0 ? rect.screenX + rect.width : rect.screenX;

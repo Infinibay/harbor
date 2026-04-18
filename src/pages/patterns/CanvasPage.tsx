@@ -14,6 +14,8 @@ import {
   CanvasPanel,
   CanvasPulse,
   CanvasRuler,
+  CanvasSelectionBox,
+  CanvasShortcuts,
   CanvasStatusBar,
   CanvasToolbar,
   CanvasZoomControls,
@@ -21,6 +23,8 @@ import {
   type CanvasHandle,
   type CanvasToolbarItem,
 } from "../../components";
+import { useCanvasHistory } from "../../lib/useCanvasHistory";
+import { useCanvasSelection } from "../../lib/useCanvasSelection";
 import {
   MenuItem,
   MenuLabel,
@@ -146,6 +150,15 @@ export function CanvasPage() {
         intensity="soft"
       >
         <StaggerDemo />
+      </Demo>
+
+      <Demo
+        title="Pro editor · selection + undo + shortcuts"
+        hint="Shift/Cmd click · drag-select · Cmd+D dup · Del · arrows nudge · Cmd+Z undo"
+        wide
+        intensity="soft"
+      >
+        <ProEditorDemo />
       </Demo>
     </Group>
   );
@@ -1052,6 +1065,238 @@ function TimelineNode({
 }
 
 // === Stagger cascade =======================================
+
+// === Pro editor demo (Pack A) =================================
+
+interface ProItem {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+  text: string;
+}
+
+function makeId() {
+  return `p${Math.random().toString(36).slice(2, 8)}`;
+}
+
+const PRO_INITIAL: ProItem[] = [
+  { id: "p1", x: 80, y: 80, width: 180, height: 80, color: "#a855f7", text: "API gateway" },
+  { id: "p2", x: 320, y: 80, width: 180, height: 80, color: "#38bdf8", text: "Auth" },
+  { id: "p3", x: 560, y: 80, width: 180, height: 80, color: "#f472b6", text: "Worker" },
+  { id: "p4", x: 80, y: 220, width: 180, height: 80, color: "#34d399", text: "DB" },
+  { id: "p5", x: 320, y: 220, width: 180, height: 80, color: "#fbbf24", text: "Cache" },
+  { id: "p6", x: 560, y: 220, width: 180, height: 80, color: "#fb7185", text: "Queue" },
+];
+
+function ProEditorDemo() {
+  const history = useCanvasHistory<{ items: ProItem[] }>({ items: PRO_INITIAL });
+  const items = history.state.items;
+  const selection = useCanvasSelection();
+
+  // Mutators that go through history. `commit({ transient })` during
+  // drag avoids filling the stack; the final commit seals the action.
+  const setItems = (next: ProItem[], label?: string, transient?: boolean) =>
+    history.commit({ items: next }, { label, transient });
+
+  const moveSelected = (dx: number, dy: number, phase: "drag" | "end") => {
+    const next = items.map((it) =>
+      selection.has(it.id) ? { ...it, x: it.x + dx, y: it.y + dy } : it,
+    );
+    setItems(next, "move", phase === "drag");
+  };
+
+  const resizeSelected = (
+    dx: number,
+    dy: number,
+    corner: string,
+    phase: "drag" | "end",
+  ) => {
+    // Single-item resize: translate corner + resize width/height.
+    if (selection.size !== 1) return;
+    const id = [...selection.ids][0];
+    const next = items.map((it) => {
+      if (it.id !== id) return it;
+      let { x, y, width, height } = it;
+      if (corner.includes("n")) {
+        y += dy;
+        height -= dy;
+      }
+      if (corner.includes("s")) height += dy;
+      if (corner.includes("w")) {
+        x += dx;
+        width -= dx;
+      }
+      if (corner.includes("e")) width += dx;
+      return { ...it, x, y, width: Math.max(24, width), height: Math.max(24, height) };
+    });
+    setItems(next, "resize", phase === "drag");
+  };
+
+  const deleteSelected = () => {
+    if (selection.isEmpty) return;
+    setItems(
+      items.filter((it) => !selection.has(it.id)),
+      `delete ${selection.size}`,
+    );
+    selection.clear();
+  };
+
+  const duplicateSelected = () => {
+    if (selection.isEmpty) return;
+    const clones: ProItem[] = [];
+    const nextIds: string[] = [];
+    for (const it of items) {
+      if (!selection.has(it.id)) continue;
+      const id = makeId();
+      nextIds.push(id);
+      clones.push({ ...it, id, x: it.x + 24, y: it.y + 24 });
+    }
+    setItems([...items, ...clones], `duplicate ${clones.length}`);
+    selection.set(nextIds);
+  };
+
+  const nudge = ({ dx, dy }: { dx: number; dy: number; big: boolean }) => {
+    if (selection.isEmpty) return;
+    const next = items.map((it) =>
+      selection.has(it.id) ? { ...it, x: it.x + dx, y: it.y + dy } : it,
+    );
+    setItems(next, "nudge");
+  };
+
+  const handleItemPointerDown = (id: string) => (e: React.MouseEvent) => {
+    selection.onPointerDown(id, e);
+  };
+
+  // Drag across items — when moving a selected item, move all selected.
+  const handleItemDragStart = (id: string) => {
+    if (!selection.has(id)) {
+      selection.set([id]);
+    }
+  };
+  const onItemDrag = (id: string, pos: { x: number; y: number }) => {
+    const it = items.find((i) => i.id === id);
+    if (!it) return;
+    const dx = pos.x - it.x;
+    const dy = pos.y - it.y;
+    if (dx === 0 && dy === 0) return;
+    const selected = selection.has(id) ? selection.ids : new Set([id]);
+    const next = items.map((p) =>
+      selected.has(p.id) ? { ...p, x: p.x + dx, y: p.y + dy } : p,
+    );
+    history.commit({ items: next }, { transient: true, label: "move" });
+  };
+  const onItemDragEnd = (id: string) => {
+    // Seal the last transient commit as a non-transient entry.
+    history.commit(history.state, { label: "move" });
+    // suppress unused warning
+    void id;
+  };
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="gap-2 items-center">
+        <span className="text-[10px] uppercase tracking-widest text-white/40">
+          history
+        </span>
+        <Button size="sm" variant="ghost" disabled={!history.canUndo} onClick={() => history.undo()}>
+          Undo
+        </Button>
+        <Button size="sm" variant="ghost" disabled={!history.canRedo} onClick={() => history.redo()}>
+          Redo
+        </Button>
+        <span className="text-xs text-white/40 tabular-nums font-mono">
+          {history.cursor + 1} / {history.stack.length}
+        </span>
+        <span className="flex-1" />
+        <span className="text-xs text-white/40 tabular-nums font-mono">
+          {selection.size} selected
+        </span>
+      </Row>
+      <CanvasShortcuts
+        onDelete={deleteSelected}
+        onDuplicate={duplicateSelected}
+        onSelectAll={() => selection.set(items.map((i) => i.id))}
+        onEscape={() => selection.clear()}
+        onNudge={nudge}
+        onUndo={() => history.undo()}
+        onRedo={() => history.redo()}
+      />
+      <Canvas
+        grid="dots"
+        gridSize={24}
+        className="h-[520px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+        overlay={
+          <>
+            <CanvasZoomControls position="top-right" />
+            <CanvasStatusBar
+              floating
+              left={
+                <span className="uppercase tracking-wider text-[10px] text-fuchsia-300/80">
+                  {selection.size === 0
+                    ? "empty"
+                    : selection.size === 1
+                      ? `1 item`
+                      : `${selection.size} items`}
+                </span>
+              }
+              right={
+                <span className="text-white/40">
+                  shift/cmd+click · marquee · del · ⌘D · arrows · ⌘Z
+                </span>
+              }
+            />
+            <CanvasSelectionBox
+              ids={selection.ids}
+              items={items}
+              onResize={({ dx, dy, corner, phase }) =>
+                resizeSelected(dx, dy, corner, phase)
+              }
+            />
+          </>
+        }
+      >
+        <CanvasMarquee
+          items={items}
+          onSelection={(ids) => selection.set(ids)}
+          onSelectionDrag={(ids) => selection.set(ids)}
+        />
+        {items.map((it) => {
+          const sel = selection.has(it.id);
+          return (
+            <CanvasItem
+              key={it.id}
+              x={it.x}
+              y={it.y}
+              draggable
+              onDragStart={() => handleItemDragStart(it.id)}
+              onDrag={(pos) => onItemDrag(it.id, pos)}
+              onDragEnd={() => onItemDragEnd(it.id)}
+            >
+              <div
+                onMouseDown={handleItemPointerDown(it.id)}
+                style={{
+                  width: it.width,
+                  height: it.height,
+                  background: `${it.color}22`,
+                  borderColor: `${it.color}99`,
+                  boxShadow: sel
+                    ? `0 0 0 2px rgb(56 189 248), 0 12px 40px -12px ${it.color}66`
+                    : `0 12px 40px -12px ${it.color}66`,
+                }}
+                className="rounded-xl border-2 flex items-center justify-center text-sm font-semibold text-white/90 select-none"
+              >
+                {it.text}
+              </div>
+            </CanvasItem>
+          );
+        })}
+      </Canvas>
+    </div>
+  );
+}
 
 function StaggerDemo() {
   const [mode, setMode] = useState<"first" | "last" | "center" | "random">("center");

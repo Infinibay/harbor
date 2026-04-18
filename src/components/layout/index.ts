@@ -7,6 +7,8 @@ export * from "./CanvasMarquee";
 export * from "./CanvasMinimap";
 export * from "./CanvasMotion";
 export * from "./CanvasPanel";
+export * from "./CanvasSelectionBox";
+export * from "./CanvasShortcuts";
 export * from "./CanvasRuler";
 export * from "./CanvasStatusBar";
 export * from "./CanvasToolbar";
