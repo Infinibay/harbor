@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useCanvas } from "./Canvas";
@@ -151,13 +152,17 @@ export function CanvasMarquee({
     };
   }, [ctx, enabled, modifier, onDrag, onSelect, items, onSelection, onSelectionDrag]);
 
-  if (!rect) return null;
+  if (!rect || !ctx?.viewportRef.current) return null;
   const nx = rect.width < 0 ? rect.screenX + rect.width : rect.screenX;
   const ny = rect.height < 0 ? rect.screenY + rect.height : rect.screenY;
   const nw = Math.abs(rect.width);
   const nh = Math.abs(rect.height);
 
-  return (
+  // Portal the visual rect directly into the viewport so it's in
+  // screen space regardless of whether the Marquee component itself
+  // was placed as a child of Canvas (inside the transformed world) or
+  // in the overlay.
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -174,7 +179,8 @@ export function CanvasMarquee({
         "border border-fuchsia-400/70 bg-fuchsia-400/10 rounded-[2px] shadow-[0_0_20px_-4px_rgba(168,85,247,0.7)]",
         className,
       )}
-    />
+    />,
+    ctx.viewportRef.current,
   );
 }
 

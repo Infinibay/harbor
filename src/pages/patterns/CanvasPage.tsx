@@ -1625,7 +1625,7 @@ function ProEditorDemo() {
       <Canvas
         grid="dots"
         gridSize={24}
-        snap={{ edges: true, grid: 8, threshold: 6 }}
+        snap={{ edges: true, threshold: 6 }}
         className="h-[520px] rounded-2xl border border-white/10 bg-[#0d0d14]"
         overlay={
           <>

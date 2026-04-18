@@ -58,13 +58,12 @@ interface Candidate {
   to?: number;
 }
 
-function snapOneAxis(
-  /** Positions we could align to a candidate (moving.left/center/right). */
+function findBest(
   targets: { pos: number; kind: "start" | "center" | "end" }[],
   candidates: Candidate[],
   threshold: number,
   axis: "x" | "y",
-): { delta: number; guide: SnapGuide | null } {
+): { delta: number; guide: SnapGuide | null; dist: number } {
   let best: { delta: number; guide: SnapGuide | null; dist: number } = {
     delta: 0,
     guide: null,
@@ -75,18 +74,14 @@ function snapOneAxis(
       const dist = Math.abs(c.pos - t.pos);
       if (dist > threshold) continue;
       if (dist >= best.dist) continue;
-      // Edge guides should match semantically — "edge-left" only if we
-      // snapped the start, etc. Center always "center-*".
-      let kind: SnapGuideKind = c.kind;
-      if (c.kind.startsWith("edge")) {
-        if (t.kind === "center") continue; // don't edge-snap the center
-      } else if (c.kind.startsWith("center")) {
-        if (t.kind !== "center") continue; // center candidate only for center target
-      }
+      // "edge-*" candidates only match start/end targets; "center-*"
+      // candidates only match center targets. Grid matches anything.
+      if (c.kind.startsWith("edge") && t.kind === "center") continue;
+      if (c.kind.startsWith("center") && t.kind !== "center") continue;
       best = {
         delta: c.pos - t.pos,
         guide: {
-          kind,
+          kind: c.kind,
           axis,
           position: c.pos,
           refId: c.refId,
@@ -97,7 +92,25 @@ function snapOneAxis(
       };
     }
   }
-  return { delta: best.delta, guide: best.guide };
+  return best;
+}
+
+function snapOneAxis(
+  /** Positions we could align to a candidate (moving.left/center/right). */
+  targets: { pos: number; kind: "start" | "center" | "end" }[],
+  candidates: Candidate[],
+  threshold: number,
+  axis: "x" | "y",
+): { delta: number; guide: SnapGuide | null } {
+  // Edges + centers win priority over the grid — otherwise an 8px grid
+  // next to items makes it feel arbitrary which one grabs. Only fall
+  // back to the grid when no neighbor-edge is in range.
+  const primary = candidates.filter((c) => c.kind !== "grid");
+  const edgeBest = findBest(targets, primary, threshold, axis);
+  if (edgeBest.guide) return { delta: edgeBest.delta, guide: edgeBest.guide };
+  const grid = candidates.filter((c) => c.kind === "grid");
+  const gridBest = findBest(targets, grid, threshold, axis);
+  return { delta: gridBest.delta, guide: gridBest.guide };
 }
 
 /** Compute a snap adjustment for `moving` against a list of `others`,
