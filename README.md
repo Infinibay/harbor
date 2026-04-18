@@ -142,6 +142,25 @@ import {
   <ResponsiveStack direction={{ base: "col", md: "row" }} gap={{ base: 2, md: 4 }}>
   ```
 
+**Animated layouts** (reflow on resize, not just snap):
+
+- `FluidGrid` — CSS `auto-fit + minmax()` columns. Children use Framer
+  Motion `layout` so they animate between positions when the column
+  count changes.
+- `ReflowList` — flex-wrap list where items slide between rows as the
+  container narrows / widens. The last item animates down to the next
+  row instead of snapping.
+- `Bento` + `BentoItem` — complex grid with per-breakpoint spans
+  (`span={{ base: {col:2, row:1}, md: {col:3, row:2} }}`). Tiles
+  animate to their new positions on container resize.
+- `ContainerBox` — declares a CSS container-query context (`container-type:
+  inline-size`). Components inside can use `@container (min-width: ...)`
+  rules that respond to the container, not the viewport.
+
+Use the hooks in `lib/useContainerSize.ts`
+(`useContainerSize`, `useContainerAbove`) when you need JS-side
+container-aware logic.
+
 ### Layer system
 
 All overlays import z-indexes from `src/lib/z.ts`. Ranges:

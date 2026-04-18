@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Group, Demo, Col, Row } from "../../showcase/ShowcaseCard";
 import {
   Show,
@@ -5,9 +6,15 @@ import {
   ResponsiveSwap,
   Container,
   ResponsiveStack,
+  FluidGrid,
+  ReflowList,
+  Bento,
+  BentoItem,
+  ContainerBox,
   Button,
   Card,
   Badge,
+  Slider,
 } from "../../components";
 import {
   useBreakpoint,
@@ -29,6 +36,9 @@ export function ResponsivePage() {
   const touch = useIsTouch();
   const hasHover = useHasHover();
   const reducedMotion = usePrefersReducedMotion();
+  const [reflowWidth, setReflowWidth] = useState(100);
+  const [fluidWidth, setFluidWidth] = useState(100);
+  const [bentoWidth, setBentoWidth] = useState(100);
 
   return (
     <Group
@@ -245,6 +255,169 @@ export function ResponsivePage() {
             subtree. Todos los botones, texto y borders que usen esa var se
             actualizan instantáneamente.
           </p>
+        </Col>
+      </Demo>
+
+      <Demo
+        title="ReflowList — animated wrap"
+        hint="Arrastrá el slider. El último item animates hacia abajo al no entrar."
+        wide
+        intensity="soft"
+      >
+        <Col>
+          <Row className="items-center gap-3">
+            <span className="text-xs text-white/55 w-16 font-mono">{reflowWidth}%</span>
+            <div className="flex-1">
+              <Slider value={reflowWidth} onChange={setReflowWidth} min={30} max={100} />
+            </div>
+          </Row>
+          <div style={{ width: `${reflowWidth}%` }} className="transition-none">
+            <ReflowList gap={8}>
+              {[
+                "Dashboard",
+                "Services",
+                "Deploys",
+                "Networks",
+                "Secrets",
+                "Billing",
+                "Audit log",
+                "Members",
+              ].map((label) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white/85"
+                >
+                  {label}
+                </span>
+              ))}
+            </ReflowList>
+          </div>
+        </Col>
+      </Demo>
+
+      <Demo
+        title="FluidGrid — auto-fit cards"
+        hint="Arrastrá; las columnas se ajustan con animación."
+        wide
+        intensity="soft"
+      >
+        <Col>
+          <Row className="items-center gap-3">
+            <span className="text-xs text-white/55 w-16 font-mono">{fluidWidth}%</span>
+            <div className="flex-1">
+              <Slider value={fluidWidth} onChange={setFluidWidth} min={30} max={100} />
+            </div>
+          </Row>
+          <div style={{ width: `${fluidWidth}%` }}>
+            <FluidGrid minItemWidth={180} gap={12}>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Card key={i} className="p-4">
+                  <div className="text-white font-medium">Card {i + 1}</div>
+                  <div className="text-xs text-white/50 mt-1">
+                    auto-fit column
+                  </div>
+                </Card>
+              ))}
+            </FluidGrid>
+          </div>
+        </Col>
+      </Demo>
+
+      <Demo
+        title="Bento — breakpoint-aware spans"
+        hint="Los tiles se reacomodan al cambiar el ancho del contenedor."
+        wide
+        intensity="soft"
+      >
+        <Col>
+          <Row className="items-center gap-3">
+            <span className="text-xs text-white/55 w-16 font-mono">{bentoWidth}%</span>
+            <div className="flex-1">
+              <Slider value={bentoWidth} onChange={setBentoWidth} min={30} max={100} />
+            </div>
+          </Row>
+          <div style={{ width: `${bentoWidth}%` }}>
+            <Bento columns={{ base: 2, md: 4, lg: 6 }} gap={10}>
+              <BentoItem
+                span={{ base: { col: 2, row: 1 }, md: { col: 2, row: 2 }, lg: { col: 3, row: 2 } }}
+              >
+                <div
+                  className="h-full rounded-xl p-4 text-white font-semibold"
+                  style={{ background: "linear-gradient(135deg,#a855f7,#38bdf8)" }}
+                >
+                  Hero tile
+                </div>
+              </BentoItem>
+              <BentoItem span={{ base: { col: 2 }, md: { col: 2 }, lg: { col: 3 } }}>
+                <div className="h-full rounded-xl p-4 bg-emerald-500/15 border border-emerald-400/30 text-emerald-200">
+                  Stats
+                </div>
+              </BentoItem>
+              <BentoItem span={{ base: { col: 1 }, md: { col: 1 } }}>
+                <div className="h-full rounded-xl p-3 bg-white/5 border border-white/10 text-xs text-white/70">
+                  CPU
+                </div>
+              </BentoItem>
+              <BentoItem span={{ base: { col: 1 }, md: { col: 1 } }}>
+                <div className="h-full rounded-xl p-3 bg-white/5 border border-white/10 text-xs text-white/70">
+                  Mem
+                </div>
+              </BentoItem>
+              <BentoItem span={{ base: { col: 2 }, md: { col: 2 } }}>
+                <div className="h-full rounded-xl p-4 bg-fuchsia-500/15 border border-fuchsia-400/30 text-fuchsia-200">
+                  Activity
+                </div>
+              </BentoItem>
+              <BentoItem span={{ base: { col: 2 }, md: { col: 4 }, lg: { col: 6 } }}>
+                <div className="h-full rounded-xl p-4 bg-sky-500/15 border border-sky-400/30 text-sky-200">
+                  Full-width timeline
+                </div>
+              </BentoItem>
+            </Bento>
+          </div>
+        </Col>
+      </Demo>
+
+      <Demo
+        title="ContainerBox — CSS container queries"
+        hint="El componente responde al tamaño del CONTENEDOR, no del viewport."
+        wide
+        intensity="soft"
+      >
+        <Col>
+          <p className="text-xs text-white/50">
+            Mismo componente renderizado en dos anchos distintos. A ≥400px
+            de <em>su contenedor</em> pasa a 2 columnas.
+          </p>
+          <style>{`
+            .cq-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+            @container (min-width: 400px) {
+              .cq-grid { grid-template-columns: repeat(2, 1fr); }
+            }
+          `}</style>
+          <div className="flex flex-wrap gap-4 w-full">
+            {[220, 520].map((w) => (
+              <ContainerBox
+                key={w}
+                className="rounded-xl border border-white/10 bg-white/[0.02] p-3"
+                style={{ width: w, flex: "none" }}
+              >
+                <div className="text-[10px] uppercase tracking-wider text-white/40 mb-2">
+                  width: {w}px
+                </div>
+                <div className="cq-grid">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="rounded bg-white/5 border border-white/10 p-2 text-sm text-white/80"
+                    >
+                      Card {i}
+                    </div>
+                  ))}
+                </div>
+              </ContainerBox>
+            ))}
+          </div>
         </Col>
       </Demo>
 
