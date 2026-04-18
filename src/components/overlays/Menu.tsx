@@ -14,8 +14,10 @@ import { cn } from "../../lib/cn";
 import { Z } from "../../lib/z";
 import { Portal } from "../../lib/Portal";
 
-/** Open/close state for the root menu. */
-const MenuCtx = createContext<{
+/** Open/close state for the root menu. Exported so other right-click
+ *  containers (e.g. `Canvas`) can share the same contract — any
+ *  `MenuItem` beneath this context calls `close()` after its click. */
+export const MenuCtx = createContext<{
   close: () => void;
 } | null>(null);
 

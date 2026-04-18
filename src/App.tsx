@@ -12,6 +12,7 @@ import { ContainersPage } from "./pages/foundations/ContainersPage";
 import { SectionsPage } from "./pages/foundations/SectionsPage";
 import { ResponsivePage } from "./pages/foundations/ResponsivePage";
 import { CoordinationPage } from "./pages/patterns/CoordinationPage";
+import { CanvasPage } from "./pages/patterns/CanvasPage";
 import { IDEPage } from "./pages/apps/IDEPage";
 import { DesktopPage } from "./pages/apps/DesktopPage";
 import { DesignPage } from "./pages/apps/DesignPage";
@@ -45,6 +46,7 @@ export default function App() {
           </Route>
           <Route path="patterns">
             <Route path="coordination" element={<CoordinationPage />} />
+            <Route path="canvas" element={<CanvasPage />} />
           </Route>
           <Route path="apps">
             <Route path="ide" element={<IDEPage />} />

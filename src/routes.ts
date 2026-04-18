@@ -32,6 +32,7 @@ export const routeGroups: RouteGroup[] = [
     label: "Patterns",
     routes: [
       { path: "/patterns/coordination", label: "Coordination" },
+      { path: "/patterns/canvas", label: "Canvas · editor" },
     ],
   },
   {

@@ -12,6 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  AnimatePresence,
   animate,
   motion,
   useMotionTemplate,
@@ -20,6 +21,9 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { Portal } from "../../lib/Portal";
+import { Z } from "../../lib/z";
+import { MenuCtx } from "../overlays/Menu";
 
 export type CanvasTransform = { x: number; y: number; zoom: number };
 
@@ -53,7 +57,13 @@ interface CanvasCtx {
   x: MotionValue<number>;
   y: MotionValue<number>;
   zoom: MotionValue<number>;
+  minZoom: number;
+  maxZoom: number;
   viewportRef: React.RefObject<HTMLDivElement | null>;
+  /** Same imperative API that's exposed via the Canvas ref — available
+   *  to every descendant so toolbars, zoom controls, minimaps etc. can
+   *  drive the view without prop drilling. */
+  api: CanvasHandle;
 }
 
 const CanvasContext = createContext<CanvasCtx | null>(null);
@@ -96,6 +106,16 @@ export interface CanvasProps {
   style?: CSSProperties;
   /** Custom overlay drawn in viewport (screen) space, on top of world. */
   overlay?: ReactNode;
+  /** Right-click menu for the empty canvas (not on an item). Compose with
+   *  `MenuItem`, `MenuSeparator`, `MenuLabel` from overlays. Each MenuItem
+   *  can take a `submenu` of more MenuItems for nested menus.
+   *  When the menu is a function, it receives the click's world-space
+   *  coordinates (so you can, e.g., "Add node here"). */
+  menu?: ReactNode | ((ctx: { worldX: number; worldY: number }) => ReactNode);
+  /** Override the default cursor — useful for tool modes (e.g. `"crosshair"`
+   *  while a draw tool is active). The built-in `grab/grabbing` state
+   *  during pan still wins. */
+  cursor?: CSSProperties["cursor"];
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -156,10 +176,13 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
     className,
     style,
     overlay,
+    menu,
+    cursor: cursorOverride,
   },
   ref,
 ) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const menuState = useContextMenuState();
   const x = useMotionValue(defaultTransform?.x ?? transform?.x ?? 0);
   const y = useMotionValue(defaultTransform?.y ?? transform?.y ?? 0);
   const zoom = useMotionValue(defaultTransform?.zoom ?? transform?.zoom ?? 1);
@@ -280,9 +303,28 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
     return () => el.removeEventListener("wheel", onWheel);
   }, [wheelZoom, wheelSensitivity, x, y, zoom, minZoom, maxZoom]);
 
-  // Imperative handle.
-  useImperativeHandle(
-    ref,
+  const applyTransform = useCallback(
+    (next: CanvasTransform, opts?: AnimOpts) => {
+      if (opts?.animate === false) {
+        x.set(next.x);
+        y.set(next.y);
+        zoom.set(next.zoom);
+        return;
+      }
+      const spring = {
+        type: "spring" as const,
+        stiffness: opts?.stiffness ?? 260,
+        damping: opts?.damping ?? 28,
+      };
+      animate(x, next.x, spring);
+      animate(y, next.y, spring);
+      animate(zoom, next.zoom, spring);
+    },
+    [x, y, zoom],
+  );
+
+  // Imperative handle (also shared with descendants via context).
+  const api = useMemo<CanvasHandle>(
     () => ({
       getTransform: () => ({ x: x.get(), y: y.get(), zoom: zoom.get() }),
       setTransform(t, opts) {
@@ -370,32 +412,15 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
         applyTransform({ x: 0, y: 0, zoom: 1 }, opts);
       },
     }),
+    // applyTransform depends on x/y/zoom motion values, which are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [x, y, zoom, minZoom, maxZoom],
   );
-
-  const applyTransform = useCallback(
-    (next: CanvasTransform, opts?: AnimOpts) => {
-      if (opts?.animate === false) {
-        x.set(next.x);
-        y.set(next.y);
-        zoom.set(next.zoom);
-        return;
-      }
-      const spring = {
-        type: "spring" as const,
-        stiffness: opts?.stiffness ?? 260,
-        damping: opts?.damping ?? 28,
-      };
-      animate(x, next.x, spring);
-      animate(y, next.y, spring);
-      animate(zoom, next.zoom, spring);
-    },
-    [x, y, zoom],
-  );
+  useImperativeHandle(ref, () => api, [api]);
 
   const ctxValue = useMemo<CanvasCtx>(
-    () => ({ x, y, zoom, viewportRef }),
-    [x, y, zoom],
+    () => ({ x, y, zoom, minZoom, maxZoom, viewportRef, api }),
+    [x, y, zoom, minZoom, maxZoom, api],
   );
 
   const cursor = isPanning
@@ -404,7 +429,30 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
       ? "grab"
       : pan === "always"
         ? "grab"
-        : "default";
+        : (cursorOverride ?? "default");
+
+  // Right-click on the empty canvas → open the canvas menu at cursor,
+  // carrying the world-space coords where the click landed.
+  const [menuWorldPos, setMenuWorldPos] = useState<{ worldX: number; worldY: number }>({ worldX: 0, worldY: 0 });
+  const onViewportContext = menu
+    ? (e: React.MouseEvent) => {
+        // If the default was already prevented by a CanvasItem's menu
+        // handler, don't open the canvas-level menu.
+        if (e.defaultPrevented) return;
+        e.preventDefault();
+        const rect = viewportRef.current?.getBoundingClientRect();
+        if (rect) {
+          const screenX = e.clientX - rect.left;
+          const screenY = e.clientY - rect.top;
+          const z = zoom.get();
+          setMenuWorldPos({
+            worldX: (screenX - x.get()) / z,
+            worldY: (screenY - y.get()) / z,
+          });
+        }
+        menuState.open(e.clientX, e.clientY);
+      }
+    : undefined;
 
   return (
     <CanvasContext.Provider value={ctxValue}>
@@ -415,6 +463,7 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
           className,
         )}
         style={{ cursor, touchAction: "none", ...style }}
+        onContextMenu={onViewportContext}
       >
         {grid ? (
           <CanvasGrid
@@ -441,10 +490,15 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
         </motion.div>
         {overlay ? (
           <div className="absolute inset-0 pointer-events-none">
-            <div className="pointer-events-auto">{overlay}</div>
+            {overlay}
           </div>
         ) : null}
       </div>
+      {menu ? (
+        <CanvasContextMenu state={menuState}>
+          {typeof menu === "function" ? menu(menuWorldPos) : menu}
+        </CanvasContextMenu>
+      ) : null}
     </CanvasContext.Provider>
   );
 });
@@ -539,6 +593,10 @@ export interface CanvasItemProps {
   onDragEnd?: (pos: { x: number; y: number }) => void;
   /** Include in bounds for `fit()`. Default true. */
   bounds?: boolean;
+  /** Right-click menu for this item — stops the event from bubbling to
+   *  the canvas-level menu. Use `MenuItem`, `MenuSeparator`, `MenuLabel`. */
+  menu?: ReactNode;
+  onContextMenu?: (e: React.MouseEvent) => void;
   className?: string;
   style?: CSSProperties;
 }
@@ -555,12 +613,25 @@ export function CanvasItem({
   onDragStart,
   onDragEnd,
   bounds = true,
+  menu,
+  onContextMenu,
   className,
   style,
 }: CanvasItemProps) {
   const ctx = useCanvas();
   const fallback = useMotionValue(1);
   const inverse = useTransform(ctx?.zoom ?? fallback, (z) => 1 / z);
+  const menuState = useContextMenuState();
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    onContextMenu?.(e);
+    if (menu && !e.defaultPrevented) {
+      // Signal to the canvas-level handler that this event is ours.
+      e.preventDefault();
+      e.stopPropagation();
+      menuState.open(e.clientX, e.clientY);
+    }
+  };
 
   const handleMouseDown = draggable && ctx
     ? (e: React.MouseEvent) => {
@@ -601,20 +672,115 @@ export function CanvasItem({
   );
 
   return (
-    <div
-      data-canvas-bounds={bounds ? "" : undefined}
-      data-canvas-x={x}
-      data-canvas-y={y}
-      onMouseDown={handleMouseDown}
-      style={{
-        position: "absolute",
-        left: x,
-        top: y,
-        cursor: draggable ? "grab" : undefined,
-        ...style,
-      }}
-    >
-      {content}
-    </div>
+    <>
+      <div
+        data-canvas-bounds={bounds ? "" : undefined}
+        data-canvas-x={x}
+        data-canvas-y={y}
+        onMouseDown={handleMouseDown}
+        onContextMenu={handleContextMenu}
+        style={{
+          position: "absolute",
+          left: x,
+          top: y,
+          cursor: draggable ? "grab" : undefined,
+          ...style,
+        }}
+      >
+        {content}
+      </div>
+      {menu ? (
+        <CanvasContextMenu state={menuState}>{menu}</CanvasContextMenu>
+      ) : null}
+    </>
+  );
+}
+
+// === Right-click menu plumbing ==============================
+
+interface ContextMenuState {
+  isOpen: boolean;
+  pos: { x: number; y: number };
+  menuRef: React.RefObject<HTMLDivElement | null>;
+  open: (x: number, y: number) => void;
+  close: () => void;
+}
+
+function useContextMenuState(): ContextMenuState {
+  const [isOpen, setIsOpen] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    function onDocClick(e: globalThis.MouseEvent) {
+      if (!menuRef.current?.contains(e.target as Node)) setIsOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setIsOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen]);
+
+  const open = useCallback((cx: number, cy: number) => {
+    // Flip against the viewport if the menu would overflow.
+    setPos({ x: cx, y: cy });
+    setIsOpen(true);
+    requestAnimationFrame(() => {
+      const mr = menuRef.current?.getBoundingClientRect();
+      if (!mr) return;
+      let nx = cx;
+      let ny = cy;
+      if (nx + mr.width > window.innerWidth - 8)
+        nx = window.innerWidth - mr.width - 8;
+      if (ny + mr.height > window.innerHeight - 8)
+        ny = window.innerHeight - mr.height - 8;
+      if (nx !== cx || ny !== cy) setPos({ x: nx, y: ny });
+    });
+  }, []);
+
+  const close = useCallback(() => setIsOpen(false), []);
+
+  return { isOpen, pos, menuRef, open, close };
+}
+
+function CanvasContextMenu({
+  state,
+  children,
+}: {
+  state: ContextMenuState;
+  children: ReactNode;
+}) {
+  return (
+    <MenuCtx.Provider value={{ close: state.close }}>
+      <Portal>
+        <AnimatePresence>
+          {state.isOpen ? (
+            <motion.div
+              ref={state.menuRef}
+              initial={{ opacity: 0, scale: 0.96, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: -4 }}
+              transition={{ type: "spring", stiffness: 520, damping: 32 }}
+              style={{
+                position: "fixed",
+                left: state.pos.x,
+                top: state.pos.y,
+                zIndex: Z.CONTEXT_MENU,
+                transformOrigin: "top left",
+              }}
+              className="min-w-[200px] rounded-xl bg-[#14141c] border border-white/10 shadow-2xl p-1"
+            >
+              {children}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </Portal>
+    </MenuCtx.Provider>
   );
 }
