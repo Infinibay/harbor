@@ -9,6 +9,7 @@ import { FeedbackPage } from "./pages/foundations/FeedbackPage";
 import { OverlaysPage } from "./pages/foundations/OverlaysPage";
 import { NavigationPage } from "./pages/foundations/NavigationPage";
 import { ContainersPage } from "./pages/foundations/ContainersPage";
+import { SectionsPage } from "./pages/foundations/SectionsPage";
 import { CoordinationPage } from "./pages/patterns/CoordinationPage";
 import { IDEPage } from "./pages/apps/IDEPage";
 import { DesktopPage } from "./pages/apps/DesktopPage";
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="overlays" element={<OverlaysPage />} />
             <Route path="navigation" element={<NavigationPage />} />
             <Route path="containers" element={<ContainersPage />} />
+            <Route path="sections" element={<SectionsPage />} />
           </Route>
           <Route path="patterns">
             <Route path="coordination" element={<CoordinationPage />} />

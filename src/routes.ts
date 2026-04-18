@@ -23,6 +23,7 @@ export const routeGroups: RouteGroup[] = [
       { path: "/foundations/overlays", label: "Overlays" },
       { path: "/foundations/navigation", label: "Navigation" },
       { path: "/foundations/containers", label: "Containers" },
+      { path: "/foundations/sections", label: "Sections · reading" },
     ],
   },
   {

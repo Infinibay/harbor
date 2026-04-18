@@ -22,3 +22,4 @@ export * from "./chat";
 export * from "./collab";
 export * from "./media";
 export * from "./dev";
+export * from "./sections";
