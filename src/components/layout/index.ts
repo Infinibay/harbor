@@ -1,6 +1,7 @@
 export * from "./Accordion";
 export * from "./Bento";
 export * from "./BrowserTabs";
+export * from "./Canvas";
 export * from "./ContainerBox";
 export * from "./Container";
 export * from "./Dock";

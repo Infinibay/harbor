@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Group, Demo, Row } from "../../showcase/ShowcaseCard";
+import { Canvas, CanvasItem, type CanvasHandle, type CanvasTransform } from "../../components";
+import { Button } from "../../components";
+import { HostCard } from "../../components";
+import { Card } from "../../components";
 import { Accordion, AccordionItem } from "../../components";
 import { TreeView } from "../../components";
 import { ScrollArea } from "../../components";
@@ -299,6 +303,134 @@ export function ContainersPage() {
           }
         />
       </Demo>
+
+      <Demo
+        title="Canvas · infinite GPU-accelerated world"
+        hint="Space + drag to pan · wheel to zoom · React children just work"
+        wide
+        intensity="soft"
+      >
+        <CanvasDemo />
+      </Demo>
     </Group>
+  );
+}
+
+function CanvasDemo() {
+  const canvasRef = useRef<CanvasHandle>(null);
+  const [transform, setTransform] = useState<CanvasTransform>({
+    x: 0,
+    y: 0,
+    zoom: 1,
+  });
+  const [notes, setNotes] = useState([
+    { id: "n1", x: 80, y: 80, text: "Drag me — space+drag pans the view." },
+    { id: "n2", x: 560, y: 320, text: "Scroll to zoom around the cursor." },
+  ]);
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="ghost" onClick={() => canvasRef.current?.reset()}>
+            Reset
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => canvasRef.current?.fit()}>
+            Fit
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() =>
+              canvasRef.current?.zoomTo(Math.min(8, transform.zoom * 1.5))
+            }
+          >
+            Zoom in
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() =>
+              canvasRef.current?.zoomTo(Math.max(0.1, transform.zoom / 1.5))
+            }
+          >
+            Zoom out
+          </Button>
+        </div>
+        <div className="text-xs text-white/50 tabular-nums font-mono">
+          x {transform.x.toFixed(0)} · y {transform.y.toFixed(0)} · zoom{" "}
+          {transform.zoom.toFixed(2)}
+        </div>
+      </Row>
+      <Canvas
+        ref={canvasRef}
+        grid="dots"
+        gridSize={28}
+        onTransformChange={setTransform}
+        className="h-[520px] rounded-2xl border border-white/10 bg-white/[0.02]"
+        defaultTransform={{ x: 40, y: 40, zoom: 1 }}
+      >
+        <CanvasItem x={40} y={40}>
+          <HostCard
+            name="api-gateway-01"
+            subtitle="Ubuntu 24.04 · 8 vCPU · 16 GB"
+            status="online"
+            cpu={42}
+            ram={{ used: 11.8, total: 16 }}
+            disk={{ used: 180, total: 500 }}
+            tags={["eu-west-1", "prod"]}
+            className="w-80"
+          />
+        </CanvasItem>
+        <CanvasItem x={480} y={40}>
+          <HostCard
+            name="worker-db-02"
+            subtitle="PostgreSQL replica"
+            status="degraded"
+            cpu={88}
+            ram={{ used: 14.2, total: 16 }}
+            disk={{ used: 450, total: 500 }}
+            tags={["eu-west-1", "prod"]}
+            className="w-80"
+          />
+        </CanvasItem>
+        <CanvasItem x={260} y={360}>
+          <Card
+            title="Everything is just JSX"
+            description="Buttons, inputs, cards — they all render inside the world with GPU-accelerated transforms."
+            className="w-72"
+          >
+            <Row className="gap-2 pt-2">
+              <Button size="sm">Primary</Button>
+              <Button size="sm" variant="ghost">
+                Ghost
+              </Button>
+            </Row>
+          </Card>
+        </CanvasItem>
+        {notes.map((n) => (
+          <CanvasItem
+            key={n.id}
+            x={n.x}
+            y={n.y}
+            draggable
+            onDrag={(pos) =>
+              setNotes((prev) =>
+                prev.map((p) => (p.id === n.id ? { ...p, ...pos } : p)),
+              )
+            }
+          >
+            <div className="px-3 py-2 rounded-lg bg-amber-300/90 text-slate-900 text-xs font-medium shadow-lg select-none w-52 cursor-grab active:cursor-grabbing">
+              {n.text}
+            </div>
+          </CanvasItem>
+        ))}
+        <CanvasItem x={920} y={240} fixedSize>
+          <div className="px-2 py-1 rounded-md bg-fuchsia-500/20 border border-fuchsia-400/40 text-fuchsia-100 text-[10px] uppercase tracking-widest">
+            fixed-size pin
+          </div>
+        </CanvasItem>
+      </Canvas>
+    </div>
   );
 }
