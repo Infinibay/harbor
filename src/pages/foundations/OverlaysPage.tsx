@@ -23,7 +23,7 @@ export function OverlaysPage() {
 
   return (
     <Group id="overlays" title="Overlays" desc="Tooltip, popover, dialog, menus.">
-      <Demo title="Tooltip">
+      <Demo title="Tooltip" intensity="soft">
         <Row>
           <Tooltip content="Top tooltip">
             <Button variant="secondary">Top</Button>
@@ -39,7 +39,7 @@ export function OverlaysPage() {
           </Tooltip>
         </Row>
       </Demo>
-      <Demo title="Popover">
+      <Demo title="Popover" intensity="soft">
         <Popover
           content={
             <div className="w-56">
@@ -57,7 +57,7 @@ export function OverlaysPage() {
           <Button variant="secondary">Open popover</Button>
         </Popover>
       </Demo>
-      <Demo title="Dialog">
+      <Demo title="Dialog" intensity="soft">
         <Row>
           <Button onClick={() => setDialog(true)}>Open dialog</Button>
           <Dialog
@@ -80,7 +80,7 @@ export function OverlaysPage() {
           </Dialog>
         </Row>
       </Demo>
-      <Demo title="Drawer">
+      <Demo title="Drawer" intensity="soft">
         <Button onClick={() => setDrawer(true)} variant="secondary">
           Open drawer
         </Button>
@@ -103,7 +103,7 @@ export function OverlaysPage() {
           </Col>
         </Drawer>
       </Demo>
-      <Demo title="Menu con submenús">
+      <Demo title="Menu con submenús" intensity="soft">
         <Menu trigger={<Button variant="secondary">Actions ⌄</Button>}>
           <MenuLabel>Deploy</MenuLabel>
           <MenuItem icon={<Spark />} shortcut="⌘D">
@@ -140,7 +140,7 @@ export function OverlaysPage() {
           </MenuItem>
         </Menu>
       </Demo>
-      <Demo title="Context menu" hint="Right-click sobre la card.">
+      <Demo title="Context menu" hint="Right-click sobre la card." intensity="soft">
         <ContextMenu
           className="w-full"
           menu={
@@ -161,7 +161,7 @@ export function OverlaysPage() {
           </div>
         </ContextMenu>
       </Demo>
-      <Demo title="Command palette">
+      <Demo title="Command palette" intensity="soft">
         <Button onClick={() => setCmd(true)}>
           Open <Kbd>⌘</Kbd>
           <Kbd>K</Kbd>

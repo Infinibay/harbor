@@ -34,7 +34,7 @@ export function EmailPage() {
 
   return (
     <Group id="email" title="Email client" desc="Three-pane layout — folders · list · preview.">
-      <Demo title="Email layout" wide>
+      <Demo title="Email layout" wide intensity="soft">
         <div className="w-full flex gap-3 h-[520px]">
           <div className="w-48 flex-none">
             <Sidebar

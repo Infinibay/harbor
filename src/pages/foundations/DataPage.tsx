@@ -89,7 +89,7 @@ export function DataPage() {
 
   return (
     <Group id="data" title="Data · tablas, tiempo, viz" desc="DataTable sortable, heatmap, timeline.">
-      <Demo title="DataTable" hint="Click headers para ordenar." wide>
+      <Demo title="DataTable" hint="Click headers para ordenar." wide intensity="soft">
         <DataTable
           rows={tableRows}
           columns={cols}
@@ -99,7 +99,7 @@ export function DataPage() {
           onSelectionChange={setTableSelected}
         />
       </Demo>
-      <Demo title="Heatmap calendar" wide>
+      <Demo title="Heatmap calendar" wide intensity="soft">
         <Col>
           <HeatmapCalendar data={heatData} weeks={24} />
           <span className="text-xs text-white/40">
@@ -107,7 +107,7 @@ export function DataPage() {
           </span>
         </Col>
       </Demo>
-      <Demo title="Timeline" wide>
+      <Demo title="Timeline" wide intensity="soft">
         <Timeline
           events={[
             { id: "1", title: "Deployed v2.3.0", description: "api-gateway · 0 rollbacks", time: "2m ago", tone: "success" },
@@ -118,7 +118,7 @@ export function DataPage() {
         />
       </Demo>
 
-      <Demo title="VirtualList — 10,000 rows" hint="Solo renderiza lo visible." wide>
+      <Demo title="VirtualList — 10,000 rows" hint="Solo renderiza lo visible." wide intensity="soft">
         <VirtualList
           items={Array.from({ length: 10000 }, (_, i) => ({
             id: i,
@@ -143,11 +143,11 @@ export function DataPage() {
         />
       </Demo>
 
-      <Demo title="InfiniteScroll" hint="Observa el sentinel al final." wide>
+      <Demo title="InfiniteScroll" hint="Observa el sentinel al final." wide intensity="soft">
         <InfiniteScrollDemo />
       </Demo>
 
-      <Demo title="MasonryGrid" hint="Columnas balanceadas." wide>
+      <Demo title="MasonryGrid" hint="Columnas balanceadas." wide intensity="soft">
         <MasonryGrid columns={3}>
           {Array.from({ length: 9 }).map((_, i) => (
             <div
@@ -166,7 +166,7 @@ export function DataPage() {
         </MasonryGrid>
       </Demo>
 
-      <Demo title="DiffViewer — unified" wide>
+      <Demo title="DiffViewer — unified" wide intensity="soft">
         <DiffViewer
           oldText={`function hello(name) {
   return "hi " + name;
@@ -177,7 +177,7 @@ export function DataPage() {
         />
       </Demo>
 
-      <Demo title="DiffViewer — split" wide>
+      <Demo title="DiffViewer — split" wide intensity="soft">
         <DiffViewer
           mode="split"
           oldLabel="main"

@@ -28,7 +28,7 @@ export function ContainersPage() {
 
   return (
     <Group id="containers" title="Containers & data" desc="Accordion, tree, scroll area, sidebar.">
-      <Demo title="Accordion" wide>
+      <Demo title="Accordion" wide intensity="soft">
         <Accordion defaultValue="a" className="w-full">
           <AccordionItem value="a" title="What is Infinibay?">
             Infinibay is a managed cluster platform.
@@ -41,7 +41,7 @@ export function ContainersPage() {
           </AccordionItem>
         </Accordion>
       </Demo>
-      <Demo title="Tree view">
+      <Demo title="Tree view" intensity="soft">
         <div className="w-full">
           <TreeView
             defaultExpanded={["root", "services"]}
@@ -77,7 +77,7 @@ export function ContainersPage() {
           />
         </div>
       </Demo>
-      <Demo title="Custom scroll area" hint="Thumb purple, auto-hide.">
+      <Demo title="Custom scroll area" hint="Thumb purple, auto-hide." intensity="soft">
         <ScrollArea maxHeight={200} className="w-full border border-white/8">
           <div className="p-4 space-y-2">
             {Array.from({ length: 30 }).map((_, i) => (
@@ -89,7 +89,7 @@ export function ContainersPage() {
           </div>
         </ScrollArea>
       </Demo>
-      <Demo title="Sidebar" wide>
+      <Demo title="Sidebar" wide intensity="soft">
         <div className="w-full h-[380px] flex gap-4">
           <Sidebar
             selected={sidebarSel}
@@ -128,7 +128,7 @@ export function ContainersPage() {
           </div>
         </div>
       </Demo>
-      <Demo title="RailSidebar — icon-only (VS Code-style)" wide>
+      <Demo title="RailSidebar — icon-only (VS Code-style)" wide intensity="soft">
         <div className="w-full h-[360px] flex gap-4">
           <RailSidebar
             value={rail}
@@ -156,7 +156,7 @@ export function ContainersPage() {
         </div>
       </Demo>
 
-      <Demo title="CollapsibleSidebar" hint="Toggle ↔ collapsa a iconos con tooltips." wide>
+      <Demo title="CollapsibleSidebar" hint="Toggle ↔ collapsa a iconos con tooltips." wide intensity="soft">
         <div className="w-full h-[380px] flex gap-4">
           <CollapsibleSidebar
             value={collapsed}
@@ -198,7 +198,7 @@ export function ContainersPage() {
         </div>
       </Demo>
 
-      <Demo title="FilterPanel" hint="Filtros con checkboxes/radios por grupo." wide>
+      <Demo title="FilterPanel" hint="Filtros con checkboxes/radios por grupo." wide intensity="soft">
         <div className="w-full h-[420px] flex gap-4">
           <FilterPanel
             value={filters}
@@ -243,7 +243,7 @@ export function ContainersPage() {
         </div>
       </Demo>
 
-      <Demo title="SettingsPanel" hint="Para apps con muchas preferencias." wide>
+      <Demo title="SettingsPanel" hint="Para apps con muchas preferencias." wide intensity="soft">
         <div className="w-full h-[380px] flex gap-4">
           <SettingsPanel
             value={settings}
@@ -280,7 +280,7 @@ export function ContainersPage() {
         </div>
       </Demo>
 
-      <Demo title="Nav bar" wide>
+      <Demo title="Nav bar" wide intensity="soft">
         <NavBar
           value={nav}
           onChange={setNav}

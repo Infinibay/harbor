@@ -23,7 +23,7 @@ export function DesignPage() {
 
   return (
     <Group id="design" title="Design tool" desc="Canvas, inspector, layers, color, transform.">
-      <Demo title="Canvas toolbar" hint="Tool picker + zoom." wide>
+      <Demo title="Canvas toolbar" hint="Tool picker + zoom." wide intensity="soft">
         <Toolbar className="rounded-lg bg-white/[0.02] border border-white/10 px-1 py-1 w-full">
           <ToolbarGroup>
             <ToggleGroup
@@ -52,7 +52,7 @@ export function DesignPage() {
         </Toolbar>
       </Demo>
 
-      <Demo title="Layers panel">
+      <Demo title="Layers panel" intensity="soft">
         <div className="w-full">
           <TreeView
             defaultExpanded={["canvas", "hero"]}
@@ -81,7 +81,7 @@ export function DesignPage() {
         </div>
       </Demo>
 
-      <Demo title="Inspector">
+      <Demo title="Inspector" intensity="soft">
         <Inspector
           className="w-full"
           sections={[
@@ -127,11 +127,11 @@ export function DesignPage() {
         />
       </Demo>
 
-      <Demo title="Color picker">
+      <Demo title="Color picker" intensity="soft">
         <ColorPicker value={pickerColor} onChange={setPickerColor} />
       </Demo>
 
-      <Demo title="Canvas minimap" wide>
+      <Demo title="Canvas minimap" wide intensity="soft">
         <Col>
           <div className="text-xs text-white/50">
             Viewport at ({Math.round(viewport.x)}, {Math.round(viewport.y)}).
@@ -151,7 +151,7 @@ export function DesignPage() {
         </Col>
       </Demo>
 
-      <Demo title="Creative knobs" hint="Noise, distort, grain…">
+      <Demo title="Creative knobs" hint="Noise, distort, grain…" intensity="soft">
         <Row attention>
           <Knob label="Grain" defaultValue={35} />
           <Knob label="Distort" defaultValue={12} />

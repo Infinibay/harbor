@@ -36,7 +36,7 @@ export function MediaPage() {
 
   return (
     <Group id="media" title="Media · video" desc="Scrubbers, carousels, transport.">
-      <Demo title="Video scrubber" hint="Buffered + chapter markers." wide>
+      <Demo title="Video scrubber" hint="Buffered + chapter markers." wide intensity="soft">
         <Col>
           <Scrubber
             value={time}
@@ -61,11 +61,11 @@ export function MediaPage() {
         </Col>
       </Demo>
 
-      <Demo title="Waveform scrubber" hint="Usado en audio/voice apps." wide>
+      <Demo title="Waveform scrubber" hint="Usado en audio/voice apps." wide intensity="soft">
         <Scrubber value={time} duration={180} onSeek={setTime} waveform={waveform} />
       </Demo>
 
-      <Demo title="Carousel" wide>
+      <Demo title="Carousel" wide intensity="soft">
         <Carousel
           slides={[
             {
@@ -105,7 +105,7 @@ export function MediaPage() {
         />
       </Demo>
 
-      <Demo title="Lightbox gallery" hint="Click una imagen; ←/→ para navegar." wide>
+      <Demo title="Lightbox gallery" hint="Click una imagen; ←/→ para navegar." wide intensity="soft">
         <Col>
           <div className="grid grid-cols-3 gap-2 w-full">
             {lightboxImages.map((img, i) => (
@@ -131,7 +131,7 @@ export function MediaPage() {
         </Col>
       </Demo>
 
-      <Demo title="CompareSlider" hint="Arrastrá el handle." wide>
+      <Demo title="CompareSlider" hint="Arrastrá el handle." wide intensity="soft">
         <CompareSlider
           before="https://picsum.photos/seed/before/1200/700"
           after="https://picsum.photos/seed/after/1200/700"
@@ -140,7 +140,7 @@ export function MediaPage() {
         />
       </Demo>
 
-      <Demo title="SignaturePad" wide>
+      <Demo title="SignaturePad" wide intensity="soft">
         <SignaturePad width={480} height={180} />
       </Demo>
     </Group>

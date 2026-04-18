@@ -92,7 +92,7 @@ export function CollabPage() {
 
   return (
     <Group id="collab" title="Collab · social" desc="Presence, comments, reactions, mentions — para docs, code review, issues.">
-      <Demo title="Presence" hint="Quién está viendo / editando." wide>
+      <Demo title="Presence" hint="Quién está viendo / editando." wide intensity="soft">
         <Col>
           <Presence users={people} />
           <div className="text-xs text-white/40">
@@ -101,11 +101,11 @@ export function CollabPage() {
         </Col>
       </Demo>
 
-      <Demo title="Reactions bar" wide>
+      <Demo title="Reactions bar" wide intensity="soft">
         <ReactionsBar reactions={reactions} onToggle={toggleBarReaction} />
       </Demo>
 
-      <Demo title="Comment thread con replies anidados" wide>
+      <Demo title="Comment thread con replies anidados" wide intensity="soft">
         <CommentThread
           comments={comments}
           currentUser={{ name: "Andrés" }}
@@ -114,7 +114,7 @@ export function CollabPage() {
         />
       </Demo>
 
-      <Demo title="Mention input" hint="Tipeá @ para sugerencias." wide>
+      <Demo title="Mention input" hint="Tipeá @ para sugerencias." wide intensity="soft">
         <Col>
           <MentionInput
             users={mentionUsers}

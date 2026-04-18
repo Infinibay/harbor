@@ -66,7 +66,7 @@ export function FileManagerPage() {
 
   return (
     <Group id="files" title="File manager" desc="Sidebar tree + breadcrumbs + table + upload.">
-      <Demo title="Breadcrumbs" wide>
+      <Demo title="Breadcrumbs" wide intensity="soft">
         <Breadcrumbs
           items={[
             { label: "~" },
@@ -77,7 +77,7 @@ export function FileManagerPage() {
         />
       </Demo>
 
-      <Demo title="Tree + table layout" wide>
+      <Demo title="Tree + table layout" wide intensity="soft">
         <div className="w-full flex gap-4 h-[380px]">
           <div className="w-56 rounded-xl bg-white/[0.02] border border-white/8 p-2 overflow-auto">
             <TreeView
@@ -117,11 +117,11 @@ export function FileManagerPage() {
         </div>
       </Demo>
 
-      <Demo title="Upload zone" wide>
+      <Demo title="Upload zone" wide intensity="soft">
         <FileDrop accept="image/*,application/pdf" />
       </Demo>
 
-      <Demo title="Selection">
+      <Demo title="Selection" intensity="soft">
         <Row>
           <span className="text-sm text-white/70">
             {selected.length} selected

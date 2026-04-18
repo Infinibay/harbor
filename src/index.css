@@ -106,37 +106,65 @@ body {
   z-index: 1;
 }
 
-/* Quiet variant for reading-focused cards — soft white, smaller radius,
-   doesn't tint text. Use instead of .spotlight when content legibility
-   matters more than liveliness. */
-.spotlight-quiet {
+/* Spotlight intensity tiers — pick the right one per demo context.
+ *
+ *   quiet  → reading content (prose, article cards). Barely there.
+ *   soft   → text-heavy interactive surfaces (forms, tables, chat).
+ *   strong → visual / motion-heavy (buttons, charts, decorative cards).
+ *
+ * Level 3 (strong) is the default .spotlight above. */
+
+.spotlight-quiet,
+.spotlight-soft {
   position: relative;
   isolation: isolate;
 }
-.spotlight-quiet::before {
+.spotlight-quiet::before,
+.spotlight-soft::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+}
+.spotlight-quiet > *,
+.spotlight-soft > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Level 1 — quiet: reading */
+.spotlight-quiet::before {
   background: radial-gradient(
     var(--spot-size) circle at var(--mx, 50%) var(--my, 50%),
     rgba(168, 85, 247, 0.055),
     transparent 60%
   );
-  opacity: 0;
   transition:
     opacity 420ms ease,
     --spot-size 680ms cubic-bezier(0.22, 0.7, 0.2, 1);
-  z-index: 0;
 }
 .spotlight-quiet:hover::before {
   --spot-size: 180px;
   opacity: 1;
 }
-.spotlight-quiet > * {
-  position: relative;
-  z-index: 1;
+
+/* Level 2 — soft: forms, tables, chat */
+.spotlight-soft::before {
+  background: radial-gradient(
+    var(--spot-size) circle at var(--mx, 50%) var(--my, 50%),
+    rgba(168, 85, 247, 0.09),
+    transparent 62%
+  );
+  transition:
+    opacity 380ms ease,
+    --spot-size 620ms cubic-bezier(0.22, 0.7, 0.2, 1);
+}
+.spotlight-soft:hover::before {
+  --spot-size: 210px;
+  opacity: 1;
 }
 
 /* Reactive border that glows where the cursor is over a card grid */

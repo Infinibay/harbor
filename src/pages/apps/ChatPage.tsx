@@ -28,7 +28,7 @@ export function ChatPage() {
 
   return (
     <Group id="chat" title="Chat · social" desc="Bubbles, typing, emoji picker.">
-      <Demo title="Chat panel" wide>
+      <Demo title="Chat panel" wide intensity="soft">
         <div className="w-full flex flex-col gap-3 h-[380px]">
           <div className="flex-1 overflow-auto flex flex-col gap-2 p-3 rounded-2xl bg-white/[0.02] border border-white/8">
             {chatMessages.map((m) => (
@@ -48,7 +48,7 @@ export function ChatPage() {
           <ChatInput onSend={sendChat} />
         </div>
       </Demo>
-      <Demo title="Emoji picker" wide>
+      <Demo title="Emoji picker" wide intensity="soft">
         <EmojiPicker onPick={() => {}} />
       </Demo>
     </Group>

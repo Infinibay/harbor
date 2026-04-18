@@ -65,7 +65,7 @@ export function DevPage() {
 
   return (
     <Group id="dev" title="Dev · terminals & code" desc="CodeBlock, Terminal, hotkey recorder.">
-      <Demo title="CodeBlock" wide>
+      <Demo title="CodeBlock" wide intensity="soft">
         <CodeBlock
           lang="tsx"
           title="src/App.tsx"
@@ -77,7 +77,7 @@ export function App() {
 }`}
         />
       </Demo>
-      <Demo title="Terminal live" wide>
+      <Demo title="Terminal live" wide intensity="soft">
         <Terminal
           title="deploy.log"
           lines={[
@@ -92,7 +92,7 @@ export function App() {
           ]}
         />
       </Demo>
-      <Demo title="Hotkey recorder">
+      <Demo title="Hotkey recorder" intensity="soft">
         <Col>
           <HotkeyRecorder label="Trigger command palette" value={hotkey} onChange={setHotkey} />
           <span className="text-xs text-white/50 font-mono">
@@ -101,13 +101,13 @@ export function App() {
         </Col>
       </Demo>
 
-      <Demo title="MarkdownRenderer" hint="Read-only. Headings, lists, code, quotes, links." wide>
+      <Demo title="MarkdownRenderer" hint="Read-only. Headings, lists, code, quotes, links." wide intensity="soft">
         <div className="w-full rounded-xl bg-white/[0.02] border border-white/8 p-4">
           <MarkdownRenderer source={markdownSource} />
         </div>
       </Demo>
 
-      <Demo title="DiffViewer — code review" wide>
+      <Demo title="DiffViewer — code review" wide intensity="soft">
         <DiffViewer
           mode="split"
           oldLabel="before"
@@ -127,7 +127,7 @@ greet("world", "hello");`}
         />
       </Demo>
 
-      <Demo title="LogViewer live" hint="Filtros por nivel, search, pausa." wide>
+      <Demo title="LogViewer live" hint="Filtros por nivel, search, pausa." wide intensity="soft">
         <LogViewer entries={logs} height={320} />
       </Demo>
     </Group>

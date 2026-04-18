@@ -29,7 +29,7 @@ export function MusicPage() {
 
   return (
     <Group id="music" title="Music player" desc="Transport, waveform, playlist, synth knobs.">
-      <Demo title="Now playing" hint="Album art · track · waveform scrubber." wide>
+      <Demo title="Now playing" hint="Album art · track · waveform scrubber." wide intensity="soft">
         <Card className="w-full p-5">
           <div className="flex gap-5">
             <div
@@ -77,7 +77,7 @@ export function MusicPage() {
         </Card>
       </Demo>
 
-      <Demo title="Playlist" wide>
+      <Demo title="Playlist" wide intensity="soft">
         <div className="w-full rounded-xl bg-white/[0.02] border border-white/8 overflow-hidden">
           {tracks.map((t, i) => (
             <button
@@ -107,7 +107,7 @@ export function MusicPage() {
         </div>
       </Demo>
 
-      <Demo title="Synth rack" hint="Arrastrá los knobs, Shift = fino." wide>
+      <Demo title="Synth rack" hint="Arrastrá los knobs, Shift = fino." wide intensity="soft">
         <Row attention>
           <Knob label="Cutoff" value={cutoff} onChange={setCutoff} unit="Hz" max={200} />
           <Knob label="Resonance" value={resonance} onChange={setResonance} />
@@ -118,7 +118,7 @@ export function MusicPage() {
         </Row>
       </Demo>
 
-      <Demo title="Level meters" hint="VU visuals (estáticos, demo).">
+      <Demo title="Level meters" hint="VU visuals (estáticos, demo)." intensity="soft">
         <Col>
           {["L", "R"].map((ch) => (
             <Row key={ch} className="items-center gap-2">

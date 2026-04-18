@@ -32,7 +32,7 @@ export function KanbanPage() {
 
   return (
     <Group id="kanban" title="Kanban · workflow" desc="Draggable columns, reorder, move across.">
-      <Demo title="Board" wide>
+      <Demo title="Board" wide intensity="soft">
         <KanbanBoard>
           <KanbanColumn
             id="todo"

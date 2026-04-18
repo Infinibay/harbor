@@ -48,7 +48,7 @@ export function InputsPage() {
 
   return (
     <Group id="inputs" title="Inputs & Forms" desc="Basics and advanced.">
-      <Demo title="TextField" hint="Floating label, live validation.">
+      <Demo title="TextField" hint="Floating label, live validation." intensity="soft">
         <Col>
           <TextField label="Workspace name" placeholder="my-company" hint="Public in URLs" />
           <TextField
@@ -61,17 +61,17 @@ export function InputsPage() {
           />
         </Col>
       </Demo>
-      <Demo title="Textarea" hint="Counter con progress.">
+      <Demo title="Textarea" hint="Counter con progress." intensity="soft">
         <Textarea label="Description" placeholder="Tell us about this deployment…" maxChars={120} />
       </Demo>
-      <Demo title="InlineEdit" hint="Click text → input in place.">
+      <Demo title="InlineEdit" hint="Click text → input in place." intensity="soft">
         <Col>
           <span className="text-xs text-white/55">Cluster name</span>
           <InlineEdit value={inlineName} onChange={setInlineName} as="heading" />
           <span className="text-xs text-white/40">Press Enter to save, Esc to cancel.</span>
         </Col>
       </Demo>
-      <Demo title="OTP input" hint="Paste a code — it fills.">
+      <Demo title="OTP input" hint="Paste a code — it fills." intensity="soft">
         <Col>
           <OTPInput value={otp} onChange={setOtp} />
           <span className="text-xs text-white/50">
@@ -79,7 +79,7 @@ export function InputsPage() {
           </span>
         </Col>
       </Demo>
-      <Demo title="Checkbox">
+      <Demo title="Checkbox" intensity="soft">
         <Col>
           <Checkbox
             label="Enable auto-scaling"
@@ -94,14 +94,14 @@ export function InputsPage() {
           />
         </Col>
       </Demo>
-      <Demo title="Radio group">
+      <Demo title="Radio group" intensity="soft">
         <RadioGroup value={radio} onChange={setRadio}>
           <Radio value="a" label="Hobby" description="1 project, 512 MB" />
           <Radio value="b" label="Pro" description="Unlimited, 8 GB" />
           <Radio value="c" label="Enterprise" description="SSO, audit logs" />
         </RadioGroup>
       </Demo>
-      <Demo title="Switch">
+      <Demo title="Switch" intensity="soft">
         <Col>
           <Switch
             label="Dark mode"
@@ -116,22 +116,22 @@ export function InputsPage() {
           />
         </Col>
       </Demo>
-      <Demo title="Slider" hint="Tooltip live mientras arrastrás.">
+      <Demo title="Slider" hint="Tooltip live mientras arrastrás." intensity="soft">
         <Slider label="CPU limit" value={slide} onChange={setSlide} snap={[0, 25, 50, 75, 100]} />
       </Demo>
-      <Demo title="RangeSlider" hint="Dos thumbs, dragable.">
+      <Demo title="RangeSlider" hint="Dos thumbs, dragable." intensity="soft">
         <RangeSlider label="Price range" value={range} onChange={setRange} />
       </Demo>
-      <Demo title="NumberField" hint="Los dígitos animan up/down.">
+      <Demo title="NumberField" hint="Los dígitos animan up/down." intensity="soft">
         <NumberField label="Replicas" value={num} onChange={setNum} min={1} max={20} />
       </Demo>
-      <Demo title="Rating">
+      <Demo title="Rating" intensity="soft">
         <Col>
           <Rating value={rating} onChange={setRating} />
           <span className="text-xs text-white/50 font-mono">{rating} / 5</span>
         </Col>
       </Demo>
-      <Demo title="ToggleGroup" hint="Single y multiple.">
+      <Demo title="ToggleGroup" hint="Single y multiple." intensity="soft">
         <Col>
           <ToggleGroup
             value={toggleView}
@@ -154,7 +154,7 @@ export function InputsPage() {
           />
         </Col>
       </Demo>
-      <Demo title="Select">
+      <Demo title="Select" intensity="soft">
         <Select
           label="Environment"
           value={sel}
@@ -166,7 +166,7 @@ export function InputsPage() {
           ]}
         />
       </Demo>
-      <Demo title="MultiSelect" hint="Tags dentro del trigger.">
+      <Demo title="MultiSelect" hint="Tags dentro del trigger." intensity="soft">
         <MultiSelect
           label="Team members"
           value={multi}
@@ -179,7 +179,7 @@ export function InputsPage() {
           ]}
         />
       </Demo>
-      <Demo title="Combobox" hint="Select + búsqueda.">
+      <Demo title="Combobox" hint="Select + búsqueda." intensity="soft">
         <Combobox
           label="Region"
           value={combo}
@@ -192,7 +192,7 @@ export function InputsPage() {
           ]}
         />
       </Demo>
-      <Demo title="Search" hint="Debounced, highlight match.">
+      <Demo title="Search" hint="Debounced, highlight match." intensity="soft">
         <SearchField
           placeholder="Search services…"
           onSearch={async (q) => {
@@ -203,19 +203,19 @@ export function InputsPage() {
           }}
         />
       </Demo>
-      <Demo title="DatePicker">
+      <Demo title="DatePicker" intensity="soft">
         <DatePicker value={date} onChange={setDate} label="Date" />
       </Demo>
-      <Demo title="Calendar inline">
+      <Demo title="Calendar inline" intensity="soft">
         <Calendar value={date} onChange={setDate} />
       </Demo>
-      <Demo title="Tag input">
+      <Demo title="Tag input" intensity="soft">
         <TagInput label="Labels" value={tags} onChange={setTags} placeholder="Enter to add" />
       </Demo>
-      <Demo title="File drop" wide>
+      <Demo title="File drop" wide intensity="soft">
         <FileDrop accept="image/*" />
       </Demo>
-      <Demo title="Wizard — multi-step form" hint="Steps con validación por paso." wide>
+      <Demo title="Wizard — multi-step form" hint="Steps con validación por paso." wide intensity="soft">
         <Wizard
           onComplete={() => {}}
           steps={[
@@ -263,7 +263,7 @@ export function InputsPage() {
         />
       </Demo>
 
-      <Demo title="Color swatch">
+      <Demo title="Color swatch" intensity="soft">
         <ColorSwatch
           label="Accent"
           value={color}

@@ -22,7 +22,7 @@ export function DesktopPage() {
 
   return (
     <Group id="desktop" title="Desktop · chrome nativo" desc="WindowFrame, Dock, Toolbar, BrowserTabs.">
-      <Demo title="Window frame variants" hint="macOS y Windows chrome." wide>
+      <Demo title="Window frame variants" hint="macOS y Windows chrome." wide intensity="soft">
         <Col>
           <WindowFrame
             className="h-[140px] w-full"
@@ -42,7 +42,7 @@ export function DesktopPage() {
         </Col>
       </Demo>
 
-      <Demo title="Browser tabs" hint="Close, pinned, drag to reorder, new." wide>
+      <Demo title="Browser tabs" hint="Close, pinned, drag to reorder, new." wide intensity="soft">
         <div className="w-full rounded-xl overflow-hidden border border-white/10 bg-[#0f0f16]">
           <BrowserTabs
             tabs={browserTabs}
@@ -67,7 +67,7 @@ export function DesktopPage() {
         </div>
       </Demo>
 
-      <Demo title="Toolbar + floating" wide>
+      <Demo title="Toolbar + floating" wide intensity="soft">
         <Col>
           <Toolbar className="rounded-lg bg-white/[0.02] border border-white/10 px-1 py-1 w-full">
             <ToolbarGroup>
@@ -108,7 +108,7 @@ export function DesktopPage() {
         </Col>
       </Demo>
 
-      <Demo title="macOS-style dock" hint="Proximity magnification." wide>
+      <Demo title="macOS-style dock" hint="Proximity magnification." wide intensity="soft">
         <div className="w-full flex justify-center py-6">
           <Dock
             items={[

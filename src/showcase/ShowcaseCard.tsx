@@ -27,22 +27,30 @@ export function Group({
   );
 }
 
+export type DemoIntensity = "quiet" | "soft" | "strong";
+
 export function Demo({
   title,
   hint,
   wide,
   calm,
+  intensity,
   children,
   actions,
 }: PropsWithChildren<{
   title: string;
   hint?: string;
   wide?: boolean;
-  /** Disable spotlight + glow-border. Use for reading-focused demos where
-   *  the purple light hurts text legibility (Prose, Article cards, etc). */
+  /** @deprecated use intensity="quiet" instead. */
   calm?: boolean;
+  /** Spotlight tier:
+   *  - `quiet`  : barely there. Reading content.
+   *  - `soft`   : mid. Forms, tables, chat, text-heavy surfaces.
+   *  - `strong` : default. Buttons, charts, visual demos. */
+  intensity?: DemoIntensity;
   actions?: ReactNode;
 }>) {
+  const level: DemoIntensity = intensity ?? (calm ? "quiet" : "strong");
   const ref = useRef<HTMLDivElement | null>(null);
   function onMove(e: MouseEvent<HTMLDivElement>) {
     const el = ref.current;
@@ -51,15 +59,19 @@ export function Demo({
     el.style.setProperty("--mx", `${e.clientX - r.left}px`);
     el.style.setProperty("--my", `${e.clientY - r.top}px`);
   }
+  const surface =
+    level === "quiet"
+      ? "spotlight-quiet border border-white/8"
+      : level === "soft"
+        ? "spotlight-soft border border-white/8"
+        : "spotlight glow-border";
   return (
     <div
       ref={ref}
       onMouseMove={onMove}
       className={cn(
         "glass rounded-2xl p-5 flex flex-col gap-4 min-h-[160px]",
-        calm
-          ? "spotlight-quiet border border-white/8"
-          : "spotlight glow-border",
+        surface,
         wide && "md:col-span-2",
       )}
     >

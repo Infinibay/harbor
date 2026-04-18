@@ -25,7 +25,7 @@ export function CoordinationPage() {
       title="Patterns · componentes que se coordinan"
       desc="MorphBar, Expandable, FilterBar — componentes que reaccionan entre sí."
     >
-      <Demo title="Adaptive toolbar" hint="La lupa expande, los hermanos ceden." wide>
+      <Demo title="Adaptive toolbar" hint="La lupa expande, los hermanos ceden." wide intensity="soft">
         <MorphBar className="w-full rounded-2xl bg-white/5 border border-white/10 px-3 py-2">
           <MorphItem id="brand" hidden={toolbarSearchOpen} className="font-semibold text-white text-sm">
             Infinibay
@@ -70,7 +70,7 @@ export function CoordinationPage() {
           </MorphItem>
         </MorphBar>
       </Demo>
-      <Demo title="FilterBar" hint="Chips reflowing." wide>
+      <Demo title="FilterBar" hint="Chips reflowing." wide intensity="soft">
         <FilterBar
           applied={filters}
           onChange={setFilters}
@@ -81,11 +81,11 @@ export function CoordinationPage() {
           ]}
         />
       </Demo>
-      <Demo title="Callout / product tour" hint="Highlight + dim + popover paso a paso." wide>
+      <Demo title="Callout / product tour" hint="Highlight + dim + popover paso a paso." wide intensity="soft">
         <TourDemo />
       </Demo>
 
-      <Demo title="PeekCard grid" hint="Hover → expande. Grid reacomoda." wide>
+      <Demo title="PeekCard grid" hint="Hover → expande. Grid reacomoda." wide intensity="soft">
         <PeekGrid cols={3}>
           {[
             { t: "api-gateway", d: "10 pods · healthy", more: "Last deploy 4h ago · p95 84ms · 0 rollbacks" },

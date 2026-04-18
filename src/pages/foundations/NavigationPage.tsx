@@ -13,7 +13,7 @@ export function NavigationPage() {
 
   return (
     <Group id="navigation" title="Navigation" desc="Tabs, segments, breadcrumbs, pagination, stepper.">
-      <Demo title="Tabs (pill)" wide>
+      <Demo title="Tabs (pill)" wide intensity="soft">
         <Tabs defaultValue="overview" className="w-full">
           <TabList>
             <Tab value="overview">Overview</Tab>
@@ -35,7 +35,7 @@ export function NavigationPage() {
           </TabPanel>
         </Tabs>
       </Demo>
-      <Demo title="Tabs (underline)" wide>
+      <Demo title="Tabs (underline)" wide intensity="soft">
         <Tabs variant="underline" defaultValue="a">
           <TabList>
             <Tab value="a">All</Tab>
@@ -47,7 +47,7 @@ export function NavigationPage() {
           </TabList>
         </Tabs>
       </Demo>
-      <Demo title="Segmented control">
+      <Demo title="Segmented control" intensity="soft">
         <SegmentedControl
           items={[
             { value: "day", label: "Day" },
@@ -58,7 +58,7 @@ export function NavigationPage() {
           defaultValue="week"
         />
       </Demo>
-      <Demo title="Breadcrumbs" wide>
+      <Demo title="Breadcrumbs" wide intensity="soft">
         <Breadcrumbs
           items={[
             { label: "infra" },
@@ -68,10 +68,10 @@ export function NavigationPage() {
           ]}
         />
       </Demo>
-      <Demo title="Pagination" wide>
+      <Demo title="Pagination" wide intensity="soft">
         <Pagination page={page} total={12} onChange={setPage} />
       </Demo>
-      <Demo title="Stepper (horizontal)" wide>
+      <Demo title="Stepper (horizontal)" wide intensity="soft">
         <Col>
           <Stepper
             current={step}
@@ -92,7 +92,7 @@ export function NavigationPage() {
           </Row>
         </Col>
       </Demo>
-      <Demo title="Stepper (vertical)">
+      <Demo title="Stepper (vertical)" intensity="soft">
         <Stepper
           orientation="vertical"
           current={1}

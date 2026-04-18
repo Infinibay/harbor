@@ -26,7 +26,7 @@ export function IDEPage() {
       title="IDE · editor layout"
       desc="WindowFrame + MenuBar + StatusBar + SplitPane para chrome de IDE real."
     >
-      <Demo title="Full IDE layout" hint="Files · editor · inspector · status bar." wide>
+      <Demo title="Full IDE layout" hint="Files · editor · inspector · status bar." wide intensity="soft">
         <WindowFrame
           className="h-[440px] w-full"
           title="api-gateway — cluster-eu-west"
@@ -195,7 +195,7 @@ routes.get("/metrics", (ctx) => ctx.json(metrics()));`}
         </WindowFrame>
       </Demo>
 
-      <Demo title="Find bar & shortcut sheet" wide>
+      <Demo title="Find bar & shortcut sheet" wide intensity="soft">
         <Col>
           <Row>
             <Button variant="secondary" onClick={() => setFindOpen(true)}>
@@ -254,7 +254,7 @@ routes.get("/metrics", (ctx) => ctx.json(metrics()));`}
         </Col>
       </Demo>
 
-      <Demo title="JSON viewer" wide>
+      <Demo title="JSON viewer" wide intensity="soft">
         <JsonViewer
           data={{
             service: "api-gateway",

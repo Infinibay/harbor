@@ -16,7 +16,7 @@ export function FeedbackPage() {
 
   return (
     <Group id="feedback" title="Feedback" desc="Alerts, toasts, banners, activity, errors.">
-      <Demo title="Banners" hint="Persistentes — para announcements y gates." wide>
+      <Demo title="Banners" hint="Persistentes — para announcements y gates." wide intensity="soft">
         <div className="w-full flex flex-col gap-2">
           <Banner tone="promo" icon="✨" title="v2.3 is here" onClose={() => setBanner1(false)} open={banner1}>
             Async deploys, 40% faster cold starts, new audit log.
@@ -43,7 +43,7 @@ export function FeedbackPage() {
         </div>
       </Demo>
 
-      <Demo title="TickerTape" hint="Scrolling horizontal loop." wide>
+      <Demo title="TickerTape" hint="Scrolling horizontal loop." wide intensity="soft">
         <TickerTape
           items={[
             { id: "1", label: "BTC", value: "$64,210", change: 2.4 },
@@ -56,7 +56,7 @@ export function FeedbackPage() {
         />
       </Demo>
 
-      <Demo title="ErrorState" wide>
+      <Demo title="ErrorState" wide intensity="soft">
         <ErrorState
           title="Couldn't load metrics"
           description="The metrics endpoint is unreachable. This may be a temporary issue."
@@ -66,7 +66,7 @@ export function FeedbackPage() {
         />
       </Demo>
 
-      <Demo title="ActivityFeed" hint="Grouped by day." wide>
+      <Demo title="ActivityFeed" hint="Grouped by day." wide intensity="soft">
         <ActivityFeed
           events={[
             { id: "1", actor: "Ana", verb: "deployed", target: "api-gateway v2.3.0", time: new Date(), tone: "success", icon: "🚀" },
@@ -77,7 +77,7 @@ export function FeedbackPage() {
         />
       </Demo>
 
-      <Demo title="Alerts" wide>
+      <Demo title="Alerts" wide intensity="soft">
         <Col>
           <Alert tone="info" title="Heads up">
             New secrets rotation policy takes effect next Monday.
@@ -104,7 +104,7 @@ export function FeedbackPage() {
           </Alert>
         </Col>
       </Demo>
-      <Demo title="Toasts">
+      <Demo title="Toasts" intensity="soft">
         <Row>
           <Button
             variant="secondary"
