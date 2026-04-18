@@ -39,7 +39,10 @@ export function ReflowList({
   // Motion a discrete `layoutDependency` that changes a handful of times
   // during a resize (instead of 60 times/sec), so position animations
   // actually play instead of snapping.
-  const [widthBucket, setWidthBucket] = useState(0);
+  // Re-render when width crosses 32px buckets. That gives Framer Motion
+  // a handful of discrete "before/after" pairs during a resize — enough
+  // to animate the items sliding between rows instead of snapping.
+  const [, setWidthBucket] = useState(0);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -83,8 +86,9 @@ export function ReflowList({
           <motion.div
             key={(child as { key?: React.Key })?.key ?? i}
             layout
-            layoutDependency={widthBucket}
-            transition={{ type: "spring", stiffness: 420, damping: 34 }}
+            transition={{
+              layout: { type: "spring", stiffness: 300, damping: 30, duration: 0.45 },
+            }}
           >
             {child}
           </motion.div>

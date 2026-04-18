@@ -58,8 +58,9 @@ export function FluidGrid({
           <motion.div
             key={(child as { key?: React.Key })?.key ?? i}
             layout
-            layoutDependency={cols}
-            transition={{ type: "spring", stiffness: 400, damping: 36 }}
+            transition={{
+              layout: { type: "spring", stiffness: 260, damping: 30, duration: 0.5 },
+            }}
             className="min-w-0"
           >
             {child}

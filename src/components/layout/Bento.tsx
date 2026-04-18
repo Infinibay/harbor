@@ -95,8 +95,9 @@ export function Bento({
             <motion.div
               key={child.key ?? i}
               layout
-              layoutDependency={step}
-              transition={{ type: "spring", stiffness: 300, damping: 32 }}
+              transition={{
+                layout: { type: "spring", stiffness: 260, damping: 30, duration: 0.5 },
+              }}
               className={cn("min-w-0", child.props.className)}
               style={{
                 gridColumn: `span ${col}`,
