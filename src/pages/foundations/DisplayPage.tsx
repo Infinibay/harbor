@@ -24,6 +24,9 @@ import { FeatureCard } from "../../components";
 import { LinkPreviewCard } from "../../components";
 import { NoteCard } from "../../components";
 import { EventCard } from "../../components";
+import { MetricCard } from "../../components";
+import { ResourceMeter } from "../../components";
+import { HostCard } from "../../components";
 
 export function DisplayPage() {
   const [progress, setProgress] = useState(0);
@@ -427,6 +430,118 @@ export function DisplayPage() {
             description="Walk through what we're shipping next and pick up feedback before scoping."
           />
         </div>
+      </Demo>
+
+      <Demo
+        title="MetricCard · threshold + sparkline + delta"
+        hint="Pack dashboard-grade metric tile"
+        wide
+      >
+        <CardGrid cols={3} className="w-full">
+          <MetricCard
+            label="Requests / min"
+            value="12,481"
+            delta={4.2}
+            series={[22, 24, 23, 26, 30, 28, 32, 34, 33, 36]}
+            icon={<Spark />}
+          />
+          <MetricCard
+            label="CPU · cluster avg"
+            value={78}
+            unit="%"
+            delta={-1.6}
+            series={[62, 64, 63, 68, 72, 75, 74, 77, 78, 78]}
+            threshold={[70, 90]}
+          />
+          <MetricCard
+            label="Error rate"
+            value="2.4"
+            unit="%"
+            raw={2.4}
+            delta={12.8}
+            series={[0.4, 0.5, 0.5, 0.8, 1.1, 1.5, 1.9, 2.1, 2.3, 2.4]}
+            threshold={[1.5, 2]}
+          />
+        </CardGrid>
+      </Demo>
+
+      <Demo
+        title="ResourceMeter · thresholds animate the bars"
+        hint="CPU / RAM / Disk stacked bars with amber/rose bands"
+        wide
+      >
+        <Row className="w-full gap-8 items-start">
+          <div className="flex-1">
+            <ResourceMeter
+              resources={[
+                { label: "CPU", value: 42, detail: "3.4 / 8 vCPU" },
+                {
+                  label: "RAM",
+                  value: 76,
+                  detail: "12.1 / 16 GB",
+                  threshold: [70, 90],
+                },
+                {
+                  label: "Disk",
+                  value: 94,
+                  detail: "470 / 500 GB",
+                  threshold: [70, 90],
+                },
+              ]}
+            />
+          </div>
+          <div className="flex-1">
+            <ResourceMeter
+              layout="compact"
+              resources={[
+                { label: "CPU", value: 18 },
+                { label: "RAM", value: 55 },
+                { label: "Disk", value: 88, threshold: [70, 90] },
+              ]}
+            />
+          </div>
+        </Row>
+      </Demo>
+
+      <Demo
+        title="HostCard · VM / compute summary"
+        hint="Status · name · resources · tags · actions"
+        wide
+      >
+        <CardGrid cols={2} className="w-full">
+          <HostCard
+            name="api-gateway-01"
+            subtitle="Ubuntu 24.04 · 8 vCPU · 16 GB"
+            status="online"
+            cpu={42}
+            ram={{ used: 11.8, total: 16 }}
+            disk={{ used: 180, total: 500 }}
+            tags={["eu-west-1", "prod", "edge"]}
+          />
+          <HostCard
+            name="worker-db-02"
+            subtitle="PostgreSQL · replica"
+            status="degraded"
+            cpu={88}
+            ram={{ used: 14.2, total: 16 }}
+            disk={{ used: 450, total: 500 }}
+            tags={["eu-west-1", "prod", "db"]}
+          />
+          <HostCard
+            name="build-runner-04"
+            subtitle="NixOS · ephemeral"
+            status="provisioning"
+            cpu={2}
+            ram={{ used: 0.8, total: 8 }}
+            tags={["ci", "ephemeral"]}
+          />
+          <HostCard
+            name="legacy-billing"
+            subtitle="CentOS 7 · scheduled decommission"
+            status="offline"
+            tags={["us-east-1", "legacy"]}
+          />
+        </CardGrid>
       </Demo>
 
       <Demo title="EmptyState" wide>

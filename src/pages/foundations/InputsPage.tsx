@@ -22,6 +22,7 @@ import { Rating } from "../../components";
 import { RangeSlider } from "../../components";
 import { ToggleGroup } from "../../components";
 import { Wizard } from "../../components";
+import { Form, FormSection, FieldSet, FormField, Button } from "../../components";
 
 export function InputsPage() {
   const [check1, setCheck1] = useState(true);
@@ -270,6 +271,75 @@ export function InputsPage() {
           onChange={setColor}
           colors={["#a855f7", "#38bdf8", "#f472b6", "#34d399", "#fbbf24", "#fb7185", "#64748b"]}
         />
+      </Demo>
+
+      <Demo
+        title="Form orchestration"
+        hint="Form · FormSection · FieldSet · FormField · any input"
+        wide
+        intensity="soft"
+      >
+        <Form onSubmit={(e) => e.preventDefault()}>
+          <FormSection
+            title="Workspace"
+            description="Public metadata about this workspace."
+            columns
+          >
+            <FormField label="Workspace name" required helper="Shown in URLs.">
+              <TextField placeholder="infinibay-prod" />
+            </FormField>
+            <FormField label="Description" optional>
+              <Textarea placeholder="What this workspace is for…" />
+            </FormField>
+            <FormField
+              label="Primary region"
+              helper="Latency-sensitive workloads boot here first."
+              layout="inline"
+            >
+              <Select
+                value={sel}
+                onChange={setSel}
+                options={[
+                  { value: "prod", label: "eu-west-1" },
+                  { value: "us", label: "us-east-1" },
+                  { value: "apac", label: "ap-southeast-1" },
+                ]}
+              />
+            </FormField>
+          </FormSection>
+
+          <FormSection
+            title="Notifications"
+            description="How Infinibay reaches you when something breaks."
+            columns
+          >
+            <FieldSet
+              legend="Channels"
+              description="You can override these per-project."
+            >
+              <Switch
+                label="Email alerts"
+                description="All critical incidents."
+                defaultChecked
+              />
+              <Switch label="SMS alerts" description="Rates may apply." />
+              <Switch label="Slack digest" description="Weekly summary in #ops." />
+            </FieldSet>
+          </FormSection>
+
+          <FormSection
+            actions={
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" type="button">
+                  Cancel
+                </Button>
+                <Button type="submit">Save changes</Button>
+              </div>
+            }
+          >
+            <div />
+          </FormSection>
+        </Form>
       </Demo>
     </Group>
   );

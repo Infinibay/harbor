@@ -8,6 +8,9 @@ import { Button } from "../../components";
 import { FilterBar, type AppliedFilter } from "../../components";
 import { PeekCard, PeekGrid } from "../../components";
 import { Callout } from "../../components";
+import { Marquee } from "../../components";
+import { ParallaxGroup, ParallaxLayer } from "../../components";
+import { Badge } from "../../components";
 
 export function CoordinationPage() {
   const [toolbarSearchOpen, setToolbarSearchOpen] = useState(false);
@@ -83,6 +86,57 @@ export function CoordinationPage() {
       </Demo>
       <Demo title="Callout / product tour" hint="Highlight + dim + popover paso a paso." wide intensity="soft">
         <TourDemo />
+      </Demo>
+
+      <Demo
+        title="Marquee · ribbon infinito con hover-pause"
+        hint="Fade en los bordes, una copia se mide y se duplica hasta llenar"
+        wide
+        intensity="soft"
+      >
+        <Marquee speed={60} gap={48} className="py-4">
+          {["Nix", "Kubernetes", "Terraform", "Prometheus", "Grafana", "ClickHouse", "Redis", "Postgres", "NATS"].map((name) => (
+            <span
+              key={name}
+              className="text-lg text-white/65 font-mono tracking-tight hover:text-white transition-colors"
+            >
+              {name}
+            </span>
+          ))}
+        </Marquee>
+      </Demo>
+
+      <Demo
+        title="ParallaxGroup · capas que reaccionan al cursor"
+        hint="Cada capa se mueve a su profundidad · un solo listener global"
+        wide
+        intensity="soft"
+      >
+        <ParallaxGroup strength={28} className="h-64 overflow-hidden rounded-2xl bg-gradient-to-br from-fuchsia-500/10 via-violet-500/5 to-sky-500/10 border border-white/10 flex items-center justify-center">
+          <ParallaxLayer depth={0.15} className="absolute inset-0 flex items-center justify-start pl-10">
+            <div className="w-40 h-40 rounded-full bg-fuchsia-500/20 blur-2xl" />
+          </ParallaxLayer>
+          <ParallaxLayer depth={0.3} className="absolute inset-0 flex items-center justify-end pr-14">
+            <div className="w-52 h-52 rounded-full bg-sky-500/20 blur-3xl" />
+          </ParallaxLayer>
+          <ParallaxLayer depth={0.6} className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col gap-2 items-center">
+              <Badge>Infinibay · v0.1</Badge>
+              <div className="text-white/30 text-xs">back layer</div>
+            </div>
+          </ParallaxLayer>
+          <ParallaxLayer depth={1.2} tilt={0.4} className="relative z-10">
+            <div className="px-8 py-5 rounded-2xl bg-white/[0.06] border border-white/15 backdrop-blur-md shadow-[0_30px_60px_-20px_rgba(168,85,247,0.35)]">
+              <div className="text-white text-xl font-semibold">Living cards</div>
+              <div className="text-white/50 text-sm mt-1">Move your cursor around.</div>
+            </div>
+          </ParallaxLayer>
+          <ParallaxLayer depth={-0.4} className="absolute top-6 right-8">
+            <div className="text-[10px] uppercase tracking-widest text-white/40">
+              foreground · negative depth
+            </div>
+          </ParallaxLayer>
+        </ParallaxGroup>
       </Demo>
 
       <Demo title="PeekCard grid" hint="Hover → expande. Grid reacomoda." wide intensity="soft">

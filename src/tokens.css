@@ -143,3 +143,25 @@
   --accent-2: rgb(var(--harbor-accent-2));
   --accent-3: rgb(var(--harbor-accent-3));
 }
+
+/* === Motion keyframes ==================================== */
+
+/* Consumed by Marquee — `--harbor-marquee-distance` is the width (or
+ * height) of one copy of the children; one full cycle translates that
+ * amount so the next duplicate seams cleanly in place. */
+@keyframes harbor-marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(var(--harbor-marquee-distance, -100%));
+  }
+}
+@keyframes harbor-marquee-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(var(--harbor-marquee-distance, -100%));
+  }
+}
