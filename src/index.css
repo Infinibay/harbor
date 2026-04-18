@@ -1,16 +1,11 @@
+@import "./tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   color-scheme: dark;
-  --bg: #0a0a0f;
-  --bg-soft: #12121a;
-  --fg: #e6e6ef;
-  --muted: #8a8a9c;
-  --accent: #a855f7;
-  --accent-2: #38bdf8;
-  --accent-3: #f472b6;
 }
 
 html,

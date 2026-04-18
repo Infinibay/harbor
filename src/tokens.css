@@ -1,0 +1,145 @@
+/**
+ * Harbor design tokens.
+ *
+ * Every semantic value lives here as a CSS custom property. Components
+ * reference these via Tailwind utilities (bg-accent, text-muted, …) or
+ * directly via var(--harbor-*).
+ *
+ * Color channels are stored as space-separated RGB triplets so they
+ * work with the modern `rgb(var(--name) / <alpha>)` slash syntax —
+ * that's what Tailwind's <alpha-value> placeholder expands to.
+ *
+ * Override any token on a subtree to rebrand / theme a section:
+ *
+ *   <div style={{ "--harbor-accent": "34 211 238" }}>…</div>
+ */
+
+:root {
+  /* === Colors ============================================== */
+
+  /* Brand accents (RGB triplets) */
+  --harbor-accent: 168 85 247;       /* fuchsia-500 */
+  --harbor-accent-2: 56 189 248;     /* sky-400 */
+  --harbor-accent-3: 244 114 182;    /* pink-400 */
+
+  /* Semantic tones */
+  --harbor-success: 52 211 153;      /* emerald-400 */
+  --harbor-warning: 251 191 36;      /* amber-400 */
+  --harbor-danger: 244 63 94;        /* rose-500 */
+  --harbor-info: 56 189 248;         /* sky-400 */
+
+  /* Surfaces (layered) */
+  --harbor-bg: 10 10 15;             /* page background */
+  --harbor-bg-elev-1: 18 18 26;      /* inputs, dropdowns */
+  --harbor-bg-elev-2: 28 28 38;      /* floating menus */
+  --harbor-bg-elev-3: 38 38 50;      /* dialogs */
+
+  /* Text */
+  --harbor-text: 255 255 255;
+  --harbor-text-muted: 170 170 180;
+  --harbor-text-subtle: 120 120 130;
+
+  /* Borders (always use with alpha) */
+  --harbor-border: 255 255 255;
+
+  /* === Typography ========================================== */
+
+  --harbor-font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --harbor-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+    Consolas, monospace;
+
+  --harbor-text-xs: 11px;
+  --harbor-text-sm: 13px;
+  --harbor-text-base: 15px;
+  --harbor-text-lg: 17px;
+  --harbor-text-xl: 20px;
+  --harbor-text-2xl: 24px;
+  --harbor-text-3xl: 30px;
+  --harbor-text-4xl: 36px;
+  --harbor-text-5xl: 48px;
+
+  --harbor-leading-tight: 1.2;
+  --harbor-leading-snug: 1.4;
+  --harbor-leading-normal: 1.5;
+  --harbor-leading-relaxed: 1.7;
+  --harbor-leading-loose: 1.8;
+
+  --harbor-tracking-tight: -0.01em;
+  --harbor-tracking-normal: 0em;
+  --harbor-tracking-wide: 0.05em;
+  --harbor-tracking-widest: 0.25em;
+
+  /* === Spacing scale ======================================= */
+
+  --harbor-space-0: 0px;
+  --harbor-space-1: 4px;
+  --harbor-space-2: 8px;
+  --harbor-space-3: 12px;
+  --harbor-space-4: 16px;
+  --harbor-space-5: 20px;
+  --harbor-space-6: 24px;
+  --harbor-space-8: 32px;
+  --harbor-space-10: 40px;
+  --harbor-space-12: 48px;
+  --harbor-space-16: 64px;
+  --harbor-space-20: 80px;
+  --harbor-space-24: 96px;
+
+  /* === Radii =============================================== */
+
+  --harbor-radius-none: 0px;
+  --harbor-radius-sm: 6px;
+  --harbor-radius-md: 10px;
+  --harbor-radius-lg: 14px;
+  --harbor-radius-xl: 20px;
+  --harbor-radius-2xl: 28px;
+  --harbor-radius-full: 9999px;
+
+  /* === Shadows ============================================= */
+
+  --harbor-shadow-sm: 0 2px 8px -2px rgb(0 0 0 / 0.3);
+  --harbor-shadow-md: 0 12px 30px -10px rgb(0 0 0 / 0.5);
+  --harbor-shadow-lg: 0 30px 80px -20px rgb(0 0 0 / 0.7);
+  --harbor-shadow-glow: 0 0 24px -4px rgb(var(--harbor-accent) / 0.45);
+
+  /* === Motion ============================================== */
+
+  --harbor-dur-instant: 80ms;
+  --harbor-dur-fast: 150ms;
+  --harbor-dur-base: 260ms;
+  --harbor-dur-slow: 420ms;
+  --harbor-dur-slower: 620ms;
+
+  --harbor-ease-linear: linear;
+  --harbor-ease-out: cubic-bezier(0.22, 0.7, 0.2, 1);
+  --harbor-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --harbor-ease-spring: cubic-bezier(0.3, 1.4, 0.4, 1);
+
+  /* === Breakpoints (JS reference only — CSS uses @media) === */
+
+  --harbor-bp-sm: 640px;
+  --harbor-bp-md: 768px;
+  --harbor-bp-lg: 1024px;
+  --harbor-bp-xl: 1280px;
+  --harbor-bp-2xl: 1536px;
+
+  /* === Container widths ==================================== */
+
+  --harbor-container-sm: 640px;
+  --harbor-container-md: 768px;
+  --harbor-container-lg: 1024px;
+  --harbor-container-xl: 1200px;
+  --harbor-container-2xl: 1440px;
+  --harbor-container-prose: 66ch;
+
+  /* === Backward-compat aliases ============================= */
+  /* Kept for code that already reads --bg, --fg, etc. */
+
+  --bg: rgb(var(--harbor-bg));
+  --bg-soft: rgb(var(--harbor-bg-elev-1));
+  --fg: rgb(var(--harbor-text));
+  --muted: rgb(var(--harbor-text-muted));
+  --accent: rgb(var(--harbor-accent));
+  --accent-2: rgb(var(--harbor-accent-2));
+  --accent-3: rgb(var(--harbor-accent-3));
+}

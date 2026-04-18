@@ -1,5 +1,6 @@
 export * from "./Accordion";
 export * from "./BrowserTabs";
+export * from "./Container";
 export * from "./Dock";
 export * from "./Expandable";
 export * from "./ExpandingSearch";
@@ -7,7 +8,10 @@ export * from "./FilterBar";
 export * from "./MenuBar";
 export * from "./MiniMap";
 export * from "./MorphBar";
+export * from "./ResponsiveStack";
+export * from "./ResponsiveSwap";
 export * from "./ScrollArea";
+export * from "./Show";
 export * from "./SplitPane";
 export * from "./StatusBar";
 export * from "./Toolbar";
