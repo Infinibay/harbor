@@ -766,7 +766,13 @@ export function CanvasItem({
     ? (e: React.MouseEvent) => {
         if (e.button !== 0) return;
         e.stopPropagation();
-        const currentZoom = ctx.zoom.get();
+        // TS's property narrowing doesn't propagate into nested
+        // functions (the closures below capture by reference), so pin
+        // everything to a local name up-front.
+        if (!ctx) return;
+        const canvasCtx = ctx;
+        const snap = canvasCtx.snap;
+        const currentZoom = canvasCtx.zoom.get();
         const startClientX = e.clientX;
         const startClientY = e.clientY;
         const startX = xMV.get();
@@ -785,16 +791,16 @@ export function CanvasItem({
           const dy = (ev.clientY - startClientY) / currentZoom;
           let nx = startX + dx;
           let ny = startY + dy;
-          if (ctx.snap) {
-            const others = ctx.snap.getItems(excludeIds);
+          if (snap) {
+            const others = snap.getItems(excludeIds);
             const r = computeSnap(
               { x: nx, y: ny, width: itemW, height: itemH },
               others,
-              ctx.snap.options,
+              snap.options,
             );
             nx += r.dx;
             ny += r.dy;
-            ctx.snap.publish(r.guides);
+            snap.publish(r.guides);
           }
           latestPos = { x: nx, y: ny };
           xMV.set(nx);
@@ -805,7 +811,7 @@ export function CanvasItem({
           window.removeEventListener("mousemove", onMove);
           window.removeEventListener("mouseup", onUp);
           draggingRef.current = false;
-          ctx.snap?.publish([]);
+          snap?.publish([]);
           onDragEnd?.(latestPos);
         }
         window.addEventListener("mousemove", onMove);
