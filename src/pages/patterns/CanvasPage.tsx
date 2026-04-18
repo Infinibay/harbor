@@ -34,8 +34,10 @@ import {
 } from "../../lib/canvas-serialize";
 import { downloadPNG, downloadSVG } from "../../lib/canvas-export";
 import {
+  CanvasBrush,
   CanvasPresenceCursor,
   CanvasVirtualized,
+  type BrushStroke,
 } from "../../components";
 import { useCanvasPresence, type PresenceUser } from "../../lib/useCanvasPresence";
 import {
@@ -199,6 +201,24 @@ export function CanvasPage() {
         intensity="soft"
       >
         <PresenceDemo />
+      </Demo>
+
+      <Demo
+        title="Freehand brush"
+        hint="Catmull-Rom smoothing · strokes saved in state"
+        wide
+        intensity="soft"
+      >
+        <BrushDemo />
+      </Demo>
+
+      <Demo
+        title="Smart connection routing"
+        hint='`curve="smart"` bends edges around obstacles'
+        wide
+        intensity="soft"
+      >
+        <SmartRoutingDemo />
       </Demo>
     </Group>
   );
@@ -1105,6 +1125,199 @@ function TimelineNode({
 }
 
 // === Stagger cascade =======================================
+
+// === Freehand brush demo (Pack E) ================================
+
+function BrushDemo() {
+  const [strokes, setStrokes] = useState<(BrushStroke & { id: string })[]>([]);
+  const [color, setColor] = useState("#f472b6");
+  const [thickness, setThickness] = useState(3);
+  const colors = ["#f472b6", "#a855f7", "#38bdf8", "#34d399", "#fbbf24", "#ffffff"];
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="gap-2 items-center">
+        {colors.map((c) => (
+          <button
+            key={c}
+            onClick={() => setColor(c)}
+            title={c}
+            aria-label={`color ${c}`}
+            className="w-6 h-6 rounded-full border-2 transition"
+            style={{
+              background: c,
+              borderColor: c === color ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.2)",
+            }}
+          />
+        ))}
+        <span className="w-px h-5 bg-white/10 mx-1" />
+        <label className="flex items-center gap-2 text-xs text-white/60">
+          thickness
+          <input
+            type="range"
+            min={1}
+            max={10}
+            value={thickness}
+            onChange={(e) => setThickness(Number(e.target.value))}
+          />
+          <span className="tabular-nums font-mono w-4 text-right">{thickness}</span>
+        </label>
+        <span className="flex-1" />
+        <Button size="sm" variant="ghost" onClick={() => setStrokes([])}>
+          Clear
+        </Button>
+        <span className="text-xs text-white/40 tabular-nums font-mono">
+          {strokes.length} strokes
+        </span>
+      </Row>
+      <Canvas
+        grid="dots"
+        gridSize={28}
+        className="h-[420px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+        cursor="crosshair"
+      >
+        <svg
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: 0,
+            height: 0,
+            overflow: "visible",
+            pointerEvents: "none",
+          }}
+        >
+          {strokes.map((s) => (
+            <path
+              key={s.id}
+              d={s.d}
+              fill="none"
+              stroke={s.color}
+              strokeWidth={s.thickness}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ))}
+        </svg>
+        <CanvasBrush
+          color={color}
+          thickness={thickness}
+          smoothing={0.6}
+          onStroke={(s) =>
+            setStrokes((prev) => [
+              ...prev,
+              { ...s, id: `s${Date.now()}${Math.random().toString(36).slice(2, 5)}` },
+            ])
+          }
+        />
+        <CanvasItem x={40} y={40} bounds={false} fixedSize>
+          <div className="px-2 py-1 rounded-md bg-white/[0.05] border border-white/10 text-[11px] text-white/60">
+            draw on empty canvas · zoom with wheel · strokes live in world-space
+          </div>
+        </CanvasItem>
+      </Canvas>
+    </div>
+  );
+}
+
+// === Smart routing demo (Pack E) =================================
+
+interface SmartNode {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  label: string;
+  color: string;
+}
+
+function SmartRoutingDemo() {
+  const [nodes, setNodes] = useState<SmartNode[]>(() => [
+    { id: "a", x: 60, y: 180, width: 120, height: 60, label: "Source", color: "#38bdf8" },
+    { id: "b", x: 300, y: 60, width: 120, height: 60, label: "Obstacle", color: "#fb7185" },
+    { id: "c", x: 300, y: 180, width: 120, height: 60, label: "Obstacle", color: "#fb7185" },
+    { id: "d", x: 300, y: 300, width: 120, height: 60, label: "Obstacle", color: "#fb7185" },
+    { id: "e", x: 540, y: 180, width: 120, height: 60, label: "Sink", color: "#34d399" },
+  ]);
+  const [smart, setSmart] = useState(true);
+
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const source = byId.get("a")!;
+  const sink = byId.get("e")!;
+  const obstacles = nodes.filter((n) => n.id === "b" || n.id === "c" || n.id === "d");
+
+  const socket = (n: SmartNode, side: "l" | "r") => ({
+    x: side === "l" ? n.x : n.x + n.width,
+    y: n.y + n.height / 2,
+  });
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="gap-2 items-center">
+        <Button
+          size="sm"
+          variant={smart ? "primary" : "ghost"}
+          onClick={() => setSmart(true)}
+        >
+          smart
+        </Button>
+        <Button
+          size="sm"
+          variant={!smart ? "primary" : "ghost"}
+          onClick={() => setSmart(false)}
+        >
+          bezier
+        </Button>
+        <span className="flex-1" />
+        <span className="text-xs text-white/40">Drag the pink nodes — the route bends around them</span>
+      </Row>
+      <Canvas
+        grid="dots"
+        gridSize={24}
+        className="h-[460px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+        defaultTransform={{ x: 40, y: 40, zoom: 1 }}
+      >
+        <CanvasConnection
+          from={socket(source, "r")}
+          to={socket(sink, "l")}
+          curve={smart ? "smart" : "bezier"}
+          obstacles={obstacles}
+          color="#a855f7"
+          thickness={2}
+          arrow
+          animated
+        />
+        {nodes.map((n) => (
+          <CanvasItem
+            key={n.id}
+            id={n.id}
+            x={n.x}
+            y={n.y}
+            draggable
+            onDrag={(pos) =>
+              setNodes((prev) =>
+                prev.map((p) => (p.id === n.id ? { ...p, ...pos } : p)),
+              )
+            }
+          >
+            <div
+              style={{
+                width: n.width,
+                height: n.height,
+                background: `${n.color}22`,
+                borderColor: `${n.color}99`,
+              }}
+              className="rounded-xl border-2 flex items-center justify-center text-sm font-semibold text-white/90 select-none"
+            >
+              {n.label}
+            </div>
+          </CanvasItem>
+        ))}
+      </Canvas>
+    </div>
+  );
+}
 
 // === Virtualization demo (Pack D) ================================
 
