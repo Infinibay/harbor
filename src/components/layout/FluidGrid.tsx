@@ -1,7 +1,7 @@
-import { Children, useRef, type ReactNode } from "react";
+import { Children, useCallback, useRef, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
-import { useContainerSize } from "../../lib/useContainerSize";
+import { useContainerDerived } from "../../lib/useContainerSize";
 
 export interface FluidGridProps {
   children: ReactNode;
@@ -18,9 +18,9 @@ export interface FluidGridProps {
 /** Grid that auto-fits columns based on available width.
  *
  * Uses `grid-template-columns: repeat(auto-fit, minmax(minWidth, 1fr))`
- * so children naturally reflow at any container width. A ResizeObserver
- * re-renders on width changes so Framer Motion's `layout` animations
- * pick up the new positions smoothly.
+ * so children naturally reflow at any container width. Re-renders ONLY
+ * when the computed column count actually changes (not on every pixel),
+ * so Framer Motion's `layout` animations get a clean delta to animate.
  */
 export function FluidGrid({
   children,
@@ -31,11 +31,18 @@ export function FluidGrid({
   animate = true,
 }: FluidGridProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  // width is read for its side-effect (forces re-render on resize → Framer
-  // Motion re-measures and animates to the new position).
-  useContainerSize(ref);
 
-  const cols = maxColumns > 0 ? `repeat(${maxColumns}, 1fr)` : undefined;
+  // Derive the expected column count from container width. Only triggers
+  // a re-render when the count actually changes.
+  const compute = useCallback(
+    ({ width }: { width: number }) => {
+      if (!width) return 1;
+      const raw = Math.max(1, Math.floor((width + gap) / (minItemWidth + gap)));
+      return maxColumns > 0 ? Math.min(raw, maxColumns) : raw;
+    },
+    [minItemWidth, maxColumns, gap],
+  );
+  const cols = useContainerDerived(ref, compute);
 
   return (
     <div
@@ -43,9 +50,7 @@ export function FluidGrid({
       className={cn("grid w-full", className)}
       style={{
         gap,
-        gridTemplateColumns:
-          cols ??
-          `repeat(auto-fit, minmax(min(100%, ${minItemWidth}px), 1fr))`,
+        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
       }}
     >
       {Children.map(children, (child, i) =>
@@ -53,6 +58,7 @@ export function FluidGrid({
           <motion.div
             key={(child as { key?: React.Key })?.key ?? i}
             layout
+            layoutDependency={cols}
             transition={{ type: "spring", stiffness: 400, damping: 36 }}
             className="min-w-0"
           >

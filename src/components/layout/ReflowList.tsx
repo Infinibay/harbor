@@ -1,7 +1,6 @@
-import { Children, useRef, type ReactNode } from "react";
+import { Children, useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, LayoutGroup } from "framer-motion";
 import { cn } from "../../lib/cn";
-import { useContainerSize } from "../../lib/useContainerSize";
 
 export interface ReflowListProps {
   children: ReactNode;
@@ -36,7 +35,23 @@ export function ReflowList({
   className,
 }: ReflowListProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  useContainerSize(ref);
+  // Track the rounded container width in 32px buckets. That gives Framer
+  // Motion a discrete `layoutDependency` that changes a handful of times
+  // during a resize (instead of 60 times/sec), so position animations
+  // actually play instead of snapping.
+  const [widthBucket, setWidthBucket] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const bucket = Math.round(entry.contentRect.width / 32);
+      setWidthBucket((prev) => (prev === bucket ? prev : bucket));
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   const alignMap = {
     start: "items-start",
@@ -68,6 +83,7 @@ export function ReflowList({
           <motion.div
             key={(child as { key?: React.Key })?.key ?? i}
             layout
+            layoutDependency={widthBucket}
             transition={{ type: "spring", stiffness: 420, damping: 34 }}
           >
             {child}
