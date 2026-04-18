@@ -1,7 +1,7 @@
 import { Children, useRef, type ReactNode } from "react";
-import { motion, LayoutGroup } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useContainerSize } from "../../lib/useContainerSize";
+import { useFlipOnChange } from "../../lib/useFlipOnChange";
 
 export interface ReflowListProps {
   children: ReactNode;
@@ -19,13 +19,9 @@ export interface ReflowListProps {
  *
  * Classic use: a toolbar / chip row / avatar stack / nav items. Shrink the
  * container and the last items slide down into the next row instead of
- * snapping. Grow it and they slide back up.
- *
- * Uses a combination of:
- *   - flex-wrap for the CSS layout
- *   - ResizeObserver to force re-render on width changes
- *   - Framer Motion `layout` + `LayoutGroup` so each child animates
- *     between its old and new position.
+ * snapping. Grow it and they slide back up. Works for both discrete
+ * resizes and slow continuous window-drags via a manual FLIP transition
+ * triggered on ~64px width buckets.
  */
 export function ReflowList({
   children,
@@ -36,13 +32,10 @@ export function ReflowList({
   className,
 }: ReflowListProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  // Track the rounded container width in 32px buckets. That gives Framer
-  // Re-render on every resize tick (keeps FM's cached old-position
-  // fresh) but bucket the width to 64px so layoutDependency only fires
-  // ~handful of times during a slow drag — that's when FM actually
-  // animates the reflow (items sliding to/from the next row).
   const { width } = useContainerSize(ref);
   const widthBucket = Math.round(width / 64);
+
+  useFlipOnChange(ref, widthBucket);
 
   const alignMap = {
     start: "items-start",
@@ -58,31 +51,25 @@ export function ReflowList({
   };
 
   return (
-    <LayoutGroup>
-      <div
-        ref={ref}
-        className={cn(
-          "flex w-full",
-          wrap && "flex-wrap",
-          alignMap[align],
-          justifyMap[justify],
-          className,
-        )}
-        style={{ gap }}
-      >
-        {Children.map(children, (child, i) => (
-          <motion.div
-            key={(child as { key?: React.Key })?.key ?? i}
-            layout
-            layoutDependency={widthBucket}
-            transition={{
-              layout: { type: "spring", stiffness: 300, damping: 30, duration: 0.45 },
-            }}
-          >
+    <div
+      ref={ref}
+      className={cn(
+        "flex w-full",
+        wrap && "flex-wrap",
+        alignMap[align],
+        justifyMap[justify],
+        className,
+      )}
+      style={{ gap }}
+    >
+      {Children.map(children, (child, i) => {
+        const key = (child as { key?: React.Key })?.key ?? i;
+        return (
+          <div key={key} data-flip={String(key)}>
             {child}
-          </motion.div>
-        ))}
-      </div>
-    </LayoutGroup>
+          </div>
+        );
+      })}
+    </div>
   );
 }

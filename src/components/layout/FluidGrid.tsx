@@ -1,7 +1,7 @@
 import { Children, useRef, type ReactNode } from "react";
-import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useContainerSize } from "../../lib/useContainerSize";
+import { useFlipOnChange } from "../../lib/useFlipOnChange";
 
 export interface FluidGridProps {
   children: ReactNode;
@@ -17,10 +17,10 @@ export interface FluidGridProps {
 
 /** Grid that auto-fits columns based on available width.
  *
- * Uses `grid-template-columns: repeat(auto-fit, minmax(minWidth, 1fr))`
- * so children naturally reflow at any container width. Re-renders ONLY
- * when the computed column count actually changes (not on every pixel),
- * so Framer Motion's `layout` animations get a clean delta to animate.
+ * Uses `grid-template-columns: repeat(N, 1fr)` where N is computed from
+ * the container width and `minItemWidth`. When N changes, a manual FLIP
+ * transition animates each child from its previous cell to the new one
+ * — works equally well for discrete and slow continuous-drag resizes.
  */
 export function FluidGrid({
   children,
@@ -31,13 +31,13 @@ export function FluidGrid({
   animate = true,
 }: FluidGridProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  // Re-render on every resize tick to keep FM's cached position fresh,
-  // but animate only when the computed column count actually changes.
   const { width } = useContainerSize(ref);
   const raw = width
     ? Math.max(1, Math.floor((width + gap) / (minItemWidth + gap)))
     : 1;
   const cols = maxColumns > 0 ? Math.min(raw, maxColumns) : raw;
+
+  useFlipOnChange(ref, animate ? cols : null);
 
   return (
     <div
@@ -48,23 +48,14 @@ export function FluidGrid({
         gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
       }}
     >
-      {Children.map(children, (child, i) =>
-        animate ? (
-          <motion.div
-            key={(child as { key?: React.Key })?.key ?? i}
-            layout
-            layoutDependency={cols}
-            transition={{
-              layout: { type: "spring", stiffness: 260, damping: 30, duration: 0.5 },
-            }}
-            className="min-w-0"
-          >
+      {Children.map(children, (child, i) => {
+        const key = (child as { key?: React.Key })?.key ?? i;
+        return (
+          <div key={key} data-flip={animate ? String(key) : undefined} className="min-w-0">
             {child}
-          </motion.div>
-        ) : (
-          child
-        ),
-      )}
+          </div>
+        );
+      })}
     </div>
   );
 }

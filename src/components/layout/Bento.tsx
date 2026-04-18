@@ -1,7 +1,7 @@
 import { Children, isValidElement, useRef, type ReactNode } from "react";
-import { motion, LayoutGroup } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useContainerSize } from "../../lib/useContainerSize";
+import { useFlipOnChange } from "../../lib/useFlipOnChange";
 
 type Span = {
   col?: number;
@@ -58,8 +58,9 @@ function resolveForStep<T>(value: Responsive<T>, step: Step): T {
  *
  * Wrap each child in `<BentoItem span={{ base: {col:2, row:1}, md: {col:3, row:2} }}>`
  * to control how many columns/rows it occupies per breakpoint (measured
- * on the container, not the viewport). Items animate to their new
- * positions when the container resizes across a breakpoint.
+ * on the container, not the viewport). Tiles animate to their new
+ * positions when the container crosses a breakpoint — including during
+ * a slow continuous window-drag.
  */
 export function Bento({
   children,
@@ -68,50 +69,43 @@ export function Bento({
   className,
 }: BentoProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  // Re-render on every resize tick (so Framer Motion keeps a fresh
-  // "previous position" cached) — but ANIMATE only when the step
-  // crosses a breakpoint (via `layoutDependency={step}`). This handles
-  // both the "quick resize" case and the "slow continuous drag" case.
   const { width } = useContainerSize(ref);
   const step = stepForWidth(width);
   const cols = resolveForStep(columns, step);
 
+  useFlipOnChange(ref, step);
+
   return (
-    <LayoutGroup>
-      <div
-        ref={ref}
-        className={cn("grid w-full", className)}
-        style={{
-          gap,
-          gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          gridAutoRows: "minmax(80px, auto)",
-        }}
-      >
-        {Children.map(children, (child, i) => {
-          if (!isValidElement<BentoItemProps>(child)) return child;
-          const span = resolveForStep(child.props.span ?? {}, step) ?? {};
-          const col = Math.min(span.col ?? 1, cols);
-          const row = span.row ?? 1;
-          return (
-            <motion.div
-              key={child.key ?? i}
-              layout
-              layoutDependency={step}
-              transition={{
-                layout: { type: "spring", stiffness: 260, damping: 30, duration: 0.5 },
-              }}
-              className={cn("min-w-0", child.props.className)}
-              style={{
-                gridColumn: `span ${col}`,
-                gridRow: `span ${row}`,
-              }}
-            >
-              {child.props.children}
-            </motion.div>
-          );
-        })}
-      </div>
-    </LayoutGroup>
+    <div
+      ref={ref}
+      className={cn("grid w-full", className)}
+      style={{
+        gap,
+        gridTemplateColumns: `repeat(${cols}, 1fr)`,
+        gridAutoRows: "minmax(80px, auto)",
+      }}
+    >
+      {Children.map(children, (child, i) => {
+        if (!isValidElement<BentoItemProps>(child)) return child;
+        const span = resolveForStep(child.props.span ?? {}, step) ?? {};
+        const col = Math.min(span.col ?? 1, cols);
+        const row = span.row ?? 1;
+        const key = child.key ?? i;
+        return (
+          <div
+            key={key}
+            data-flip={String(key)}
+            className={cn("min-w-0", child.props.className)}
+            style={{
+              gridColumn: `span ${col}`,
+              gridRow: `span ${row}`,
+            }}
+          >
+            {child.props.children}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
