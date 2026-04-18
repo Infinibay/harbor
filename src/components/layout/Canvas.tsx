@@ -51,6 +51,9 @@ export interface CanvasHandle {
   fit(opts?: { padding?: number } & AnimOpts): void;
   /** Reset to x=0, y=0, zoom=1. */
   reset(opts?: AnimOpts): void;
+  /** Get the viewport DOM element — for export helpers, measurement,
+   *  or attaching DOM listeners. */
+  getViewportElement(): HTMLElement | null;
 }
 
 interface AnimOpts {
@@ -475,6 +478,9 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
       },
       reset(opts) {
         applyTransform({ x: 0, y: 0, zoom: 1 }, opts);
+      },
+      getViewportElement() {
+        return viewportRef.current;
       },
     }),
     // applyTransform depends on x/y/zoom motion values, which are stable.

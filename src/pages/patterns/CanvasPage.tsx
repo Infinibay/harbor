@@ -28,6 +28,12 @@ import {
 import { useCanvasHistory } from "../../lib/useCanvasHistory";
 import { useCanvasSelection } from "../../lib/useCanvasSelection";
 import {
+  canvasToJSON,
+  parseCanvas,
+  stringifyCanvas,
+} from "../../lib/canvas-serialize";
+import { downloadPNG, downloadSVG } from "../../lib/canvas-export";
+import {
   MenuItem,
   MenuLabel,
   MenuSeparator,
@@ -161,6 +167,15 @@ export function CanvasPage() {
         intensity="soft"
       >
         <ProEditorDemo />
+      </Demo>
+
+      <Demo
+        title="Persist + export"
+        hint="JSON round-trip via localStorage · SVG + PNG downloads"
+        wide
+        intensity="soft"
+      >
+        <PersistDemo />
       </Demo>
     </Group>
   );
@@ -1067,6 +1082,147 @@ function TimelineNode({
 }
 
 // === Stagger cascade =======================================
+
+// === Persist + export demo (Pack C) =============================
+
+const PERSIST_KEY = "harbor:canvas-persist-demo";
+
+interface PersistItem {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+  text: string;
+}
+
+const PERSIST_INITIAL: PersistItem[] = [
+  { id: "a", x: 80, y: 80, width: 160, height: 70, color: "#a855f7", text: "Alpha" },
+  { id: "b", x: 280, y: 80, width: 160, height: 70, color: "#38bdf8", text: "Beta" },
+  { id: "c", x: 480, y: 80, width: 160, height: 70, color: "#34d399", text: "Gamma" },
+];
+
+function PersistDemo() {
+  const canvasRef = useRef<CanvasHandle>(null);
+  const [transform, setTransform] = useState<CanvasTransform>({ x: 0, y: 0, zoom: 1 });
+  const [items, setItems] = useState<PersistItem[]>(PERSIST_INITIAL);
+  const [status, setStatus] = useState<string>("idle");
+
+  function save() {
+    const doc = canvasToJSON<PersistItem, never>({
+      transform,
+      items,
+      meta: { savedAt: new Date().toISOString() },
+    });
+    localStorage.setItem(PERSIST_KEY, stringifyCanvas(doc));
+    setStatus(`saved ${items.length} items`);
+  }
+
+  function load() {
+    const raw = localStorage.getItem(PERSIST_KEY);
+    if (!raw) {
+      setStatus("nothing in storage");
+      return;
+    }
+    try {
+      const doc = parseCanvas<PersistItem, never>(raw);
+      setItems(doc.items);
+      canvasRef.current?.setTransform(doc.transform, { animate: true });
+      setStatus(`loaded ${doc.items.length} items`);
+    } catch (err) {
+      setStatus(`error: ${(err as Error).message}`);
+    }
+  }
+
+  function clearStorage() {
+    localStorage.removeItem(PERSIST_KEY);
+    setStatus("cleared");
+  }
+
+  function reshuffle() {
+    setItems((prev) =>
+      prev.map((it) => ({
+        ...it,
+        x: 40 + Math.random() * 600,
+        y: 40 + Math.random() * 260,
+      })),
+    );
+    setStatus("reshuffled — save to persist");
+  }
+
+  function exportSVG() {
+    const el = canvasRef.current?.getViewportElement();
+    if (!el) return;
+    downloadSVG(el, "canvas.svg", { background: "#0d0d14", padding: 32 });
+    setStatus("downloaded canvas.svg");
+  }
+
+  async function exportPNG() {
+    const el = canvasRef.current?.getViewportElement();
+    if (!el) return;
+    setStatus("rendering PNG…");
+    try {
+      await downloadPNG(el, "canvas.png", { background: "#0d0d14", padding: 32, scale: 2 });
+      setStatus("downloaded canvas.png");
+    } catch (err) {
+      setStatus(`png error: ${(err as Error).message}`);
+    }
+  }
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="gap-2 items-center">
+        <Button size="sm" onClick={save}>Save</Button>
+        <Button size="sm" variant="ghost" onClick={load}>Load</Button>
+        <Button size="sm" variant="ghost" onClick={clearStorage}>Clear</Button>
+        <Button size="sm" variant="ghost" onClick={reshuffle}>Reshuffle</Button>
+        <span className="w-px h-5 bg-white/10 mx-1" />
+        <Button size="sm" variant="ghost" onClick={exportSVG}>Export SVG</Button>
+        <Button size="sm" variant="ghost" onClick={exportPNG}>Export PNG</Button>
+        <span className="flex-1" />
+        <span className="text-xs text-white/40 tabular-nums font-mono">
+          {status}
+        </span>
+      </Row>
+      <Canvas
+        ref={canvasRef}
+        grid="dots"
+        gridSize={24}
+        onTransformChange={setTransform}
+        className="h-[380px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+      >
+        {items.map((it) => (
+          <CanvasItem
+            key={it.id}
+            id={it.id}
+            x={it.x}
+            y={it.y}
+            draggable
+            onDrag={(pos) =>
+              setItems((prev) =>
+                prev.map((p) => (p.id === it.id ? { ...p, ...pos } : p)),
+              )
+            }
+          >
+            <div
+              style={{
+                width: it.width,
+                height: it.height,
+                background: `${it.color}22`,
+                borderColor: `${it.color}99`,
+                color: "rgb(255 255 255 / 0.92)",
+              }}
+              className="rounded-xl border-2 flex items-center justify-center text-sm font-semibold select-none"
+            >
+              {it.text}
+            </div>
+          </CanvasItem>
+        ))}
+      </Canvas>
+    </div>
+  );
+}
 
 // === Pro editor demo (Pack A) =================================
 
