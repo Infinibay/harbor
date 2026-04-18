@@ -170,6 +170,7 @@ export function CanvasSelectionBox({
   return (
     <motion.div
       aria-hidden
+      data-canvas-no-marquee=""
       style={{
         position: "absolute",
         top: 0,
@@ -229,6 +230,7 @@ function Handle({
   return (
     <div
       onMouseDown={onMouseDown}
+      data-canvas-no-marquee=""
       style={{
         position: "absolute",
         width: HANDLE_SIZE,

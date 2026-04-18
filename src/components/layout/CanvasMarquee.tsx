@@ -74,8 +74,11 @@ export function CanvasMarquee({
     function onDown(e: MouseEvent) {
       if (e.button !== 0 || !modOk(e)) return;
       const target = e.target as HTMLElement;
-      // If we land on a canvas item, let the item handle the click.
+      // Skip when the click lands on a canvas item OR any element that
+      // explicitly opts out of marquee (resize handles, panel headers,
+      // etc. mark themselves with data-canvas-no-marquee).
       if (target.closest("[data-canvas-bounds]")) return;
+      if (target.closest("[data-canvas-no-marquee]")) return;
       if (!vp) return;
 
       const vRect = vp.getBoundingClientRect();

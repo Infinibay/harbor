@@ -3,6 +3,7 @@ import { motion, useMotionValue } from "framer-motion";
 import { Group, Demo, Row } from "../../showcase/ShowcaseCard";
 import {
   Canvas,
+  CanvasAlignmentToolbar,
   CanvasConnection,
   CanvasFloat,
   CanvasFollowPath,
@@ -16,6 +17,7 @@ import {
   CanvasRuler,
   CanvasSelectionBox,
   CanvasShortcuts,
+  CanvasSnapGuides,
   CanvasStatusBar,
   CanvasToolbar,
   CanvasZoomControls,
@@ -154,7 +156,7 @@ export function CanvasPage() {
 
       <Demo
         title="Pro editor · selection + undo + shortcuts"
-        hint="Shift/Cmd click · drag-select · Cmd+D dup · Del · arrows nudge · Cmd+Z undo"
+        hint="Shift/Cmd click · drag-select · Cmd+D dup · Del · arrows nudge · Cmd+Z undo · snap guides · alignment"
         wide
         intensity="soft"
       >
@@ -1195,6 +1197,16 @@ function ProEditorDemo() {
     void id;
   };
 
+  // Alignment toolbar applies positions atomically as a single history commit.
+  const applyAlignment = (positions: Map<string, { x: number; y: number }>) => {
+    if (positions.size === 0) return;
+    const next = items.map((it) => {
+      const p = positions.get(it.id);
+      return p ? { ...it, x: p.x, y: p.y } : it;
+    });
+    setItems(next, `align ${positions.size}`);
+  };
+
   return (
     <div className="w-full flex flex-col gap-3">
       <Row className="gap-2 items-center">
@@ -1211,6 +1223,11 @@ function ProEditorDemo() {
           {history.cursor + 1} / {history.stack.length}
         </span>
         <span className="flex-1" />
+        <CanvasAlignmentToolbar
+          ids={selection.ids}
+          items={items}
+          onChange={applyAlignment}
+        />
         <span className="text-xs text-white/40 tabular-nums font-mono">
           {selection.size} selected
         </span>
@@ -1227,6 +1244,7 @@ function ProEditorDemo() {
       <Canvas
         grid="dots"
         gridSize={24}
+        snap={{ edges: true, grid: 8, threshold: 6 }}
         className="h-[520px] rounded-2xl border border-white/10 bg-[#0d0d14]"
         overlay={
           <>
@@ -1244,10 +1262,11 @@ function ProEditorDemo() {
               }
               right={
                 <span className="text-white/40">
-                  shift/cmd+click · marquee · del · ⌘D · arrows · ⌘Z
+                  shift/cmd+click · marquee · del · ⌘D · arrows · ⌘Z · snap
                 </span>
               }
             />
+            <CanvasSnapGuides />
             <CanvasSelectionBox
               ids={selection.ids}
               items={items}
@@ -1268,6 +1287,7 @@ function ProEditorDemo() {
           return (
             <CanvasItem
               key={it.id}
+              id={it.id}
               x={it.x}
               y={it.y}
               draggable

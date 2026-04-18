@@ -25,6 +25,12 @@ import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
 import { MenuCtx } from "../overlays/Menu";
+import {
+  computeSnap,
+  type SnapGuide,
+  type SnapOptions,
+  type IdRect,
+} from "../../lib/canvas-snap";
 
 export type CanvasTransform = { x: number; y: number; zoom: number };
 
@@ -65,6 +71,19 @@ interface CanvasCtx {
    *  to every descendant so toolbars, zoom controls, minimaps etc. can
    *  drive the view without prop drilling. */
   api: CanvasHandle;
+  /** Snap bus — `null` when snapping is disabled. */
+  snap: SnapBus | null;
+}
+
+/** Publish/subscribe bus for snap guides while an item is dragging. */
+export interface SnapBus {
+  readonly options: SnapOptions;
+  /** Walks `[data-canvas-bounds]` descendants and returns their world-
+   *  space rects. Pass the dragging item's id in `excludeIds` to leave
+   *  it out. */
+  getItems(excludeIds?: Set<string>): IdRect[];
+  publish(guides: SnapGuide[]): void;
+  subscribe(listener: (guides: SnapGuide[]) => void): () => void;
 }
 
 const CanvasContext = createContext<CanvasCtx | null>(null);
@@ -117,6 +136,10 @@ export interface CanvasProps {
    *  while a draw tool is active). The built-in `grab/grabbing` state
    *  during pan still wins. */
   cursor?: CSSProperties["cursor"];
+  /** Enable snapping during item drag. Set to an object to configure
+   *  (grid size, threshold, enable edges). `CanvasSnapGuides` inside the
+   *  overlay renders the live pink guides. */
+  snap?: SnapOptions | true;
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -179,11 +202,52 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
     overlay,
     menu,
     cursor: cursorOverride,
+    snap,
   },
   ref,
 ) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const menuState = useContextMenuState();
+
+  // Snap bus lives alongside the Canvas so CanvasItem + CanvasSnapGuides
+  // can both tap into the same guide stream. `null` when snapping off.
+  const snapListenersRef = useRef<Set<(g: SnapGuide[]) => void>>(new Set());
+  const snapOptions: SnapOptions | null =
+    snap === true ? {} : snap ? snap : null;
+  const snapBus = useMemo<SnapBus | null>(() => {
+    if (!snapOptions) return null;
+    return {
+      options: snapOptions,
+      getItems(excludeIds) {
+        const vp = viewportRef.current;
+        if (!vp) return [];
+        const els = vp.querySelectorAll<HTMLElement>("[data-canvas-bounds]");
+        const out: IdRect[] = [];
+        els.forEach((el) => {
+          const id = el.dataset.canvasId;
+          if (id && excludeIds?.has(id)) return;
+          out.push({
+            id,
+            x: parseFloat(el.dataset.canvasX ?? "0"),
+            y: parseFloat(el.dataset.canvasY ?? "0"),
+            width: el.offsetWidth,
+            height: el.offsetHeight,
+          });
+        });
+        return out;
+      },
+      publish(guides) {
+        snapListenersRef.current.forEach((l) => l(guides));
+      },
+      subscribe(listener) {
+        snapListenersRef.current.add(listener);
+        return () => {
+          snapListenersRef.current.delete(listener);
+        };
+      },
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(snapOptions)]);
   const x = useMotionValue(defaultTransform?.x ?? transform?.x ?? 0);
   const y = useMotionValue(defaultTransform?.y ?? transform?.y ?? 0);
   const zoom = useMotionValue(defaultTransform?.zoom ?? transform?.zoom ?? 1);
@@ -420,8 +484,8 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
   useImperativeHandle(ref, () => api, [api]);
 
   const ctxValue = useMemo<CanvasCtx>(
-    () => ({ x, y, zoom, minZoom, maxZoom, viewportRef, api }),
-    [x, y, zoom, minZoom, maxZoom, api],
+    () => ({ x, y, zoom, minZoom, maxZoom, viewportRef, api, snap: snapBus }),
+    [x, y, zoom, minZoom, maxZoom, api, snapBus],
   );
 
   const cursor = isPanning
@@ -583,6 +647,9 @@ function CanvasGrid({ type, size, color, major, majorColor }: CanvasGridProps) {
 }
 
 export interface CanvasItemProps {
+  /** Optional identifier — threaded through as `data-canvas-id`. Snap,
+   *  minimap and external tools use it to match DOM items to your state. */
+  id?: string;
   /** World-space X coordinate of the item's top-left. */
   x: number;
   /** World-space Y coordinate. */
@@ -625,6 +692,7 @@ function resolveTransition(t: CanvasItemProps["transition"]): Transition | false
 /** Absolutely-positioned child of a `Canvas`. Accepts any JSX — buttons,
  *  cards, inputs, images — and places it at `{x, y}` in world coords. */
 export function CanvasItem({
+  id,
   x,
   y,
   children,
@@ -700,18 +768,38 @@ export function CanvasItem({
         draggingRef.current = true;
         onDragStart?.({ x: startX, y: startY });
         let latestPos = { x: startX, y: startY };
+        const excludeIds = new Set(id ? [id] : []);
+        // Capture item size at mousedown — `ev.currentTarget` inside the
+        // window listener below points at the window, not the item.
+        const itemEl = e.currentTarget as HTMLElement;
+        const itemW = itemEl.offsetWidth;
+        const itemH = itemEl.offsetHeight;
         function onMove(ev: MouseEvent) {
           const dx = (ev.clientX - startClientX) / currentZoom;
           const dy = (ev.clientY - startClientY) / currentZoom;
-          latestPos = { x: startX + dx, y: startY + dy };
-          xMV.set(latestPos.x);
-          yMV.set(latestPos.y);
+          let nx = startX + dx;
+          let ny = startY + dy;
+          if (ctx.snap) {
+            const others = ctx.snap.getItems(excludeIds);
+            const r = computeSnap(
+              { x: nx, y: ny, width: itemW, height: itemH },
+              others,
+              ctx.snap.options,
+            );
+            nx += r.dx;
+            ny += r.dy;
+            ctx.snap.publish(r.guides);
+          }
+          latestPos = { x: nx, y: ny };
+          xMV.set(nx);
+          yMV.set(ny);
           onDrag?.(latestPos);
         }
         function onUp() {
           window.removeEventListener("mousemove", onMove);
           window.removeEventListener("mouseup", onUp);
           draggingRef.current = false;
+          ctx.snap?.publish([]);
           onDragEnd?.(latestPos);
         }
         window.addEventListener("mousemove", onMove);
@@ -734,6 +822,7 @@ export function CanvasItem({
     <>
       <motion.div
         data-canvas-bounds={bounds ? "" : undefined}
+        data-canvas-id={id}
         data-canvas-x={x}
         data-canvas-y={y}
         onMouseDown={handleMouseDown}
