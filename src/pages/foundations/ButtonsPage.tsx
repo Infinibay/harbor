@@ -1,14 +1,24 @@
 import { useState } from "react";
-import { Group, Demo, Row } from "../../showcase/ShowcaseCard";
+import { Group, Demo, Row, Col } from "../../showcase/ShowcaseCard";
 import { Button } from "../../components";
 import { IconButton } from "../../components";
 import { SplitButton } from "../../components";
 import { CopyButton } from "../../components";
+import { ButtonGroup } from "../../components";
+import { ToggleButton } from "../../components";
+import { FAB } from "../../components";
+import { SpeedDial } from "../../components";
+import { SocialButton } from "../../components";
+import { MoreButton } from "../../components";
+import { CloseButton } from "../../components";
 import { useToast } from "../../components";
 import { Spark, Arrow, CopyIcon, GearIcon, TrashIcon } from "../../showcase/icons";
 
 export function ButtonsPage() {
   const toast = useToast();
+  const [bold, setBold] = useState(true);
+  const [italic, setItalic] = useState(false);
+  const [underline, setUnderline] = useState(false);
   return (
     <Group
       id="buttons"
@@ -87,6 +97,95 @@ export function ButtonsPage() {
         <Row>
           <CopyButton value="sk-ab12-demo-token-000-111">Copy token</CopyButton>
           <CopyButton value="https://infini.bay/deploy/abc" size="sm" />
+        </Row>
+      </Demo>
+
+      <Demo title="ButtonGroup" hint="Segmentado — bordes compartidos." wide>
+        <Col>
+          <ButtonGroup>
+            <Button variant="secondary">Day</Button>
+            <Button variant="secondary">Week</Button>
+            <Button variant="secondary">Month</Button>
+            <Button variant="secondary">Year</Button>
+          </ButtonGroup>
+          <ButtonGroup attached={false}>
+            <Button size="sm" icon={<Arrow />}>Prev</Button>
+            <Button size="sm" variant="secondary">Today</Button>
+            <Button size="sm" iconRight={<Arrow />} variant="secondary">Next</Button>
+          </ButtonGroup>
+        </Col>
+      </Demo>
+
+      <Demo title="ToggleButton" hint="Mantiene estado pressed.">
+        <Row attention>
+          <ToggleButton pressed={bold} onChange={setBold} icon="B" />
+          <ToggleButton pressed={italic} onChange={setItalic} icon={<span className="italic">I</span>} />
+          <ToggleButton pressed={underline} onChange={setUnderline} icon={<span className="underline">U</span>} />
+          <ToggleButton pressed={false} onChange={() => {}} icon={<Spark />}>
+            Star
+          </ToggleButton>
+        </Row>
+      </Demo>
+
+      <Demo title="FAB — Floating Action Button" hint="Circular, posiciona fixed o inline." wide>
+        <Row className="gap-8 items-center">
+          <FAB position="none" icon="＋" label="New" onClick={() => toast.push({ title: "New item", tone: "info" })} />
+          <FAB position="none" size="lg" variant="secondary" icon={<Spark />} label="Deploy" />
+          <FAB
+            position="none"
+            variant="secondary"
+            icon={
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M5 12h14M12 5v14" />
+              </svg>
+            }
+            label="Add"
+          />
+        </Row>
+      </Demo>
+
+      <Demo title="SpeedDial" hint="FAB que expande sub-acciones al hover." wide>
+        <div className="w-full h-[220px] flex items-end justify-end bg-white/[0.02] rounded-xl border border-white/8 p-4 relative">
+          <SpeedDial
+            position="none"
+            direction="up"
+            icon="＋"
+            actions={[
+              { id: "a", label: "New project", icon: "📁", onSelect: () => toast.push({ title: "Project", tone: "info" }) },
+              { id: "b", label: "Invite user", icon: "👤", onSelect: () => toast.push({ title: "Invite", tone: "info" }) },
+              { id: "c", label: "Deploy", icon: <Spark />, onSelect: () => toast.push({ title: "Deploy", tone: "info" }) },
+            ]}
+          />
+        </div>
+      </Demo>
+
+      <Demo title="SocialButton" hint="OAuth providers con brand colors." wide>
+        <Col>
+          <SocialButton provider="github" fullWidth />
+          <SocialButton provider="google" fullWidth />
+          <Row>
+            <SocialButton provider="apple" />
+            <SocialButton provider="microsoft" />
+            <SocialButton provider="x" />
+          </Row>
+          <Row>
+            <SocialButton provider="gitlab" />
+            <SocialButton provider="discord" />
+            <SocialButton provider="slack" />
+          </Row>
+        </Col>
+      </Demo>
+
+      <Demo title="MoreButton & CloseButton" hint="Triggers y dismiss estandarizados.">
+        <Row>
+          <MoreButton />
+          <MoreButton orientation="horizontal" />
+          <MoreButton size="sm" />
+          <span className="w-4" />
+          <CloseButton />
+          <CloseButton variant="solid" />
+          <CloseButton size="sm" />
+          <CloseButton size="lg" />
         </Row>
       </Demo>
     </Group>
