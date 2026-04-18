@@ -459,7 +459,10 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
       <div
         ref={viewportRef}
         className={cn(
-          "relative overflow-hidden select-none",
+          // `w-full` by default because the world is absolutely-positioned
+          // and collapses the viewport to 0 width otherwise. Users can
+          // still override with their own width class.
+          "relative w-full overflow-hidden select-none",
           className,
         )}
         style={{ cursor, touchAction: "none", ...style }}
