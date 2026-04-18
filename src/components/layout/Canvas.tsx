@@ -19,6 +19,7 @@ import {
   useMotionValue,
   useTransform,
   type MotionValue,
+  type Transition,
 } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
@@ -600,8 +601,25 @@ export interface CanvasItemProps {
    *  the canvas-level menu. Use `MenuItem`, `MenuSeparator`, `MenuLabel`. */
   menu?: ReactNode;
   onContextMenu?: (e: React.MouseEvent) => void;
+  /** Animate x/y changes. Pass a Framer Motion `Transition` object, a
+   *  shorthand (`"spring"` / `"tween"`), or `false` (default — no
+   *  animation, just snap to the new coords). Drag is always instant. */
+  transition?: Transition | "spring" | "tween" | false;
+  /** Rotation, degrees. Animates when `transition` is set. */
+  rotate?: number;
+  /** Scale factor. Animates when `transition` is set. */
+  scale?: number;
+  /** Opacity 0..1. Animates when `transition` is set. */
+  opacity?: number;
   className?: string;
   style?: CSSProperties;
+}
+
+function resolveTransition(t: CanvasItemProps["transition"]): Transition | false {
+  if (!t) return false;
+  if (t === "spring") return { type: "spring", stiffness: 260, damping: 28 };
+  if (t === "tween") return { type: "tween", duration: 0.4, ease: [0.32, 0.72, 0, 1] };
+  return t;
 }
 
 /** Absolutely-positioned child of a `Canvas`. Accepts any JSX — buttons,
@@ -618,6 +636,10 @@ export function CanvasItem({
   bounds = true,
   menu,
   onContextMenu,
+  transition,
+  rotate,
+  scale,
+  opacity,
   className,
   style,
 }: CanvasItemProps) {
@@ -625,6 +647,36 @@ export function CanvasItem({
   const fallback = useMotionValue(1);
   const inverse = useTransform(ctx?.zoom ?? fallback, (z) => 1 / z);
   const menuState = useContextMenuState();
+
+  // Motion values drive the actual transform so prop changes animate
+  // without re-rendering the whole subtree.
+  const xMV = useMotionValue(x);
+  const yMV = useMotionValue(y);
+  const rotateMV = useMotionValue(rotate ?? 0);
+  const scaleMV = useMotionValue(scale ?? 1);
+  const opacityMV = useMotionValue(opacity ?? 1);
+  const draggingRef = useRef(false);
+  const resolvedTransition = resolveTransition(transition);
+
+  // Sync motion values to props (animating when `transition` is set).
+  useEffect(() => {
+    const t = resolvedTransition;
+    const syncOrAnimate = (mv: MotionValue<number>, next: number) => {
+      if (!t || draggingRef.current) {
+        mv.set(next);
+      } else {
+        animate(mv, next, t);
+      }
+    };
+    syncOrAnimate(xMV, x);
+    syncOrAnimate(yMV, y);
+    // These are undefined → don't animate (keep defaults), but if
+    // defined, sync/animate them.
+    if (rotate !== undefined) syncOrAnimate(rotateMV, rotate);
+    if (scale !== undefined) syncOrAnimate(scaleMV, scale);
+    if (opacity !== undefined) syncOrAnimate(opacityMV, opacity);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [x, y, rotate, scale, opacity, transition]);
 
   const handleContextMenu = (e: React.MouseEvent) => {
     onContextMenu?.(e);
@@ -643,19 +695,23 @@ export function CanvasItem({
         const currentZoom = ctx.zoom.get();
         const startClientX = e.clientX;
         const startClientY = e.clientY;
-        const startX = x;
-        const startY = y;
+        const startX = xMV.get();
+        const startY = yMV.get();
+        draggingRef.current = true;
         onDragStart?.({ x: startX, y: startY });
         let latestPos = { x: startX, y: startY };
         function onMove(ev: MouseEvent) {
           const dx = (ev.clientX - startClientX) / currentZoom;
           const dy = (ev.clientY - startClientY) / currentZoom;
           latestPos = { x: startX + dx, y: startY + dy };
+          xMV.set(latestPos.x);
+          yMV.set(latestPos.y);
           onDrag?.(latestPos);
         }
         function onUp() {
           window.removeEventListener("mousemove", onMove);
           window.removeEventListener("mouseup", onUp);
+          draggingRef.current = false;
           onDragEnd?.(latestPos);
         }
         window.addEventListener("mousemove", onMove);
@@ -676,7 +732,7 @@ export function CanvasItem({
 
   return (
     <>
-      <div
+      <motion.div
         data-canvas-bounds={bounds ? "" : undefined}
         data-canvas-x={x}
         data-canvas-y={y}
@@ -684,14 +740,19 @@ export function CanvasItem({
         onContextMenu={handleContextMenu}
         style={{
           position: "absolute",
-          left: x,
-          top: y,
+          top: 0,
+          left: 0,
+          x: xMV,
+          y: yMV,
+          rotate: rotate !== undefined ? rotateMV : undefined,
+          scale: scale !== undefined ? scaleMV : undefined,
+          opacity: opacity !== undefined ? opacityMV : undefined,
           cursor: draggable ? "grab" : undefined,
           ...style,
         }}
       >
         {content}
-      </div>
+      </motion.div>
       {menu ? (
         <CanvasContextMenu state={menuState}>{menu}</CanvasContextMenu>
       ) : null}

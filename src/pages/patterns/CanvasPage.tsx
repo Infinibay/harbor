@@ -1,12 +1,18 @@
-import { useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Group, Demo } from "../../showcase/ShowcaseCard";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { motion, useMotionValue } from "framer-motion";
+import { Group, Demo, Row } from "../../showcase/ShowcaseCard";
 import {
   Canvas,
   CanvasConnection,
+  CanvasFloat,
+  CanvasFollowPath,
   CanvasItem,
+  CanvasJiggle,
   CanvasMarquee,
   CanvasMinimap,
+  CanvasOrbit,
   CanvasPanel,
+  CanvasPulse,
   CanvasRuler,
   CanvasStatusBar,
   CanvasToolbar,
@@ -20,6 +26,8 @@ import {
   MenuLabel,
   MenuSeparator,
 } from "../../components";
+import { Button } from "../../components";
+import { stagger, useCanvasTimeline } from "../../lib/canvas-animation";
 import {
   Spark,
   TrashIcon,
@@ -102,6 +110,42 @@ export function CanvasPage() {
 
       <Demo title="Node editor · live connections" hint="Drag nodes — edges follow" wide intensity="soft">
         <NodeEditorDemo />
+      </Demo>
+
+      <Demo
+        title="Animated CanvasItem"
+        hint="`transition` prop — change x/y and it springs"
+        wide
+        intensity="soft"
+      >
+        <AnimatedLayoutDemo />
+      </Demo>
+
+      <Demo
+        title="Motion primitives"
+        hint="Orbit · Pulse · Float · Jiggle · FollowPath"
+        wide
+        intensity="soft"
+      >
+        <PrimitivesDemo />
+      </Demo>
+
+      <Demo
+        title="Timeline walkthrough"
+        hint="Scripted sequence via `useCanvasTimeline`"
+        wide
+        intensity="soft"
+      >
+        <TimelineDemo />
+      </Demo>
+
+      <Demo
+        title="Stagger cascade"
+        hint="`stagger({ each, order: 'center' })` — coordinated entry"
+        wide
+        intensity="soft"
+      >
+        <StaggerDemo />
       </Demo>
     </Group>
   );
@@ -785,5 +829,292 @@ function Plug() {
       <circle cx="18" cy="12" r="3" />
       <path d="M9 12h6" />
     </svg>
+  );
+}
+
+// === Animated layout demo =================================
+
+const ANIM_LAYOUTS = {
+  grid: [
+    { x: 60, y: 60 }, { x: 220, y: 60 }, { x: 380, y: 60 },
+    { x: 60, y: 180 }, { x: 220, y: 180 }, { x: 380, y: 180 },
+  ],
+  row: [
+    { x: 60, y: 120 }, { x: 170, y: 120 }, { x: 280, y: 120 },
+    { x: 390, y: 120 }, { x: 500, y: 120 }, { x: 610, y: 120 },
+  ],
+  circle: Array.from({ length: 6 }, (_, i) => {
+    const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+    return { x: 340 + Math.cos(angle) * 120 - 40, y: 160 + Math.sin(angle) * 120 - 28 };
+  }),
+  stack: [
+    { x: 320, y: 40 }, { x: 340, y: 70 }, { x: 360, y: 100 },
+    { x: 380, y: 130 }, { x: 400, y: 160 }, { x: 420, y: 190 },
+  ],
+};
+
+function AnimatedLayoutDemo() {
+  const [layout, setLayout] = useState<keyof typeof ANIM_LAYOUTS>("grid");
+  const positions = ANIM_LAYOUTS[layout];
+  const colors = ["#a855f7", "#38bdf8", "#f472b6", "#34d399", "#fbbf24", "#fb7185"];
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="gap-2">
+        {(Object.keys(ANIM_LAYOUTS) as (keyof typeof ANIM_LAYOUTS)[]).map((l) => (
+          <Button
+            key={l}
+            size="sm"
+            variant={layout === l ? "primary" : "ghost"}
+            onClick={() => setLayout(l)}
+          >
+            {l}
+          </Button>
+        ))}
+      </Row>
+      <Canvas
+        grid="dots"
+        gridSize={24}
+        className="h-[320px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+      >
+        {positions.map((p, i) => (
+          <CanvasItem
+            key={i}
+            x={p.x}
+            y={p.y}
+            transition={{ type: "spring", stiffness: 220, damping: 24, delay: i * 0.04 }}
+          >
+            <div
+              className="w-[80px] h-[56px] rounded-xl border-2"
+              style={{
+                background: `${colors[i]}22`,
+                borderColor: `${colors[i]}99`,
+                boxShadow: `0 10px 30px -10px ${colors[i]}66`,
+              }}
+            />
+          </CanvasItem>
+        ))}
+      </Canvas>
+    </div>
+  );
+}
+
+// === Motion primitives demo ================================
+
+function PrimitivesDemo() {
+  return (
+    <Canvas
+      grid="dots"
+      gridSize={24}
+      className="h-[420px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+    >
+      <CanvasItem x={180} y={220} fixedSize>
+        <div className="w-4 h-4 rounded-full bg-fuchsia-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]" />
+      </CanvasItem>
+      <CanvasOrbit cx={200} cy={230} radius={80} duration={5}>
+        <div className="w-8 h-8 rounded-full bg-sky-400 shadow-[0_0_16px_rgba(56,189,248,0.7)]" />
+      </CanvasOrbit>
+      <CanvasOrbit cx={200} cy={230} radius={120} duration={9} startAngle={120}>
+        <div className="w-6 h-6 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.7)]" />
+      </CanvasOrbit>
+      <CanvasOrbit cx={200} cy={230} radius={160} duration={14} startAngle={260}>
+        <div className="w-5 h-5 rounded-full bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.7)]" />
+      </CanvasOrbit>
+
+      <CanvasItem x={480} y={60}>
+        <CanvasPulse scale={[1, 1.15]} opacity={[0.75, 1]} duration={1.4}>
+          <div className="px-3 py-2 rounded-xl bg-rose-500/20 border border-rose-400/50 text-rose-100 text-xs font-semibold">
+            pulse
+          </div>
+        </CanvasPulse>
+      </CanvasItem>
+
+      <CanvasItem x={480} y={140}>
+        <CanvasFloat amplitude={10} duration={2.6}>
+          <div className="px-3 py-2 rounded-xl bg-sky-500/15 border border-sky-400/40 text-sky-100 text-xs font-semibold">
+            float
+          </div>
+        </CanvasFloat>
+      </CanvasItem>
+
+      <CanvasItem x={480} y={220}>
+        <CanvasJiggle amplitude={2.5} frequency={4} rotate>
+          <div className="px-3 py-2 rounded-xl bg-amber-500/15 border border-amber-400/40 text-amber-100 text-xs font-semibold">
+            jiggle
+          </div>
+        </CanvasJiggle>
+      </CanvasItem>
+
+      <CanvasFollowPath
+        d="M 60 340 C 180 340 200 260 320 260 S 520 380 640 340"
+        duration={4}
+        rotate
+        showPath
+      >
+        <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-fuchsia-500/90 text-white text-[10px] font-semibold shadow-[0_0_20px_rgba(168,85,247,0.6)]">
+          <Spark />
+          packet →
+        </div>
+      </CanvasFollowPath>
+    </Canvas>
+  );
+}
+
+// === Timeline demo =========================================
+
+function TimelineDemo() {
+  const tl = useCanvasTimeline();
+  const xA = useMotionValue(60);
+  const yA = useMotionValue(80);
+  const xB = useMotionValue(60);
+  const yB = useMotionValue(200);
+  const xC = useMotionValue(60);
+  const yC = useMotionValue(320);
+  const opA = useMotionValue(1);
+
+  function play() {
+    tl.reset();
+    tl.to(xA, 260, { at: 0, duration: 0.5 })
+      .to(xB, 260, { at: 0.15, duration: 0.5 })
+      .to(xC, 260, { at: 0.3, duration: 0.5 })
+      .to(yA, 200, { at: 0.8, duration: 0.6 })
+      .to(yB, 200, { at: 0.8, duration: 0.6 })
+      .to(yC, 200, { at: 0.8, duration: 0.6 })
+      .to(xA, 520, { at: 1.6, duration: 0.6 })
+      .to(xB, 520, { at: 1.6, duration: 0.6 })
+      .to(xC, 520, { at: 1.6, duration: 0.6 })
+      .to(opA, 0, { at: 2.3, duration: 0.3 })
+      .to(opA, 1, { at: 2.7, duration: 0.3 })
+      .call(() => console.info("timeline complete"), 3.2)
+      .play();
+  }
+
+  function reset() {
+    tl.reset();
+    xA.set(60); yA.set(80);
+    xB.set(60); yB.set(200);
+    xC.set(60); yC.set(320);
+    opA.set(1);
+  }
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="gap-2">
+        <Button size="sm" onClick={play}>Play</Button>
+        <Button size="sm" variant="ghost" onClick={reset}>Reset</Button>
+        <span className="text-xs text-white/40 tabular-nums font-mono">
+          duration {tl.duration.toFixed(2)}s · {tl.isPlaying ? "playing" : "idle"}
+        </span>
+      </Row>
+      <Canvas
+        grid="lines"
+        gridSize={40}
+        className="h-[420px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+      >
+        <TimelineNode x={xA} y={yA} opacity={opA} label="Ingest" color="#38bdf8" />
+        <TimelineNode x={xB} y={yB} label="Transform" color="#a855f7" />
+        <TimelineNode x={xC} y={yC} label="Publish" color="#34d399" />
+      </Canvas>
+    </div>
+  );
+}
+
+function TimelineNode({
+  x,
+  y,
+  opacity,
+  label,
+  color,
+}: {
+  x: ReturnType<typeof useMotionValue<number>>;
+  y: ReturnType<typeof useMotionValue<number>>;
+  opacity?: ReturnType<typeof useMotionValue<number>>;
+  label: string;
+  color: string;
+}) {
+  // motion.div reads the values directly — zero React re-renders per frame.
+  return (
+    <motion.div
+      data-canvas-bounds=""
+      style={{ position: "absolute", top: 0, left: 0, x, y, opacity }}
+    >
+      <div
+        className="w-32 h-16 rounded-xl border flex items-center justify-center text-sm font-semibold text-white"
+        style={{
+          background: `linear-gradient(135deg, ${color}30, ${color}10)`,
+          borderColor: `${color}88`,
+          boxShadow: `0 12px 40px -12px ${color}80`,
+        }}
+      >
+        {label}
+      </div>
+    </motion.div>
+  );
+}
+
+// === Stagger cascade =======================================
+
+function StaggerDemo() {
+  const [mode, setMode] = useState<"first" | "last" | "center" | "random">("center");
+  const [tick, setTick] = useState(0);
+  const cols = 10;
+  const rows = 4;
+  const delay = useMemo(
+    () => stagger({ each: 0.04, order: mode }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [mode, tick],
+  );
+  const total = cols * rows;
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <Row className="gap-2">
+        {(["first", "last", "center", "random"] as const).map((m) => (
+          <Button
+            key={m}
+            size="sm"
+            variant={mode === m ? "primary" : "ghost"}
+            onClick={() => {
+              setMode(m);
+              setTick((n) => n + 1);
+            }}
+          >
+            {m}
+          </Button>
+        ))}
+        <Button size="sm" variant="ghost" onClick={() => setTick((n) => n + 1)}>
+          Replay
+        </Button>
+      </Row>
+      <Canvas
+        key={tick}
+        grid="dots"
+        gridSize={20}
+        className="h-[260px] rounded-2xl border border-white/10 bg-[#0d0d14]"
+      >
+        {Array.from({ length: total }).map((_, i) => {
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          return (
+            <CanvasItem key={i} x={80 + col * 56} y={40 + row * 52}>
+              <motion.div
+                initial={{ scale: 0.2, opacity: 0, rotate: -12 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 320,
+                  damping: 22,
+                  delay: delay(i, total),
+                }}
+                className="w-10 h-10 rounded-lg"
+                style={{
+                  background: `hsl(${280 + (i / total) * 80} 90% 60% / 0.25)`,
+                  border: `1px solid hsl(${280 + (i / total) * 80} 90% 70% / 0.6)`,
+                }}
+              />
+            </CanvasItem>
+          );
+        })}
+      </Canvas>
+    </div>
   );
 }

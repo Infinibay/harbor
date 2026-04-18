@@ -5,6 +5,7 @@ export * from "./Canvas";
 export * from "./CanvasConnection";
 export * from "./CanvasMarquee";
 export * from "./CanvasMinimap";
+export * from "./CanvasMotion";
 export * from "./CanvasPanel";
 export * from "./CanvasRuler";
 export * from "./CanvasStatusBar";
