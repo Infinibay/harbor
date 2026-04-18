@@ -1,6 +1,7 @@
-import { Children, useEffect, useRef, useState, type ReactNode } from "react";
+import { Children, useRef, type ReactNode } from "react";
 import { motion, LayoutGroup } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { useContainerSize } from "../../lib/useContainerSize";
 
 export interface ReflowListProps {
   children: ReactNode;
@@ -36,25 +37,12 @@ export function ReflowList({
 }: ReflowListProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   // Track the rounded container width in 32px buckets. That gives Framer
-  // Motion a discrete `layoutDependency` that changes a handful of times
-  // during a resize (instead of 60 times/sec), so position animations
-  // actually play instead of snapping.
-  // Re-render when width crosses 32px buckets. That gives Framer Motion
-  // a handful of discrete "before/after" pairs during a resize — enough
-  // to animate the items sliding between rows instead of snapping.
-  const [, setWidthBucket] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
-      const bucket = Math.round(entry.contentRect.width / 32);
-      setWidthBucket((prev) => (prev === bucket ? prev : bucket));
-    });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+  // Re-render on every resize tick (keeps FM's cached old-position
+  // fresh) but bucket the width to 64px so layoutDependency only fires
+  // ~handful of times during a slow drag — that's when FM actually
+  // animates the reflow (items sliding to/from the next row).
+  const { width } = useContainerSize(ref);
+  const widthBucket = Math.round(width / 64);
 
   const alignMap = {
     start: "items-start",
@@ -86,6 +74,7 @@ export function ReflowList({
           <motion.div
             key={(child as { key?: React.Key })?.key ?? i}
             layout
+            layoutDependency={widthBucket}
             transition={{
               layout: { type: "spring", stiffness: 300, damping: 30, duration: 0.45 },
             }}

@@ -1,7 +1,7 @@
-import { Children, isValidElement, useCallback, useRef, type ReactNode } from "react";
+import { Children, isValidElement, useRef, type ReactNode } from "react";
 import { motion, LayoutGroup } from "framer-motion";
 import { cn } from "../../lib/cn";
-import { useContainerDerived } from "../../lib/useContainerSize";
+import { useContainerSize } from "../../lib/useContainerSize";
 
 type Span = {
   col?: number;
@@ -68,11 +68,12 @@ export function Bento({
   className,
 }: BentoProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  // Only re-render when the breakpoint *step* changes — not on every pixel.
-  // That gives Framer Motion a clean discrete delta to animate between,
-  // instead of cancelling itself 60 times per second during resize.
-  const compute = useCallback(({ width }: { width: number }) => stepForWidth(width), []);
-  const step = useContainerDerived(ref, compute);
+  // Re-render on every resize tick (so Framer Motion keeps a fresh
+  // "previous position" cached) — but ANIMATE only when the step
+  // crosses a breakpoint (via `layoutDependency={step}`). This handles
+  // both the "quick resize" case and the "slow continuous drag" case.
+  const { width } = useContainerSize(ref);
+  const step = stepForWidth(width);
   const cols = resolveForStep(columns, step);
 
   return (
@@ -95,6 +96,7 @@ export function Bento({
             <motion.div
               key={child.key ?? i}
               layout
+              layoutDependency={step}
               transition={{
                 layout: { type: "spring", stiffness: 260, damping: 30, duration: 0.5 },
               }}

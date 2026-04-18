@@ -1,7 +1,7 @@
-import { Children, useCallback, useRef, type ReactNode } from "react";
+import { Children, useRef, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
-import { useContainerDerived } from "../../lib/useContainerSize";
+import { useContainerSize } from "../../lib/useContainerSize";
 
 export interface FluidGridProps {
   children: ReactNode;
@@ -31,18 +31,13 @@ export function FluidGrid({
   animate = true,
 }: FluidGridProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-
-  // Derive the expected column count from container width. Only triggers
-  // a re-render when the count actually changes.
-  const compute = useCallback(
-    ({ width }: { width: number }) => {
-      if (!width) return 1;
-      const raw = Math.max(1, Math.floor((width + gap) / (minItemWidth + gap)));
-      return maxColumns > 0 ? Math.min(raw, maxColumns) : raw;
-    },
-    [minItemWidth, maxColumns, gap],
-  );
-  const cols = useContainerDerived(ref, compute);
+  // Re-render on every resize tick to keep FM's cached position fresh,
+  // but animate only when the computed column count actually changes.
+  const { width } = useContainerSize(ref);
+  const raw = width
+    ? Math.max(1, Math.floor((width + gap) / (minItemWidth + gap)))
+    : 1;
+  const cols = maxColumns > 0 ? Math.min(raw, maxColumns) : raw;
 
   return (
     <div
@@ -58,6 +53,7 @@ export function FluidGrid({
           <motion.div
             key={(child as { key?: React.Key })?.key ?? i}
             layout
+            layoutDependency={cols}
             transition={{
               layout: { type: "spring", stiffness: 260, damping: 30, duration: 0.5 },
             }}
