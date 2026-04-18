@@ -126,7 +126,7 @@ body {
   pointer-events: none;
   background: radial-gradient(
     var(--spot-size) circle at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.045),
+    rgba(168, 85, 247, 0.055),
     transparent 60%
   );
   opacity: 0;
