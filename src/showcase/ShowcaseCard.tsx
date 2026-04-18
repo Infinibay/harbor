@@ -31,16 +31,21 @@ export function Demo({
   title,
   hint,
   wide,
+  calm,
   children,
   actions,
 }: PropsWithChildren<{
   title: string;
   hint?: string;
   wide?: boolean;
+  /** Disable spotlight + glow-border. Use for reading-focused demos where
+   *  the purple light hurts text legibility (Prose, Article cards, etc). */
+  calm?: boolean;
   actions?: ReactNode;
 }>) {
   const ref = useRef<HTMLDivElement | null>(null);
   function onMove(e: MouseEvent<HTMLDivElement>) {
+    if (calm) return;
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -52,7 +57,8 @@ export function Demo({
       ref={ref}
       onMouseMove={onMove}
       className={cn(
-        "spotlight glow-border glass rounded-2xl p-5 flex flex-col gap-4 min-h-[160px]",
+        "glass rounded-2xl p-5 flex flex-col gap-4 min-h-[160px]",
+        calm ? "border border-white/8" : "spotlight glow-border",
         wide && "md:col-span-2",
       )}
     >

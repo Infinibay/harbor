@@ -16,7 +16,7 @@ export function SectionsPage() {
       title="Sections · reading layouts"
       desc="Semantic, typographic building blocks — Prose, Section, Hero, Aside, TOC."
     >
-      <Demo title="Prose — readable long-form" hint="Constrained line-length, nice typography." wide>
+      <Demo title="Prose — readable long-form" hint="Constrained line-length, nice typography." calm wide>
         <Prose>
           <h1>Deploying 5x faster with layered caches</h1>
           <p>
@@ -49,7 +49,7 @@ export function SectionsPage() {
         </Prose>
       </Demo>
 
-      <Demo title="Section — titled content block" wide>
+      <Demo title="Section — titled content block" wide calm>
         <Section
           kicker="Docs"
           title="Get up and running in minutes"
@@ -76,7 +76,7 @@ export function SectionsPage() {
         </Section>
       </Demo>
 
-      <Demo title="Section — centered" wide>
+      <Demo title="Section — centered" wide calm>
         <Section
           kicker="Changelog"
           title="What shipped in v0.2"
@@ -86,7 +86,7 @@ export function SectionsPage() {
         />
       </Demo>
 
-      <Demo title="HeroSection — split" wide>
+      <Demo title="HeroSection — split" wide calm>
         <HeroSection
           eyebrow="v0.2 · live now"
           title="The UI library that"
@@ -107,7 +107,7 @@ export function SectionsPage() {
         />
       </Demo>
 
-      <Demo title="SplitSection — alternating features" wide>
+      <Demo title="SplitSection — alternating features" wide calm>
         <Col>
           <SplitSection
             kicker="Feature · 1"
@@ -137,7 +137,7 @@ export function SectionsPage() {
         </Col>
       </Demo>
 
-      <Demo title="Aside — inline callouts" wide>
+      <Demo title="Aside — inline callouts" wide calm>
         <Prose>
           <p>
             Harbor supports five kinds of inline callouts for highlighting
@@ -165,7 +165,7 @@ export function SectionsPage() {
         </Prose>
       </Demo>
 
-      <Demo title="TOC — table of contents with scroll-spy" wide>
+      <Demo title="TOC — table of contents with scroll-spy" wide calm>
         <div className="grid md:grid-cols-[200px_1fr] gap-8 w-full">
           <TOC
             items={[

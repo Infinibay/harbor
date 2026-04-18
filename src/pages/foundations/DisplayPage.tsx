@@ -279,7 +279,7 @@ export function DisplayPage() {
         />
       </Demo>
 
-      <Demo title="ArticleCard" hint="Cover + excerpt + meta." wide>
+      <Demo title="ArticleCard" hint="Cover + excerpt + meta." wide calm>
         <div className="grid md:grid-cols-2 gap-4 w-full">
           <ArticleCard
             cover="https://picsum.photos/seed/harbor1/800/450"
@@ -302,7 +302,7 @@ export function DisplayPage() {
         </div>
       </Demo>
 
-      <Demo title="ArticleCard (horizontal)" wide>
+      <Demo title="ArticleCard (horizontal)" wide calm>
         <ArticleCard
           layout="horizontal"
           cover="https://picsum.photos/seed/harbor3/400/400"
@@ -314,7 +314,7 @@ export function DisplayPage() {
         />
       </Demo>
 
-      <Demo title="ProfileCard" wide>
+      <Demo title="ProfileCard" wide calm>
         <ProfileCard
           name="Ana Fernández"
           handle="ana"
@@ -337,14 +337,14 @@ export function DisplayPage() {
         />
       </Demo>
 
-      <Demo title="QuoteCard" hint="Pull quote / testimonials." wide>
+      <Demo title="QuoteCard" hint="Pull quote / testimonials." wide calm>
         <QuoteCard
           quote="Harbor is the first UI library that felt designed for how real apps behave — not for a component zoo. Shipping was the easy part."
           author={{ name: "Leo Park", role: "CTO · Northwind" }}
         />
       </Demo>
 
-      <Demo title="FeatureCard" hint="Para marketing / docs landing." wide>
+      <Demo title="FeatureCard" hint="Para marketing / docs landing." wide calm>
         <div className="grid md:grid-cols-3 gap-3 w-full">
           <FeatureCard
             icon="⚡"
@@ -370,7 +370,7 @@ export function DisplayPage() {
         </div>
       </Demo>
 
-      <Demo title="LinkPreviewCard" hint="URL unfurl (Slack-style)." wide>
+      <Demo title="LinkPreviewCard" hint="URL unfurl (Slack-style)." wide calm>
         <Col>
           <LinkPreviewCard
             url="https://infinibay.com/blog/deploying-faster"
@@ -388,7 +388,7 @@ export function DisplayPage() {
         </Col>
       </Demo>
 
-      <Demo title="NoteCard" hint="Ideas capturadas / sticky notes." wide>
+      <Demo title="NoteCard" hint="Ideas capturadas / sticky notes." wide calm>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
           <NoteCard color="yellow" title="Idea" date="today" tilt={-1}>
             Try spring physics for the gauge needle instead of easing.
@@ -405,7 +405,7 @@ export function DisplayPage() {
         </div>
       </Demo>
 
-      <Demo title="EventCard" wide>
+      <Demo title="EventCard" wide calm>
         <div className="grid md:grid-cols-2 gap-3 w-full">
           <EventCard
             date={new Date()}
