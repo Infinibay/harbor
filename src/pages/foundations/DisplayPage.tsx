@@ -1,0 +1,292 @@
+import { useState } from "react";
+import { Group, Demo, Row, Col } from "../../showcase/ShowcaseCard";
+import { Badge } from "../../components";
+import { Tag } from "../../components";
+import { Avatar, AvatarStack } from "../../components";
+import { Card, CardGrid } from "../../components";
+import { Stat } from "../../components";
+import { Progress } from "../../components";
+import { ProgressRing } from "../../components";
+import { Spinner, Dots } from "../../components";
+import { Skeleton, SkeletonText } from "../../components";
+import { Divider, Kbd } from "../../components";
+import { HoverCard } from "../../components";
+import { CountdownTimer } from "../../components";
+import { EmptyState } from "../../components";
+import { Button } from "../../components";
+import { Spark } from "../../showcase/icons";
+import { PricingTable } from "../../components";
+import { ComparisonTable } from "../../components";
+
+export function DisplayPage() {
+  const [progress, setProgress] = useState(0);
+
+  function runProgress() {
+    setProgress(0);
+    let v = 0;
+    const t = setInterval(() => {
+      v += Math.random() * 15 + 5;
+      if (v >= 100) {
+        v = 100;
+        clearInterval(t);
+      }
+      setProgress(v);
+    }, 250);
+  }
+
+  return (
+    <Group id="display" title="Display" desc="Cards, stats, avatars, badges.">
+      <Demo title="Cards interactivos" wide>
+        <CardGrid cols={3} className="w-full">
+          <Card interactive tilt title="CPU" description="Avg across cluster">
+            <div className="text-3xl font-semibold text-white font-mono">68%</div>
+          </Card>
+          <Card interactive title="Requests / sec" description="Rolling 1m">
+            <div className="text-3xl font-semibold text-white font-mono">12.4k</div>
+          </Card>
+          <Card interactive variant="glass" title="Latency p95" description="Edge → origin">
+            <div className="text-3xl font-semibold text-white font-mono">84ms</div>
+          </Card>
+        </CardGrid>
+      </Demo>
+      <Demo title="Stats con count-up" wide>
+        <CardGrid cols={3} className="w-full">
+          <Stat label="Deploys" value={1247} change={12} />
+          <Stat label="Users" value={38210} change={-3} />
+          <Stat
+            label="Revenue"
+            value={91230}
+            prefix="$"
+            change={8}
+            format={(n) => n.toLocaleString()}
+          />
+        </CardGrid>
+      </Demo>
+      <Demo title="Badges">
+        <Row>
+          <Badge>Neutral</Badge>
+          <Badge tone="success" pulse>
+            Live
+          </Badge>
+          <Badge tone="warning">Warning</Badge>
+          <Badge tone="danger">Error</Badge>
+          <Badge tone="info">Info</Badge>
+          <Badge tone="purple">Beta</Badge>
+        </Row>
+      </Demo>
+      <Demo title="Tags">
+        <Row>
+          <Tag>default</Tag>
+          <Tag onRemove={() => {}}>removable</Tag>
+          <Tag icon={<Spark />}>with-icon</Tag>
+        </Row>
+      </Demo>
+      <Demo title="Avatars">
+        <Col>
+          <Row>
+            <Avatar name="Ana Fernández" status="online" />
+            <Avatar name="Leo Park" status="busy" size="lg" />
+            <Avatar name="Maya Singh" status="away" size="xl" interactive />
+            <Avatar name="Ivan Kim" status="offline" />
+          </Row>
+          <AvatarStack
+            people={[
+              { name: "Ana F", status: "online" },
+              { name: "Leo P", status: "online" },
+              { name: "Maya S", status: "busy" },
+              { name: "Ivan K" },
+              { name: "Five Plus" },
+              { name: "Six" },
+              { name: "Seven" },
+            ]}
+          />
+        </Col>
+      </Demo>
+      <Demo title="HoverCard" hint="Hover el link → preview.">
+        <span className="text-sm text-white/75">
+          Assigned to{" "}
+          <HoverCard
+            content={
+              <Col>
+                <Row>
+                  <Avatar name="Ana Fernández" size="lg" status="online" />
+                  <Col className="flex-1">
+                    <span className="text-white font-medium">Ana Fernández</span>
+                    <span className="text-xs text-white/50">Senior Platform · Madrid</span>
+                  </Col>
+                </Row>
+                <Row>
+                  <Button size="sm" variant="secondary">
+                    Message
+                  </Button>
+                  <Button size="sm" variant="ghost">
+                    View profile
+                  </Button>
+                </Row>
+              </Col>
+            }
+          >
+            <button className="text-fuchsia-300 underline underline-offset-2">@ana</button>
+          </HoverCard>{" "}
+          — latest activity 2h ago.
+        </span>
+      </Demo>
+      <Demo title="Progress">
+        <Col>
+          <Progress value={72} label="Deployment" showValue shimmer />
+          <Progress value={progress} tone="green" showValue />
+          <Progress indeterminate tone="sky" label="Indeterminate" />
+          <Button size="sm" variant="secondary" onClick={runProgress}>
+            Run
+          </Button>
+        </Col>
+      </Demo>
+      <Demo title="Progress rings">
+        <Row>
+          <ProgressRing value={72} />
+          <ProgressRing value={35} tone="amber" size={80} />
+          <ProgressRing value={93} tone="green" size={72} />
+          <ProgressRing value={18} tone="rose" size={64} />
+        </Row>
+      </Demo>
+      <Demo title="Countdown">
+        <CountdownTimer target={Date.now() + 3600000 * 13} />
+      </Demo>
+      <Demo title="Spinner & dots">
+        <Row>
+          <Spinner />
+          <Spinner size={24} className="text-fuchsia-400" />
+          <Dots className="text-white/70" />
+        </Row>
+      </Demo>
+      <Demo title="Skeleton">
+        <div className="w-full space-y-3">
+          <div className="flex items-center gap-3">
+            <Skeleton circle width={40} height={40} />
+            <div className="flex-1">
+              <Skeleton height={12} width="60%" />
+              <div className="h-2" />
+              <Skeleton height={10} width="40%" />
+            </div>
+          </div>
+          <SkeletonText lines={3} />
+        </div>
+      </Demo>
+      <Demo title="Divider & kbd">
+        <Col>
+          <Divider />
+          <Divider>or continue with</Divider>
+          <Row>
+            <span className="text-xs text-white/60">Toggle palette:</span>
+            <Kbd>⌘</Kbd>
+            <Kbd>K</Kbd>
+          </Row>
+        </Col>
+      </Demo>
+      <Demo title="PricingTable" wide>
+        <PricingTable
+          tiers={[
+            {
+              id: "hobby",
+              name: "Hobby",
+              price: 0,
+              period: "mo",
+              tagline: "For solo projects",
+              cta: <Button variant="secondary" size="sm">Start free</Button>,
+              features: [
+                { label: "1 project", included: true },
+                { label: "512 MB memory", included: true },
+                { label: "Community support", included: true },
+                { label: "Custom domains", included: false },
+                { label: "SSO", included: false },
+              ],
+            },
+            {
+              id: "pro",
+              name: "Pro",
+              price: 24,
+              period: "mo",
+              tagline: "For growing teams",
+              highlighted: true,
+              badge: "Most popular",
+              cta: <Button size="sm">Choose Pro</Button>,
+              features: [
+                { label: "Unlimited projects", included: true },
+                { label: "8 GB memory", included: true },
+                { label: "Priority support", included: true, hint: "< 4h response" },
+                { label: "Custom domains", included: true },
+                { label: "SSO", included: false },
+              ],
+            },
+            {
+              id: "enterprise",
+              name: "Enterprise",
+              price: "Custom",
+              tagline: "Scale & compliance",
+              cta: <Button variant="secondary" size="sm">Contact us</Button>,
+              features: [
+                { label: "Everything in Pro", included: true },
+                { label: "Dedicated nodes", included: true },
+                { label: "SAML / SCIM SSO", included: true },
+                { label: "Audit logs", included: true },
+                { label: "99.99% uptime SLA", included: true },
+              ],
+            },
+          ]}
+        />
+      </Demo>
+
+      <Demo title="ComparisonTable" wide>
+        <ComparisonTable
+          plans={[
+            { id: "hobby", name: "Hobby" },
+            { id: "pro", name: "Pro", highlighted: true },
+            { id: "ent", name: "Enterprise" },
+          ]}
+          groups={[
+            {
+              label: "Usage",
+              rows: [
+                { label: "Projects", values: ["1", "Unlimited", "Unlimited"] },
+                { label: "Memory", values: ["512 MB", "8 GB", "Custom"] },
+                { label: "Storage", values: ["1 GB", "100 GB", "Custom"] },
+              ],
+            },
+            {
+              label: "Collaboration",
+              rows: [
+                { label: "Team members", values: ["1", "10", "Unlimited"] },
+                { label: "Audit logs", values: [false, false, true] },
+                { label: "SSO (SAML)", values: [false, false, true] },
+              ],
+            },
+            {
+              label: "Support",
+              rows: [
+                { label: "Community", values: [true, true, true] },
+                { label: "Priority support", values: [false, true, true], hint: "< 4h response" },
+                { label: "Dedicated CSM", values: [false, false, true] },
+              ],
+            },
+          ]}
+        />
+      </Demo>
+
+      <Demo title="EmptyState" wide>
+        <EmptyState
+          icon="🛰️"
+          title="No deployments yet"
+          description="Connect a repo to deploy your first service in seconds."
+          actions={
+            <>
+              <Button size="sm">Connect repo</Button>
+              <Button size="sm" variant="ghost">
+                Learn more
+              </Button>
+            </>
+          }
+        />
+      </Demo>
+    </Group>
+  );
+}

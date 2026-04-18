@@ -1,0 +1,64 @@
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { Layout } from "./Layout";
+import { HomePage } from "./pages/HomePage";
+import { ButtonsPage } from "./pages/foundations/ButtonsPage";
+import { InputsPage } from "./pages/foundations/InputsPage";
+import { DisplayPage } from "./pages/foundations/DisplayPage";
+import { DataPage } from "./pages/foundations/DataPage";
+import { FeedbackPage } from "./pages/foundations/FeedbackPage";
+import { OverlaysPage } from "./pages/foundations/OverlaysPage";
+import { NavigationPage } from "./pages/foundations/NavigationPage";
+import { ContainersPage } from "./pages/foundations/ContainersPage";
+import { CoordinationPage } from "./pages/patterns/CoordinationPage";
+import { IDEPage } from "./pages/apps/IDEPage";
+import { DesktopPage } from "./pages/apps/DesktopPage";
+import { DesignPage } from "./pages/apps/DesignPage";
+import { MusicPage } from "./pages/apps/MusicPage";
+import { MediaPage } from "./pages/apps/MediaPage";
+import { DevPage } from "./pages/apps/DevPage";
+import { ChatPage } from "./pages/apps/ChatPage";
+import { CollabPage } from "./pages/apps/CollabPage";
+import { DashboardPage } from "./pages/apps/DashboardPage";
+import { FileManagerPage } from "./pages/apps/FileManagerPage";
+import { EmailPage } from "./pages/apps/EmailPage";
+import { KanbanPage } from "./pages/apps/KanbanPage";
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="foundations">
+            <Route path="buttons" element={<ButtonsPage />} />
+            <Route path="inputs" element={<InputsPage />} />
+            <Route path="display" element={<DisplayPage />} />
+            <Route path="data" element={<DataPage />} />
+            <Route path="feedback" element={<FeedbackPage />} />
+            <Route path="overlays" element={<OverlaysPage />} />
+            <Route path="navigation" element={<NavigationPage />} />
+            <Route path="containers" element={<ContainersPage />} />
+          </Route>
+          <Route path="patterns">
+            <Route path="coordination" element={<CoordinationPage />} />
+          </Route>
+          <Route path="apps">
+            <Route path="ide" element={<IDEPage />} />
+            <Route path="desktop" element={<DesktopPage />} />
+            <Route path="design" element={<DesignPage />} />
+            <Route path="music" element={<MusicPage />} />
+            <Route path="media" element={<MediaPage />} />
+            <Route path="dev" element={<DevPage />} />
+            <Route path="chat" element={<ChatPage />} />
+            <Route path="collab" element={<CollabPage />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="files" element={<FileManagerPage />} />
+            <Route path="email" element={<EmailPage />} />
+            <Route path="kanban" element={<KanbanPage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
