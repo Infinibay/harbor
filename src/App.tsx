@@ -11,6 +11,7 @@ import { NavigationPage } from "./pages/foundations/NavigationPage";
 import { ContainersPage } from "./pages/foundations/ContainersPage";
 import { SectionsPage } from "./pages/foundations/SectionsPage";
 import { ResponsivePage } from "./pages/foundations/ResponsivePage";
+import { BackgroundsPage } from "./pages/foundations/BackgroundsPage";
 import { CoordinationPage } from "./pages/patterns/CoordinationPage";
 import { CanvasPage } from "./pages/patterns/CanvasPage";
 import { IDEPage } from "./pages/apps/IDEPage";
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="containers" element={<ContainersPage />} />
             <Route path="sections" element={<SectionsPage />} />
             <Route path="responsive" element={<ResponsivePage />} />
+            <Route path="backgrounds" element={<BackgroundsPage />} />
           </Route>
           <Route path="patterns">
             <Route path="coordination" element={<CoordinationPage />} />
