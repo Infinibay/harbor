@@ -34,6 +34,13 @@ import {
   type RuleNode,
   type TimeRangeValue,
 } from "../../components";
+import {
+  BillingCard,
+  CostBreakdown,
+  QuotaBar,
+  ResourceForecast,
+  UsageRing,
+} from "../../components";
 
 export function DashboardPage() {
   const [live, setLive] = useState(12400);
@@ -231,7 +238,114 @@ export function DashboardPage() {
       </Demo>
 
       <ObservabilityPackDemo />
+      <BillingPackDemo />
     </Group>
+  );
+}
+
+// === Pack 7: billing demos ======================================
+
+function BillingPackDemo() {
+  const cpuForecast = useMemo(() => {
+    const now = Date.now();
+    return Array.from({ length: 30 }, (_, i) => ({
+      t: now - (30 - i) * 3600_000,
+      v: 42 + i * 1.1 + Math.sin(i / 3) * 3 + Math.random() * 2,
+    }));
+  }, []);
+
+  return (
+    <>
+      <Demo title="UsageRing · tone shifts at 75% / 90%" wide intensity="soft">
+        <Row className="gap-6 flex-wrap">
+          <UsageRing value={18} max={100} name="CPU" />
+          <UsageRing value={62} max={100} name="RAM" />
+          <UsageRing value={81} max={100} name="Disk" caption="projected to hit 100% in 4d" />
+          <UsageRing value={94} max={100} name="Egress" caption="2.7 TB / 2.9 TB" />
+        </Row>
+      </Demo>
+
+      <Demo
+        title="QuotaBar · used / reserved / free segments"
+        hint="Soft + hard limits as vertical lines"
+        wide
+        intensity="soft"
+      >
+        <Col className="gap-3 w-full">
+          <QuotaBar
+            total={160}
+            segments={[
+              { label: "Running VMs", value: 62, tone: "used" },
+              { label: "Reserved pool", value: 28, tone: "reserved" },
+            ]}
+            soft={0.75}
+            hard={1}
+            formatValue={(v) => `${v} vCPU`}
+          />
+          <QuotaBar
+            total={2000}
+            segments={[
+              { label: "Billed storage", value: 1180, tone: "used" },
+              { label: "Snapshot pool", value: 340, tone: "reserved" },
+            ]}
+            formatValue={(v) => `${v} GB`}
+          />
+        </Col>
+      </Demo>
+
+      <Demo title="CostBreakdown · donut + legend" wide intensity="soft">
+        <CostBreakdown
+          items={[
+            { id: "compute", label: "Compute", amount: 1240 },
+            { id: "storage", label: "Storage", amount: 380 },
+            { id: "egress", label: "Egress", amount: 210 },
+            { id: "support", label: "Support", amount: 120 },
+            { id: "misc", label: "Misc.", amount: 60 },
+          ]}
+        />
+      </Demo>
+
+      <Demo title="BillingCard" hint="Plan summary · composes QuotaBar" wide intensity="soft">
+        <BillingCard
+          plan="Team"
+          price="$49/mo"
+          period={{
+            start: new Date("2026-04-01"),
+            end: new Date("2026-04-30"),
+          }}
+          usage={{
+            total: 100,
+            label: "CPU hours · 62 / 100",
+            segments: [
+              { label: "Used", value: 62, tone: "used" },
+              { label: "Reserved", value: 12, tone: "reserved" },
+            ],
+          }}
+          nextInvoice="$67.20"
+          cta={
+            <Button size="sm" variant="primary">
+              Upgrade
+            </Button>
+          }
+        />
+      </Demo>
+
+      <Demo
+        title="ResourceForecast · linear projection + quota marker"
+        hint="Dashed extension past 'now' · marks where it crosses the quota"
+        wide
+        intensity="soft"
+      >
+        <ResourceForecast
+          height={260}
+          quota={90}
+          series={[
+            { id: "cpu", label: "CPU %", color: "#a855f7", data: cpuForecast },
+          ]}
+          formatY={(v) => `${v.toFixed(0)}%`}
+        />
+      </Demo>
+    </>
   );
 }
 
