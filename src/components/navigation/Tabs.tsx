@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 
 const TabsCtx = createContext<{
@@ -178,20 +178,24 @@ export function TabPanel({
 }) {
   const ctx = useContext(TabsCtx);
   if (!ctx) throw new Error();
+  if (ctx.value !== value) return null;
+
+  // No per-panel AnimatePresence. Each TabPanel is a React sibling, so
+  // wrapping each in its own AnimatePresence means the outgoing panel
+  // exits in one tree while the incoming panel enters in another —
+  // both render simultaneously and the content visibly stacks during
+  // the transition. Rendering only the active panel and letting it
+  // fade/translate in on mount keeps the transition clean: the old
+  // panel unmounts synchronously, the new one animates in.
   return (
-    <AnimatePresence mode="wait">
-      {ctx.value === value ? (
-        <motion.div
-          key={value}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.2 }}
-          className={cn("mt-4", className)}
-        >
-          {children}
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
+    <motion.div
+      key={value}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.18 }}
+      className={cn("mt-4", className)}
+    >
+      {children}
+    </motion.div>
   );
 }
