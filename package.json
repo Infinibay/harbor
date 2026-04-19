@@ -33,6 +33,7 @@
     "./lib/Portal": "./src/lib/Portal.tsx",
     "./lib/responsive": "./src/lib/responsive.ts",
     "./tokens.css": "./src/tokens.css",
+    "./index.css": "./src/index.css",
     "./tailwind-preset": "./tailwind.config.js",
     "./package.json": "./package.json"
   },
