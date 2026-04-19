@@ -1,3 +1,4 @@
+export * from "./APIKeyCard";
 export * from "./ArticleCard";
 export * from "./Avatar";
 export * from "./Badge";
@@ -36,6 +37,7 @@ export * from "./QuotaBar";
 export * from "./QuoteCard";
 export * from "./RackDiagram";
 export * from "./ResourceMeter";
+export * from "./RoleBadge";
 export * from "./Skeleton";
 export * from "./SnapshotTimeline";
 export * from "./StatusDot";

@@ -26,6 +26,7 @@ import { FileManagerPage } from "./pages/apps/FileManagerPage";
 import { EmailPage } from "./pages/apps/EmailPage";
 import { KanbanPage } from "./pages/apps/KanbanPage";
 import { InfraPage } from "./pages/apps/InfraPage";
+import { AccessPage } from "./pages/apps/AccessPage";
 
 export default function App() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
             <Route path="email" element={<EmailPage />} />
             <Route path="kanban" element={<KanbanPage />} />
             <Route path="infra" element={<InfraPage />} />
+            <Route path="access" element={<AccessPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

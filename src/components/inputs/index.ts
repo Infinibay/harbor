@@ -17,6 +17,7 @@ export * from "./Inspector";
 export * from "./KeyValueEditor";
 export * from "./Knob";
 export * from "./MentionInput";
+export * from "./MFASetup";
 export * from "./MultiSelect";
 export * from "./NumberField";
 export * from "./OTPInput";
