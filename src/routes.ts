@@ -51,6 +51,7 @@ export const routeGroups: RouteGroup[] = [
       { path: "/apps/files", label: "File manager" },
       { path: "/apps/email", label: "Email client" },
       { path: "/apps/kanban", label: "Kanban · workflow" },
+      { path: "/apps/infra", label: "Infra · topology" },
     ],
   },
 ];
