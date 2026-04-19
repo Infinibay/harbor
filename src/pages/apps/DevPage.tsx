@@ -20,6 +20,14 @@ import {
   type PRReviewer,
 } from "../../components";
 import { Button } from "../../components";
+import {
+  CopyCommand,
+  CronBuilder,
+  KeyValueEditor,
+  SecretsInput,
+  YAMLConfigEditor,
+  type KeyValuePair,
+} from "../../components";
 
 const markdownSource = `# Quickstart
 
@@ -146,7 +154,104 @@ greet("world", "hello");`}
       </Demo>
 
       <DevOpsPackDemo />
+      <ConfigFormsPackDemo />
     </Group>
+  );
+}
+
+// === Pack 9: config + forms demos ===============================
+
+function ConfigFormsPackDemo() {
+  const [envVars, setEnvVars] = useState<KeyValuePair[]>([
+    { id: "1", key: "DATABASE_URL", value: "postgres://localhost/app" },
+    { id: "2", key: "API_KEY", value: "sk_live_abcd1234efgh5678ijkl9012" },
+    { id: "3", key: "NODE_ENV", value: "production" },
+    { id: "4", key: "JWT_SECRET", value: "super-secret-do-not-share-xoxo" },
+  ]);
+  const [secret, setSecret] = useState("sk_live_abcd1234efgh5678ijkl9012mnop3456");
+  const [cron, setCron] = useState("0 3 * * *");
+  const [yaml, setYaml] = useState(`# Infinibay service config
+apiVersion: infinibay/v1
+kind: Service
+metadata:
+  name: api-gateway
+  region: eu-west-1
+spec:
+  replicas: 4
+  resources:
+    cpu: 2
+    memory: 4Gi
+  env:
+    - name: NODE_ENV
+      value: production
+`);
+
+  return (
+    <>
+      <Demo title="KeyValueEditor · env vars with secret auto-detect" wide intensity="soft">
+        <KeyValueEditor
+          value={envVars}
+          onChange={setEnvVars}
+          header={
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-widest text-white/40">
+                Environment
+              </span>
+              <span className="text-xs text-white/40">
+                drag ⋮⋮ to reorder · keys matching `secret|token|key|password` get masked
+              </span>
+            </div>
+          }
+        />
+      </Demo>
+
+      <Demo title="SecretsInput · reveal with auto-remask" wide intensity="soft">
+        <Col className="gap-3">
+          <SecretsInput
+            label="API key"
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+            autoReveal={8}
+            caption="Rotates every 90 days."
+          />
+          <SecretsInput
+            label="SSH private key"
+            value="-----BEGIN OPENSSH PRIVATE KEY-----..."
+            readOnly
+            caption="Read-only example"
+          />
+        </Col>
+      </Demo>
+
+      <Demo
+        title="YAMLConfigEditor · line numbers + schema-aware lint"
+        hint="Required keys: apiVersion, kind · disallowed: deprecated_flag"
+        wide
+        intensity="soft"
+      >
+        <YAMLConfigEditor
+          value={yaml}
+          onChange={setYaml}
+          height={260}
+          schema={{ requiredKeys: ["apiVersion", "kind"], disallowedKeys: ["deprecated_flag"] }}
+        />
+      </Demo>
+
+      <Demo title="CopyCommand · install snippet with tabs" wide intensity="soft">
+        <CopyCommand
+          variants={[
+            { label: "macOS", code: "brew install infinibay\ninfinibay login" },
+            { label: "Linux", code: "curl -sSL https://get.infinibay.com | bash\ninfinibay login" },
+            { label: "Windows PS", code: "iwr -useb https://get.infinibay.com/ps1 | iex\ninfinibay login" },
+            { label: "Docker", code: "docker run --rm -it infinibay/cli login" },
+          ]}
+        />
+      </Demo>
+
+      <Demo title="CronBuilder · 5-field POSIX + next runs" wide intensity="soft">
+        <CronBuilder value={cron} onChange={setCron} />
+      </Demo>
+    </>
   );
 }
 

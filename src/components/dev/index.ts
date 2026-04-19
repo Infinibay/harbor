@@ -1,4 +1,5 @@
 export * from "./CodeBlock";
+export * from "./CopyCommand";
 export * from "./FindBar";
 export * from "./LogTailer";
 export * from "./LogViewer";
@@ -6,3 +7,4 @@ export * from "./MarkdownRenderer";
 export * from "./ShortcutSheet";
 export * from "./Terminal";
 export * from "./VMConsole";
+export * from "./YAMLConfigEditor";
