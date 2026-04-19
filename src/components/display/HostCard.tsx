@@ -1,8 +1,14 @@
 import { type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { ResourceMeter, type Resource } from "./ResourceMeter";
+import { StatusDot, STATUS_META, type Status } from "./StatusDot";
 
-export type HostStatus = "online" | "degraded" | "offline" | "provisioning";
+/** Re-export for backwards compat — HostStatus is now a subset of the
+ *  shared `Status` type from StatusDot. */
+export type HostStatus = Extract<
+  Status,
+  "online" | "degraded" | "offline" | "provisioning"
+>;
 
 export interface HostCardProps {
   name: string;
@@ -23,40 +29,6 @@ export interface HostCardProps {
   onClick?: () => void;
 }
 
-const STATUS: Record<
-  HostStatus,
-  { label: string; dot: string; text: string; glow: string; ping: boolean }
-> = {
-  online: {
-    label: "Online",
-    dot: "bg-emerald-400",
-    text: "text-emerald-300",
-    glow: "shadow-[0_0_10px_rgba(52,211,153,0.7)]",
-    ping: true,
-  },
-  degraded: {
-    label: "Degraded",
-    dot: "bg-amber-400",
-    text: "text-amber-300",
-    glow: "shadow-[0_0_10px_rgba(251,191,36,0.7)]",
-    ping: true,
-  },
-  offline: {
-    label: "Offline",
-    dot: "bg-rose-400",
-    text: "text-rose-300",
-    glow: "shadow-[0_0_10px_rgba(244,63,94,0.7)]",
-    ping: false,
-  },
-  provisioning: {
-    label: "Provisioning",
-    dot: "bg-sky-400",
-    text: "text-sky-300",
-    glow: "shadow-[0_0_10px_rgba(56,189,248,0.7)]",
-    ping: true,
-  },
-};
-
 /** Summary card for a VM / server / compute host. Combines status dot,
  *  name, subtitle, resource bars, tags and an actions slot. */
 export function HostCard({
@@ -71,7 +43,7 @@ export function HostCard({
   className,
   onClick,
 }: HostCardProps) {
-  const s = STATUS[status];
+  const meta = STATUS_META[status];
   const resources: Resource[] = [];
   if (cpu !== undefined) {
     resources.push({ label: "CPU", value: cpu, detail: `${cpu.toFixed(0)}%` });
@@ -118,23 +90,8 @@ export function HostCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 min-w-0">
-          <div className="relative mt-1.5 shrink-0 w-2.5 h-2.5">
-            <span
-              className={cn(
-                "absolute inset-0 rounded-full",
-                s.dot,
-                s.glow,
-              )}
-            />
-            {s.ping ? (
-              <span
-                className={cn(
-                  "absolute inset-0 rounded-full animate-ping",
-                  s.dot,
-                  "opacity-60",
-                )}
-              />
-            ) : null}
+          <div className="mt-1.5">
+            <StatusDot status={status} label={null} size={10} />
           </div>
           <div className="min-w-0 flex flex-col gap-0.5">
             <div className="text-white font-semibold truncate">{name}</div>
@@ -145,9 +102,9 @@ export function HostCard({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span
-            className={cn("text-[11px] uppercase tracking-wider", s.text)}
+            className={cn("text-[11px] uppercase tracking-wider", meta.text)}
           >
-            {s.label}
+            {meta.label}
           </span>
           {actions}
         </div>

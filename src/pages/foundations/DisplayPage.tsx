@@ -27,6 +27,16 @@ import { EventCard } from "../../components";
 import { MetricCard } from "../../components";
 import { ResourceMeter } from "../../components";
 import { HostCard } from "../../components";
+import {
+  DurationPill,
+  FormattedBytes,
+  FormattedNumber,
+  FormattedPercent,
+  FormattedRate,
+  HealthPing,
+  StatusDot,
+  Timestamp,
+} from "../../components";
 
 export function DisplayPage() {
   const [progress, setProgress] = useState(0);
@@ -542,6 +552,128 @@ export function DisplayPage() {
             tags={["us-east-1", "legacy"]}
           />
         </CardGrid>
+      </Demo>
+
+      <Demo
+        title="Status atoms · StatusDot / HealthPing"
+        hint="Semantic state (with label) vs. pure-visual ping"
+        wide
+      >
+        <Col className="gap-4">
+          <Row className="gap-6 flex-wrap">
+            <StatusDot status="online" />
+            <StatusDot status="degraded" />
+            <StatusDot status="offline" />
+            <StatusDot status="provisioning" />
+            <StatusDot status="maintenance" />
+            <StatusDot status="unknown" />
+          </Row>
+          <Row className="gap-8 items-center">
+            <Row className="gap-2 items-center">
+              <HealthPing tone="success" />
+              <span className="text-xs text-white/60">healthy</span>
+            </Row>
+            <Row className="gap-2 items-center">
+              <HealthPing tone="warn" />
+              <span className="text-xs text-white/60">degrading</span>
+            </Row>
+            <Row className="gap-2 items-center">
+              <HealthPing tone="danger" rings={2} />
+              <span className="text-xs text-white/60">critical (2 rings)</span>
+            </Row>
+            <Row className="gap-2 items-center">
+              <HealthPing tone="info" />
+              <span className="text-xs text-white/60">info</span>
+            </Row>
+          </Row>
+        </Col>
+      </Demo>
+
+      <Demo
+        title="Formatted values"
+        hint="`formatBytes / formatRate / formatNumber / formatPercent` + span wrappers"
+        wide
+      >
+        <Col className="gap-3 w-full">
+          <Row className="gap-6 flex-wrap items-center">
+            <span className="text-white/60 text-xs">12 400 000 bytes:</span>
+            <FormattedBytes value={12_400_000} className="text-white/85" />
+            <FormattedBytes value={12_400_000} binary className="text-white/85" />
+          </Row>
+          <Row className="gap-6 flex-wrap items-center">
+            <span className="text-white/60 text-xs">1.2 MB/s rate:</span>
+            <FormattedRate value={1_200_000} className="text-white/85" />
+          </Row>
+          <Row className="gap-6 flex-wrap items-center">
+            <span className="text-white/60 text-xs">Numbers:</span>
+            <FormattedNumber value={12_431_890} className="text-white/85" />
+            <FormattedNumber value={12_431_890} compact className="text-white/85" />
+          </Row>
+          <Row className="gap-6 flex-wrap items-center">
+            <span className="text-white/60 text-xs">Percent (fraction input):</span>
+            <FormattedPercent value={0.424} className="text-white/85" />
+          </Row>
+        </Col>
+      </Demo>
+
+      <Demo
+        title="DurationPill · live uptime"
+        hint="`auto` ticks every 30s so it stays fresh"
+        wide
+      >
+        <Row className="gap-3 flex-wrap">
+          <DurationPill
+            from={Date.now() - 9_274_000}
+            auto
+            prefix="uptime"
+            tone="success"
+          />
+          <DurationPill
+            from={Date.now() - 45 * 60_000}
+            to={Date.now() - 2 * 60_000}
+            prefix="ran for"
+            tone="info"
+          />
+          <DurationPill
+            from={Date.now() - 13 * 24 * 3600_000}
+            prefix="age"
+            tone="warn"
+          />
+          <DurationPill
+            from={Date.now() - 950}
+            options={{ includeMs: true }}
+            prefix="latency"
+            tone="danger"
+          />
+        </Row>
+      </Demo>
+
+      <Demo
+        title="Timestamp"
+        hint="Relative by default · hover for absolute · auto-ticks every 15s"
+        wide
+      >
+        <Col className="gap-2">
+          <div className="text-xs text-white/60">
+            Deployed <Timestamp value={Date.now() - 3 * 60_000} className="text-white" />
+          </div>
+          <div className="text-xs text-white/60">
+            Last heartbeat{" "}
+            <Timestamp value={Date.now() - 12 * 3600_000} className="text-white" />
+          </div>
+          <div className="text-xs text-white/60">
+            Scheduled for{" "}
+            <Timestamp value={Date.now() + 2 * 3600_000} className="text-white" />
+          </div>
+          <div className="text-xs text-white/60">
+            Absolute form:{" "}
+            <Timestamp
+              value={new Date("2026-04-18T14:32:01")}
+              relative={false}
+              className="text-white"
+            />
+          </div>
+        </Col>
       </Demo>
 
       <Demo title="EmptyState" wide>

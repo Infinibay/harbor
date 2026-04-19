@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Sparkline } from "../charts/Sparkline";
+import { formatPercent } from "../../lib/format";
 
 export interface MetricCardProps {
   label: string;
@@ -112,7 +113,7 @@ export function MetricCard({
                 : "text-rose-300 bg-rose-500/10",
             )}
           >
-            {positive ? "↑" : "↓"} {Math.abs(delta).toFixed(1)}%
+            {positive ? "↑" : "↓"} {formatPercent(Math.abs(delta) / 100, 1)}
           </motion.span>
         ) : null}
       </div>
