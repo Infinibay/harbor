@@ -199,23 +199,23 @@ export function BackgroundsPage() {
       </Demo>
 
       <Demo title="Perf controls" hint="Every variant shares these props" wide>
-        <Col className="gap-2 text-xs text-white/70">
-          <code className="font-mono text-white/85 bg-black/40 rounded p-3 leading-relaxed">
-            {`<AnimatedBackground
+        <Col className="gap-2 text-xs text-white/70 w-full">
+          <pre className="font-mono text-[12px] text-white/85 bg-black/40 rounded-lg p-4 leading-relaxed overflow-x-auto whitespace-pre">
+{`<AnimatedBackground
   variant="plasma"
-  speed={1}               // 0 = frozen, 2+ = fast
-  intensity={0.5}         // 0..1 (opacity/amplitude/density)
-  palette={['#a855f7', ...]}
+  speed={1}              // 0 = frozen, 2+ = fast
+  intensity={0.5}        // 0..1 (opacity / amplitude / density)
+  palette={["#a855f7", ...]}
   paused={false}
-  respectReducedMotion    // default true — static fallback
-  pauseWhenHidden         // default true — document.hidden aware
-  pauseWhenOutOfView      // default true — IntersectionObserver
+  respectReducedMotion   // default true · static fallback
+  pauseWhenHidden        // default true · document.hidden aware
+  pauseWhenOutOfView     // default true · IntersectionObserver
 />`}
-          </code>
+          </pre>
           <div className="grid md:grid-cols-2 gap-2 mt-2">
-            <Bullet>CSS-only: <code>mesh</code>, <code>dot-grid</code>, <code>orbs</code></Bullet>
-            <Bullet>SVG paths: <code>aurora</code>, <code>waves</code></Bullet>
-            <Bullet>Canvas 2D: <code>starfield</code>, <code>constellations</code>, <code>plasma</code></Bullet>
+            <Bullet>CSS-only: <Code>mesh</Code>, <Code>dot-grid</Code>, <Code>orbs</Code></Bullet>
+            <Bullet>SVG paths: <Code>aurora</Code>, <Code>waves</Code></Bullet>
+            <Bullet>Canvas 2D: <Code>starfield</Code>, <Code>constellations</Code>, <Code>plasma</Code></Bullet>
             <Bullet>Plasma renders at 1/8 resolution + CSS-blur upscale</Bullet>
           </div>
         </Col>
@@ -252,5 +252,13 @@ function Bullet({ children }: { children: React.ReactNode }) {
       <span className="text-white/30">·</span>
       <span>{children}</span>
     </div>
+  );
+}
+
+function Code({ children }: { children: React.ReactNode }) {
+  return (
+    <code className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/10 text-fuchsia-200 font-mono text-[11px]">
+      {children}
+    </code>
   );
 }
