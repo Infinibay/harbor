@@ -6,6 +6,20 @@ import { HotkeyRecorder } from "../../components";
 import { MarkdownRenderer } from "../../components";
 import { DiffViewer } from "../../components";
 import { LogViewer, type LogEntry, type LogLevel } from "../../components";
+import {
+  BranchTree,
+  ChangelogFeed,
+  CommitCard,
+  DeploymentPipeline,
+  PullRequestCard,
+  type BranchCommit,
+  type BranchDef,
+  type ChangelogEntry,
+  type PipelineStage,
+  type PRCheck,
+  type PRReviewer,
+} from "../../components";
+import { Button } from "../../components";
 
 const markdownSource = `# Quickstart
 
@@ -130,7 +144,184 @@ greet("world", "hello");`}
       <Demo title="LogViewer live" hint="Filtros por nivel, search, pausa." wide intensity="soft">
         <LogViewer entries={logs} height={320} />
       </Demo>
+
+      <DevOpsPackDemo />
     </Group>
+  );
+}
+
+// === Pack 5: DevOps + deploy demos ==============================
+
+const PIPELINE_STAGES: PipelineStage[] = [
+  { id: "checkout", name: "Checkout", status: "success", duration: 4200 },
+  { id: "build", name: "Build", status: "success", duration: 58_000 },
+  { id: "test", name: "Test", status: "success", duration: 38_000 },
+  { id: "scan", name: "Security scan", status: "running", startedAt: Date.now() - 22_000, detail: "2/7 OWASP checks" },
+  { id: "staging", name: "Deploy staging", status: "pending" },
+  { id: "smoke", name: "Smoke tests", status: "pending" },
+  { id: "prod", name: "Deploy prod", status: "pending" },
+];
+
+const REVIEWERS: PRReviewer[] = [
+  { id: "u1", name: "Ada L.", state: "approved" },
+  { id: "u2", name: "Ken M.", state: "changes-requested" },
+  { id: "u3", name: "Rie T.", state: "commented" },
+  { id: "u4", name: "Bruno F.", state: "pending" },
+];
+
+const CHECKS: PRCheck[] = [
+  { id: "c1", name: "build", state: "passing" },
+  { id: "c2", name: "tests", state: "passing" },
+  { id: "c3", name: "lint", state: "passing" },
+  { id: "c4", name: "e2e", state: "failing" },
+  { id: "c5", name: "deploy-preview", state: "pending" },
+];
+
+const BRANCHES: BranchDef[] = [
+  { name: "main", color: "#a855f7" },
+  { name: "feat/auth-v2", color: "#38bdf8" },
+  { name: "fix/logs", color: "#f472b6" },
+];
+
+const COMMITS: BranchCommit[] = [
+  { sha: "a1b2c3d4", parents: ["e5f6g7h8"], branch: "feat/auth-v2", message: "auth: replace JWT signer", at: Date.now() - 1 * 3600_000, author: "Ada", refs: ["HEAD", "feat/auth-v2"] },
+  { sha: "e5f6g7h8", parents: ["i9j0k1l2", "m3n4o5p6"], branch: "feat/auth-v2", message: "Merge main into feat/auth-v2", at: Date.now() - 3 * 3600_000, author: "Ada", merge: true },
+  { sha: "m3n4o5p6", parents: ["q7r8s9t0"], branch: "main", message: "chore: bump deps", at: Date.now() - 4 * 3600_000, author: "Rie", refs: ["main"] },
+  { sha: "i9j0k1l2", parents: ["m3n4o5p6"], branch: "feat/auth-v2", message: "auth: add OIDC discovery", at: Date.now() - 6 * 3600_000, author: "Ada" },
+  { sha: "q7r8s9t0", parents: ["aa11bb22", "cc33dd44"], branch: "main", message: "Merge fix/logs", at: Date.now() - 10 * 3600_000, author: "Ken", merge: true },
+  { sha: "cc33dd44", parents: ["aa11bb22"], branch: "fix/logs", message: "logs: fix stream pause", at: Date.now() - 12 * 3600_000, author: "Ken" },
+  { sha: "aa11bb22", parents: [], branch: "main", message: "Initial", at: Date.now() - 20 * 3600_000, author: "—" },
+];
+
+const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: "v2.3.0",
+    date: Date.now() - 2 * 86400_000,
+    title: "Canvas packs — production-grade editor primitives",
+    sections: [
+      {
+        label: "New",
+        items: [
+          { kind: "feature", text: "`CanvasSelectionBox` with 8 resize handles + animated transitions" },
+          { kind: "feature", text: "`CanvasSnapGuides` — pink-line smart guides on drag" },
+          { kind: "feature", text: "`useCanvasHistory` — generic undo/redo with transient preview slot" },
+        ],
+      },
+      {
+        label: "Improvements",
+        items: [
+          { kind: "improvement", text: "Snap priority: edges over grid for cleaner alignment" },
+          { kind: "improvement", text: "Marquee renders via Portal to avoid world-transform distortion" },
+        ],
+      },
+    ],
+  },
+  {
+    version: "v2.2.0",
+    date: Date.now() - 8 * 86400_000,
+    title: "Observability pack",
+    sections: [
+      {
+        label: "New",
+        items: [
+          { kind: "feature", text: "`TimeSeriesChart` with brush-to-zoom" },
+          { kind: "feature", text: "`LogTailer` — streaming logs with follow mode" },
+          { kind: "feature", text: "`FlameGraph`, `TraceWaterfall`, `MetricHeatmap`" },
+        ],
+      },
+      {
+        label: "Fixes",
+        items: [
+          { kind: "fix", text: "strict-mode null-check in Canvas drag handler" },
+        ],
+      },
+      {
+        label: "Security",
+        items: [
+          { kind: "security", text: "Sanitize stored selection state from localStorage round-trip" },
+        ],
+      },
+    ],
+  },
+  {
+    version: "v2.0.0",
+    date: Date.now() - 40 * 86400_000,
+    title: "Harbor 2.0",
+    sections: [
+      {
+        label: "Highlights",
+        items: [
+          { kind: "breaking", text: "`HostStatus` is now a subset of the shared `Status` type" },
+          { kind: "feature", text: "Pack 1 foundation (format.ts + 7 status widgets)" },
+        ],
+      },
+    ],
+  },
+];
+
+function DevOpsPackDemo() {
+  return (
+    <>
+      <Demo title="DeploymentPipeline" hint="Running-stage connector pulses" wide intensity="soft">
+        <DeploymentPipeline
+          stages={PIPELINE_STAGES}
+          onStageClick={(s) => console.info("stage", s.id)}
+        />
+      </Demo>
+
+      <Demo title="CommitCard" wide intensity="soft">
+        <Col className="gap-2 w-full">
+          <CommitCard
+            sha="a1b2c3d4e5f6"
+            authorName="Ada Lovelace"
+            message={"auth: replace JWT signer with libsodium\n\nMoves away from jose because of the recent CVE. Backwards-compatible\nwith existing tokens; issues new ones on the next refresh."}
+            at={Date.now() - 1 * 3600_000}
+            stats={{ additions: 142, deletions: 86, files: 9 }}
+            refs={["HEAD", "feat/auth-v2"]}
+          />
+          <CommitCard
+            sha="m3n4o5p6q7r8"
+            authorName="Rie Takahashi"
+            message="chore: bump deps"
+            at={Date.now() - 4 * 3600_000}
+            stats={{ additions: 12, deletions: 8, files: 2 }}
+          />
+        </Col>
+      </Demo>
+
+      <Demo title="PullRequestCard" wide intensity="soft">
+        <PullRequestCard
+          number={4217}
+          title="Add OIDC discovery + dynamic JWKS refresh"
+          state="open"
+          authorName="Ada Lovelace"
+          createdAt={Date.now() - 18 * 3600_000}
+          fromBranch="feat/auth-v2"
+          toBranch="main"
+          reviewers={REVIEWERS}
+          checks={CHECKS}
+          diff={{ additions: 284, deletions: 91, files: 14 }}
+          actions={
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="ghost">
+                Approve
+              </Button>
+              <Button size="sm">Merge</Button>
+            </div>
+          }
+        />
+      </Demo>
+
+      <Demo title="BranchTree · mini git graph" wide intensity="soft">
+        <div className="bg-[#0d0d14] rounded-xl border border-white/10 p-2">
+          <BranchTree commits={COMMITS} branches={BRANCHES} rowHeight={28} />
+        </div>
+      </Demo>
+
+      <Demo title="ChangelogFeed" hint="Filter by kind · collapsible per version" wide intensity="soft">
+        <ChangelogFeed entries={CHANGELOG} />
+      </Demo>
+    </>
   );
 }
 

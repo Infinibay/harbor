@@ -1,3 +1,4 @@
+export * from "./BranchTree";
 export * from "./DataTable";
 export * from "./DiffViewer";
 export * from "./HeatmapCalendar";
