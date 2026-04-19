@@ -27,6 +27,8 @@ export * from "./Switch";
 export * from "./TagInput";
 export * from "./Textarea";
 export * from "./TextField";
+export * from "./ThresholdRuleBuilder";
+export * from "./TimeRangePicker";
 export * from "./ToggleGroup";
 export * from "./Wizard";
 export * from "./ZoomControls";
