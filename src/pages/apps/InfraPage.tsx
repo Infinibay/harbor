@@ -12,6 +12,17 @@ import {
   type RackHost,
 } from "../../components";
 import { Button } from "../../components";
+import {
+  BootSequence,
+  DiskAllocator,
+  ImageGallery,
+  SnapshotTimeline,
+  VMConsole,
+  type BootStage,
+  type DiskAllocation,
+  type OSImage,
+  type Snapshot,
+} from "../../components";
 
 const CLUSTER_HOSTS: ClusterHost[] = [
   { id: "h1", name: "api-gateway-01", status: "online", subtitle: "Ubuntu 24.04 · 8 vCPU", cpu: 42, ram: { used: 11.8, total: 16 }, disk: { used: 180, total: 500 }, tags: ["prod", "edge"], region: "eu-west-1" },
@@ -148,7 +159,96 @@ export function InfraPage() {
           ]}
         />
       </Demo>
+
+      <VMLifecycleDemos />
     </Group>
+  );
+}
+
+// === Pack 4: VM lifecycle demos =================================
+
+const BOOT_STAGES: BootStage[] = [
+  { id: "bios", label: "BIOS POST", status: "done", duration: 1200 },
+  { id: "bootloader", label: "GRUB bootloader", status: "done", duration: 340 },
+  { id: "kernel", label: "Linux kernel 6.8.0", status: "done", duration: 2100, detail: "/boot/vmlinuz-6.8.0-infinibay1" },
+  { id: "initramfs", label: "initramfs", status: "done", duration: 680 },
+  { id: "systemd", label: "systemd PID 1", status: "running", detail: "starting 27 units…" },
+  { id: "network", label: "network.target", status: "pending" },
+  { id: "services", label: "multi-user.target", status: "pending" },
+  { id: "ready", label: "Login ready", status: "pending" },
+];
+
+const IMAGES: OSImage[] = [
+  { id: "ub-24", name: "Ubuntu Server", os: "ubuntu", version: "24.04 LTS", size: 620_000_000, lastUsed: Date.now() - 2 * 3600_000, usageCount: 142, icon: "🟠", description: "Long-term support · 2034" },
+  { id: "de-12", name: "Debian", os: "debian", version: "12 bookworm", size: 540_000_000, lastUsed: Date.now() - 24 * 3600_000, usageCount: 88, icon: "🔴" },
+  { id: "al-3.19", name: "Alpine", os: "alpine", version: "3.19", size: 3_200_000, lastUsed: Date.now() - 3 * 86400_000, usageCount: 410, icon: "🏔️", description: "Minimal · musl + busybox" },
+  { id: "nx-24", name: "NixOS", os: "nixos", version: "24.05", size: 980_000_000, lastUsed: Date.now() - 6 * 3600_000, usageCount: 31, icon: "❄️" },
+  { id: "fedora", name: "Fedora", os: "fedora", version: "40", size: 1_800_000_000, lastUsed: Date.now() - 7 * 86400_000, usageCount: 12, icon: "🎩" },
+  { id: "centos", name: "CentOS Stream", os: "centos", version: "9", size: 1_500_000_000, lastUsed: Date.now() - 30 * 86400_000, usageCount: 4, icon: "🟣" },
+];
+
+const SNAPSHOTS: Snapshot[] = [
+  { id: "s1", at: Date.now() - 30 * 86400_000, size: 12_400_000_000, label: "before v2 migration", kind: "pre-migration", locked: true },
+  { id: "s2", at: Date.now() - 21 * 86400_000, size: 12_800_000_000, kind: "auto" },
+  { id: "s3", at: Date.now() - 14 * 86400_000, size: 13_100_000_000, kind: "auto" },
+  { id: "s4", at: Date.now() - 7 * 86400_000, size: 13_400_000_000, kind: "auto" },
+  { id: "s5", at: Date.now() - 2 * 86400_000, size: 13_600_000_000, label: "manual · pre-deploy", kind: "manual" },
+  { id: "s6", at: Date.now() - 6 * 3600_000, size: 13_650_000_000, kind: "auto" },
+];
+
+function VMLifecycleDemos() {
+  const [allocations, setAllocations] = useState<DiskAllocation[]>([
+    { id: "a1", label: "system", size: 40 * 1024 ** 3, tone: "used" },
+    { id: "a2", label: "data", size: 120 * 1024 ** 3, tone: "used" },
+    { id: "a3", label: "backup", size: 80 * 1024 ** 3, tone: "backup" },
+  ]);
+
+  return (
+    <>
+      <Demo title="VMConsole · adapter contract" hint="Renders chrome; bring your own xterm.js" wide intensity="soft">
+        <VMConsole
+          name="api-gateway-01"
+          subtitle="eu-west-1a · Ubuntu 24.04 · 8 vCPU"
+          status="online"
+          resolution="120 × 30"
+          height={280}
+        />
+      </Demo>
+
+      <Demo title="BootSequence · animated progress" wide intensity="soft">
+        <BootSequence stages={BOOT_STAGES} />
+      </Demo>
+
+      <Demo title="SnapshotTimeline" hint="Hover a point for restore / delete" wide intensity="soft">
+        <SnapshotTimeline
+          snapshots={SNAPSHOTS}
+          onRestore={(s) => console.info("restore", s.id)}
+          onDelete={(s) => console.info("delete", s.id)}
+        />
+      </Demo>
+
+      <Demo title="ImageGallery · OS templates" hint="Search + sort · click to select" wide intensity="soft">
+        <ImageGallery images={IMAGES} selectedId="ub-24" />
+      </Demo>
+
+      <Demo
+        title="DiskAllocator · drag on free space to reserve"
+        hint="Click × on a slab to release · min 1 GB"
+        wide
+        intensity="soft"
+      >
+        <DiskAllocator
+          total={500 * 1024 ** 3}
+          allocations={allocations}
+          onChange={setAllocations}
+          header={
+            <span className="text-[10px] uppercase tracking-widest text-white/50">
+              Storage · nvme0
+            </span>
+          }
+        />
+      </Demo>
+    </>
   );
 }
 

@@ -5,3 +5,4 @@ export * from "./LogViewer";
 export * from "./MarkdownRenderer";
 export * from "./ShortcutSheet";
 export * from "./Terminal";
+export * from "./VMConsole";

@@ -4,6 +4,7 @@ export * from "./ColorPicker";
 export * from "./ColorSwatch";
 export * from "./Combobox";
 export * from "./DatePicker";
+export * from "./DiskAllocator";
 export * from "./FieldSet";
 export * from "./FileDrop";
 export * from "./Form";
