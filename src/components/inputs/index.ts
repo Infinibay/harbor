@@ -21,6 +21,7 @@ export * from "./MFASetup";
 export * from "./MultiSelect";
 export * from "./NumberField";
 export * from "./OTPInput";
+export * from "./QueryBuilder";
 export * from "./Radio";
 export * from "./RangeSlider";
 export * from "./Rating";

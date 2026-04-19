@@ -8,6 +8,16 @@ import { VirtualList } from "../../components";
 import { InfiniteScroll } from "../../components";
 import { MasonryGrid } from "../../components";
 import { DiffViewer } from "../../components";
+import { Row } from "../../showcase/ShowcaseCard";
+import {
+  ExportMenu,
+  FacetedSearch,
+  PropertyList,
+  QueryBuilder,
+  emptyQueryGroup,
+  type FilterGroup,
+  type QueryNode,
+} from "../../components";
 
 type Row = { id: string; name: string; status: string; cpu: number; mem: number; req: number };
 
@@ -195,7 +205,130 @@ export function DataPage() {
 };`}
         />
       </Demo>
+
+      <DataQueryPackDemo />
     </Group>
+  );
+}
+
+// === Pack 10: data + query demos ================================
+
+const FACET_GROUPS: FilterGroup[] = [
+  {
+    id: "status",
+    label: "Status",
+    options: [
+      { value: "running", label: "Running", count: 12 },
+      { value: "degraded", label: "Degraded", count: 2 },
+      { value: "failed", label: "Failed", count: 1 },
+    ],
+  },
+  {
+    id: "region",
+    label: "Region",
+    options: [
+      { value: "eu-west-1", label: "eu-west-1", count: 8 },
+      { value: "us-east-1", label: "us-east-1", count: 6 },
+      { value: "ap-southeast-1", label: "ap-southeast-1", count: 1 },
+    ],
+  },
+  {
+    id: "tier",
+    label: "Tier",
+    type: "radio",
+    options: [
+      { value: "prod", label: "Production" },
+      { value: "staging", label: "Staging" },
+      { value: "dev", label: "Dev" },
+    ],
+  },
+];
+
+function DataQueryPackDemo() {
+  const [filter, setFilter] = useState<Record<string, string[]>>({ status: ["running"] });
+  const [query, setQuery] = useState<QueryNode>(() => ({
+    ...emptyQueryGroup("and"),
+    children: [
+      { kind: "condition", id: "q1", field: "name", op: "contains", value: "gateway" },
+      { kind: "condition", id: "q2", field: "cpu", op: ">", value: 70 },
+    ],
+  }));
+  const [exportMsg, setExportMsg] = useState<string | null>(null);
+
+  return (
+    <>
+      <Demo
+        title="FacetedSearch · active chips + saved views"
+        hint="Extends FilterPanel — same `groups` schema"
+        wide
+        intensity="soft"
+      >
+        <FacetedSearch
+          groups={FACET_GROUPS}
+          value={filter}
+          onChange={setFilter}
+        />
+      </Demo>
+
+      <Demo
+        title="QueryBuilder · nested AND/OR"
+        hint="Caller defines `fields` · component emits a structured tree"
+        wide
+        intensity="soft"
+      >
+        <Col className="gap-3 w-full">
+          <QueryBuilder
+            value={query}
+            onChange={setQuery}
+            fields={[
+              { id: "name", label: "Name", kind: "string" },
+              { id: "status", label: "Status", kind: "enum", options: [
+                { value: "running", label: "Running" },
+                { value: "degraded", label: "Degraded" },
+                { value: "failed", label: "Failed" },
+              ] },
+              { id: "cpu", label: "CPU %", kind: "number" },
+              { id: "ram", label: "RAM %", kind: "number" },
+              { id: "created_at", label: "Created at", kind: "date" },
+            ]}
+          />
+          <pre className="text-[10px] text-white/50 bg-white/[0.03] rounded p-3 overflow-auto font-mono max-h-40">
+            {JSON.stringify(query, null, 2)}
+          </pre>
+        </Col>
+      </Demo>
+
+      <Demo title="ExportMenu" hint="Format + options · emits onExport" wide intensity="soft">
+        <Row className="gap-3 items-center">
+          <ExportMenu
+            onExport={(opts) =>
+              setExportMsg(`exporting as ${opts.format.toUpperCase()} · headers=${opts.includeHeaders} · filterOnly=${opts.currentFilterOnly} · allCols=${opts.allColumns}`)
+            }
+          />
+          {exportMsg ? (
+            <span className="text-xs text-white/60 tabular-nums font-mono">{exportMsg}</span>
+          ) : null}
+        </Row>
+      </Demo>
+
+      <Demo title="PropertyList · AWS/GCP-style details pane" wide intensity="soft">
+        <PropertyList
+          items={[
+            { key: "id", label: "ID", value: "vm-014a9b2", copyable: true, section: "Identity" },
+            { key: "name", label: "Name", value: "api-gateway-01", editable: true, onChange: () => {}, section: "Identity" },
+            { key: "region", label: "Region", value: "eu-west-1a", section: "Identity" },
+            { key: "cpu", label: "CPU", value: "8 vCPU", section: "Compute" },
+            { key: "ram", label: "RAM", value: "16 GiB", section: "Compute" },
+            { key: "disk", label: "Disk", value: "500 GiB · NVMe", section: "Compute" },
+            { key: "private", label: "Private IP", value: "10.0.12.42", copyable: true, section: "Network" },
+            { key: "public", label: "Public IP", value: "54.201.144.7", copyable: true, section: "Network" },
+            { key: "vpc", label: "VPC", value: "vpc-infinibay-prod", section: "Network" },
+            { key: "created", label: "Created", value: "2026-01-12T08:34:00Z", section: "Metadata" },
+            { key: "owner", label: "Owner", value: "ada@infinibay.com", section: "Metadata" },
+          ]}
+        />
+      </Demo>
+    </>
   );
 }
 

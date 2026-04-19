@@ -1,5 +1,6 @@
 export * from "./Breadcrumbs";
 export * from "./CollapsibleSidebar";
+export * from "./FacetedSearch";
 export * from "./FilterPanel";
 export * from "./NavBar";
 export * from "./Pagination";

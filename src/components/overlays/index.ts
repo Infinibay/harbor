@@ -2,6 +2,7 @@ export * from "./CommandPalette";
 export * from "./ContextMenu";
 export * from "./Dialog";
 export * from "./Drawer";
+export * from "./ExportMenu";
 export * from "./HoverCard";
 export * from "./Lightbox";
 export * from "./Menu";

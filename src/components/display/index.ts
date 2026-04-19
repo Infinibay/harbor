@@ -33,6 +33,7 @@ export * from "./PricingTable";
 export * from "./ProfileCard";
 export * from "./ProgressRing";
 export * from "./Progress";
+export * from "./PropertyList";
 export * from "./QuotaBar";
 export * from "./QuoteCard";
 export * from "./RackDiagram";
