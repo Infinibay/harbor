@@ -41,6 +41,16 @@ import {
   ResourceForecast,
   UsageRing,
 } from "../../components";
+import {
+  IncidentTimeline,
+  MaintenanceBanner,
+  StatusPage,
+  UptimeStrip,
+  type DayStatus,
+  type Incident,
+  type StatusComponent,
+  type UptimeDay,
+} from "../../components";
 
 export function DashboardPage() {
   const [live, setLive] = useState(12400);
@@ -239,7 +249,202 @@ export function DashboardPage() {
 
       <ObservabilityPackDemo />
       <BillingPackDemo />
+      <StatusPackDemo />
     </Group>
+  );
+}
+
+// === Pack 8: status + ops demos =================================
+
+function generateUptime(length: number, now = Date.now()): UptimeDay[] {
+  const days: UptimeDay[] = [];
+  const statuses: DayStatus[] = ["operational", "operational", "operational", "operational", "operational", "operational", "degraded", "down", "maintenance"];
+  for (let i = 0; i < length; i++) {
+    const offset = length - 1 - i;
+    const status = offset < 3 ? "operational" : statuses[(i * 13) % statuses.length];
+    days.push({
+      date: now - offset * 86400_000,
+      status,
+      label:
+        status === "down"
+          ? "40m partial outage in eu-west-1"
+          : status === "degraded"
+            ? "Elevated p95 latency"
+            : status === "maintenance"
+              ? "Scheduled DB migration"
+              : undefined,
+    });
+  }
+  return days;
+}
+
+const DEMO_INCIDENTS: Incident[] = [
+  {
+    id: "inc-2026-04-17",
+    title: "Elevated API latency in eu-west-1",
+    severity: "major",
+    startedAt: Date.now() - 36 * 3600_000,
+    resolvedAt: Date.now() - 30 * 3600_000,
+    affectedComponents: ["api-gateway", "auth"],
+    updates: [
+      {
+        at: Date.now() - 36 * 3600_000,
+        status: "investigating",
+        message: "Alerts triggered on p95 latency > 1.2 s on api-gateway.",
+      },
+      {
+        at: Date.now() - 34 * 3600_000,
+        status: "identified",
+        message: "Root cause: upstream DNS degradation in eu-west-1.",
+      },
+      {
+        at: Date.now() - 32 * 3600_000,
+        status: "monitoring",
+        message: "Failover to eu-west-3 complete. Latency normalized.",
+      },
+      {
+        at: Date.now() - 30 * 3600_000,
+        status: "resolved",
+        message: "Incident resolved. Writing postmortem.",
+      },
+    ],
+  },
+  {
+    id: "inc-2026-04-19",
+    title: "worker-pool: slow job processing",
+    severity: "minor",
+    startedAt: Date.now() - 20 * 60_000,
+    affectedComponents: ["worker-pool"],
+    updates: [
+      {
+        at: Date.now() - 20 * 60_000,
+        status: "investigating",
+        message: "Queue depth rising — investigating workers.",
+      },
+      {
+        at: Date.now() - 6 * 60_000,
+        status: "identified",
+        message: "Memory pressure on 2 workers. Rotating nodes.",
+      },
+    ],
+  },
+];
+
+const DEMO_COMPONENTS: StatusComponent[] = [
+  {
+    id: "api",
+    name: "API Gateway",
+    status: "online",
+    group: "Core",
+    uptime: generateUptime(30),
+    description: "Public REST + GraphQL endpoint",
+  },
+  {
+    id: "auth",
+    name: "Auth Service",
+    status: "degraded",
+    group: "Core",
+    uptime: generateUptime(30),
+    description: "OIDC + JWT issuance",
+  },
+  {
+    id: "workers",
+    name: "Worker Pool",
+    status: "degraded",
+    group: "Core",
+    uptime: generateUptime(30),
+    description: "Background job processors",
+  },
+  {
+    id: "eu-west",
+    name: "eu-west-1",
+    status: "online",
+    group: "Regions",
+    uptime: generateUptime(30),
+  },
+  {
+    id: "us-east",
+    name: "us-east-1",
+    status: "online",
+    group: "Regions",
+    uptime: generateUptime(30),
+  },
+  {
+    id: "ap",
+    name: "ap-southeast-1",
+    status: "maintenance",
+    group: "Regions",
+    uptime: generateUptime(30),
+  },
+];
+
+function StatusPackDemo() {
+  return (
+    <>
+      <Demo title="UptimeStrip · last 90 days" wide intensity="soft">
+        <Col className="w-full gap-5">
+          <UptimeStrip label="API gateway" days={generateUptime(90)} />
+          <UptimeStrip label="Worker pool" days={generateUptime(90, Date.now() - 86400_000 * 3)} />
+          <UptimeStrip label="Billing" days={generateUptime(60)} length={90} />
+        </Col>
+      </Demo>
+
+      <Demo title="IncidentTimeline · collapsible updates" wide intensity="soft">
+        <IncidentTimeline incidents={DEMO_INCIDENTS} />
+      </Demo>
+
+      <Demo
+        title="MaintenanceBanner · live countdown"
+        hint="Auto-sticky within 1h · switches to 'in progress' when started"
+        wide
+        intensity="soft"
+      >
+        <Col className="gap-3 w-full">
+          <MaintenanceBanner
+            scheduledAt={new Date(Date.now() + 2 * 3600_000 + 14 * 60_000)}
+            duration={45 * 60_000}
+            scope="auth-service (all regions)"
+          >
+            DB migration for the auth-service keystore. Expect up to 2 min of
+            auth failures during cutover.
+          </MaintenanceBanner>
+          <MaintenanceBanner
+            scheduledAt={new Date(Date.now() - 10 * 60_000)}
+            duration={60 * 60_000}
+            scope="us-east-1"
+          >
+            Network maintenance in progress.
+          </MaintenanceBanner>
+        </Col>
+      </Demo>
+
+      <Demo
+        title="StatusPage · composite"
+        hint="Banner + uptime + grouped components + incidents"
+        wide
+        intensity="soft"
+      >
+        <StatusPage
+          system={{ status: "degraded", message: "Degraded performance in auth and workers" }}
+          uptime={generateUptime(90)}
+          components={DEMO_COMPONENTS}
+          incidents={DEMO_INCIDENTS}
+          header={
+            <div className="flex items-baseline justify-between">
+              <div>
+                <div className="text-[10px] uppercase tracking-widest text-white/40">
+                  Infinibay
+                </div>
+                <div className="text-white text-xl font-semibold">Status</div>
+              </div>
+              <Button size="sm" variant="ghost">
+                Subscribe to updates
+              </Button>
+            </div>
+          }
+        />
+      </Demo>
+    </>
   );
 }
 

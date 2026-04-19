@@ -35,6 +35,7 @@ export * from "./ResponsiveStack";
 export * from "./ResponsiveSwap";
 export * from "./ScrollArea";
 export * from "./Show";
+export * from "./StatusPage";
 export * from "./SplitPane";
 export * from "./StatusBar";
 export * from "./Toolbar";
