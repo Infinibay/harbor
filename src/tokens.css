@@ -166,20 +166,3 @@
   }
 }
 
-/* Consumed by DotGrid — `background-size`-scaled scroll + opacity pulse. */
-@keyframes harbor-dotgrid-scroll {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 100px 100px;
-  }
-}
-@keyframes harbor-dotgrid-pulse {
-  0%, 100% {
-    opacity: var(--harbor-dotgrid-base, 0.25);
-  }
-  50% {
-    opacity: var(--harbor-dotgrid-peak, 0.75);
-  }
-}

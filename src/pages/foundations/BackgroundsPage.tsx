@@ -3,12 +3,12 @@ import { Group, Demo, Row, Col } from "../../showcase/ShowcaseCard";
 import {
   AnimatedBackground,
   Aurora,
+  Bubbles,
   Constellations,
-  DotGrid,
+  MacScape,
   MeshGradient,
   Orbs,
   PlasmaField,
-  Starfield,
   Waves,
   DEFAULT_PALETTE,
   type BackgroundVariant,
@@ -51,12 +51,12 @@ export function BackgroundsPage() {
               [
                 "mesh",
                 "aurora",
-                "starfield",
-                "dot-grid",
                 "waves",
                 "constellations",
                 "orbs",
                 "plasma",
+                "bubbles",
+                "macscape",
               ] as BackgroundVariant[]
             ).map((v) => (
               <button
@@ -150,11 +150,11 @@ export function BackgroundsPage() {
           <MiniCard label="aurora">
             <Aurora />
           </MiniCard>
-          <MiniCard label="starfield">
-            <Starfield />
+          <MiniCard label="bubbles · metaballs">
+            <Bubbles />
           </MiniCard>
-          <MiniCard label="dot-grid · perspective">
-            <DotGrid motion="perspective" />
+          <MiniCard label="macscape">
+            <MacScape />
           </MiniCard>
           <MiniCard label="waves">
             <Waves />
@@ -177,8 +177,8 @@ export function BackgroundsPage() {
         wide
       >
         <div className="relative h-[320px] rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a10]">
-          <Orbs count={9} glow={60} intensity={0.85} />
-          <DotGrid motion="pulse" color="rgba(255,255,255,0.15)" dotSize={0.8} />
+          <MacScape layers={5} blur={10} />
+          <Orbs count={6} glow={40} intensity={0.6} blend="plus-lighter" />
           <div className="absolute inset-0 grid place-items-center">
             <div className="text-center px-6">
               <div className="text-[10px] uppercase tracking-widest text-fuchsia-200/70 mb-2">
@@ -190,8 +190,8 @@ export function BackgroundsPage() {
                 Ship faster.
               </h2>
               <p className="text-white/70 mt-3 max-w-sm mx-auto">
-                Composed layers here: orbs + dot-grid pulse + centered
-                content. Every layer lives behind the next.
+                Composed layers here: `MacScape` + additive `Orbs` for a
+                bright ambient glow. Every layer lives behind the next.
               </p>
             </div>
           </div>
@@ -213,10 +213,12 @@ export function BackgroundsPage() {
 />`}
           </pre>
           <div className="grid md:grid-cols-2 gap-2 mt-2">
-            <Bullet>CSS-only: <Code>mesh</Code>, <Code>dot-grid</Code>, <Code>orbs</Code></Bullet>
-            <Bullet>SVG paths: <Code>aurora</Code>, <Code>waves</Code></Bullet>
-            <Bullet>Canvas 2D: <Code>starfield</Code>, <Code>constellations</Code>, <Code>plasma</Code></Bullet>
+            <Bullet>CSS + rAF: <Code>mesh</Code>, <Code>orbs</Code></Bullet>
+            <Bullet>SVG paths: <Code>aurora</Code>, <Code>waves</Code>, <Code>macscape</Code></Bullet>
+            <Bullet>SVG + filter (metaballs): <Code>bubbles</Code></Bullet>
+            <Bullet>Canvas 2D: <Code>constellations</Code>, <Code>plasma</Code></Bullet>
             <Bullet>Plasma renders at 1/8 resolution + CSS-blur upscale</Bullet>
+            <Bullet><Code>mesh</Code> + <Code>bubbles</Code> bounce off the frame (no escapees)</Bullet>
           </div>
         </Col>
       </Demo>
