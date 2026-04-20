@@ -99,7 +99,7 @@ export function DataPage() {
 
   return (
     <Group id="data" title="Data · tablas, tiempo, viz" desc="DataTable sortable, heatmap, timeline.">
-      <Demo title="DataTable" hint="Click headers para ordenar." wide intensity="soft">
+      <Demo title="DataTable" hint="Click headers para ordenar (↕ → ↑ → ↓)." wide intensity="soft">
         <DataTable
           rows={tableRows}
           columns={cols}
@@ -107,6 +107,38 @@ export function DataPage() {
           selectable
           selected={tableSelected}
           onSelectionChange={setTableSelected}
+        />
+      </Demo>
+
+      <Demo
+        title="DataTable — isRowSelectable"
+        hint="Per-row checkbox visibility. 'failing' rows are not selectable."
+        wide
+        intensity="soft"
+      >
+        <DataTable
+          rows={tableRows}
+          columns={cols}
+          rowKey={(r) => r.id}
+          selectable
+          isRowSelectable={(r) => r.status !== "failing"}
+          selected={tableSelected}
+          onSelectionChange={setTableSelected}
+        />
+      </Demo>
+
+      <Demo
+        title="DataTable — loading"
+        hint="Built-in LoadingOverlay replaces the body while loading=true. Header stays in place."
+        wide
+        intensity="soft"
+      >
+        <DataTable
+          rows={tableRows}
+          columns={cols}
+          rowKey={(r) => r.id}
+          loading
+          loadingLabel="Fetching services…"
         />
       </Demo>
       <Demo title="Heatmap calendar" wide intensity="soft">

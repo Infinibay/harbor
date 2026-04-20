@@ -13,6 +13,8 @@ export interface ClusterHost {
   disk?: { used: number; total: number; unit?: string };
   tags?: string[];
   region?: string;
+  /** Small leading icon (e.g. OS logo) shown next to the status dot. */
+  osIcon?: ReactNode;
 }
 
 export interface ClusterViewProps {
@@ -21,6 +23,8 @@ export interface ClusterViewProps {
   header?: ReactNode;
   /** Called when the user clicks a host card. */
   onHostClick?: (host: ClusterHost) => void;
+  /** Wrap each host card with custom content (e.g. a context-menu trigger). */
+  renderHost?: (host: ClusterHost, card: ReactNode) => ReactNode;
   /** Minimum card width for the FluidGrid. Default 280. */
   minCardWidth?: number;
   className?: string;
@@ -34,6 +38,7 @@ export function ClusterView({
   hosts,
   header,
   onHostClick,
+  renderHost,
   minCardWidth = 280,
   className,
 }: ClusterViewProps) {
@@ -112,12 +117,12 @@ export function ClusterView({
           />
         ) : null}
         <span className="flex-1" />
-        <div className="inline-flex gap-0.5 p-0.5 rounded-md bg-white/[0.03] border border-white/10 text-[11px]">
+        <div className="inline-flex gap-0.5 p-0.5 rounded-md bg-surface-1 border border-white/10 text-[11px]">
           <button
             onClick={() => setDensity("comfortable")}
             className={cn(
               "px-2 py-0.5 rounded",
-              density === "comfortable" ? "bg-white/10 text-white" : "text-white/50",
+              density === "comfortable" ? "bg-surface-3 text-white" : "text-white/60 hover:text-white",
             )}
           >
             Comfortable
@@ -126,7 +131,7 @@ export function ClusterView({
             onClick={() => setDensity("compact")}
             className={cn(
               "px-2 py-0.5 rounded",
-              density === "compact" ? "bg-white/10 text-white" : "text-white/50",
+              density === "compact" ? "bg-surface-3 text-white" : "text-white/60 hover:text-white",
             )}
           >
             Compact
@@ -134,19 +139,24 @@ export function ClusterView({
         </div>
       </div>
       <FluidGrid minItemWidth={density === "compact" ? 200 : minCardWidth} gap={12}>
-        {filtered.map((h) => (
-          <HostCard
-            key={h.id}
-            name={h.name}
-            subtitle={h.subtitle}
-            status={h.status}
-            cpu={density === "compact" ? undefined : h.cpu}
-            ram={density === "compact" ? undefined : h.ram}
-            disk={density === "compact" ? undefined : h.disk}
-            tags={h.tags}
-            onClick={onHostClick ? () => onHostClick(h) : undefined}
-          />
-        ))}
+        {filtered.map((h) => {
+          const card = (
+            <HostCard
+              name={h.name}
+              subtitle={h.subtitle}
+              status={h.status}
+              cpu={density === "compact" ? undefined : h.cpu}
+              ram={density === "compact" ? undefined : h.ram}
+              disk={density === "compact" ? undefined : h.disk}
+              tags={h.tags}
+              leadingIcon={h.osIcon}
+              onClick={onHostClick ? () => onHostClick(h) : undefined}
+            />
+          );
+          return (
+            <div key={h.id}>{renderHost ? renderHost(h, card) : card}</div>
+          );
+        })}
       </FluidGrid>
       {filtered.length === 0 ? (
         <div className="text-sm text-white/40 py-10 text-center border border-dashed border-white/10 rounded-xl">
@@ -169,7 +179,7 @@ function FilterGroup({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="inline-flex gap-0.5 p-0.5 rounded-md bg-white/[0.03] border border-white/10 text-xs items-center">
+    <div className="inline-flex gap-0.5 p-0.5 rounded-md bg-surface-1 border border-white/10 text-xs items-center">
       <span className="px-2 text-[10px] uppercase tracking-widest text-white/40">
         {label}
       </span>
@@ -180,8 +190,8 @@ function FilterGroup({
           className={cn(
             "px-2 py-0.5 rounded transition-colors",
             value === o.value
-              ? "bg-white/10 text-white"
-              : "text-white/60 hover:bg-white/5 hover:text-white",
+              ? "bg-surface-3 text-white"
+              : "text-white/70 hover:bg-surface-2 hover:text-white",
           )}
         >
           {o.label}

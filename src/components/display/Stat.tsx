@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useInView } from "framer-motion";
 import { cn } from "../../lib/cn";
 
+type Variant = "bordered" | "plain";
+
 export interface StatProps {
   label: string;
   value: number;
@@ -9,6 +11,10 @@ export interface StatProps {
   suffix?: string;
   change?: number;
   icon?: ReactNode;
+  /** `bordered` (default) wraps in a card-like surface with border.
+   *  `plain` removes the surface so the Stat can compose inside another
+   *  Card without doubled borders. */
+  variant?: Variant;
   className?: string;
   format?: (n: number) => string;
 }
@@ -20,6 +26,7 @@ export function Stat({
   suffix,
   change,
   icon,
+  variant = "bordered",
   className,
   format,
 }: StatProps) {
@@ -48,7 +55,9 @@ export function Stat({
     <div
       ref={ref}
       className={cn(
-        "flex flex-col gap-1 p-4 rounded-2xl bg-white/[0.03] border border-white/8",
+        "flex flex-col gap-1",
+        variant === "bordered" &&
+          "p-4 rounded-2xl bg-white/[0.03] border border-white/8",
         className,
       )}
     >

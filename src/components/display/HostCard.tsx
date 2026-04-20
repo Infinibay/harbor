@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type MouseEvent, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { ResourceMeter, type Resource } from "./ResourceMeter";
 import { StatusDot, STATUS_META, type Status } from "./StatusDot";
@@ -25,8 +25,11 @@ export interface HostCardProps {
   tags?: string[];
   /** Top-right slot for buttons / menu. */
   actions?: ReactNode;
+  /** Small leading icon (e.g. OS logo) shown next to the status dot. */
+  leadingIcon?: ReactNode;
   className?: string;
   onClick?: () => void;
+  onContextMenu?: (e: MouseEvent<HTMLDivElement>) => void;
 }
 
 /** Summary card for a VM / server / compute host. Combines status dot,
@@ -40,8 +43,10 @@ export function HostCard({
   disk,
   tags,
   actions,
+  leadingIcon,
   className,
   onClick,
+  onContextMenu,
 }: HostCardProps) {
   const meta = STATUS_META[status];
   const resources: Resource[] = [];
@@ -70,6 +75,7 @@ export function HostCard({
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
+      onContextMenu={onContextMenu}
       onKeyDown={
         onClick
           ? (e) => {
@@ -81,9 +87,9 @@ export function HostCard({
           : undefined
       }
       className={cn(
-        "rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex flex-col gap-3 transition-colors",
+        "rounded-2xl border border-white/10 bg-surface-2 p-4 flex flex-col gap-3 transition-colors",
         onClick &&
-          "cursor-pointer hover:bg-white/[0.06] hover:border-white/15 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40",
+          "cursor-pointer hover:bg-surface-3 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40",
         status === "provisioning" && "animate-pulse",
         className,
       )}
@@ -93,6 +99,11 @@ export function HostCard({
           <div className="mt-1.5">
             <StatusDot status={status} label={null} size={10} />
           </div>
+          {leadingIcon ? (
+            <div className="mt-0.5 shrink-0 flex items-center justify-center h-5 w-5 text-white/80">
+              {leadingIcon}
+            </div>
+          ) : null}
           <div className="min-w-0 flex flex-col gap-0.5">
             <div className="text-white font-semibold truncate">{name}</div>
             {subtitle ? (

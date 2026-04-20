@@ -7,6 +7,8 @@ import { Banner } from "../../components";
 import { ErrorState } from "../../components";
 import { ActivityFeed } from "../../components";
 import { TickerTape } from "../../components";
+import { LoadingOverlay } from "../../components";
+import { Spark } from "../../showcase/icons";
 
 export function FeedbackPage() {
   const toast = useToast();
@@ -104,6 +106,41 @@ export function FeedbackPage() {
           </Alert>
         </Col>
       </Demo>
+      <Demo
+        title="Alert — size=sm + inline layout"
+        hint="Compact for field-level warnings, inline for single-row messages with action."
+        wide
+        intensity="soft"
+      >
+        <Col>
+          <Alert size="sm" tone="warning" title="Port already in use" />
+          <Alert size="sm" tone="danger" title="Invalid IP range" />
+          <Alert
+            layout="inline"
+            tone="info"
+            icon={<Spark />}
+            title="New release available"
+            actions={<Button size="sm">Update</Button>}
+          >
+            v2.4.0 with faster builds.
+          </Alert>
+        </Col>
+      </Demo>
+
+      <Demo
+        title="LoadingOverlay"
+        hint="Centered spinner + label + optional progress bar. Use during bulk operations to avoid mid-flight re-renders."
+        intensity="soft"
+      >
+        <Col>
+          <LoadingOverlay label="Loading…" />
+          <LoadingOverlay
+            label="Applying 'Desktop Secure' profile…"
+            progress={{ done: 4, total: 12 }}
+          />
+        </Col>
+      </Demo>
+
       <Demo title="Toasts" intensity="soft">
         <Row>
           <Button

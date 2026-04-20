@@ -14,7 +14,13 @@ import {
 import { cn } from "../../lib/cn";
 import { useCursorProximity } from "../../lib/cursor";
 
-type Variant = "primary" | "secondary" | "ghost" | "destructive" | "glass";
+type Variant =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "destructive"
+  | "glass"
+  | "link";
 type Size = "sm" | "md" | "lg";
 
 export interface ButtonProps
@@ -29,6 +35,8 @@ export interface ButtonProps
   loading?: boolean;
   icon?: ReactNode;
   iconRight?: ReactNode;
+  fullWidth?: boolean;
+  align?: "start" | "center" | "end";
 }
 
 const variants: Record<Variant, string> = {
@@ -41,6 +49,7 @@ const variants: Record<Variant, string> = {
     "bg-rose-500/15 text-rose-200 border border-rose-400/30 hover:bg-rose-500/25",
   glass:
     "glass text-white hover:bg-white/10 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.4)]",
+  link: "text-fuchsia-300 hover:text-fuchsia-200 underline-offset-2 hover:underline bg-transparent",
 };
 
 const glowColors: Record<Variant, string> = {
@@ -49,6 +58,7 @@ const glowColors: Record<Variant, string> = {
   ghost: "rgba(255, 255, 255, 0.35)",
   destructive: "rgba(244, 63, 94, 0.4)",
   glass: "rgba(255, 255, 255, 0.35)",
+  link: "rgba(168, 85, 247, 0.25)",
 };
 
 const sizes: Record<Size, string> = {
@@ -68,6 +78,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       loading = false,
       icon,
       iconRight,
+      fullWidth = false,
+      align = "center",
       children,
       className,
       onClick,
@@ -129,7 +141,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         transition={{ type: "spring", stiffness: 300, damping: 22 }}
         disabled={disabled || loading}
         className={cn(
-          "relative overflow-hidden inline-flex items-center justify-center font-medium select-none",
+          "relative overflow-hidden font-medium select-none",
+          fullWidth ? "flex w-full" : "inline-flex",
+          "items-center",
+          align === "start"
+            ? "justify-start"
+            : align === "end"
+              ? "justify-end"
+              : "justify-center",
           "transition-colors outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/60",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           sizes[size],

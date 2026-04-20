@@ -6,6 +6,7 @@ import { Breadcrumbs } from "../../components";
 import { Pagination } from "../../components";
 import { Stepper } from "../../components";
 import { Button } from "../../components";
+import { AppHeader } from "../../components";
 
 export function NavigationPage() {
   const [page, setPage] = useState(3);
@@ -92,6 +93,38 @@ export function NavigationPage() {
           </Row>
         </Col>
       </Demo>
+      <Demo
+        title="AppHeader"
+        hint="Thin sticky app chrome with left/right slots. Not a NavBar — passive frame for breadcrumbs + page actions."
+        wide
+        intensity="soft"
+      >
+        <div className="w-full border border-white/8 rounded-2xl overflow-hidden">
+          <AppHeader
+            sticky={false}
+            left={
+              <Breadcrumbs
+                items={[
+                  { label: "Workspace", href: "#" },
+                  { label: "Cluster", href: "#" },
+                  { label: "node-08" },
+                ]}
+              />
+            }
+            right={
+              <>
+                <Button variant="ghost" size="sm">
+                  Refresh
+                </Button>
+                <Button variant="primary" size="sm">
+                  Deploy
+                </Button>
+              </>
+            }
+          />
+        </div>
+      </Demo>
+
       <Demo title="Stepper (vertical)" intensity="soft">
         <Stepper
           orientation="vertical"

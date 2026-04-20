@@ -43,6 +43,26 @@ body {
   background: rgba(255, 255, 255, 0.16);
 }
 
+/* Harbor Card surface hierarchy. Top-level cards land on elev-1 (solid).
+   Any Card nested inside another Card steps up to elev-2 so the layered
+   hierarchy shows without relying on transparency. */
+.hbr-card .hbr-card {
+  background-color: rgb(var(--harbor-bg-elev-2));
+}
+
+/* Neutralize Chromium's default autofill background (bright yellow/cyan)
+   so filled inputs stay in the Harbor dark palette. The long transition
+   delay keeps the caret-follow background from flashing back in. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: rgb(var(--harbor-text));
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  transition: background-color 100000s ease-out 0s;
+  caret-color: rgb(var(--harbor-text));
+}
+
 .grain::before {
   content: "";
   position: absolute;
@@ -58,10 +78,10 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgb(var(--harbor-bg-elev-1) / 0.65);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 /* Spotlight that follows cursor — driven via CSS vars set in JS on any element

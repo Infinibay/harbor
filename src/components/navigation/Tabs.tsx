@@ -59,7 +59,7 @@ export function TabList({
     return (
       <div
         className={cn(
-          "relative inline-flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1",
+          "relative inline-flex items-center gap-1 bg-black/30 border border-white/8 rounded-xl p-1",
           className,
         )}
       >
@@ -111,7 +111,7 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
         {active ? (
           <motion.span
             layoutId={`${ctx.layoutId}-pill`}
-            className="absolute inset-0 rounded-lg bg-white/10 border border-white/10"
+            className="absolute inset-0 rounded-lg bg-[#0d0d14]/90 border border-fuchsia-400/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         ) : null}

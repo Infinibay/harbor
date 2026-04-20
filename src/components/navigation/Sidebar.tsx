@@ -21,6 +21,7 @@ export interface SidebarProps {
   onSelect?: (id: string) => void;
   header?: ReactNode;
   footer?: ReactNode;
+  sticky?: boolean;
   className?: string;
 }
 
@@ -30,13 +31,15 @@ export function Sidebar({
   onSelect,
   header,
   footer,
+  sticky = false,
   className,
 }: SidebarProps) {
   const layoutId = useId();
   return (
     <aside
       className={cn(
-        "flex flex-col w-60 shrink-0 rounded-2xl bg-white/[0.02] border border-white/8 p-3 h-full",
+        "flex flex-col w-60 shrink-0 rounded-2xl bg-surface-1/85 backdrop-blur-xl border border-white/10 p-3",
+        sticky ? "sticky top-0 h-screen" : "h-full",
         className,
       )}
     >

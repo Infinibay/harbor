@@ -23,8 +23,14 @@ import { RangeSlider } from "../../components";
 import { ToggleGroup } from "../../components";
 import { Wizard } from "../../components";
 import { Form, FormSection, FieldSet, FormField, Button } from "../../components";
+import { SliderField } from "../../components";
+import { PasswordStrength } from "../../components";
+import { Spark } from "../../showcase/icons";
 
 export function InputsPage() {
+  const [cores, setCores] = useState(8);
+  const [ram, setRam] = useState(16);
+  const [pw, setPw] = useState("");
   const [check1, setCheck1] = useState(true);
   const [check2, setCheck2] = useState(false);
   const [radio, setRadio] = useState("b");
@@ -340,6 +346,51 @@ export function InputsPage() {
             <div />
           </FormSection>
         </Form>
+      </Demo>
+
+      <Demo
+        title="SliderField"
+        hint="Slider + NumberField + optional leading icon tile and limit hint."
+        intensity="soft"
+      >
+        <Col>
+          <SliderField
+            value={cores}
+            min={1}
+            max={32}
+            onChange={setCores}
+            unit="cores"
+            tone="sky"
+            icon={<Spark />}
+            limit={16}
+            limitLabel="Max available"
+          />
+          <SliderField
+            value={ram}
+            min={1}
+            max={128}
+            onChange={setRam}
+            unit="GB"
+            tone="green"
+            icon={<Spark />}
+          />
+        </Col>
+      </Demo>
+
+      <Demo
+        title="PasswordStrength"
+        hint="4-segment meter; scoring covers length, case mix, digits, symbols, penalises obvious patterns."
+        intensity="soft"
+      >
+        <Col>
+          <TextField
+            label="Password"
+            type="password"
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+          />
+          <PasswordStrength value={pw} />
+        </Col>
       </Demo>
     </Group>
   );

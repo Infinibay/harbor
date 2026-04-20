@@ -1,11 +1,13 @@
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 
 export interface ProgressProps {
   value?: number;
   max?: number;
-  label?: string;
+  label?: ReactNode;
   showValue?: boolean;
+  valueSlot?: ReactNode;
   tone?: "purple" | "green" | "amber" | "rose" | "sky";
   shimmer?: boolean;
   indeterminate?: boolean;
@@ -25,22 +27,24 @@ export function Progress({
   max = 100,
   label,
   showValue,
+  valueSlot,
   tone = "purple",
   shimmer,
   indeterminate,
   className,
 }: ProgressProps) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
+  const rightSide = valueSlot ?? (showValue ? `${Math.round(pct)}%` : null);
   return (
     <div className={cn("w-full", className)}>
-      {(label || showValue) && (
-        <div className="flex justify-between items-baseline mb-1.5">
+      {(label || rightSide) && (
+        <div className="flex justify-between items-baseline mb-1.5 gap-3">
           {label ? (
             <span className="text-xs text-white/60">{label}</span>
           ) : null}
-          {showValue ? (
+          {rightSide ? (
             <span className="text-xs font-mono text-white tabular-nums">
-              {Math.round(pct)}%
+              {rightSide}
             </span>
           ) : null}
         </div>

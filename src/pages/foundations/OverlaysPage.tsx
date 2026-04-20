@@ -57,7 +57,7 @@ export function OverlaysPage() {
           <Button variant="secondary">Open popover</Button>
         </Popover>
       </Demo>
-      <Demo title="Dialog" intensity="soft">
+      <Demo title="Dialog" hint="footerAlign defaults to 'end'. Try 'between' for Danger Zone layouts." intensity="soft">
         <Row>
           <Button onClick={() => setDialog(true)}>Open dialog</Button>
           <Dialog
@@ -65,6 +65,7 @@ export function OverlaysPage() {
             onClose={() => setDialog(false)}
             title="Delete workspace?"
             description="This action cannot be undone. All projects, deployments and secrets will be permanently removed."
+            footerAlign="between"
             footer={
               <>
                 <Button variant="ghost" onClick={() => setDialog(false)}>

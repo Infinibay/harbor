@@ -12,6 +12,8 @@ export interface DialogProps {
   children?: ReactNode;
   footer?: ReactNode;
   size?: "sm" | "md" | "lg";
+  /** Horizontal alignment of footer contents. Defaults to `end`. */
+  footerAlign?: "start" | "center" | "end" | "between";
   className?: string;
 }
 
@@ -21,6 +23,13 @@ const sizes = {
   lg: "max-w-2xl",
 };
 
+const footerAlignClass = {
+  start: "justify-start",
+  center: "justify-center",
+  end: "justify-end",
+  between: "justify-between",
+} as const;
+
 export function Dialog({
   open,
   onClose,
@@ -29,6 +38,7 @@ export function Dialog({
   children,
   footer,
   size = "md",
+  footerAlign = "end",
   className,
 }: DialogProps) {
   useEffect(() => {
@@ -80,7 +90,12 @@ export function Dialog({
             )}
             {children ? <div className="px-6 pb-6">{children}</div> : null}
             {footer ? (
-              <div className="px-6 py-4 bg-white/[0.02] border-t border-white/5 flex items-center justify-end gap-2">
+              <div
+                className={cn(
+                  "px-6 py-4 bg-white/[0.02] border-t border-white/5 flex items-center gap-2",
+                  footerAlignClass[footerAlign],
+                )}
+              >
                 {footer}
               </div>
             ) : null}

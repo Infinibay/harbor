@@ -163,16 +163,16 @@ export function Select({
               }}
               className="rounded-xl bg-[#14141c] border border-white/10 shadow-2xl overflow-hidden p-1"
             >
-              <ul className="max-h-64 overflow-auto">
+              <ul className="max-h-64 overflow-y-auto overflow-x-hidden">
                 {options.map((o, i) => (
-                  <li key={o.value}>
+                  <li key={o.value} className="relative">
                     <button
                       type="button"
                       disabled={o.disabled}
                       onClick={() => pick(o.value)}
                       onMouseEnter={() => setFocusIdx(i)}
                       className={cn(
-                        "relative w-full text-left px-3 py-2 rounded-lg text-sm flex items-start gap-2.5 transition-colors",
+                        "relative w-full text-left pl-4 pr-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-colors",
                         focusIdx === i ? "bg-white/5" : "",
                         o.disabled && "opacity-40 cursor-not-allowed",
                       )}
@@ -180,7 +180,7 @@ export function Select({
                       {current === o.value ? (
                         <motion.span
                           layoutId={`${layoutId}-select-ind`}
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r bg-fuchsia-400"
+                          className="absolute left-1 inset-y-0 my-auto h-4 w-0.5 rounded-full bg-fuchsia-400 pointer-events-none"
                           transition={{
                             type: "spring",
                             stiffness: 500,

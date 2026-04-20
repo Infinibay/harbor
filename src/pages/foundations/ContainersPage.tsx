@@ -17,6 +17,10 @@ import { CollapsibleSidebar } from "../../components";
 import { FilterPanel } from "../../components";
 import { SettingsPanel } from "../../components";
 import { FolderIcon, FileIcon, HomeIcon, GearIcon, Spark, MagnifierIcon } from "../../showcase/icons";
+import { Page } from "../../components";
+import { ResponsiveGrid } from "../../components";
+import { AppShell } from "../../components";
+import { AppHeader } from "../../components";
 
 export function ContainersPage() {
   const [sidebarSel, setSidebarSel] = useState("overview");
@@ -311,6 +315,70 @@ export function ContainersPage() {
         intensity="soft"
       >
         <CanvasDemo />
+      </Demo>
+
+      <Demo
+        title="Page"
+        hint="Container + vertical stack of sections. Shortcut for the recurring page chrome."
+        wide
+        intensity="soft"
+      >
+        <div className="w-full border border-dashed border-white/10 rounded-2xl">
+          <Page size="md" gap="md">
+            <Card variant="default" title="Overview" description="Summary of the page." />
+            <Card variant="default" title="Details" description="A second section." />
+            <Card variant="default" title="Actions" description="Wrap-up." />
+          </Page>
+        </div>
+      </Demo>
+
+      <Demo
+        title="ResponsiveGrid"
+        hint="Viewport-responsive CSS grid. No runtime container measurement — safe inside collapsing parents (Accordion, Drawer, Tabs)."
+        wide
+        intensity="soft"
+      >
+        <ResponsiveGrid columns={{ base: 1, md: 2, lg: 4 }} gap={3}>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <Card key={i} variant="default" title={`Item ${i}`} />
+          ))}
+        </ResponsiveGrid>
+      </Demo>
+
+      <Demo
+        title="AppShell"
+        hint="Full-viewport app frame with optional sticky sidebar + top header + scrollable main."
+        wide
+        intensity="soft"
+      >
+        <div className="w-full border border-white/10 rounded-2xl overflow-hidden h-80">
+          <AppShell
+            sidebar={
+              <Sidebar
+                sections={[
+                  {
+                    label: "Workspace",
+                    items: [
+                      { id: "a", label: "Overview", icon: <HomeIcon /> },
+                      { id: "b", label: "Settings", icon: <GearIcon /> },
+                    ],
+                  },
+                ]}
+                selected="a"
+              />
+            }
+            header={
+              <AppHeader
+                sticky={false}
+                left={<span className="text-sm text-white/70">App header slot</span>}
+                right={<Button size="sm">Deploy</Button>}
+              />
+            }
+            contentPadding="md"
+          >
+            <Card variant="default" title="Page content" description="Scrollable main region." />
+          </AppShell>
+        </div>
       </Demo>
     </Group>
   );

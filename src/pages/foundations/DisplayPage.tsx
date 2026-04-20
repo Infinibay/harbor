@@ -27,6 +27,7 @@ import { EventCard } from "../../components";
 import { MetricCard } from "../../components";
 import { ResourceMeter } from "../../components";
 import { HostCard } from "../../components";
+import { IconTile } from "../../components";
 import {
   DurationPill,
   FormattedBytes,
@@ -690,6 +691,72 @@ export function DisplayPage() {
             </>
           }
         />
+      </Demo>
+
+      <Demo
+        title="IconTile"
+        hint="Rounded tinted square for leading icons. Tones: neutral, sky, green, purple, amber, rose."
+        intensity="soft"
+      >
+        <Row>
+          <IconTile icon={<Spark />} tone="neutral" size="sm" />
+          <IconTile icon={<Spark />} tone="sky" size="md" />
+          <IconTile icon={<Spark />} tone="green" size="md" />
+          <IconTile icon={<Spark />} tone="purple" size="md" />
+          <IconTile icon={<Spark />} tone="amber" size="lg" />
+          <IconTile icon={<Spark />} tone="rose" size="lg" />
+        </Row>
+      </Demo>
+
+      <Demo
+        title="Card — leadingIcon + selected + disabled"
+        hint="Selection uses --harbor-accent token. Disabled dims and blocks clicks."
+        intensity="soft"
+      >
+        <Row>
+          <Card
+            variant="default"
+            interactive
+            leadingIcon={<Spark />}
+            leadingIconTone="purple"
+            title="Active option"
+            description="Click me."
+          />
+          <Card
+            variant="default"
+            interactive
+            selected
+            leadingIcon={<Spark />}
+            leadingIconTone="purple"
+            title="Selected"
+            description="Accent border + tint."
+          />
+          <Card
+            variant="default"
+            interactive
+            disabled
+            leadingIcon={<Spark />}
+            leadingIconTone="neutral"
+            title="Disabled"
+            description="Greyed out."
+          />
+        </Row>
+      </Demo>
+
+      <Demo
+        title="Stat — variant plain"
+        hint="`plain` removes the surface for flat composition inside another Card."
+        intensity="soft"
+      >
+        <Col>
+          <Card variant="default" title="Cluster stats">
+            <Row>
+              <Stat variant="plain" label="Nodes" value={12} icon={<Spark />} />
+              <Stat variant="plain" label="Pods" value={248} icon={<Spark />} />
+              <Stat variant="plain" label="Errors" value={3} icon={<Spark />} />
+            </Row>
+          </Card>
+        </Col>
       </Demo>
     </Group>
   );

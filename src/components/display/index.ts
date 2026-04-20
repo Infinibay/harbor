@@ -20,6 +20,7 @@ export * from "./FeatureCard";
 export * from "./FormattedValue";
 export * from "./HealthPing";
 export * from "./HostCard";
+export * from "./IconTile";
 export * from "./ImageGallery";
 export * from "./IncidentTimeline";
 export * from "./LinkPreviewCard";

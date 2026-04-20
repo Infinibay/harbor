@@ -18,6 +18,11 @@ export interface IconButtonProps
   label: string;
   icon: ReactNode;
   reactive?: boolean;
+  /** Disable cursor-reactive lean + inner glow. Alias for `reactive={false}`
+   *  intended for dense contexts (tables, toolbars) where the magnetic
+   *  effect feels jumpy. When `size="sm"` and `quiet` is unspecified,
+   *  defaults to true. */
+  quiet?: boolean;
 }
 
 const sizes: Record<Size, string> = {
@@ -39,12 +44,16 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       variant = "solid",
       label,
       icon,
-      reactive = true,
+      reactive,
+      quiet,
       className,
       ...rest
     },
     ref,
   ) {
+    // Default behavior: sm size runs quiet (dense contexts), md/lg reactive.
+    const isQuiet = quiet ?? (reactive === false ? true : size === "sm");
+    const reactiveOn = reactive ?? !isQuiet;
     const localRef = useRef<HTMLButtonElement | null>(null);
     const setRefs = (el: HTMLButtonElement | null) => {
       localRef.current = el;
@@ -57,11 +66,11 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       localRef,
       90,
     );
-    const x = useTransform(nx, (v) => (reactive ? v * 1.25 : 0));
-    const y = useTransform(ny, (v) => (reactive ? v * 1.25 : 0));
-    const iconRotate = useTransform(nx, (v) => (reactive ? v * 2 : 0));
+    const x = useTransform(nx, (v) => (reactiveOn ? v * 1.25 : 0));
+    const y = useTransform(ny, (v) => (reactiveOn ? v * 1.25 : 0));
+    const iconRotate = useTransform(nx, (v) => (reactiveOn ? v * 2 : 0));
     const glowOpacity = useTransform(proximity, (v) =>
-      reactive ? v * 0.5 : 0,
+      reactiveOn ? v * 0.5 : 0,
     );
     const glowBg = useTransform(
       [localX, localY] as any,
@@ -86,7 +95,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         )}
         {...(rest as any)}
       >
-        {reactive ? (
+        {reactiveOn ? (
           <motion.span
             aria-hidden
             style={{
