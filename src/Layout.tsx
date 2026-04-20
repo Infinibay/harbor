@@ -78,7 +78,7 @@ export function Layout() {
                 radial-gradient(50vmin at 85% 75%, color-mix(in oklch, #38bdf8 22%, transparent) 0%, transparent 55%),
                 radial-gradient(60vmin at 15% 90%, color-mix(in oklch, #f472b6 18%, transparent) 0%, transparent 55%),
                 radial-gradient(55vmin at 30% 20%, color-mix(in oklch, #a855f7 22%, transparent) 0%, transparent 60%),
-                #0a0a0f
+                rgb(var(--harbor-bg))
               `,
             }}
           >
@@ -160,7 +160,7 @@ export function Layout() {
                               width: isActive ? 24 : 10,
                               background: isActive
                                 ? "linear-gradient(90deg,#a855f7,#38bdf8)"
-                                : "rgba(255,255,255,0.3)",
+                                : "rgb(var(--harbor-text) / 0.3)",
                             }}
                           />
                           {r.label}

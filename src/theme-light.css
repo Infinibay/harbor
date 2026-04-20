@@ -1,0 +1,118 @@
+/**
+ * Light-theme utility overrides.
+ *
+ * Harbor components were written dark-first, hardcoding Tailwind
+ * `text-white/X`, `bg-white/X`, `border-white/X` (and their hover/focus
+ * variants) as the palette. When `data-theme="light"` is active on any
+ * ancestor, we remap every alpha level Harbor actually uses today so
+ * that
+ *   - text fades to near-black (via `--harbor-text`) instead of white
+ *   - subtle surface washes become dark-on-light instead of light-on-dark
+ *   - thin borders read as dark hairlines on light surfaces
+ *
+ * This buys blanket light-theme support without touching every
+ * component file. Components that later migrate to semantic utilities
+ * (`text-fg`, `text-fg-muted`, etc.) fall outside this override and
+ * work correctly via token flipping alone.
+ *
+ * Any new `*-white/*` alpha level added to components must be mirrored
+ * here — not doing so will leave that pixel stuck in dark-mode values.
+ */
+
+/* === text-white family =================================== */
+[data-theme="light"] .text-white { color: rgb(var(--harbor-text)); }
+[data-theme="light"] .text-white\/15 { color: rgb(var(--harbor-text) / 0.15); }
+[data-theme="light"] .text-white\/20 { color: rgb(var(--harbor-text) / 0.20); }
+[data-theme="light"] .text-white\/25 { color: rgb(var(--harbor-text) / 0.25); }
+[data-theme="light"] .text-white\/30 { color: rgb(var(--harbor-text) / 0.30); }
+[data-theme="light"] .text-white\/35 { color: rgb(var(--harbor-text) / 0.35); }
+[data-theme="light"] .text-white\/40 { color: rgb(var(--harbor-text) / 0.40); }
+[data-theme="light"] .text-white\/45 { color: rgb(var(--harbor-text) / 0.45); }
+[data-theme="light"] .text-white\/50 { color: rgb(var(--harbor-text) / 0.50); }
+[data-theme="light"] .text-white\/55 { color: rgb(var(--harbor-text) / 0.55); }
+[data-theme="light"] .text-white\/60 { color: rgb(var(--harbor-text) / 0.60); }
+[data-theme="light"] .text-white\/65 { color: rgb(var(--harbor-text) / 0.65); }
+[data-theme="light"] .text-white\/70 { color: rgb(var(--harbor-text) / 0.70); }
+[data-theme="light"] .text-white\/75 { color: rgb(var(--harbor-text) / 0.75); }
+[data-theme="light"] .text-white\/80 { color: rgb(var(--harbor-text) / 0.80); }
+[data-theme="light"] .text-white\/85 { color: rgb(var(--harbor-text) / 0.85); }
+[data-theme="light"] .text-white\/90 { color: rgb(var(--harbor-text) / 0.90); }
+[data-theme="light"] .text-white\/95 { color: rgb(var(--harbor-text) / 0.95); }
+
+[data-theme="light"] .hover\:text-white:hover { color: rgb(var(--harbor-text)); }
+[data-theme="light"] .hover\:text-white\/70:hover { color: rgb(var(--harbor-text) / 0.70); }
+[data-theme="light"] .hover\:text-white\/80:hover { color: rgb(var(--harbor-text) / 0.80); }
+[data-theme="light"] .hover\:text-white\/85:hover { color: rgb(var(--harbor-text) / 0.85); }
+[data-theme="light"] .hover\:text-white\/90:hover { color: rgb(var(--harbor-text) / 0.90); }
+
+/* === bg-white family ===================================== */
+/* These are almost always "subtle surface wash" tints on top of elev-*
+   surfaces. Under light theme the wash flips to dark-on-light. */
+[data-theme="light"] .bg-white { background-color: rgb(var(--harbor-text)); }
+[data-theme="light"] .bg-white\/0 { background-color: rgb(var(--harbor-text) / 0); }
+[data-theme="light"] .bg-white\/5 { background-color: rgb(var(--harbor-text) / 0.05); }
+[data-theme="light"] .bg-white\/8 { background-color: rgb(var(--harbor-text) / 0.08); }
+[data-theme="light"] .bg-white\/10 { background-color: rgb(var(--harbor-text) / 0.10); }
+[data-theme="light"] .bg-white\/15 { background-color: rgb(var(--harbor-text) / 0.15); }
+[data-theme="light"] .bg-white\/20 { background-color: rgb(var(--harbor-text) / 0.20); }
+[data-theme="light"] .bg-white\/30 { background-color: rgb(var(--harbor-text) / 0.30); }
+[data-theme="light"] .bg-white\/50 { background-color: rgb(var(--harbor-text) / 0.50); }
+[data-theme="light"] .bg-white\/60 { background-color: rgb(var(--harbor-text) / 0.60); }
+[data-theme="light"] .bg-white\/70 { background-color: rgb(var(--harbor-text) / 0.70); }
+[data-theme="light"] .bg-white\/80 { background-color: rgb(var(--harbor-text) / 0.80); }
+[data-theme="light"] .bg-white\/90 { background-color: rgb(var(--harbor-text) / 0.90); }
+
+[data-theme="light"] .bg-white\/\[0\.02\] { background-color: rgb(var(--harbor-text) / 0.02); }
+[data-theme="light"] .bg-white\/\[0\.03\] { background-color: rgb(var(--harbor-text) / 0.03); }
+[data-theme="light"] .bg-white\/\[0\.04\] { background-color: rgb(var(--harbor-text) / 0.04); }
+[data-theme="light"] .bg-white\/\[0\.05\] { background-color: rgb(var(--harbor-text) / 0.05); }
+[data-theme="light"] .bg-white\/\[0\.06\] { background-color: rgb(var(--harbor-text) / 0.06); }
+[data-theme="light"] .bg-white\/\[0\.07\] { background-color: rgb(var(--harbor-text) / 0.07); }
+[data-theme="light"] .bg-white\/\[0\.08\] { background-color: rgb(var(--harbor-text) / 0.08); }
+
+[data-theme="light"] .hover\:bg-white\/5:hover { background-color: rgb(var(--harbor-text) / 0.05); }
+[data-theme="light"] .hover\:bg-white\/10:hover { background-color: rgb(var(--harbor-text) / 0.10); }
+[data-theme="light"] .hover\:bg-white\/15:hover { background-color: rgb(var(--harbor-text) / 0.15); }
+[data-theme="light"] .hover\:bg-white\/20:hover { background-color: rgb(var(--harbor-text) / 0.20); }
+[data-theme="light"] .hover\:bg-white\/30:hover { background-color: rgb(var(--harbor-text) / 0.30); }
+[data-theme="light"] .hover\:bg-white\/90:hover { background-color: rgb(var(--harbor-text) / 0.90); }
+
+[data-theme="light"] .hover\:bg-white\/\[0\.02\]:hover { background-color: rgb(var(--harbor-text) / 0.02); }
+[data-theme="light"] .hover\:bg-white\/\[0\.03\]:hover { background-color: rgb(var(--harbor-text) / 0.03); }
+[data-theme="light"] .hover\:bg-white\/\[0\.04\]:hover { background-color: rgb(var(--harbor-text) / 0.04); }
+[data-theme="light"] .hover\:bg-white\/\[0\.05\]:hover { background-color: rgb(var(--harbor-text) / 0.05); }
+[data-theme="light"] .hover\:bg-white\/\[0\.06\]:hover { background-color: rgb(var(--harbor-text) / 0.06); }
+[data-theme="light"] .hover\:bg-white\/\[0\.07\]:hover { background-color: rgb(var(--harbor-text) / 0.07); }
+[data-theme="light"] .hover\:bg-white\/\[0\.08\]:hover { background-color: rgb(var(--harbor-text) / 0.08); }
+
+[data-theme="light"] .focus\:bg-white\/\[0\.08\]:focus { background-color: rgb(var(--harbor-text) / 0.08); }
+
+/* === border-white family ================================= */
+[data-theme="light"] .border-white { border-color: rgb(var(--harbor-text)); }
+[data-theme="light"] .border-white\/5 { border-color: rgb(var(--harbor-text) / 0.05); }
+[data-theme="light"] .border-white\/8 { border-color: rgb(var(--harbor-text) / 0.08); }
+[data-theme="light"] .border-white\/10 { border-color: rgb(var(--harbor-text) / 0.10); }
+[data-theme="light"] .border-white\/12 { border-color: rgb(var(--harbor-text) / 0.12); }
+[data-theme="light"] .border-white\/15 { border-color: rgb(var(--harbor-text) / 0.15); }
+[data-theme="light"] .border-white\/20 { border-color: rgb(var(--harbor-text) / 0.20); }
+[data-theme="light"] .border-white\/25 { border-color: rgb(var(--harbor-text) / 0.25); }
+[data-theme="light"] .border-white\/30 { border-color: rgb(var(--harbor-text) / 0.30); }
+[data-theme="light"] .border-white\/40 { border-color: rgb(var(--harbor-text) / 0.40); }
+[data-theme="light"] .border-white\/50 { border-color: rgb(var(--harbor-text) / 0.50); }
+
+[data-theme="light"] .hover\:border-white\/15:hover { border-color: rgb(var(--harbor-text) / 0.15); }
+[data-theme="light"] .hover\:border-white\/20:hover { border-color: rgb(var(--harbor-text) / 0.20); }
+[data-theme="light"] .hover\:border-white\/25:hover { border-color: rgb(var(--harbor-text) / 0.25); }
+[data-theme="light"] .hover\:border-white\/30:hover { border-color: rgb(var(--harbor-text) / 0.30); }
+
+/* === divide-white family (rarer) ========================= */
+/* If you start using divide-white/X, add its rules here too. */
+
+/* === text-black ========================================== */
+/* `bg-white text-black` (e.g. Button primary) must invert together:
+   the blanket override flips bg-white → dark surface, so text-black
+   needs to flip to the page bg (near-white) for contrast. */
+[data-theme="light"] .text-black { color: rgb(var(--harbor-bg)); }
+
+/* bg-black/X is intentionally left alone — used for dialog backdrops
+   and similar dim layers that should stay dark-tinted on both themes. */
