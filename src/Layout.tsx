@@ -1,10 +1,60 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { CursorProvider } from "./lib/cursor";
-import { ToastProvider } from "./components";
+import { IconButton, ToastProvider } from "./components";
 import { routeGroups } from "./routes";
 import { Z } from "./lib/z";
+
+function SunIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
+type Theme = "dark" | "light";
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "dark";
+    const stored = window.localStorage.getItem("harbor-theme");
+    return stored === "light" ? "light" : "dark";
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "light") root.setAttribute("data-theme", "light");
+    else root.removeAttribute("data-theme");
+    window.localStorage.setItem("harbor-theme", theme);
+  }, [theme]);
+
+  const next: Theme = theme === "light" ? "dark" : "light";
+  return (
+    <div
+      style={{ position: "fixed", top: 16, right: 16, zIndex: Z.STICKY + 1 }}
+    >
+      <IconButton
+        size="md"
+        variant="glass"
+        reactive={false}
+        label={`Switch to ${next} theme`}
+        icon={theme === "light" ? <MoonIcon /> : <SunIcon />}
+        onClick={() => setTheme(next)}
+      />
+    </div>
+  );
+}
 
 export function Layout() {
   const { scrollYProgress } = useScroll();
@@ -18,6 +68,7 @@ export function Layout() {
   return (
     <CursorProvider>
       <ToastProvider>
+        <ThemeToggle />
         <div className="min-h-screen">
           <div
             aria-hidden
