@@ -34,6 +34,7 @@ export const routeGroups: RouteGroup[] = [
     routes: [
       { path: "/patterns/coordination", label: "Coordination" },
       { path: "/patterns/canvas", label: "Canvas · editor" },
+      { path: "/patterns/flyout-toolbar", label: "Flyout toolbar" },
     ],
   },
   {

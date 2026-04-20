@@ -1,5 +1,7 @@
-import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import { Portal } from "../../lib/Portal";
+import { Z } from "../../lib/z";
 
 export interface FlyoutToolbarItem {
   id: string;
@@ -153,8 +155,10 @@ function GroupButton({
   closeDelay: number;
 }) {
   const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const btnRef = useRef<HTMLButtonElement | null>(null);
+  const flyoutRef = useRef<HTMLDivElement | null>(null);
 
   const activeItem = group.items.find((i) => i.active) ?? group.items[0];
   const hasActive = group.items.some((i) => i.active);
@@ -169,33 +173,61 @@ function GroupButton({
     if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
   }, []);
 
+  // Compute the flyout's fixed-position origin from the button's bounding
+  // rect. The submenu sits perpendicular to the rail so it never occludes
+  // sibling group buttons. Portal + position:fixed lets it escape any
+  // overflow:hidden/auto ancestors on the host page.
+  const place = useCallback(() => {
+    const btn = btnRef.current;
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    const GAP = 6;
+    if (orientation === "vertical") {
+      setCoords({ x: r.right + GAP, y: r.top });
+    } else {
+      setCoords({ x: r.left, y: r.bottom + GAP });
+    }
+  }, [orientation]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    place();
+  }, [open, place]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onScrollOrResize = () => place();
+    window.addEventListener("scroll", onScrollOrResize, true);
+    window.addEventListener("resize", onScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", onScrollOrResize, true);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [open, place]);
+
   useEffect(() => {
     if (!open) return;
     const onDoc = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (btnRef.current?.contains(t)) return;
+      if (flyoutRef.current?.contains(t)) return;
+      setOpen(false);
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, [open]);
 
-  // Submenu sits perpendicular to the rail so it never occludes sibling
-  // group buttons.
-  const flyoutPlacement = orientation === "vertical"
-    ? "left-full top-0 ml-1.5"
-    : "top-full left-0 mt-1.5";
   const flyoutOrient = orientation === "vertical" ? "flex-row" : "flex-col";
   const labelBorder = orientation === "vertical"
     ? "border-r border-white/8"
     : "border-b border-white/8";
 
   return (
-    <div
-      ref={rootRef}
-      className="relative"
-      onMouseEnter={() => { cancelClose(); setOpen(true); }}
-      onMouseLeave={scheduleClose}
-    >
+    <>
       <button
+        ref={btnRef}
+        onMouseEnter={() => { cancelClose(); setOpen(true); }}
+        onMouseLeave={scheduleClose}
         onClick={() => activeItem?.onClick?.()}
         onContextMenu={(e) => { e.preventDefault(); setOpen((o) => !o); }}
         title={group.title ?? `${group.label}${activeItem?.shortcut ? ` · ${activeItem.shortcut}` : ""}`}
@@ -223,49 +255,52 @@ function GroupButton({
         </span>
       </button>
 
-      {open ? (
-        <div
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-          className={cn("absolute z-40", flyoutPlacement)}
-        >
+      {open && coords ? (
+        <Portal>
           <div
-            className={cn(
-              "flex gap-0.5 p-1 rounded-xl bg-[#14141c]/95 backdrop-blur-md border border-white/10 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.5)]",
-              flyoutOrient,
-              orientation === "vertical" ? "items-center" : "items-stretch",
-            )}
+            ref={flyoutRef}
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+            style={{ position: "fixed", left: coords.x, top: coords.y, zIndex: Z.SUBMENU }}
           >
             <div
               className={cn(
-                "text-[9px] uppercase tracking-widest text-white/40 px-2 py-1 whitespace-nowrap",
-                labelBorder,
+                "flex gap-0.5 p-1 rounded-xl bg-[#14141c]/95 backdrop-blur-md border border-white/10 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.5)]",
+                flyoutOrient,
+                orientation === "vertical" ? "items-center" : "items-stretch",
               )}
             >
-              {group.label}
-            </div>
-            {group.items.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => { item.onClick?.(); setOpen(false); }}
-                disabled={item.disabled}
-                title={item.shortcut ? `${item.label ?? item.id} · ${item.shortcut}` : item.label}
-                aria-label={item.label ?? item.id}
-                aria-pressed={item.active}
+              <div
                 className={cn(
-                  "w-9 h-9 rounded-lg grid place-items-center transition-colors text-base shrink-0",
-                  item.active
-                    ? "bg-fuchsia-500/20 text-fuchsia-200 ring-1 ring-inset ring-fuchsia-400/40"
-                    : "text-white/70 hover:bg-white/5 hover:text-white",
-                  item.disabled && "opacity-40 cursor-not-allowed",
+                  "text-[9px] uppercase tracking-widest text-white/40 px-2 py-1 whitespace-nowrap",
+                  labelBorder,
                 )}
               >
-                {item.icon}
-              </button>
-            ))}
+                {group.label}
+              </div>
+              {group.items.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => { item.onClick?.(); setOpen(false); }}
+                  disabled={item.disabled}
+                  title={item.shortcut ? `${item.label ?? item.id} · ${item.shortcut}` : item.label}
+                  aria-label={item.label ?? item.id}
+                  aria-pressed={item.active}
+                  className={cn(
+                    "w-9 h-9 rounded-lg grid place-items-center transition-colors text-base shrink-0",
+                    item.active
+                      ? "bg-fuchsia-500/20 text-fuchsia-200 ring-1 ring-inset ring-fuchsia-400/40"
+                      : "text-white/70 hover:bg-white/5 hover:text-white",
+                    item.disabled && "opacity-40 cursor-not-allowed",
+                  )}
+                >
+                  {item.icon}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        </Portal>
       ) : null}
-    </div>
+    </>
   );
 }

@@ -14,6 +14,7 @@ import { ResponsivePage } from "./pages/foundations/ResponsivePage";
 import { BackgroundsPage } from "./pages/foundations/BackgroundsPage";
 import { CoordinationPage } from "./pages/patterns/CoordinationPage";
 import { CanvasPage } from "./pages/patterns/CanvasPage";
+import { FlyoutToolbarPage } from "./pages/patterns/FlyoutToolbarPage";
 import { IDEPage } from "./pages/apps/IDEPage";
 import { DesktopPage } from "./pages/apps/DesktopPage";
 import { DesignPage } from "./pages/apps/DesignPage";
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="patterns">
             <Route path="coordination" element={<CoordinationPage />} />
             <Route path="canvas" element={<CanvasPage />} />
+            <Route path="flyout-toolbar" element={<FlyoutToolbarPage />} />
           </Route>
           <Route path="apps">
             <Route path="ide" element={<IDEPage />} />
