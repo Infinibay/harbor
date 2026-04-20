@@ -54,7 +54,7 @@ export function Switch({
         animate={{
           background: isOn
             ? "linear-gradient(135deg,#a855f7,#38bdf8)"
-            : "rgba(255,255,255,0.1)",
+            : "rgb(var(--harbor-text) / 0.18)",
         }}
         style={{ width: w, height: h }}
         className="relative rounded-full flex-shrink-0 peer-focus-visible:ring-2 peer-focus-visible:ring-fuchsia-400/60 focus-bloom overflow-hidden"

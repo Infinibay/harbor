@@ -292,11 +292,11 @@ function CheckCell({
         background:
           checked || indeterminate
             ? "linear-gradient(135deg,#a855f7,#38bdf8)"
-            : "rgba(255,255,255,0.03)",
+            : "rgb(var(--harbor-text) / 0.06)",
         borderColor:
           checked || indeterminate
             ? "transparent"
-            : "rgba(255,255,255,0.18)",
+            : "rgb(var(--harbor-text) / 0.35)",
         opacity: disabled ? 0.35 : 1,
       }}
       className="w-4 h-4 rounded border grid place-items-center disabled:cursor-not-allowed"

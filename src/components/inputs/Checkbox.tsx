@@ -44,10 +44,10 @@ export function Checkbox({
         animate={{
           background: isChecked
             ? "linear-gradient(135deg,#a855f7,#38bdf8)"
-            : "rgba(255,255,255,0.03)",
+            : "rgb(var(--harbor-text) / 0.06)",
           borderColor: isChecked
             ? "rgba(168, 85, 247, 0.5)"
-            : "rgba(255,255,255,0.18)",
+            : "rgb(var(--harbor-text) / 0.35)",
         }}
         whileTap={{ scale: 0.85 }}
         transition={{ type: "spring", stiffness: 400, damping: 20 }}
