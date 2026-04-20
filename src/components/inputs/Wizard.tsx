@@ -7,8 +7,8 @@ export interface WizardStep {
   label: string;
   description?: string;
   content: ReactNode;
-  /** Return false (or a string) to block Next. */
-  validate?: () => true | false | string;
+  /** Return false (or a string) to block Next. May be async. */
+  validate?: () => true | false | string | Promise<true | false | string>;
 }
 
 export interface WizardProps {
@@ -23,8 +23,8 @@ export function Wizard({ steps, onComplete, className }: WizardProps) {
   const step = steps[current];
   const isLast = current === steps.length - 1;
 
-  function next() {
-    const r = step.validate?.();
+  async function next() {
+    const r = await step.validate?.();
     if (r === false) {
       setError("Required fields missing");
       return;

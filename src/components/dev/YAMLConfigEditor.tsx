@@ -122,7 +122,7 @@ export function YAMLConfigEditor({
     return (
       <div className={cn("flex flex-col gap-2", className)}>
         {header}
-        <CodeBlock language="yaml" code={value} maxHeight={height} />
+        <CodeBlock lang="yaml" code={value} />
       </div>
     );
   }

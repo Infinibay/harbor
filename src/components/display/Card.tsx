@@ -134,7 +134,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
         <div
           className={cn(
             "mb-3",
-            leadingIcon && "flex items-start gap-3",
+            leadingIcon ? "flex items-start gap-3" : "",
           )}
         >
           {leadingIcon ? (

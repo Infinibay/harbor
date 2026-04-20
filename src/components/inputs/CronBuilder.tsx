@@ -81,7 +81,7 @@ function matches(d: Date, p: ParsedCron): boolean {
     matchField(d.getDay(), p.dow, 7)
   );
 }
-function matchField(v: number, f: FieldState, modulo: number, base = 0): boolean {
+function matchField(v: number, f: FieldState, _modulo: number, base = 0): boolean {
   if (f.mode === "any") return true;
   if (f.mode === "every") return f.every && f.every > 0 ? ((v - base) % f.every) === 0 : false;
   if (f.mode === "list") return (f.list ?? []).includes(v);

@@ -121,7 +121,7 @@ export function CanvasPulse({
   className,
 }: CanvasPulseProps) {
   if (paused) return <div className={className}>{children}</div>;
-  const animateProps: Record<string, unknown> = { scale };
+  const animateProps: { scale: number[]; opacity?: number[] } = { scale };
   if (opacity) animateProps.opacity = opacity;
   return (
     <motion.div

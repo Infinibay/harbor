@@ -24,6 +24,7 @@ import {
   rectContains,
   type CanvasHandle,
   type CanvasToolbarItem,
+  type CanvasTransform,
 } from "../../components";
 import { useCanvasHistory } from "../../lib/useCanvasHistory";
 import { useCanvasSelection } from "../../lib/useCanvasSelection";
@@ -1627,7 +1628,7 @@ function PersistDemo() {
         ref={canvasRef}
         grid="dots"
         gridSize={24}
-        onTransformChange={setTransform}
+        onTransformChange={(t) => setTransform(t)}
         className="h-[380px] rounded-2xl border border-white/10 bg-[#0d0d14]"
       >
         {items.map((it) => (
@@ -1696,13 +1697,6 @@ function ProEditorDemo() {
   // drag avoids filling the stack; the final commit seals the action.
   const setItems = (next: ProItem[], label?: string, transient?: boolean) =>
     history.commit({ items: next }, { label, transient });
-
-  const moveSelected = (dx: number, dy: number, phase: "drag" | "end") => {
-    const next = items.map((it) =>
-      selection.has(it.id) ? { ...it, x: it.x + dx, y: it.y + dy } : it,
-    );
-    setItems(next, "move", phase === "drag");
-  };
 
   const resizeSelected = (
     dx: number,

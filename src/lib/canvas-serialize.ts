@@ -62,7 +62,7 @@ export function canvasFromJSON<TItem = unknown, TConn = unknown>(
   if (migrated.connections !== undefined && !Array.isArray(migrated.connections)) {
     throw new CanvasDocumentError("connections must be an array if present");
   }
-  return migrated as CanvasDocument<TItem, TConn>;
+  return migrated as unknown as CanvasDocument<TItem, TConn>;
 }
 
 /** Hook future versions here — map old shapes to v1. Today this is a

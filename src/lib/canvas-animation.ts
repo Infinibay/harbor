@@ -101,7 +101,7 @@ export function useCanvasTimeline(): CanvasTimelineHandle {
 
   useEffect(() => () => cancelAll(), [cancelAll]);
 
-  const handle = useRef<CanvasTimelineHandle>();
+  const handle = useRef<CanvasTimelineHandle | null>(null);
   if (!handle.current) {
     const api: CanvasTimelineHandle = {
       to(target, value, opts) {
