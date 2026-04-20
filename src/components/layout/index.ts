@@ -20,6 +20,7 @@ export * from "./CanvasVirtualized";
 export * from "./CanvasRuler";
 export * from "./CanvasStatusBar";
 export * from "./CanvasToolbar";
+export * from "./FlyoutToolbar";
 export * from "./CanvasZoomControls";
 export * from "./ContainerBox";
 export * from "./Container";
