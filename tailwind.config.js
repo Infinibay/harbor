@@ -9,6 +9,10 @@ export default {
         accent: "rgb(var(--harbor-accent) / <alpha-value>)",
         "accent-2": "rgb(var(--harbor-accent-2) / <alpha-value>)",
         "accent-3": "rgb(var(--harbor-accent-3) / <alpha-value>)",
+        brand: {
+          DEFAULT: "rgb(var(--harbor-brand) / <alpha-value>)",
+          fg: "rgb(var(--harbor-brand-fg) / <alpha-value>)",
+        },
         success: "rgb(var(--harbor-success) / <alpha-value>)",
         warning: "rgb(var(--harbor-warning) / <alpha-value>)",
         danger: "rgb(var(--harbor-danger) / <alpha-value>)",

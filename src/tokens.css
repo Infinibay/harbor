@@ -9,18 +9,32 @@
  * work with the modern `rgb(var(--name) / <alpha>)` slash syntax —
  * that's what Tailwind's <alpha-value> placeholder expands to.
  *
+ * Theming:
+ *   - Dark is the default. Opt into light by setting `data-theme="light"`
+ *     on any ancestor (typically <html>).
+ *   - `--harbor-accent` is the system colour for selection/focus/rings.
+ *   - `--harbor-brand` is the product colour for CTAs, logo slots, etc.
+ *     Defaults to accent so single-colour products need no change.
+ *
  * Override any token on a subtree to rebrand / theme a section:
  *
  *   <div style={{ "--harbor-accent": "34 211 238" }}>…</div>
+ *   <div style={{ "--harbor-brand": "14 165 233" }}>…</div>
  */
 
 :root {
   /* === Colors ============================================== */
 
   /* Brand accents (RGB triplets) */
-  --harbor-accent: 168 85 247;       /* fuchsia-500 */
+  --harbor-accent: 168 85 247;       /* fuchsia-500 — system / interaction */
   --harbor-accent-2: 56 189 248;     /* sky-400 */
   --harbor-accent-3: 244 114 182;    /* pink-400 */
+
+  /* Product brand — defaults to accent; override independently when a
+     consumer product needs a CTA colour different from Harbor's system
+     accent (e.g., keep fuchsia selection rings but use teal for CTAs). */
+  --harbor-brand: var(--harbor-accent);
+  --harbor-brand-fg: 255 255 255;    /* text colour on brand surfaces */
 
   /* Semantic tones */
   --harbor-success: 52 211 153;      /* emerald-400 */
@@ -142,6 +156,47 @@
   --accent: rgb(var(--harbor-accent));
   --accent-2: rgb(var(--harbor-accent-2));
   --accent-3: rgb(var(--harbor-accent-3));
+}
+
+/* === Light theme =========================================
+   Opt-in by setting `data-theme="light"` on <html> (or any ancestor).
+   Only surface, text, border, shadow and color-scheme are remapped —
+   accents, semantic tones, sizes, radii, motion and typography stay
+   intact from :root because they read well on either background.
+
+   Consumers that want different brand/accent hues under light should
+   override those tokens inside this block. */
+
+[data-theme="light"] {
+  /* Surfaces — page sits on a very-light cool gray; elev-1 is white for
+     primary cards, elev-2/3 step slightly cooler to differentiate
+     nested surfaces and dialogs. */
+  --harbor-bg: 244 246 252;
+  --harbor-bg-elev-1: 255 255 255;
+  --harbor-bg-elev-2: 249 250 254;
+  --harbor-bg-elev-3: 242 244 250;
+
+  /* Text — near-black with cool tint for main, sliding to gray. */
+  --harbor-text: 15 20 30;
+  --harbor-text-muted: 85 95 110;
+  --harbor-text-subtle: 140 150 165;
+
+  /* Borders — dark with alpha so the existing `border-white/10` hints
+     flip to `border-black/10` equivalents via consumer utility tweaks.
+     Component internals that hardcode `border-white/X` remain Harbor's
+     responsibility to support cross-theme. */
+  --harbor-border: 0 0 0;
+
+  /* Shadows — softer than dark theme (light surfaces need less contrast). */
+  --harbor-shadow-sm: 0 2px 8px -2px rgb(0 0 0 / 0.08);
+  --harbor-shadow-md: 0 12px 30px -10px rgb(0 0 0 / 0.12);
+  --harbor-shadow-lg: 0 30px 80px -20px rgb(0 0 0 / 0.18);
+
+  /* Brand foreground stays white — accent/fuchsia surfaces still read
+     best with white text on either theme. */
+  --harbor-brand-fg: 255 255 255;
+
+  color-scheme: light;
 }
 
 /* === Motion keyframes ==================================== */
