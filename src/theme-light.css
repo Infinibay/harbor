@@ -116,3 +116,17 @@
 
 /* bg-black/X is intentionally left alone — used for dialog backdrops
    and similar dim layers that should stay dark-tinted on both themes. */
+
+/* === Layout ambient blobs ================================ */
+/* In dark mode the mesh-bg's fuchsia/sky/pink radial gradients read as
+   a subtle glow against the near-black page. On a near-white page they
+   over-saturate into neon pastels. Under light theme we mute the
+   floating blobs and flatten the mesh so the content remains the focal
+   point. */
+[data-theme="light"] .blob {
+  opacity: 0.18;
+  filter: blur(80px);
+}
+[data-theme="light"] .mesh-bg {
+  background: rgb(var(--harbor-bg)) !important;
+}

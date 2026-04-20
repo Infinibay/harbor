@@ -1,13 +1,13 @@
 @import "./tokens.css";
+/* CSS spec requires all @import statements to precede other rules.
+ * theme-light.css's [data-theme="light"] selectors outrank Tailwind's
+ * plain `.text-white` via higher specificity (attribute + class), so
+ * importing before @tailwind still wins. */
+@import "./theme-light.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Light-theme utility overrides — MUST come after @tailwind utilities
- * so the scoped [data-theme="light"] selectors beat Tailwind's default
- * text-white/bg-white/border-white rules. */
-@import "./theme-light.css";
 
 :root {
   color-scheme: dark;
