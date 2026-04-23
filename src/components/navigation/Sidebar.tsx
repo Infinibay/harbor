@@ -38,7 +38,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "flex flex-col w-60 shrink-0 rounded-2xl bg-surface-1/85 backdrop-blur-xl border border-white/10 p-3",
+        "flex flex-col w-60 shrink-0 bg-surface-1/85 backdrop-blur-xl border-r border-white/10 p-3",
         sticky ? "sticky top-0 h-screen" : "h-full",
         className,
       )}

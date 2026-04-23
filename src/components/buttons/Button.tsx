@@ -141,7 +141,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         transition={{ type: "spring", stiffness: 300, damping: 22 }}
         disabled={disabled || loading}
         className={cn(
-          "relative overflow-hidden font-medium select-none",
+          "relative overflow-hidden font-medium select-none whitespace-nowrap",
           fullWidth ? "flex w-full" : "inline-flex",
           "items-center",
           align === "start"

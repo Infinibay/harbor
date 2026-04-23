@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "../../lib/cn";
 import { Container } from "./Container";
 import { ResponsiveStack } from "./ResponsiveStack";
 
@@ -41,7 +42,11 @@ export function Page({
   className,
 }: PageProps) {
   return (
-    <Container size={size} padded={padded} className={className}>
+    <Container
+      size={size}
+      padded={padded}
+      className={cn("py-6 md:py-8", className)}
+    >
       <ResponsiveStack direction="col" gap={gapScale[gap]}>
         {children}
       </ResponsiveStack>

@@ -57,7 +57,7 @@ export function Stat({
       className={cn(
         "flex flex-col gap-1",
         variant === "bordered" &&
-          "p-4 rounded-2xl bg-white/[0.03] border border-white/8",
+          "p-4 rounded-2xl bg-[rgb(var(--harbor-bg-elev-2))] border border-white/8",
         className,
       )}
     >

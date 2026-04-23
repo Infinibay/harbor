@@ -284,6 +284,14 @@ input:-webkit-autofill:active {
   }
 }
 
+/* Input number spinner cleanup — hide native spin buttons so NumberField /
+   TextField[type=number] match the Harbor aesthetic. */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* Selection */
 ::selection {
   background: rgba(168, 85, 247, 0.35);
