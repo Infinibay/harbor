@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { CursorProvider } from "./lib/cursor";
 import { IconButton, ToastProvider } from "./components";
 import { routeGroups } from "./routes";
 import { Z } from "./lib/z";
+import { HarborProvider, useHarborTheme } from "./lib/theme";
+import { demoThemes } from "./showcase/demoThemes";
 
 function SunIcon() {
   return (
@@ -23,23 +25,19 @@ function MoonIcon() {
   );
 }
 
-type Theme = "dark" | "light";
+// One-time migration: the legacy ThemeToggle stored "light"/"dark" under
+// the same storage key HarborProvider now uses. Normalise before the
+// Provider reads.
+if (typeof window !== "undefined") {
+  const stored = window.localStorage.getItem("harbor-theme");
+  if (stored === "light" || stored === "dark") {
+    window.localStorage.setItem("harbor-theme", `harbor-${stored}`);
+  }
+}
 
 function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "dark";
-    const stored = window.localStorage.getItem("harbor-theme");
-    return stored === "light" ? "light" : "dark";
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "light") root.setAttribute("data-theme", "light");
-    else root.removeAttribute("data-theme");
-    window.localStorage.setItem("harbor-theme", theme);
-  }, [theme]);
-
-  const next: Theme = theme === "light" ? "dark" : "light";
+  const { colorScheme, setTheme } = useHarborTheme();
+  const next = colorScheme === "light" ? "harbor-dark" : "harbor-light";
   return (
     <div
       style={{ position: "fixed", top: 16, right: 16, zIndex: Z.STICKY + 1 }}
@@ -48,15 +46,15 @@ function ThemeToggle() {
         size="md"
         variant="glass"
         reactive={false}
-        label={`Switch to ${next} theme`}
-        icon={theme === "light" ? <MoonIcon /> : <SunIcon />}
+        label={`Switch to ${colorScheme === "light" ? "dark" : "light"} theme`}
+        icon={colorScheme === "light" ? <MoonIcon /> : <SunIcon />}
         onClick={() => setTheme(next)}
       />
     </div>
   );
 }
 
-export function Layout() {
+function LayoutShell() {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 200, damping: 30 });
   const location = useLocation();
@@ -183,5 +181,18 @@ export function Layout() {
         </div>
       </ToastProvider>
     </CursorProvider>
+  );
+}
+
+export function Layout() {
+  const themes = useMemo(() => demoThemes, []);
+  return (
+    <HarborProvider
+      themes={themes}
+      defaultTheme={{ dark: "harbor-dark", light: "harbor-light" }}
+      persist
+    >
+      <LayoutShell />
+    </HarborProvider>
   );
 }

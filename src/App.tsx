@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Layout } from "./Layout";
 import { HomePage } from "./pages/HomePage";
+import { ThemingPage } from "./pages/foundations/ThemingPage";
 import { ButtonsPage } from "./pages/foundations/ButtonsPage";
 import { InputsPage } from "./pages/foundations/InputsPage";
 import { DisplayPage } from "./pages/foundations/DisplayPage";
@@ -37,6 +38,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="foundations">
+            <Route path="theming" element={<ThemingPage />} />
             <Route path="buttons" element={<ButtonsPage />} />
             <Route path="inputs" element={<InputsPage />} />
             <Route path="display" element={<DisplayPage />} />

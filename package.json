@@ -27,6 +27,7 @@
     "./media": "./src/components/media/index.ts",
     "./dev": "./src/components/dev/index.ts",
     "./sections": "./src/components/sections/index.ts",
+    "./theme": "./src/lib/theme/index.ts",
     "./lib/cursor": "./src/lib/cursor.tsx",
     "./lib/z": "./src/lib/z.ts",
     "./lib/cn": "./src/lib/cn.ts",
@@ -44,12 +45,15 @@
     "preview": "vite preview"
   },
   "peerDependencies": {
+    "framer-motion": ">=11",
     "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0",
-    "framer-motion": ">=11"
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@babel/parser": "^7.29.2",
+    "@babel/traverse": "^7.29.0",
     "@eslint/js": "^9.39.4",
+    "@types/babel__traverse": "^7.28.0",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

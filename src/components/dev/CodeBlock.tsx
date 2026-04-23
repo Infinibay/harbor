@@ -162,7 +162,7 @@ export function CodeBlock({
           ))}
         </code>
       </pre>
-      {!title ? (
+      {!(title || lang) ? (
         <div className="absolute top-2 right-2">
           <CopyButton value={code} size="sm" />
         </div>
