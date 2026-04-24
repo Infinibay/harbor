@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useEffect,
   useId,
   useLayoutEffect,
   useMemo,
@@ -11,6 +12,7 @@ import {
 } from "react";
 import { cn } from "../../lib/cn";
 import { useCodeEditor, type Selection } from "../../lib/code/useCodeEditor";
+import { matchBracket, type BracketMatch } from "../../lib/code/brackets";
 import type { Diagnostic, Language, Token } from "../../lib/code/types";
 
 export interface CodeEditorProps
@@ -295,11 +297,67 @@ export function CodeEditor({
     [autoClose, editor, readOnly, readSelection, textareaRef],
   );
 
+  const handleSelectLine = useCallback((): boolean => {
+    const ta = textareaRef.current;
+    if (!ta) return false;
+    const { start, end } = readSelection();
+    const v = editor.value;
+    const lineStart = v.lastIndexOf("\n", start - 1) + 1;
+    let lineEnd = v.indexOf("\n", end);
+    if (lineEnd === -1) lineEnd = v.length;
+    // Include the trailing newline on subsequent presses so repeated
+    // Ctrl+L extends by one line.
+    const extendedEnd =
+      start !== end && end === lineEnd
+        ? Math.min(v.length, v.indexOf("\n", end + 1) === -1 ? v.length : v.indexOf("\n", end + 1))
+        : lineEnd;
+    ta.setSelectionRange(lineStart, extendedEnd);
+    return true;
+  }, [editor.value, readSelection, textareaRef]);
+
+  const selectNextAnchorRef = useRef<{ word: string } | null>(null);
+
+  const handleSelectNextMatch = useCallback((): boolean => {
+    const ta = textareaRef.current;
+    if (!ta) return false;
+    const { start, end } = readSelection();
+    const v = editor.value;
+    // First press: select the word under the caret.
+    if (start === end) {
+      const before = v.slice(0, start).match(/[A-Za-z0-9_$]*$/)?.[0] ?? "";
+      const after = v.slice(start).match(/^[A-Za-z0-9_$]*/)?.[0] ?? "";
+      const word = before + after;
+      if (!word) return true;
+      const wStart = start - before.length;
+      const wEnd = start + after.length;
+      ta.setSelectionRange(wStart, wEnd);
+      selectNextAnchorRef.current = { word };
+      return true;
+    }
+    // Subsequent presses: find the next occurrence after current end.
+    const word = v.slice(start, end);
+    if (!word) return true;
+    selectNextAnchorRef.current = { word };
+    const idx = v.indexOf(word, end);
+    if (idx !== -1) {
+      ta.setSelectionRange(idx, idx + word.length);
+      return true;
+    }
+    // Wrap around
+    const wrap = v.indexOf(word);
+    if (wrap !== -1 && wrap !== start) {
+      ta.setSelectionRange(wrap, wrap + word.length);
+    }
+    return true;
+  }, [editor.value, readSelection, textareaRef]);
+
   const onKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
       onKeyDownProp?.(e);
       if (e.defaultPrevented) return;
       if (composingRef.current) return;
+
+      const mod = e.ctrlKey || e.metaKey;
 
       if (e.key === "Tab") {
         if (handleTab(e.shiftKey)) e.preventDefault();
@@ -307,6 +365,14 @@ export function CodeEditor({
       }
       if (e.key === "Enter") {
         if (handleEnter()) e.preventDefault();
+        return;
+      }
+      if (mod && (e.key === "d" || e.key === "D")) {
+        if (handleSelectNextMatch()) e.preventDefault();
+        return;
+      }
+      if (mod && (e.key === "l" || e.key === "L")) {
+        if (handleSelectLine()) e.preventDefault();
         return;
       }
       if (autoClose && !readOnly) {
@@ -320,7 +386,17 @@ export function CodeEditor({
         }
       }
     },
-    [autoClose, handleAutoClose, handleEnter, handleSkipOver, handleTab, onKeyDownProp, readOnly],
+    [
+      autoClose,
+      handleAutoClose,
+      handleEnter,
+      handleSelectLine,
+      handleSelectNextMatch,
+      handleSkipOver,
+      handleTab,
+      onKeyDownProp,
+      readOnly,
+    ],
   );
 
   const gutterWidth = useMemo(() => {
@@ -328,6 +404,47 @@ export function CodeEditor({
     const digits = Math.max(2, String(editor.lineCount).length);
     return digits * (FONT_SIZE * 0.62) + GUTTER_PADDING_X * 2;
   }, [editor.lineCount, showLineNumbers]);
+
+  // Bracket matching — recompute when the selection or value changes.
+  // Uses a document-level `selectionchange` listener because textarea
+  // doesn't reliably emit scoped selection events across browsers.
+  const [bracketMatch, setBracketMatch] = useState<BracketMatch | null>(null);
+
+  // Capture the current editor snapshot in a ref so the effect does not
+  // depend on object identity (which would re-fire every render and
+  // thrash the document listener).
+  const editorRef = useRef(editor);
+  editorRef.current = editor;
+
+  useEffect(() => {
+    const compute = () => {
+      const ta = textareaRef.current;
+      const ed = editorRef.current;
+      if (!ta || document.activeElement !== ta) {
+        setBracketMatch((prev) => (prev ? null : prev));
+        return;
+      }
+      const start = ta.selectionStart ?? 0;
+      const end = ta.selectionEnd ?? 0;
+      if (start !== end) {
+        setBracketMatch((prev) => (prev ? null : prev));
+        return;
+      }
+      const { line, col } = ed.lineAt(start);
+      const m = matchBracket(
+        ed.lines,
+        ed.language,
+        ed.tokensForLine,
+        { line, col },
+      );
+      setBracketMatch(m);
+    };
+    compute();
+    document.addEventListener("selectionchange", compute);
+    return () => document.removeEventListener("selectionchange", compute);
+  }, [editor.value, textareaRef]);
+
+  const charWidth = FONT_SIZE * 0.6;
 
   const containerStyle: CSSProperties = {
     height,
@@ -389,6 +506,20 @@ export function CodeEditor({
           paddingX={PADDING_X}
           paddingY={PADDING_Y}
         />
+        {bracketMatch && !bracketMatch.unmatched && (
+          <>
+            <BracketMarker
+              line={bracketMatch.from.line}
+              col={bracketMatch.from.col}
+              charWidth={charWidth}
+            />
+            <BracketMarker
+              line={bracketMatch.to.line}
+              col={bracketMatch.to.col}
+              charWidth={charWidth}
+            />
+          </>
+        )}
         <textarea
           {...rest}
           ref={textareaRef}
@@ -432,6 +563,27 @@ interface HighlightLayerProps {
   style: CSSProperties;
   paddingX: number;
   paddingY: number;
+}
+
+interface BracketMarkerProps {
+  line: number;
+  col: number;
+  charWidth: number;
+}
+
+function BracketMarker({ line, col, charWidth }: BracketMarkerProps) {
+  return (
+    <span
+      aria-hidden
+      className="absolute pointer-events-none rounded-sm border border-[rgb(var(--harbor-accent)/0.5)] bg-[rgb(var(--harbor-accent)/0.12)]"
+      style={{
+        top: PADDING_Y + line * LINE_HEIGHT,
+        left: PADDING_X + col * charWidth,
+        width: charWidth,
+        height: LINE_HEIGHT,
+      }}
+    />
+  );
 }
 
 function HighlightLayer({

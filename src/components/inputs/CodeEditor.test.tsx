@@ -241,6 +241,58 @@ describe("CodeEditor — editing", () => {
   });
 });
 
+describe("CodeEditor — selection commands", () => {
+  it("Ctrl+D first press selects the word under caret", async () => {
+    const { user } = renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue="const apple = banana;"
+        language={jsLang()}
+      />,
+    );
+    const ta = screen.getByLabelText("source") as HTMLTextAreaElement;
+    await user.click(ta);
+    // place caret inside `apple`
+    ta.setSelectionRange(8, 8);
+    await user.keyboard("{Control>}d{/Control}");
+    expect(ta.value.slice(ta.selectionStart, ta.selectionEnd)).toBe("apple");
+  });
+
+  it("Ctrl+D second press extends to the next occurrence", async () => {
+    const { user } = renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue={"fruit = apple;\nother = apple;"}
+        language={jsLang()}
+      />,
+    );
+    const ta = screen.getByLabelText("source") as HTMLTextAreaElement;
+    await user.click(ta);
+    ta.setSelectionRange(10, 10); // inside first "apple"
+    await user.keyboard("{Control>}d{/Control}"); // selects apple @0
+    await user.keyboard("{Control>}d{/Control}"); // jumps to second "apple"
+    const selected = ta.value.slice(ta.selectionStart, ta.selectionEnd);
+    expect(selected).toBe("apple");
+    // the second "apple" starts at offset 23 in "fruit = apple;\nother = apple;"
+    expect(ta.selectionStart).toBe(23);
+  });
+
+  it("Ctrl+L selects the current line", async () => {
+    const { user } = renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue={"line one\nline two\nline three"}
+        language={jsLang()}
+      />,
+    );
+    const ta = screen.getByLabelText("source") as HTMLTextAreaElement;
+    await user.click(ta);
+    ta.setSelectionRange(10, 10); // inside "line two"
+    await user.keyboard("{Control>}l{/Control}");
+    expect(ta.value.slice(ta.selectionStart, ta.selectionEnd)).toBe("line two");
+  });
+});
+
 describe("CodeEditor — a11y", () => {
   it("passes axe with label + default content", async () => {
     const { container } = renderWithHarbor(
