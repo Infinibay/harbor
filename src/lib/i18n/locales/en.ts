@@ -29,6 +29,17 @@ export const en: HarborLocale = {
 
     "harbor.search.placeholder": "Search…",
 
+    "harbor.datatable.empty": "No data",
+    "harbor.datatable.selectAll": "Select all rows on this page",
+    "harbor.datatable.selectRow": "Select row",
+    "harbor.datatable.rowsPerPage": "Rows per page",
+    "harbor.datatable.showingRange":
+      "Showing {start}–{end} of {total, plural, one {# row} other {# rows}}",
+    "harbor.datatable.firstPage": "First page",
+    "harbor.datatable.prevPage": "Previous page",
+    "harbor.datatable.nextPage": "Next page",
+    "harbor.datatable.lastPage": "Last page",
+
     "harbor.validation.required": "This field is required",
     "harbor.validation.email": "Enter a valid email address",
     "harbor.validation.min": "Must be at least {min}",

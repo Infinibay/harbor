@@ -1,8 +1,8 @@
 import {
-  forwardRef,
   useMemo,
   type FormHTMLAttributes,
   type ReactNode,
+  type Ref,
 } from "react";
 import type { Issue, Schema } from "../schema";
 import { HarborFormContext, type FormContextValue } from "./context";
@@ -11,14 +11,21 @@ import { useForm, type UseFormOptions } from "./useForm";
 export interface HarborFormProps<T>
   extends Omit<
     FormHTMLAttributes<HTMLFormElement>,
-    "onSubmit" | "children" | "defaultValue"
+    "onSubmit" | "onInvalid" | "children" | "defaultValue"
   > {
   schema: Schema<T>;
   initial: T;
   onSubmit: (values: T) => void | Promise<void>;
-  onInvalid?: (issues: Issue[]) => void;
+  /** Called with the full issue list when submit is blocked by schema
+   *  validation. Distinct from the native form `onInvalid` event (which
+   *  the built-in HTML validator would fire — we suppress that by
+   *  setting `noValidate` on the form element). */
+  onSubmitError?: (issues: Issue[]) => void;
   mode?: UseFormOptions<T>["mode"];
   reValidateMode?: UseFormOptions<T>["reValidateMode"];
+  /** Forward a ref to the underlying <form> element. React 19-style —
+   *  ref is just a regular prop on function components. */
+  ref?: Ref<HTMLFormElement>;
   children: ReactNode;
 }
 
@@ -40,28 +47,31 @@ export interface HarborFormProps<T>
  *
  *  Validation runs on submit by default (`mode="onSubmit"`); once a
  *  field has shown an error, further edits re-validate live
- *  (`reValidateMode="onChange"`). Both are overridable. */
-export const HarborForm = forwardRef(function HarborForm<T>(
-  {
-    schema,
-    initial,
-    onSubmit,
-    onInvalid,
-    mode,
-    reValidateMode,
-    children,
-    className,
-    ...rest
-  }: HarborFormProps<T>,
-  ref: React.Ref<HTMLFormElement>,
-) {
+ *  (`reValidateMode="onChange"`). Both are overridable.
+ *
+ *  `forwardRef` is intentionally NOT used — wrapping a generic function
+ *  with `forwardRef` erases the type parameter, so `onSubmit(v)` lands
+ *  as `unknown` at the call site. React 19 treats `ref` as a normal
+ *  prop on function components, which preserves inference. */
+export function HarborForm<T>({
+  schema,
+  initial,
+  onSubmit,
+  onSubmitError,
+  mode,
+  reValidateMode,
+  children,
+  className,
+  ref,
+  ...rest
+}: HarborFormProps<T>) {
   const form = useForm<T>({ schema, initial, mode, reValidateMode });
 
   const ctx = useMemo<FormContextValue<T>>(() => ({ ...form }), [form]);
 
   const submit = useMemo(
-    () => form.handleSubmit(onSubmit, onInvalid),
-    [form, onSubmit, onInvalid],
+    () => form.handleSubmit(onSubmit, onSubmitError),
+    [form, onSubmit, onSubmitError],
   );
 
   return (
@@ -77,4 +87,4 @@ export const HarborForm = forwardRef(function HarborForm<T>(
       </form>
     </HarborFormContext.Provider>
   );
-});
+}

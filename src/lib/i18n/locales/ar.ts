@@ -32,6 +32,17 @@ export const ar: HarborLocale = {
 
     "harbor.search.placeholder": "بحث…",
 
+    "harbor.datatable.empty": "لا توجد بيانات",
+    "harbor.datatable.selectAll": "تحديد كل الصفوف في هذه الصفحة",
+    "harbor.datatable.selectRow": "تحديد الصف",
+    "harbor.datatable.rowsPerPage": "صفوف لكل صفحة",
+    "harbor.datatable.showingRange":
+      "عرض {start}–{end} من {total, plural, other {# صف}}",
+    "harbor.datatable.firstPage": "الصفحة الأولى",
+    "harbor.datatable.prevPage": "الصفحة السابقة",
+    "harbor.datatable.nextPage": "الصفحة التالية",
+    "harbor.datatable.lastPage": "الصفحة الأخيرة",
+
     "harbor.validation.required": "هذا الحقل مطلوب",
     "harbor.validation.email": "أدخل بريداً إلكترونياً صالحاً",
     "harbor.validation.min": "يجب أن يكون على الأقل {min}",

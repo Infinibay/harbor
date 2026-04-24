@@ -29,6 +29,17 @@ export const es: HarborLocale = {
 
     "harbor.search.placeholder": "Buscar…",
 
+    "harbor.datatable.empty": "Sin datos",
+    "harbor.datatable.selectAll": "Seleccionar todas las filas de esta página",
+    "harbor.datatable.selectRow": "Seleccionar fila",
+    "harbor.datatable.rowsPerPage": "Filas por página",
+    "harbor.datatable.showingRange":
+      "Mostrando {start}–{end} de {total, plural, one {# fila} other {# filas}}",
+    "harbor.datatable.firstPage": "Primera página",
+    "harbor.datatable.prevPage": "Página anterior",
+    "harbor.datatable.nextPage": "Página siguiente",
+    "harbor.datatable.lastPage": "Última página",
+
     "harbor.validation.required": "Este campo es obligatorio",
     "harbor.validation.email": "Ingresá un correo válido",
     "harbor.validation.min": "Debe ser al menos {min}",

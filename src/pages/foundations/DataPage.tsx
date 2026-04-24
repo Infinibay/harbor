@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Group, Demo, Col } from "../../showcase/ShowcaseCard";
-import { DataTable, type Column } from "../../components";
+import { DataTable, type ColumnDef } from "../../components";
 import { HeatmapCalendar } from "../../components";
 import { Timeline } from "../../components";
 import { Badge } from "../../components";
@@ -31,42 +31,42 @@ export function DataPage() {
     { id: "n4", name: "billing", status: "healthy", cpu: 18, mem: 22, req: 620 },
     { id: "n5", name: "notifier", status: "failing", cpu: 2, mem: 8, req: 0 },
   ];
-  const cols: Column<Row>[] = [
-    { key: "name", label: "Service", sortable: true },
+  const cols: ColumnDef<Row>[] = [
+    { id: "name", header: "Service", sortable: true },
     {
-      key: "status",
-      label: "Status",
+      id: "status",
+      header: "Status",
       sortable: true,
-      render: (r) => (
+      cell: ({ row }) => (
         <Badge
           pulse
           tone={
-            r.status === "healthy"
+            row.status === "healthy"
               ? "success"
-              : r.status === "degraded"
+              : row.status === "degraded"
                 ? "warning"
                 : "danger"
           }
         >
-          {r.status}
+          {row.status}
         </Badge>
       ),
     },
     {
-      key: "cpu",
-      label: "CPU",
+      id: "cpu",
+      header: "CPU",
       sortable: true,
-      align: "right",
-      render: (r) => (
+      align: "end",
+      cell: ({ row }) => (
         <div className="inline-flex items-center gap-2 font-mono tabular-nums">
-          {r.cpu}%
+          {row.cpu}%
           <span className="w-12 h-1 rounded-full bg-white/5 overflow-hidden">
             <span
               className="block h-full"
               style={{
-                width: `${r.cpu}%`,
+                width: `${row.cpu}%`,
                 background:
-                  r.cpu > 80
+                  row.cpu > 80
                     ? "rgb(244, 63, 94)"
                     : "linear-gradient(90deg,#a855f7,#38bdf8)",
               }}
@@ -76,12 +76,14 @@ export function DataPage() {
       ),
     },
     {
-      key: "req",
-      label: "Requests",
+      id: "req",
+      header: "Requests",
       sortable: true,
-      align: "right",
-      render: (r) => (
-        <span className="font-mono tabular-nums">{r.req.toLocaleString()}</span>
+      align: "end",
+      cell: ({ row }) => (
+        <span className="font-mono tabular-nums">
+          {row.req.toLocaleString()}
+        </span>
       ),
     },
   ];
@@ -103,7 +105,7 @@ export function DataPage() {
         <DataTable
           rows={tableRows}
           columns={cols}
-          rowKey={(r) => r.id}
+          rowId={(r) => r.id}
           selectable
           selected={tableSelected}
           onSelectionChange={setTableSelected}
@@ -119,7 +121,7 @@ export function DataPage() {
         <DataTable
           rows={tableRows}
           columns={cols}
-          rowKey={(r) => r.id}
+          rowId={(r) => r.id}
           selectable
           isRowSelectable={(r) => r.status !== "failing"}
           selected={tableSelected}
@@ -136,7 +138,7 @@ export function DataPage() {
         <DataTable
           rows={tableRows}
           columns={cols}
-          rowKey={(r) => r.id}
+          rowId={(r) => r.id}
           loading
           loadingLabel="Fetching services…"
         />

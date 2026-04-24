@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Group, Demo, Row } from "../../showcase/ShowcaseCard";
 import { Breadcrumbs } from "../../components";
-import { DataTable, type Column } from "../../components";
+import { DataTable, type ColumnDef } from "../../components";
 import { TreeView } from "../../components";
 import { FileDrop } from "../../components";
 import { Badge } from "../../components";
@@ -29,38 +29,36 @@ export function FileManagerPage() {
     { id: "7", name: "archive.zip", kind: "file", ext: "zip", size: "340 MB", modified: "2w ago" },
   ];
 
-  const cols: Column<FileRow>[] = [
+  const cols: ColumnDef<FileRow>[] = [
     {
-      key: "name",
-      label: "Name",
+      id: "name",
+      header: "Name",
       sortable: true,
-      render: (r) => (
+      cell: ({ row }) => (
         <span className="inline-flex items-center gap-2">
           <span className="text-white/60">
-            {r.kind === "folder" ? <FolderIcon /> : <FileIcon />}
+            {row.kind === "folder" ? <FolderIcon /> : <FileIcon />}
           </span>
-          <span className="text-white">{r.name}</span>
-          {r.ext ? (
-            <Badge tone="neutral">{r.ext}</Badge>
-          ) : null}
+          <span className="text-white">{row.name}</span>
+          {row.ext ? <Badge tone="neutral">{row.ext}</Badge> : null}
         </span>
       ),
     },
     {
-      key: "size",
-      label: "Size",
-      align: "right",
+      id: "size",
+      header: "Size",
+      align: "end",
       sortable: true,
-      render: (r) => (
-        <span className="font-mono text-white/60 tabular-nums">{r.size}</span>
+      cell: ({ row }) => (
+        <span className="font-mono text-white/60 tabular-nums">{row.size}</span>
       ),
     },
     {
-      key: "modified",
-      label: "Modified",
-      align: "right",
+      id: "modified",
+      header: "Modified",
+      align: "end",
       sortable: true,
-      render: (r) => <span className="text-white/50">{r.modified}</span>,
+      cell: ({ row }) => <span className="text-white/50">{row.modified}</span>,
     },
   ];
 
@@ -108,10 +106,11 @@ export function FileManagerPage() {
             <DataTable
               rows={files}
               columns={cols}
-              rowKey={(r) => r.id}
+              rowId={(r) => r.id}
               selectable
               selected={selected}
               onSelectionChange={setSelected}
+              hidePagination
             />
           </div>
         </div>
