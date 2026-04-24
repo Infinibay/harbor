@@ -24,3 +24,4 @@ export * from "./media";
 export * from "./dev";
 export * from "./sections";
 export * from "./backgrounds";
+export * from "./motion";
