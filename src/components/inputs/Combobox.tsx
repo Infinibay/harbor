@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
@@ -36,6 +36,18 @@ export function Combobox({
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [rect, setRect] = useState({ x: 0, y: 0, w: 0 });
 
+  // Compute position synchronously before paint when opening — if this
+  // runs in a plain `useEffect` the menu flashes at {0,0} with width 0
+  // on its very first open (the `rect` state is still stale), which is
+  // what the opening animation "starts from" and looks broken.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const el = anchorRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    setRect({ x: r.left, y: r.bottom + 6, w: r.width });
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     function place() {
@@ -44,7 +56,6 @@ export function Combobox({
       const r = el.getBoundingClientRect();
       setRect({ x: r.left, y: r.bottom + 6, w: r.width });
     }
-    place();
     function onClick(e: MouseEvent) {
       if (
         !menuRef.current?.contains(e.target as Node) &&

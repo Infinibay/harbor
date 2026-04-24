@@ -1,4 +1,10 @@
-import { useId, useRef, type InputHTMLAttributes } from "react";
+import {
+  useId,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type InputHTMLAttributes,
+} from "react";
 import { motion, useTransform } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useCursorProximity } from "../../lib/cursor";
@@ -23,7 +29,18 @@ export function Switch({
 }: SwitchProps) {
   const autoId = useId();
   const inputId = id ?? autoId;
-  const isOn = checked;
+  // Support both controlled (`checked`) and uncontrolled
+  // (`defaultChecked` only) modes. In uncontrolled mode we drive the
+  // track + knob position off internal state so the visual updates on
+  // click — otherwise `isOn` was always undefined and the knob stayed
+  // stuck regardless of what the user pressed.
+  const isControlled = checked !== undefined;
+  const [internal, setInternal] = useState(defaultChecked ?? false);
+  const isOn = isControlled ? checked : internal;
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    if (!isControlled) setInternal(e.target.checked);
+    onChange?.(e);
+  }
   const h = size === "sm" ? 20 : 26;
   const w = size === "sm" ? 34 : 46;
   const trackRef = useRef<HTMLSpanElement | null>(null);
@@ -44,9 +61,9 @@ export function Switch({
         id={inputId}
         type="checkbox"
         className="sr-only peer"
-        checked={checked}
-        defaultChecked={defaultChecked}
-        onChange={onChange}
+        checked={isControlled ? checked : undefined}
+        defaultChecked={isControlled ? undefined : defaultChecked}
+        onChange={handleChange}
         {...rest}
       />
       <motion.span

@@ -22,12 +22,13 @@ import { Rating } from "../../components";
 import { RangeSlider } from "../../components";
 import { ToggleGroup } from "../../components";
 import { Wizard } from "../../components";
-import { Form, FormSection, FieldSet, FormField, Button } from "../../components";
+import { Form, FormSection, FieldSet, FormField, Button, useToast } from "../../components";
 import { SliderField } from "../../components";
 import { PasswordStrength } from "../../components";
 import { Spark } from "../../showcase/icons";
 
 export function InputsPage() {
+  const toast = useToast();
   const [cores, setCores] = useState(8);
   const [ram, setRam] = useState(16);
   const [pw, setPw] = useState("");
@@ -285,7 +286,16 @@ export function InputsPage() {
         wide
         intensity="soft"
       >
-        <Form onSubmit={(e) => e.preventDefault()}>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            toast.push({
+              title: "Workspace saved",
+              description: "Changes are live.",
+              tone: "success",
+            });
+          }}
+        >
           <FormSection
             title="Workspace"
             description="Public metadata about this workspace."

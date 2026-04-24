@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../../lib/cn";
 
@@ -36,6 +36,9 @@ export function Calendar({
   const today = new Date();
   const [cursor, setCursor] = useState(startOfMonth(value ?? today));
   const [dir, setDir] = useState(0);
+  // Per-instance layoutId so two Calendars on the same page don't share
+  // the selected-day ring and "hop" from one to the other.
+  const selectedLayoutId = `cal-sel-${useId()}`;
 
   const days = useMemo(() => {
     const first = startOfMonth(cursor);
@@ -126,7 +129,7 @@ export function Calendar({
             >
               {isSelected ? (
                 <motion.span
-                  layoutId="cal-sel"
+                  layoutId={selectedLayoutId}
                   transition={{
                     type: "spring",
                     stiffness: 400,

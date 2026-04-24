@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useTransform } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useT } from "../../lib/i18n";
@@ -54,6 +54,16 @@ export function Select({
       `radial-gradient(140px circle at ${lx * 100}% ${ly * 100}%, rgba(255,255,255,0.25), transparent 60%)`,
   );
 
+  // Synchronous initial placement — prevents a first-frame flash at
+  // {0,0} while the rect-measuring effect catches up.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const el = anchorRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    setRect({ x: r.left, y: r.bottom + 6, w: r.width });
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     function place() {
@@ -62,7 +72,6 @@ export function Select({
       const r = el.getBoundingClientRect();
       setRect({ x: r.left, y: r.bottom + 6, w: r.width });
     }
-    place();
     function onClick(e: MouseEvent) {
       if (
         !menuRef.current?.contains(e.target as Node) &&

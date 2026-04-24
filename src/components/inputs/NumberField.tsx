@@ -55,7 +55,7 @@ export function NumberField({
         >
           −
         </button>
-        <div className="flex-1 h-11 relative overflow-hidden grid place-items-center">
+        <div className="flex-1 min-w-0 h-11 relative overflow-hidden">
           <AnimatePresence mode="popLayout">
             <motion.span
               key={current}
@@ -69,11 +69,11 @@ export function NumberField({
                 opacity: 0,
               }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="absolute font-mono text-white text-sm tabular-nums"
+              className="absolute inset-0 flex items-center justify-center font-mono text-white text-sm tabular-nums whitespace-nowrap px-1"
             >
               {current}
               {unit ? (
-                <span className="text-white/40 ml-1">{unit}</span>
+                <span className="text-white/40 ms-1">{unit}</span>
               ) : null}
             </motion.span>
           </AnimatePresence>

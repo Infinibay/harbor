@@ -20,6 +20,11 @@ export interface SliderFieldProps {
    *  the slider (e.g. "Max available: 32 cores"). */
   limit?: number;
   limitLabel?: string;
+  /** Width of the trailing `NumberField`, in px or any CSS length.
+   *  Default `144` (no unit) / `160` (with unit) — room for two-digit
+   *  values plus a short unit like "cores" or "GB" without clipping.
+   *  Bump this when you expect longer numbers or unit strings. */
+  numberFieldWidth?: number | string;
   className?: string;
 }
 
@@ -43,9 +48,12 @@ export function SliderField({
   icon,
   limit,
   limitLabel,
+  numberFieldWidth,
   className,
 }: SliderFieldProps) {
   const effectiveMax = limit !== undefined ? Math.min(max, limit) : max;
+  const width =
+    numberFieldWidth ?? (unit ? 160 : 144);
   return (
     <div className={cn("flex items-center gap-3 w-full", className)}>
       {icon ? <IconTile icon={icon} tone={tone} size="md" /> : null}
@@ -65,7 +73,12 @@ export function SliderField({
           </div>
         ) : null}
       </div>
-      <div className="w-28 shrink-0">
+      <div
+        className="shrink-0"
+        style={{
+          width: typeof width === "number" ? `${width}px` : width,
+        }}
+      >
         <NumberField
           value={value}
           min={min}
