@@ -820,6 +820,115 @@ describe("DataTable — inline cell editing", () => {
   });
 });
 
+describe("DataTable — density / export / row actions (4f)", () => {
+  it("showDensityToggle renders three density buttons", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        showDensityToggle
+      />,
+    );
+    expect(screen.getByRole("button", { name: /Compact/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Comfortable/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Spacious/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("clicking a density button flips state", async () => {
+    const onDensityChange = vi.fn();
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        showDensityToggle
+        onDensityChange={onDensityChange}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /Spacious/i }));
+    expect(onDensityChange).toHaveBeenCalledWith("spacious");
+  });
+
+  it("showExport opens a menu with CSV / TSV / JSON items", async () => {
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        showExport
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /Export/i }));
+    expect(
+      await screen.findByText(/Export as CSV/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Export as TSV/i)).toBeInTheDocument();
+    expect(screen.getByText(/Export as JSON/i)).toBeInTheDocument();
+  });
+
+  it("CSV export triggers a Blob download with the filtered rows", async () => {
+    const createObjectURL = vi.fn(() => "blob:mock");
+    const revokeObjectURL = vi.fn();
+    const origCreate = URL.createObjectURL;
+    const origRevoke = URL.revokeObjectURL;
+    URL.createObjectURL = createObjectURL as typeof URL.createObjectURL;
+    URL.revokeObjectURL = revokeObjectURL as typeof URL.revokeObjectURL;
+    try {
+      const { user } = renderWithHarbor(
+        <DataTable
+          rows={rows}
+          columns={columns}
+          rowId={(r) => r.id}
+          showExport
+        />,
+      );
+      await user.click(screen.getByRole("button", { name: /Export/i }));
+      await user.click(await screen.findByText(/Export as CSV/i));
+      expect(createObjectURL).toHaveBeenCalled();
+      const blob = createObjectURL.mock.calls[0][0] as Blob;
+      // Read bytes directly so we can see the BOM + CRLF that
+      // `blob.text()` / TextDecoder would silently strip.
+      const buf = new Uint8Array(await blob.arrayBuffer());
+      // First three bytes are the UTF-8 BOM (EF BB BF).
+      expect(buf[0]).toBe(0xef);
+      expect(buf[1]).toBe(0xbb);
+      expect(buf[2]).toBe(0xbf);
+      const text = new TextDecoder("utf-8", { ignoreBOM: true }).decode(buf);
+      expect(text).toContain("\r\n"); // CRLF line endings per RFC 4180
+      expect(text).toMatch(/Name,Score/);
+      expect(text).toMatch(/alpha,42/);
+      expect(text).toMatch(/charlie,88/);
+    } finally {
+      URL.createObjectURL = origCreate;
+      URL.revokeObjectURL = origRevoke;
+    }
+  });
+
+  it("rowActions renders a MoreButton per row and fires onClick", async () => {
+    const onDelete = vi.fn();
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        rowActions={(row) => [
+          { label: "Delete", onClick: () => onDelete(row.id), danger: true },
+        ]}
+      />,
+    );
+    const triggers = screen.getAllByRole("button", { name: /Row actions/i });
+    expect(triggers.length).toBe(rows.length);
+    await user.click(triggers[1]); // second row
+    await user.click(await screen.findByText("Delete"));
+    expect(onDelete).toHaveBeenCalledWith("r2");
+  });
+});
+
 describe("DataTable — a11y", () => {
   it("has no violations in a basic rendered state", async () => {
     const { container } = renderWithHarbor(

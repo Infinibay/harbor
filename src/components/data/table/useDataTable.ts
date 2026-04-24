@@ -411,6 +411,57 @@ export function useDataTable<T>(
   );
   const cancelEdit = useCallback(() => setEditingCell(null), []);
 
+  const exportRows = useCallback(
+    (format: "csv" | "tsv" | "json", filename = "table") => {
+      // Export the full filtered+sorted dataset — pagination is
+      // ignored so users always get everything they see after
+      // filters, not just the current page.
+      const exportCols = columns.filter(
+        (c) => columnVisibility.value[c.id] !== false,
+      );
+      const headerLabels = exportCols.map((c) =>
+        typeof c.header === "string" ? c.header : c.id,
+      );
+      const cellsOf = (row: T) =>
+        exportCols.map((c) => {
+          const v = getCellValue(c, row);
+          return v == null ? "" : v;
+        });
+
+      let body: string;
+      let mime: string;
+      let ext: string;
+      if (format === "json") {
+        const objects = processedRows.map((row) => {
+          const out: Record<string, unknown> = {};
+          exportCols.forEach((c, i) => {
+            out[c.id] = cellsOf(row)[i];
+          });
+          return out;
+        });
+        body = JSON.stringify(objects, null, 2);
+        mime = "application/json;charset=utf-8";
+        ext = "json";
+      } else {
+        const sep = format === "csv" ? "," : "\t";
+        const lines: string[] = [headerLabels.map((l) => escapeCell(l, sep)).join(sep)];
+        for (const row of processedRows) {
+          lines.push(cellsOf(row).map((v) => escapeCell(String(v), sep)).join(sep));
+        }
+        // UTF-8 BOM so Excel picks up the encoding without a manual
+        // "choose encoding" dialog on macOS / Windows.
+        body = "﻿" + lines.join("\r\n");
+        mime =
+          format === "csv"
+            ? "text/csv;charset=utf-8"
+            : "text/tab-separated-values;charset=utf-8";
+        ext = format;
+      }
+      triggerDownload(body, `${filename}.${ext}`, mime);
+    },
+    [columns, columnVisibility.value, processedRows],
+  );
+
   const setDensity = useCallback(
     (d: Density) => density.set(d),
     [density],
@@ -469,6 +520,7 @@ export function useDataTable<T>(
     startEdit,
     cancelEdit,
     setDensity,
+    exportRows,
 
     rowId,
   };
@@ -534,6 +586,34 @@ function buildInitialColumnPinning<T>(
     else if (c.pinned === "end") end.push(c.id);
   }
   return { start, end };
+}
+
+/** RFC 4180-ish cell escape. Quotes the field whenever it contains the
+ *  separator, a double-quote, or a line break; doubles internal quotes. */
+function escapeCell(value: string, sep: string): string {
+  if (value === "") return "";
+  const needsQuote =
+    value.includes(sep) ||
+    value.includes("\"") ||
+    value.includes("\n") ||
+    value.includes("\r");
+  if (!needsQuote) return value;
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
+function triggerDownload(body: string, filename: string, mime: string): void {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  const blob = new Blob([body], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  // Delay revoke — some browsers drop the download mid-click if
+  // the URL is invalidated too eagerly.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /** Read a column's value from a row. Defaults to `row[id]` when no

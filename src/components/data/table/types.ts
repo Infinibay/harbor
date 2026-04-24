@@ -261,6 +261,10 @@ export interface TableInstance<T> {
   startEdit: (rowId: string, colId: string) => void;
   cancelEdit: () => void;
   setDensity: (d: Density) => void;
+  /** Serialize the post-filter + post-sort rows to the chosen format
+   *  and trigger a browser download. Ignores pagination — exports the
+   *  full filtered dataset. */
+  exportRows: (format: "csv" | "tsv" | "json", filename?: string) => void;
 
   /* Identity */
   rowId: (row: T) => string;

@@ -339,6 +339,41 @@ export function DataTablePage() {
       </Demo>
 
       <Demo
+        title="Toolbar — density · export · row actions"
+        hint="Search + density toggle + CSV/TSV/JSON export + a pinned-end actions menu per row. Exports respect the current filter + sort."
+        intensity="soft"
+        wide
+      >
+        <DataTable
+          rows={small}
+          columns={baseColumns}
+          rowId={(r) => r.id}
+          selectable
+          showGlobalSearch
+          showColumnPicker
+          showDensityToggle
+          showExport
+          exportFilename="services"
+          rowActions={(row) => [
+            {
+              label: "View details",
+              onClick: () => console.log("view", row.id),
+            },
+            {
+              label: "Restart",
+              onClick: () => console.log("restart", row.id),
+            },
+            {
+              label: "Delete",
+              danger: true,
+              onClick: () => console.log("delete", row.id),
+            },
+          ]}
+          defaultPagination={{ pageSize: 10 }}
+        />
+      </Demo>
+
+      <Demo
         title="Expandable detail rows"
         hint="Click the caret at the start of a row to reveal the detail panel below."
         intensity="soft"

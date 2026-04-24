@@ -104,6 +104,18 @@ export interface DataTableProps<T> extends UseDataTableOptions<T> {
   /** Height (px) of a rendered expanded-detail row when virtualization
    *  is active. Ignored otherwise. Default `120`. */
   expandedRowHeight?: number;
+  /** Render a density toggle in the toolbar (compact · comfortable ·
+   *  spacious). Default `false`. */
+  showDensityToggle?: boolean;
+  /** Render an export dropdown in the toolbar (CSV · TSV · JSON).
+   *  Default `false`. */
+  showExport?: boolean;
+  /** Base filename (no extension) for downloads triggered by the export
+   *  menu. Default `"table"`. */
+  exportFilename?: string;
+  /** Render a pinned-end actions column per row. Returns the menu items
+   *  for that row; the table wraps them in a MoreButton + Menu. */
+  rowActions?: (row: T) => Array<RowActionItem>;
   /** Render a per-column menu button (⋯) in each data header. The menu
    *  exposes sort / pin / hide / move actions. Default `true`. */
   columnMenu?: boolean;
@@ -131,6 +143,16 @@ const DEFAULT_MIN_WIDTH = 120;
 const DEFAULT_COLUMN_WIDTH = 160;
 const RESIZE_HANDLE_WIDTH = 6;
 const SELECT_COLUMN_WIDTH = 40;
+const ACTIONS_COLUMN_ID = "__harbor_actions__";
+
+export interface RowActionItem {
+  label: ReactNode;
+  icon?: ReactNode;
+  shortcut?: string;
+  disabled?: boolean;
+  danger?: boolean;
+  onClick?: () => void;
+}
 
 const ROW_PX: Record<Density, number> = {
   compact: 32,
@@ -199,12 +221,34 @@ export function DataTable<T>(props: DataTableProps<T>) {
     keyboardNavigation = true,
     renderExpanded,
     expandedRowHeight = 120,
+    showDensityToggle = false,
+    showExport = false,
+    exportFilename = "table",
+    rowActions,
     className,
     style,
     ...hookOptions
   } = props;
 
-  const table = useDataTable<T>(hookOptions);
+  // Inject a synthetic pinned-end column when rowActions is set. The
+  // user's columns array stays untouched; the column only exists for
+  // the lifetime of this render.
+  const effectiveColumns = useMemo<readonly ColumnDef<T>[]>(() => {
+    if (!rowActions) return hookOptions.columns;
+    const actionsCol: ColumnDef<T> = {
+      id: ACTIONS_COLUMN_ID,
+      header: "",
+      width: 44,
+      pinned: "end",
+      resizable: false,
+      hideable: false,
+      sortable: false,
+      cell: ({ row }) => <RowActionsMenu items={rowActions(row)} row={row} />,
+    };
+    return [...hookOptions.columns, actionsCol];
+  }, [hookOptions.columns, rowActions]);
+
+  const table = useDataTable<T>({ ...hookOptions, columns: effectiveColumns });
   const { t } = useT();
 
   const { visibleColumns, pageRows, totalCount, state, rowId } = table;
@@ -542,8 +586,11 @@ export function DataTable<T>(props: DataTableProps<T>) {
       style={style}
       ref={tableRef}
     >
-      {showGlobalSearch || showColumnPicker ? (
-        <div className="border-b border-white/8 px-4 py-2 flex items-center gap-3">
+      {showGlobalSearch ||
+      showColumnPicker ||
+      showDensityToggle ||
+      showExport ? (
+        <div className="border-b border-white/8 px-4 py-2 flex items-center gap-3 print:hidden">
           {showGlobalSearch ? (
             <GlobalSearchInput
               value={table.state.globalFilter}
@@ -553,6 +600,19 @@ export function DataTable<T>(props: DataTableProps<T>) {
             />
           ) : null}
           <div className="flex-1" />
+          {showDensityToggle ? (
+            <DensityToggle
+              density={table.state.density}
+              onChange={table.setDensity}
+            />
+          ) : null}
+          {showExport ? (
+            <ExportMenu
+              onExport={(format) =>
+                table.exportRows(format, exportFilename)
+              }
+            />
+          ) : null}
           {showColumnPicker ? <ColumnVisibilityPicker table={table} /> : null}
         </div>
       ) : null}
@@ -564,7 +624,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
         aria-activedescendant={activeCellId}
         tabIndex={keyboardNavigation ? 0 : undefined}
         onKeyDown={keyboardNavigation ? onGridKeyDown : undefined}
-        className="relative overflow-auto min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/40 focus-visible:ring-inset"
+        className="relative overflow-auto min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/40 focus-visible:ring-inset print:overflow-visible print:max-h-none"
         style={maxHeight != null ? { maxHeight } : undefined}
         ref={scrollRef}
       >
@@ -871,14 +931,16 @@ export function DataTable<T>(props: DataTableProps<T>) {
       </div>
 
       {!hidePagination ? (
-        <Pagination
-          page={state.pagination.page}
-          pageSize={state.pagination.pageSize}
-          total={totalCount}
-          pageSizeOptions={pageSizeOptions}
-          onPageChange={table.setPage}
-          onPageSizeChange={table.setPageSize}
-        />
+        <div className="print:hidden">
+          <Pagination
+            page={state.pagination.page}
+            pageSize={state.pagination.pageSize}
+            total={totalCount}
+            pageSizeOptions={pageSizeOptions}
+            onPageChange={table.setPage}
+            onPageSizeChange={table.setPageSize}
+          />
+        </div>
       ) : null}
     </div>
   );
@@ -1508,6 +1570,178 @@ function HeaderMenu<T>({ table, col, pinSide, offsetEnd }: HeaderMenuProps<T>) {
 
 interface ColumnVisibilityPickerProps<T> {
   table: TableInstance<T>;
+}
+
+/* ================================================================== */
+/* DensityToggle — compact / comfortable / spacious pill buttons       */
+/* ================================================================== */
+
+interface DensityToggleProps {
+  density: Density;
+  onChange: (d: Density) => void;
+}
+
+function DensityToggle({ density, onChange }: DensityToggleProps) {
+  const { t } = useT();
+  const options: Array<{ key: Density; label: string; aria: string }> = [
+    {
+      key: "compact",
+      label: t("harbor.datatable.density.compact") || "Compact",
+      aria: t("harbor.datatable.density.compact") || "Compact",
+    },
+    {
+      key: "comfortable",
+      label: t("harbor.datatable.density.comfortable") || "Comfortable",
+      aria: t("harbor.datatable.density.comfortable") || "Comfortable",
+    },
+    {
+      key: "spacious",
+      label: t("harbor.datatable.density.spacious") || "Spacious",
+      aria: t("harbor.datatable.density.spacious") || "Spacious",
+    },
+  ];
+  return (
+    <div
+      role="group"
+      aria-label={t("harbor.datatable.density.label") || "Density"}
+      className="inline-flex rounded-md border border-white/10 overflow-hidden text-[11px]"
+    >
+      {options.map((o, i) => (
+        <button
+          key={o.key}
+          type="button"
+          aria-pressed={density === o.key}
+          onClick={() => onChange(o.key)}
+          className={cn(
+            "px-2.5 h-8 transition-colors",
+            i > 0 && "border-s border-white/10",
+            density === o.key
+              ? "bg-fuchsia-500/20 text-fuchsia-100"
+              : "bg-white/[0.02] text-white/65 hover:bg-white/5 hover:text-white",
+          )}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ================================================================== */
+/* ExportMenu — CSV / TSV / JSON dropdown                              */
+/* ================================================================== */
+
+interface ExportMenuProps {
+  onExport: (format: "csv" | "tsv" | "json") => void;
+}
+
+function ExportMenu({ onExport }: ExportMenuProps) {
+  const { t } = useT();
+  return (
+    <Menu
+      side="bottom"
+      align="end"
+      trigger={
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-2 px-3 h-8 rounded-md text-xs",
+            "bg-white/5 border border-white/10 text-white/75",
+            "hover:bg-white/[0.08] hover:text-white transition-colors",
+          )}
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M12 3v12" />
+            <path d="m7 10 5 5 5-5" />
+            <path d="M5 21h14" />
+          </svg>
+          {t("harbor.datatable.export.title") || "Export"}
+        </button>
+      }
+    >
+      <MenuItem onClick={() => onExport("csv")}>
+        {t("harbor.datatable.export.csv") || "Export as CSV"}
+      </MenuItem>
+      <MenuItem onClick={() => onExport("tsv")}>
+        {t("harbor.datatable.export.tsv") || "Export as TSV"}
+      </MenuItem>
+      <MenuItem onClick={() => onExport("json")}>
+        {t("harbor.datatable.export.json") || "Export as JSON"}
+      </MenuItem>
+    </Menu>
+  );
+}
+
+/* ================================================================== */
+/* RowActionsMenu — per-row MoreButton + Menu in the actions column    */
+/* ================================================================== */
+
+interface RowActionsMenuProps<T> {
+  items: RowActionItem[];
+  row: T;
+}
+
+function RowActionsMenu<T>({ items, row }: RowActionsMenuProps<T>) {
+  const { t } = useT();
+  if (items.length === 0) return null;
+  return (
+    <Menu
+      side="bottom"
+      align="end"
+      trigger={
+        <button
+          type="button"
+          aria-label={t("harbor.datatable.rowActions") || "Row actions"}
+          onClick={(e) => e.stopPropagation()}
+          className={cn(
+            "w-7 h-7 rounded grid place-items-center",
+            "text-white/55 hover:text-white hover:bg-white/10 transition-colors",
+          )}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden
+          >
+            <circle cx="5" cy="12" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+            <circle cx="19" cy="12" r="1.5" />
+          </svg>
+        </button>
+      }
+    >
+      {items.map((it, i) => (
+        <MenuItem
+          key={i}
+          onClick={it.onClick}
+          disabled={it.disabled}
+          danger={it.danger}
+          icon={it.icon}
+          shortcut={it.shortcut}
+        >
+          {it.label}
+        </MenuItem>
+      ))}
+      {/* Use row only to silence unused-prop warnings; consumers who
+       *  need the row already captured it in their onClick closure. */}
+      <span className="hidden" aria-hidden data-row-ref={String(!!row)} />
+    </Menu>
+  );
 }
 
 /* ================================================================== */
