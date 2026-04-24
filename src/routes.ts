@@ -24,6 +24,7 @@ export const routeGroups: RouteGroup[] = [
       { path: "/foundations/display", label: "Display" },
       { path: "/foundations/data", label: "Data" },
       { path: "/foundations/datatable", label: "DataTable · enterprise" },
+      { path: "/foundations/code-editor", label: "Code editor · multi-lang" },
       { path: "/foundations/feedback", label: "Feedback" },
       { path: "/foundations/overlays", label: "Overlays" },
       { path: "/foundations/navigation", label: "Navigation" },

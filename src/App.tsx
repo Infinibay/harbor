@@ -10,6 +10,7 @@ import { FormsPage } from "./pages/foundations/FormsPage";
 import { DisplayPage } from "./pages/foundations/DisplayPage";
 import { DataPage } from "./pages/foundations/DataPage";
 import { DataTablePage } from "./pages/foundations/DataTablePage";
+import { CodeEditorPage } from "./pages/foundations/CodeEditorPage";
 import { FeedbackPage } from "./pages/foundations/FeedbackPage";
 import { OverlaysPage } from "./pages/foundations/OverlaysPage";
 import { NavigationPage } from "./pages/foundations/NavigationPage";
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="display" element={<DisplayPage />} />
             <Route path="data" element={<DataPage />} />
             <Route path="datatable" element={<DataTablePage />} />
+            <Route path="code-editor" element={<CodeEditorPage />} />
             <Route path="feedback" element={<FeedbackPage />} />
             <Route path="overlays" element={<OverlaysPage />} />
             <Route path="navigation" element={<NavigationPage />} />
