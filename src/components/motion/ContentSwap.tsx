@@ -39,8 +39,17 @@ export interface ContentSwapProps {
   id: string | number;
   /** Named preset for the enter/exit animation. Default: "fade". */
   variant?: ContentSwapVariant;
-  /** "wait" (sequential) or "sync" (overlap). Default: "wait". */
-  mode?: "wait" | "sync";
+  /** Transition mode:
+   *   - "wait" (default): old fully exits before new mounts. Clean but
+   *     leaves a visible blank frame in the content area during the gap.
+   *   - "sync": new mounts immediately while old is still exiting; both
+   *     render in-flow, so content can visibly stack.
+   *   - "crossfade": both render simultaneously, absolutely positioned
+   *     in the wrapper. Avoids the blank-frame flash entirely. Requires
+   *     the wrapper to have a defined size — scrollable content inside
+   *     is still OK because each frame's child is a normal-flow element.
+   */
+  mode?: "wait" | "sync" | "crossfade";
   /** Single-side duration in milliseconds. Default: 160. */
   duration?: number;
   /** Skip animation when `prefers-reduced-motion: reduce`. Default true. */
@@ -118,6 +127,37 @@ export function ContentSwap({
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const v: Variants = customVariants ?? VARIANTS[prefersReduced ? "none" : variant];
+  const transition = {
+    duration: duration / 1000,
+    ease: [0.4, 0, 0.2, 1] as const,
+  };
+
+  if (mode === "crossfade") {
+    // Both old and new render stacked via absolute positioning, so the
+    // new one appears on top while the old one fades out — no blank
+    // frame, no layout jump. The wrapper needs a size; consumers
+    // typically pass className/style that gives it min-height or flex.
+    return (
+      <div
+        className={className}
+        style={{ position: "relative", ...style }}
+      >
+        <AnimatePresence initial={animateInitial}>
+          <motion.div
+            key={id}
+            variants={v}
+            initial={animateInitial ? "initial" : false}
+            animate="animate"
+            exit="exit"
+            transition={transition}
+            style={{ position: "absolute", inset: 0 }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   return (
     <AnimatePresence mode={mode} initial={animateInitial}>
@@ -127,10 +167,7 @@ export function ContentSwap({
         initial={animateInitial ? "initial" : false}
         animate="animate"
         exit="exit"
-        transition={{
-          duration: duration / 1000,
-          ease: [0.4, 0, 0.2, 1],
-        }}
+        transition={transition}
         className={className}
         style={style}
       >
