@@ -21,9 +21,27 @@ export interface SelectProps {
   onChange?: (v: string) => void;
   placeholder?: string;
   label?: string;
+  /** Control density. `"md"` (default) matches Harbor's standard input
+   *  row (44px). `"sm"` is a compact 28px variant for toolbars,
+   *  pagination bars, chrome — anywhere a full-size input would
+   *  overwhelm the surrounding UI. */
+  size?: "sm" | "md";
   className?: string;
   disabled?: boolean;
 }
+
+const SIZE_TRIGGER: Record<NonNullable<SelectProps["size"]>, string> = {
+  sm: "h-7 px-2 text-xs rounded-md",
+  md: "h-11 px-4 text-sm rounded-xl",
+};
+const SIZE_LABEL: Record<NonNullable<SelectProps["size"]>, string> = {
+  sm: "text-xs",
+  md: "text-sm",
+};
+const SIZE_CHEVRON: Record<NonNullable<SelectProps["size"]>, number> = {
+  sm: 12,
+  md: 14,
+};
 
 export function Select({
   options,
@@ -32,6 +50,7 @@ export function Select({
   onChange,
   placeholder,
   label,
+  size = "md",
   className,
   disabled,
 }: SelectProps) {
@@ -123,7 +142,8 @@ export function Select({
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKey}
         className={cn(
-          "relative overflow-hidden w-full h-11 px-4 rounded-xl border bg-white/5 flex items-center justify-between text-start outline-none",
+          "relative overflow-hidden w-full border bg-white/5 flex items-center justify-between text-start outline-none",
+          SIZE_TRIGGER[size],
           "border-white/10 hover:bg-white/[0.07] transition-colors",
           open && "border-fuchsia-400/60",
           "focus-visible:ring-2 focus-visible:ring-fuchsia-400/60 focus-bloom disabled:opacity-50",
@@ -136,7 +156,8 @@ export function Select({
         />
         <span
           className={cn(
-            "relative truncate text-sm flex items-center gap-2",
+            "relative truncate flex items-center gap-2",
+            SIZE_LABEL[size],
             selected ? "text-white" : "text-white/40",
           )}
         >
@@ -146,8 +167,8 @@ export function Select({
         <motion.svg
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          width="14"
-          height="14"
+          width={SIZE_CHEVRON[size]}
+          height={SIZE_CHEVRON[size]}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -184,7 +205,7 @@ export function Select({
                       onClick={() => pick(o.value)}
                       onMouseEnter={() => setFocusIdx(i)}
                       className={cn(
-                        "relative w-full text-start ps-4 pe-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-colors",
+                        "relative w-full text-start ps-4 pe-3 py-2 rounded-md text-sm flex items-center gap-2.5 transition-colors",
                         focusIdx === i ? "bg-white/5" : "",
                         o.disabled && "opacity-40 cursor-not-allowed",
                       )}

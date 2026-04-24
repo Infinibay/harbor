@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -12,12 +13,15 @@ import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useT } from "../../lib/i18n";
 import { LoadingOverlay } from "../feedback/LoadingOverlay";
+import { Menu, MenuItem, MenuSeparator } from "../overlays/Menu";
+import { Select } from "../inputs/Select";
 import { useDataTable, getCellValue } from "./table/useDataTable";
 import type {
   ColumnDef,
   ColumnPinningState,
   ColumnWidthsState,
   Density,
+  TableInstance,
   UseDataTableOptions,
 } from "./table/types";
 
@@ -73,6 +77,15 @@ export interface DataTableProps<T> extends UseDataTableOptions<T> {
   /** Rows rendered above + below the visible viewport during
    *  virtualization, to hide the pop-in during fast scrolls. Default `8`. */
   overscan?: number;
+  /** Render a per-column menu button (⋯) in each data header. The menu
+   *  exposes sort / pin / hide / move actions. Default `true`. */
+  columnMenu?: boolean;
+  /** Render a "Columns" picker on top of the grid — a dropdown with a
+   *  checkbox per column to toggle visibility. Default `false`. */
+  showColumnPicker?: boolean;
+  /** Enable keyboard navigation (arrow keys, Enter, Space, Escape,
+   *  Cmd/Ctrl+A). Default `true`. */
+  keyboardNavigation?: boolean;
   className?: string;
   style?: CSSProperties;
 }
@@ -136,6 +149,9 @@ export function DataTable<T>(props: DataTableProps<T>) {
     maxHeight,
     rowHeight,
     overscan = 8,
+    columnMenu = true,
+    showColumnPicker = false,
+    keyboardNavigation = true,
     className,
     style,
     ...hookOptions
@@ -277,6 +293,160 @@ export function DataTable<T>(props: DataTableProps<T>) {
     [table],
   );
 
+  /* ---------- Keyboard navigation ---------- */
+
+  const [activeCell, setActiveCell] = useState<{
+    rowIdx: number;
+    colIdx: number;
+  } | null>(null);
+
+  const onGridKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!keyboardNavigation) return;
+      // Ignore key events originating in form controls — we don't want
+      // ArrowLeft to steal caret movement inside an input.
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+      const maxCol = layout.orderedColumns.length - 1;
+      const maxRow = pageRows.length - 1;
+      if (maxRow < 0 || maxCol < 0) return;
+
+      // First navigation key press while no cell is active brings focus
+      // into the grid at (0,0) without moving further — so a single
+      // ArrowDown lands on row 1, not row 2.
+      if (activeCell == null) {
+        const navKeys = [
+          "ArrowDown",
+          "ArrowUp",
+          "ArrowLeft",
+          "ArrowRight",
+          "Home",
+          "End",
+          " ",
+          "Enter",
+        ];
+        if (navKeys.includes(e.key)) {
+          e.preventDefault();
+          setActiveCell({ rowIdx: 0, colIdx: 0 });
+          return;
+        }
+      }
+
+      const cur = activeCell ?? { rowIdx: 0, colIdx: 0 };
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActiveCell({
+          rowIdx: Math.min(maxRow, cur.rowIdx + 1),
+          colIdx: cur.colIdx,
+        });
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActiveCell({
+          rowIdx: Math.max(0, cur.rowIdx - 1),
+          colIdx: cur.colIdx,
+        });
+        return;
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setActiveCell({
+          rowIdx: cur.rowIdx,
+          colIdx: Math.min(maxCol, cur.colIdx + 1),
+        });
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setActiveCell({
+          rowIdx: cur.rowIdx,
+          colIdx: Math.max(0, cur.colIdx - 1),
+        });
+        return;
+      }
+      if (e.key === "Home") {
+        e.preventDefault();
+        setActiveCell({ rowIdx: cur.rowIdx, colIdx: 0 });
+        return;
+      }
+      if (e.key === "End") {
+        e.preventDefault();
+        setActiveCell({ rowIdx: cur.rowIdx, colIdx: maxCol });
+        return;
+      }
+      if (e.key === " " && selectable) {
+        e.preventDefault();
+        const row = pageRows[cur.rowIdx];
+        if (row) {
+          const id = rowId(row);
+          if (e.shiftKey) table.toggleRowRange(id);
+          else table.toggleRow(id);
+        }
+        return;
+      }
+      if (e.key === "Enter" && onRowClick) {
+        e.preventDefault();
+        const row = pageRows[cur.rowIdx];
+        if (row) onRowClick(row);
+        return;
+      }
+      if (e.key === "Escape") {
+        setActiveCell(null);
+        table.clearSelection();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === "a" || e.key === "A")) {
+        e.preventDefault();
+        table.selectAllOnPage();
+        return;
+      }
+    },
+    [
+      keyboardNavigation,
+      layout.orderedColumns.length,
+      pageRows,
+      activeCell,
+      selectable,
+      rowId,
+      table,
+      onRowClick,
+    ],
+  );
+
+  // Clamp active cell when data changes (filter, page flip) so we
+  // don't point at a row that no longer exists.
+  useEffect(() => {
+    if (!activeCell) return;
+    const maxRow = pageRows.length - 1;
+    const maxCol = layout.orderedColumns.length - 1;
+    if (maxRow < 0 || maxCol < 0) {
+      setActiveCell(null);
+      return;
+    }
+    if (activeCell.rowIdx > maxRow || activeCell.colIdx > maxCol) {
+      setActiveCell({
+        rowIdx: Math.min(activeCell.rowIdx, maxRow),
+        colIdx: Math.min(activeCell.colIdx, maxCol),
+      });
+    }
+  }, [activeCell, pageRows.length, layout.orderedColumns.length]);
+
+  const gridIdRoot = useId();
+  const gridId = `harbor-grid-${gridIdRoot}`;
+  const activeCellId =
+    activeCell &&
+    pageRows[activeCell.rowIdx] &&
+    layout.orderedColumns[activeCell.colIdx]
+      ? buildCellId(
+          gridId,
+          rowId(pageRows[activeCell.rowIdx]),
+          layout.orderedColumns[activeCell.colIdx].id,
+        )
+      : undefined;
+
   /* ---------- Render ---------- */
 
   const colCount = layout.orderedColumns.length + (selectable ? 1 : 0);
@@ -290,11 +460,20 @@ export function DataTable<T>(props: DataTableProps<T>) {
       style={style}
       ref={tableRef}
     >
+      {showColumnPicker ? (
+        <div className="border-b border-white/8 px-4 py-2 flex items-center justify-end">
+          <ColumnVisibilityPicker table={table} />
+        </div>
+      ) : null}
       <div
         role="grid"
+        id={gridId}
         aria-rowcount={totalCount}
         aria-colcount={colCount}
-        className="relative overflow-auto min-w-0"
+        aria-activedescendant={activeCellId}
+        tabIndex={keyboardNavigation ? 0 : undefined}
+        onKeyDown={keyboardNavigation ? onGridKeyDown : undefined}
+        className="relative overflow-auto min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/40 focus-visible:ring-inset"
         style={maxHeight != null ? { maxHeight } : undefined}
         ref={scrollRef}
       >
@@ -372,6 +551,14 @@ export function DataTable<T>(props: DataTableProps<T>) {
                     zIndex={pinSide ? 30 : undefined}
                   >
                     {headerNode}
+                    {columnMenu ? (
+                      <HeaderMenu
+                        table={table}
+                        col={col}
+                        pinSide={pinSide}
+                        offsetEnd={resizable ? RESIZE_HANDLE_WIDTH + 2 : 4}
+                      />
+                    ) : null}
                     {resizable ? (
                       <ResizeHandle
                         onPointerDown={(e) => {
@@ -476,9 +663,15 @@ export function DataTable<T>(props: DataTableProps<T>) {
                             : pinSide === "end"
                               ? layout.endOffsetOf(col.id)
                               : undefined;
+                        const isActive =
+                          keyboardNavigation &&
+                          activeCell != null &&
+                          activeCell.rowIdx === rowIndex &&
+                          activeCell.colIdx === colIndex;
                         return (
                           <BodyCell
                             key={col.id}
+                            id={buildCellId(gridId, id, col.id)}
                             density={state.density}
                             align={col.align ?? "start"}
                             colId={col.id}
@@ -488,6 +681,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
                             }
                             stickyEnd={pinSide === "end" ? pinOffset : undefined}
                             zIndex={pinSide ? 10 : undefined}
+                            active={isActive}
                           >
                             {content}
                           </BodyCell>
@@ -644,6 +838,13 @@ function cssEscape(s: string): string {
   return s.replace(/(["\\])/g, "\\$1");
 }
 
+function buildCellId(gridId: string, rowId: string, colId: string): string {
+  // Replace characters that would break a CSS `id` selector in case a
+  // screen reader or ARIA tool queries by id.
+  const safe = (s: string) => s.replace(/[^a-zA-Z0-9_-]/g, "_");
+  return `${gridId}__${safe(rowId)}__${safe(colId)}`;
+}
+
 /* ================================================================== */
 /* Internal subcomponents                                               */
 /* ================================================================== */
@@ -727,6 +928,7 @@ function HeaderCell({
 }
 
 interface BodyCellProps {
+  id?: string;
   density: Density;
   align?: "start" | "center" | "end";
   colId?: string;
@@ -735,10 +937,12 @@ interface BodyCellProps {
   stickyEnd?: number;
   zIndex?: number;
   onClick?: (e: React.MouseEvent) => void;
+  active?: boolean;
   children: ReactNode;
 }
 
 function BodyCell({
+  id,
   density,
   align = "start",
   colId,
@@ -747,6 +951,7 @@ function BodyCell({
   stickyEnd,
   zIndex,
   onClick,
+  active,
   children,
 }: BodyCellProps) {
   const sticky = stickyStart != null || stickyEnd != null;
@@ -761,6 +966,7 @@ function BodyCell({
     : undefined;
   return (
     <div
+      id={id}
       role="gridcell"
       aria-colindex={ariaColIndex}
       data-col-id={colId}
@@ -769,6 +975,8 @@ function BodyCell({
         CELL_PADDING_X[density],
         ROW_HEIGHT_CLASS[density],
         ALIGN_CLASS[align],
+        active &&
+          "outline outline-2 outline-offset-[-2px] outline-fuchsia-400/70",
       )}
       style={style}
       onClick={onClick}
@@ -937,17 +1145,17 @@ function Pagination({
       <div className="flex items-center gap-3">
         <label className="flex items-center gap-2">
           <span>{t("harbor.datatable.rowsPerPage") || "Rows per page"}</span>
-          <select
-            value={pageSize}
-            onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40"
-          >
-            {pageSizeOptions.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+          <span className="w-[76px]">
+            <Select
+              size="sm"
+              value={String(pageSize)}
+              onChange={(v) => onPageSizeChange(Number(v))}
+              options={pageSizeOptions.map((n) => ({
+                value: String(n),
+                label: String(n),
+              }))}
+            />
+          </span>
         </label>
         <div className="flex items-center gap-1">
           <button
@@ -992,5 +1200,242 @@ function Pagination({
         </div>
       </div>
     </div>
+  );
+}
+
+/* ================================================================== */
+/* HeaderMenu — per-column dropdown with sort / pin / hide / move      */
+/* ================================================================== */
+
+interface HeaderMenuProps<T> {
+  table: TableInstance<T>;
+  col: ColumnDef<T>;
+  pinSide: "start" | "end" | null;
+  /** Pixels to leave free on the trailing edge so the trigger doesn't
+   *  sit behind the resize handle. */
+  offsetEnd: number;
+}
+
+function HeaderMenu<T>({ table, col, pinSide, offsetEnd }: HeaderMenuProps<T>) {
+  const { t } = useT();
+  const sortEntry = table.state.sort.find((s) => s.id === col.id) ?? null;
+  const colOrder = table.state.columnOrder;
+  const colIdx = colOrder.indexOf(col.id);
+  const canMoveLeft = colIdx > 0;
+  const canMoveRight = colIdx >= 0 && colIdx < colOrder.length - 1;
+  // Don't allow hiding the last visible column — would leave the table
+  // with just the selection checkbox column, which is unusable.
+  const visibleCount = table.visibleColumns.length;
+  const canHide = col.hideable !== false && visibleCount > 1;
+
+  function setSortDir(dir: "asc" | "desc" | null) {
+    const others = table.state.sort.filter((s) => s.id !== col.id);
+    if (dir === null) table.setSort(others);
+    else table.setSort([...others, { id: col.id, direction: dir }]);
+  }
+
+  function move(delta: number) {
+    const next = [...colOrder];
+    const newIdx = colIdx + delta;
+    if (newIdx < 0 || newIdx >= next.length) return;
+    [next[colIdx], next[newIdx]] = [next[newIdx], next[colIdx]];
+    table.setColumnOrder(next);
+  }
+
+  return (
+    <Menu
+      side="bottom"
+      align="end"
+      trigger={
+        <button
+          type="button"
+          aria-label={t("harbor.datatable.menu.open") || "Column menu"}
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          style={{ insetInlineEnd: offsetEnd }}
+          className={cn(
+            "absolute inset-y-0 my-auto w-5 h-5 rounded grid place-items-center",
+            "text-white/45 hover:text-white hover:bg-white/10",
+            "opacity-0 group-hover:opacity-100 transition-opacity",
+          )}
+        >
+          <span aria-hidden className="text-[14px] leading-none">⋯</span>
+        </button>
+      }
+    >
+      {col.sortable ? (
+        <>
+          <MenuItem
+            onClick={() => setSortDir("asc")}
+            disabled={sortEntry?.direction === "asc"}
+          >
+            {t("harbor.datatable.menu.sortAsc")}
+          </MenuItem>
+          <MenuItem
+            onClick={() => setSortDir("desc")}
+            disabled={sortEntry?.direction === "desc"}
+          >
+            {t("harbor.datatable.menu.sortDesc")}
+          </MenuItem>
+          {sortEntry ? (
+            <MenuItem onClick={() => setSortDir(null)}>
+              {t("harbor.datatable.menu.clearSort")}
+            </MenuItem>
+          ) : null}
+          <MenuSeparator />
+        </>
+      ) : null}
+
+      <MenuItem
+        onClick={() => table.pinColumn(col.id, "start")}
+        disabled={pinSide === "start"}
+      >
+        {t("harbor.datatable.menu.pinStart")}
+      </MenuItem>
+      <MenuItem
+        onClick={() => table.pinColumn(col.id, "end")}
+        disabled={pinSide === "end"}
+      >
+        {t("harbor.datatable.menu.pinEnd")}
+      </MenuItem>
+      {pinSide ? (
+        <MenuItem onClick={() => table.pinColumn(col.id, null)}>
+          {t("harbor.datatable.menu.unpin")}
+        </MenuItem>
+      ) : null}
+      <MenuSeparator />
+
+      <MenuItem onClick={() => move(-1)} disabled={!canMoveLeft}>
+        {t("harbor.datatable.menu.moveLeft")}
+      </MenuItem>
+      <MenuItem onClick={() => move(1)} disabled={!canMoveRight}>
+        {t("harbor.datatable.menu.moveRight")}
+      </MenuItem>
+
+      {canHide ? (
+        <>
+          <MenuSeparator />
+          <MenuItem
+            onClick={() => table.toggleColumnVisibility(col.id)}
+            danger
+          >
+            {t("harbor.datatable.menu.hide")}
+          </MenuItem>
+        </>
+      ) : null}
+    </Menu>
+  );
+}
+
+/* ================================================================== */
+/* ColumnVisibilityPicker — toolbar dropdown with a checkbox per col   */
+/* ================================================================== */
+
+interface ColumnVisibilityPickerProps<T> {
+  table: TableInstance<T>;
+}
+
+function ColumnVisibilityPicker<T>({ table }: ColumnVisibilityPickerProps<T>) {
+  const { t } = useT();
+  const visible = (col: ColumnDef<T>) =>
+    table.state.columnVisibility[col.id] !== false;
+  const allVisible = table.columns.every(visible);
+  const noneVisible = table.columns.every((c) => !visible(c));
+
+  function showAll() {
+    for (const c of table.columns) {
+      if (!visible(c)) table.toggleColumnVisibility(c.id);
+    }
+  }
+  function hideAll() {
+    for (const c of table.columns) {
+      if (visible(c) && c.hideable !== false) {
+        table.toggleColumnVisibility(c.id);
+      }
+    }
+  }
+
+  return (
+    <Menu
+      side="bottom"
+      align="end"
+      trigger={
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-2 px-3 h-8 rounded-md text-xs",
+            "bg-white/5 border border-white/10 text-white/75",
+            "hover:bg-white/[0.08] hover:text-white transition-colors",
+          )}
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden
+          >
+            <rect x="3" y="4" width="4" height="16" rx="1" />
+            <rect x="10" y="4" width="4" height="16" rx="1" />
+            <rect x="17" y="4" width="4" height="16" rx="1" />
+          </svg>
+          {t("harbor.datatable.columns.title") || "Columns"}
+        </button>
+      }
+    >
+      <MenuItem onClick={showAll} disabled={allVisible}>
+        {t("harbor.datatable.columns.showAll") || "Show all"}
+      </MenuItem>
+      <MenuItem onClick={hideAll} disabled={noneVisible}>
+        {t("harbor.datatable.columns.hideAll") || "Hide all"}
+      </MenuItem>
+      <MenuSeparator />
+      {table.columns.map((col) => {
+        const isVisible = visible(col);
+        const locked = col.hideable === false;
+        return (
+          <MenuItem
+            key={col.id}
+            disabled={locked}
+            onClick={() =>
+              locked ? undefined : table.toggleColumnVisibility(col.id)
+            }
+            icon={
+              <span
+                aria-hidden
+                className={cn(
+                  "w-3.5 h-3.5 rounded border grid place-items-center",
+                  isVisible
+                    ? "bg-fuchsia-500 border-fuchsia-400"
+                    : "border-white/30",
+                )}
+              >
+                {isVisible ? (
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  >
+                    <path d="M5 12 L10 17 L19 7" />
+                  </svg>
+                ) : null}
+              </span>
+            }
+          >
+            {typeof col.header === "string"
+              ? col.header
+              : typeof col.header === "number"
+                ? String(col.header)
+                : col.id}
+          </MenuItem>
+        );
+      })}
+    </Menu>
   );
 }

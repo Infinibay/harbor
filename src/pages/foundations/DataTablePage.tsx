@@ -177,7 +177,7 @@ export function DataTablePage() {
     <Group
       id="datatable"
       title="DataTable · enterprise"
-      desc="Phase 4a + 4b. Sort, filter, paginate, select, virtualize, column resize (drag right edge · double-click auto-sizes), column pin (left/right · sticky through horizontal scroll)."
+      desc="Sort (multi-column with Shift · per-column menu), filter, paginate, select (single · multi · Shift-range), virtualize up to 100k rows, column resize (drag right edge · double-click auto-sizes), column pin start / end, column hide / reorder via header ⋯ menu or the Columns picker, full keyboard navigation (arrows · Space · Enter · Esc · Cmd/Ctrl+A)."
     >
       <Demo
         title="Baseline — 25 rows"
@@ -258,6 +258,22 @@ export function DataTablePage() {
           rowId={(r) => r.id}
           defaultPagination={{ pageSize: 50 }}
           defaultSort={[{ id: "cpu", direction: "desc" }]}
+        />
+      </Demo>
+
+      <Demo
+        title="Column menu + visibility picker + keyboard nav"
+        hint="Hover any header for the ⋯ menu (sort · pin · hide · move). Toolbar 'Columns' re-shows hidden ones. Click the grid and use arrow keys / Space / Cmd-A."
+        intensity="soft"
+        wide
+      >
+        <DataTable
+          rows={small}
+          columns={baseColumns}
+          rowId={(r) => r.id}
+          selectable
+          showColumnPicker
+          defaultPagination={{ pageSize: 10 }}
         />
       </Demo>
     </Group>

@@ -250,6 +250,203 @@ describe("DataTable — pinning", () => {
   });
 });
 
+describe("DataTable — column menu", () => {
+  it("each data header gets a menu trigger by default", () => {
+    renderWithHarbor(
+      <DataTable rows={rows} columns={columns} rowId={(r) => r.id} />,
+    );
+    expect(
+      screen.getAllByRole("button", { name: /Column menu/i }).length,
+    ).toBe(columns.length);
+  });
+
+  it("opens the menu and fires Sort ascending", async () => {
+    const { user } = renderWithHarbor(
+      <DataTable rows={rows} columns={columns} rowId={(r) => r.id} />,
+    );
+    const triggers = screen.getAllByRole("button", { name: /Column menu/i });
+    // Score column is the 2nd data header.
+    await user.click(triggers[1]);
+    await user.click(await screen.findByText(/Sort ascending/i));
+    // Ascending sort on score → rows reorder so bravo (17) comes before alpha (42) before charlie (88).
+    const grid = screen.getByRole("grid");
+    const bodyRows = within(grid).getAllByRole("row").slice(1); // skip header
+    const firstCell = within(bodyRows[0]).getAllByRole("gridcell")[0];
+    expect(firstCell.textContent).toContain("bravo");
+  });
+
+  it("clicking Pin to start pins the column", async () => {
+    const { user, container } = renderWithHarbor(
+      <DataTable rows={rows} columns={columns} rowId={(r) => r.id} />,
+    );
+    await user.click(
+      screen.getAllByRole("button", { name: /Column menu/i })[0],
+    );
+    await user.click(await screen.findByText(/Pin to start/i));
+    // The name column's header should now have position: sticky.
+    const nameHeader = container.querySelector(
+      '[role="columnheader"][aria-sort]',
+    );
+    expect(nameHeader?.getAttribute("style")).toMatch(/sticky/);
+  });
+
+  it("clicking Hide column removes the column", async () => {
+    const { user } = renderWithHarbor(
+      <DataTable rows={rows} columns={columns} rowId={(r) => r.id} />,
+    );
+    expect(
+      screen.getByRole("columnheader", { name: /Score/i }),
+    ).toBeInTheDocument();
+    await user.click(
+      screen.getAllByRole("button", { name: /Column menu/i })[1],
+    );
+    await user.click(await screen.findByText(/Hide column/i));
+    expect(
+      screen.queryByRole("columnheader", { name: /Score/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("columnMenu=false hides every trigger", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        columnMenu={false}
+      />,
+    );
+    expect(
+      screen.queryAllByRole("button", { name: /Column menu/i }).length,
+    ).toBe(0);
+  });
+});
+
+describe("DataTable — visibility picker", () => {
+  it("renders the Columns button when showColumnPicker is true", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        showColumnPicker
+      />,
+    );
+    expect(screen.getByRole("button", { name: /Columns/i })).toBeInTheDocument();
+  });
+
+  it("toggles a column from the picker menu", async () => {
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        showColumnPicker
+      />,
+    );
+    expect(
+      screen.getByRole("columnheader", { name: /Score/i }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Columns/i }));
+    // The picker renders one menuitem per column. Find the button whose
+    // nearest `<button>` is not the columnheader and whose text is exactly
+    // the column's header label.
+    const scoreHeader = screen.getByRole("columnheader", { name: /Score/i });
+    const scoreItem = (await screen.findAllByText(/^Score$/i)).find(
+      (el) => !scoreHeader.contains(el),
+    );
+    expect(scoreItem).toBeTruthy();
+    await user.click(scoreItem!);
+    expect(
+      screen.queryByRole("columnheader", { name: /Score/i }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("DataTable — keyboard navigation", () => {
+  it("grid is focusable and responds to Arrow keys", async () => {
+    const { user } = renderWithHarbor(
+      <DataTable rows={rows} columns={columns} rowId={(r) => r.id} />,
+    );
+    const grid = screen.getByRole("grid");
+    grid.focus();
+    expect(document.activeElement).toBe(grid);
+    await user.keyboard("{ArrowDown}");
+    // After ArrowDown from default activeCell null → {0,0} then the
+    // handler clamps to (0,0) since null defaults to that. Press again
+    // to move to row 1.
+    await user.keyboard("{ArrowDown}");
+    expect(grid.getAttribute("aria-activedescendant")).toMatch(/r2/);
+  });
+
+  it("Space toggles selection on the focused row", async () => {
+    const onSelectionChange = vi.fn();
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        selectable
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+    const grid = screen.getByRole("grid");
+    grid.focus();
+    await user.keyboard("{ArrowDown}"); // activeCell → (0,0)
+    await user.keyboard(" ");
+    expect(onSelectionChange).toHaveBeenCalledWith(["r1"]);
+  });
+
+  it("Cmd+A selects the whole current page", async () => {
+    const onSelectionChange = vi.fn();
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        selectable
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+    const grid = screen.getByRole("grid");
+    grid.focus();
+    await user.keyboard("{Control>}a{/Control}");
+    expect(onSelectionChange).toHaveBeenCalledWith(["r1", "r2", "r3"]);
+  });
+
+  it("Escape clears selection + active cell", async () => {
+    const onSelectionChange = vi.fn();
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        selectable
+        defaultSelected={["r1", "r2"]}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+    const grid = screen.getByRole("grid");
+    grid.focus();
+    await user.keyboard("{Escape}");
+    expect(onSelectionChange).toHaveBeenCalledWith([]);
+  });
+
+  it("keyboardNavigation=false skips the handler wiring", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        keyboardNavigation={false}
+      />,
+    );
+    const grid = screen.getByRole("grid");
+    // With keyboardNavigation=false, tabIndex is omitted and the grid
+    // drops out of the tab order.
+    expect(grid).not.toHaveAttribute("tabindex");
+  });
+});
+
 describe("DataTable — a11y", () => {
   it("has no violations in a basic rendered state", async () => {
     const { container } = renderWithHarbor(
