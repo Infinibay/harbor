@@ -60,7 +60,23 @@ export function Sidebar({
                     <motion.a
                       href={it.href}
                       onClick={(e) => {
-                        if (!it.href) e.preventDefault();
+                        // When a consumer wires onSelect (SPA router.push
+                        // etc.), intercept normal left-clicks so the
+                        // browser doesn't also trigger a full-page nav on
+                        // top of the programmatic route change. Keep
+                        // modifier-clicks (ctrl/cmd/middle/shift) alone so
+                        // "open in new tab" and "copy link" still work.
+                        const isPlainLeftClick =
+                          e.button === 0 &&
+                          !e.ctrlKey &&
+                          !e.metaKey &&
+                          !e.shiftKey &&
+                          !e.altKey;
+                        if (onSelect && isPlainLeftClick) {
+                          e.preventDefault();
+                        } else if (!it.href) {
+                          e.preventDefault();
+                        }
                         onSelect?.(it.id);
                       }}
                       whileHover={{ x: 2 }}
