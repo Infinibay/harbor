@@ -18,6 +18,7 @@ export const ar: HarborLocale = {
     "harbor.action.finish": "إنهاء",
     "harbor.action.clear": "مسح",
     "harbor.action.submit": "إرسال",
+    "harbor.action.retry": "إعادة المحاولة",
 
     "harbor.wizard.stepOfN":
       "الخطوة {current, plural, other {#}} من {total, plural, other {#}}",

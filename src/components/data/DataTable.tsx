@@ -12,7 +12,7 @@ import {
 import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useT } from "../../lib/i18n";
-import { LoadingOverlay } from "../feedback/LoadingOverlay";
+import { Skeleton } from "../display/Skeleton";
 import { Menu, MenuItem, MenuSeparator } from "../overlays/Menu";
 import { Select } from "../inputs/Select";
 import { useDataTable, getCellValue } from "./table/useDataTable";
@@ -36,6 +36,7 @@ export type {
   FilterState,
   FilterType,
   HeaderContext,
+  PaginationState,
   SortState,
   TableInstance,
   UseDataTableOptions,
@@ -56,9 +57,21 @@ export interface DataTableProps<T> extends UseDataTableOptions<T> {
   /** Replaces the default "No data" placeholder when the filtered +
    *  paginated result is empty. */
   emptyState?: ReactNode;
-  /** Show a `<LoadingOverlay>` over the body. Header stays in place. */
+  /** Render skeleton rows while data is being fetched. Header + toolbar
+   *  stay in place; the body is replaced. */
   loading?: boolean;
+  /** Number of skeleton rows to render when `loading` is on. Defaults
+   *  to the current `pageSize`, capped at `10`. */
+  skeletonRows?: number;
+  /** @deprecated kept for backwards compatibility; no longer used when
+   *  `loading` renders skeleton rows. */
   loadingLabel?: ReactNode;
+  /** Replaces the body with an error panel when set. String / number
+   *  values render as the title; a ReactNode replaces the whole panel. */
+  error?: ReactNode;
+  /** Shown as a Retry button in the built-in error panel. Not used when
+   *  `error` is a custom ReactNode (supply your own retry). */
+  onRetry?: () => void;
   /** Hide the pagination bar even when pageSize < totalCount. Useful
    *  for tables driven by an external pager. Default `false`. */
   hidePagination?: boolean;
@@ -83,6 +96,16 @@ export interface DataTableProps<T> extends UseDataTableOptions<T> {
   /** Render a "Columns" picker on top of the grid — a dropdown with a
    *  checkbox per column to toggle visibility. Default `false`. */
   showColumnPicker?: boolean;
+  /** Render a global search input in the toolbar. The input is
+   *  debounced before it commits to `state.globalFilter`, so server
+   *  mode doesn't fire a request per keystroke. Default `false`. */
+  showGlobalSearch?: boolean;
+  /** Debounce (ms) for the global search input. `0` commits on every
+   *  keystroke. Default `300`. */
+  globalSearchDebounce?: number;
+  /** Placeholder for the global search input. Defaults to the
+   *  `harbor.search.placeholder` i18n string. */
+  globalSearchPlaceholder?: string;
   /** Enable keyboard navigation (arrow keys, Enter, Space, Escape,
    *  Cmd/Ctrl+A). Default `true`. */
   keyboardNavigation?: boolean;
@@ -143,7 +166,12 @@ export function DataTable<T>(props: DataTableProps<T>) {
     onRowClick,
     emptyState,
     loading,
-    loadingLabel,
+    skeletonRows,
+    // `loadingLabel` is deprecated but still accepted for backwards
+    // compat. It no longer drives the loading UI — skeleton rows do.
+    loadingLabel: _loadingLabel,
+    error,
+    onRetry,
     hidePagination,
     pageSizeOptions = [10, 25, 50, 100],
     maxHeight,
@@ -151,6 +179,9 @@ export function DataTable<T>(props: DataTableProps<T>) {
     overscan = 8,
     columnMenu = true,
     showColumnPicker = false,
+    showGlobalSearch = false,
+    globalSearchDebounce = 300,
+    globalSearchPlaceholder,
     keyboardNavigation = true,
     className,
     style,
@@ -460,9 +491,18 @@ export function DataTable<T>(props: DataTableProps<T>) {
       style={style}
       ref={tableRef}
     >
-      {showColumnPicker ? (
-        <div className="border-b border-white/8 px-4 py-2 flex items-center justify-end">
-          <ColumnVisibilityPicker table={table} />
+      {showGlobalSearch || showColumnPicker ? (
+        <div className="border-b border-white/8 px-4 py-2 flex items-center gap-3">
+          {showGlobalSearch ? (
+            <GlobalSearchInput
+              value={table.state.globalFilter}
+              onCommit={table.setGlobalFilter}
+              debounce={globalSearchDebounce}
+              placeholder={globalSearchPlaceholder}
+            />
+          ) : null}
+          <div className="flex-1" />
+          {showColumnPicker ? <ColumnVisibilityPicker table={table} /> : null}
         </div>
       ) : null}
       <div
@@ -576,8 +616,21 @@ export function DataTable<T>(props: DataTableProps<T>) {
             </div>
           </div>
 
-          {/* Body */}
-          {loading ? null : (
+          {/* Body — error > loading > empty > rows */}
+          {error != null ? (
+            <ErrorPanel error={error} onRetry={onRetry} />
+          ) : loading ? (
+            <SkeletonRows
+              columns={layout.orderedColumns}
+              selectable={Boolean(selectable)}
+              count={
+                skeletonRows ??
+                Math.min(10, state.pagination.pageSize)
+              }
+              density={state.density}
+              gridStyle={gridStyle}
+            />
+          ) : (
             <div
               role="rowgroup"
               style={{
@@ -694,8 +747,6 @@ export function DataTable<T>(props: DataTableProps<T>) {
             </div>
           )}
         </div>
-
-        {loading ? <LoadingOverlay label={loadingLabel} fill /> : null}
       </div>
 
       {!hidePagination ? (
@@ -1333,6 +1384,212 @@ function HeaderMenu<T>({ table, col, pinSide, offsetEnd }: HeaderMenuProps<T>) {
 
 interface ColumnVisibilityPickerProps<T> {
   table: TableInstance<T>;
+}
+
+/* ================================================================== */
+/* SkeletonRows — loading placeholder that matches column widths       */
+/* ================================================================== */
+
+interface SkeletonRowsProps<T> {
+  columns: readonly ColumnDef<T>[];
+  selectable: boolean;
+  count: number;
+  density: Density;
+  gridStyle: CSSProperties;
+}
+
+function SkeletonRows<T>({
+  columns,
+  selectable,
+  count,
+  density,
+  gridStyle,
+}: SkeletonRowsProps<T>) {
+  // Deterministic pseudo-random widths so each skeleton row looks
+  // varied without re-rolling on every render.
+  const widthFor = (i: number, j: number) => 40 + ((i * 53 + j * 17) % 55);
+  return (
+    <div role="rowgroup" aria-busy="true">
+      {Array.from({ length: Math.max(1, count) }).map((_, rowIdx) => (
+        <div
+          key={rowIdx}
+          role="row"
+          aria-hidden
+          className="grid border-b border-white/5"
+          style={gridStyle}
+        >
+          {selectable ? (
+            <div
+              className={cn(
+                "flex items-center justify-center",
+                CELL_PADDING_X[density],
+                ROW_HEIGHT_CLASS[density],
+              )}
+            >
+              <Skeleton width={14} height={14} />
+            </div>
+          ) : null}
+          {columns.map((col, colIdx) => (
+            <div
+              key={col.id}
+              className={cn(
+                "flex items-center",
+                CELL_PADDING_X[density],
+                ROW_HEIGHT_CLASS[density],
+              )}
+            >
+              <Skeleton width={`${widthFor(rowIdx, colIdx)}%`} height={12} />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ================================================================== */
+/* ErrorPanel — body-replacing error state with optional retry         */
+/* ================================================================== */
+
+interface ErrorPanelProps {
+  error: ReactNode;
+  onRetry?: () => void;
+}
+
+function ErrorPanel({ error, onRetry }: ErrorPanelProps) {
+  const { t } = useT();
+  // A plain string / number is the title; anything richer owns its own
+  // layout (consumer's responsibility).
+  const isSimple =
+    typeof error === "string" ||
+    typeof error === "number" ||
+    error instanceof Error;
+  if (!isSimple) {
+    return (
+      <div className="p-10 grid place-items-center" role="alert">
+        {error}
+      </div>
+    );
+  }
+  const message =
+    error instanceof Error ? error.message : String(error);
+  return (
+    <div
+      role="alert"
+      className="p-10 flex flex-col items-center justify-center gap-3 text-center"
+    >
+      <div className="w-10 h-10 rounded-full grid place-items-center bg-rose-500/15 text-rose-300">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          aria-hidden
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 7v6" />
+          <path d="M12 17h.01" />
+        </svg>
+      </div>
+      <div className="text-sm text-white/85">{message}</div>
+      {onRetry ? (
+        <button
+          type="button"
+          onClick={onRetry}
+          className={cn(
+            "mt-1 px-3 h-8 rounded-md text-xs",
+            "bg-white/5 border border-white/10 text-white/85",
+            "hover:bg-white/10 transition-colors",
+          )}
+        >
+          {t("harbor.action.retry") || "Retry"}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+/* ================================================================== */
+/* GlobalSearchInput — debounced search, wired to state.globalFilter   */
+/* ================================================================== */
+
+interface GlobalSearchInputProps {
+  value: string;
+  onCommit: (q: string) => void;
+  debounce: number;
+  placeholder?: string;
+}
+
+function GlobalSearchInput({
+  value,
+  onCommit,
+  debounce,
+  placeholder,
+}: GlobalSearchInputProps) {
+  const { t } = useT();
+  const [local, setLocal] = useState(value);
+  const timer = useRef<number | null>(null);
+
+  // Sync local state when the controlled value changes from outside
+  // (e.g. consumer cleared the filter programmatically).
+  useEffect(() => {
+    setLocal(value);
+  }, [value]);
+
+  useEffect(() => {
+    return () => {
+      if (timer.current) window.clearTimeout(timer.current);
+    };
+  }, []);
+
+  function onChange(next: string) {
+    setLocal(next);
+    if (timer.current) window.clearTimeout(timer.current);
+    if (debounce <= 0) {
+      onCommit(next);
+      return;
+    }
+    timer.current = window.setTimeout(() => onCommit(next), debounce);
+  }
+
+  return (
+    <div className="relative w-full max-w-xs">
+      <svg
+        aria-hidden
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        className="absolute inset-y-0 start-2.5 my-auto text-white/40"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-3.5-3.5" />
+      </svg>
+      <input
+        type="search"
+        value={local}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={
+          placeholder ?? t("harbor.search.placeholder") ?? "Search…"
+        }
+        aria-label={
+          placeholder ?? t("harbor.search.placeholder") ?? "Search"
+        }
+        className={cn(
+          "w-full h-8 ps-8 pe-3 rounded-md text-sm text-white",
+          "bg-white/5 border border-white/10",
+          "placeholder:text-white/30",
+          "focus:outline-none focus:border-fuchsia-400/60",
+        )}
+      />
+    </div>
+  );
 }
 
 function ColumnVisibilityPicker<T>({ table }: ColumnVisibilityPickerProps<T>) {

@@ -15,6 +15,7 @@ export const es: HarborLocale = {
     "harbor.action.finish": "Finalizar",
     "harbor.action.clear": "Limpiar",
     "harbor.action.submit": "Enviar",
+    "harbor.action.retry": "Reintentar",
 
     "harbor.wizard.stepOfN":
       "Paso {current, plural, other {#}} de {total, plural, other {#}}",

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, within } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { DataTable } from "./DataTable";
@@ -444,6 +444,156 @@ describe("DataTable — keyboard navigation", () => {
     // With keyboardNavigation=false, tabIndex is omitted and the grid
     // drops out of the tab order.
     expect(grid).not.toHaveAttribute("tabindex");
+  });
+});
+
+describe("DataTable — loading + error", () => {
+  it("renders N skeleton rows when loading", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        loading
+        skeletonRows={7}
+      />,
+    );
+    // Skeleton rows are aria-hidden (screen readers skip them) — include
+    // them explicitly with `hidden: true`. Header + 7 skeletons = 8.
+    expect(screen.getAllByRole("row", { hidden: true })).toHaveLength(8);
+    // Real data is not rendered.
+    expect(screen.queryByText("alpha")).not.toBeInTheDocument();
+  });
+
+  it("defaults skeleton count to min(pageSize, 10)", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        loading
+        defaultPagination={{ pageSize: 3 }}
+      />,
+    );
+    expect(screen.getAllByRole("row", { hidden: true })).toHaveLength(4);
+  });
+
+  it("renders the error panel when error is set and onRetry fires", async () => {
+    const onRetry = vi.fn();
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        error="Upstream unavailable"
+        onRetry={onRetry}
+      />,
+    );
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent(/Upstream unavailable/);
+    await user.click(screen.getByRole("button", { name: /Retry/i }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    // Data rows suppressed.
+    expect(screen.queryByText("alpha")).not.toBeInTheDocument();
+  });
+
+  it("error takes priority over loading", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        error="Nope"
+        loading
+      />,
+    );
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+    // No skeleton rows when error is shown.
+    expect(screen.getAllByRole("row")).toHaveLength(1); // only header
+  });
+
+  it("a custom ReactNode error replaces the whole panel", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        error={<p data-testid="custom-err">my custom node</p>}
+      />,
+    );
+    expect(screen.getByTestId("custom-err")).toBeInTheDocument();
+    // No default Retry button.
+    expect(
+      screen.queryByRole("button", { name: /Retry/i }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("DataTable — global search", () => {
+  it("renders a search input when showGlobalSearch is true", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        showGlobalSearch
+      />,
+    );
+    expect(screen.getByRole("searchbox")).toBeInTheDocument();
+  });
+
+  it("debounces before committing to state.globalFilter", () => {
+    vi.useFakeTimers();
+    try {
+      const onGlobalFilterChange = vi.fn();
+      renderWithHarbor(
+        <DataTable
+          rows={rows}
+          columns={columns}
+          rowId={(r) => r.id}
+          showGlobalSearch
+          globalSearchDebounce={300}
+          onGlobalFilterChange={onGlobalFilterChange}
+        />,
+      );
+      const input = screen.getByRole("searchbox") as HTMLInputElement;
+      // Fake timers + user-event don't mix cleanly, so drive the input
+      // via direct change events.
+      fireEvent.change(input, { target: { value: "a" } });
+      fireEvent.change(input, { target: { value: "ab" } });
+      fireEvent.change(input, { target: { value: "abc" } });
+      expect(onGlobalFilterChange).not.toHaveBeenCalled();
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+      expect(onGlobalFilterChange).toHaveBeenCalledWith("abc");
+      expect(onGlobalFilterChange).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe("DataTable — server mode", () => {
+  it("trusts totalCount from the caller and fires onSortChange", async () => {
+    const onSortChange = vi.fn();
+    const { user } = renderWithHarbor(
+      <DataTable
+        mode="server"
+        totalCount={999}
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        onSortChange={onSortChange}
+      />,
+    );
+    // Pagination shows totalCount 999, not local count 3.
+    expect(
+      screen.getByText(/of\s+999|de\s+999/i),
+    ).toBeInTheDocument();
+    // Clicking a sortable header fires onSortChange.
+    await user.click(screen.getByRole("columnheader", { name: /Score/i }));
+    expect(onSortChange).toHaveBeenCalled();
   });
 });
 

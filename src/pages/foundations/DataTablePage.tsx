@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Group, Demo, Col } from "../../showcase/ShowcaseCard";
 import {
   Badge,
+  Button,
   DataTable,
   type ColumnDef,
+  type PaginationState,
+  type SortState,
 } from "../../components";
 
 /* Synthetic dataset: 10,000 rows of "services" so virtualization has
@@ -276,6 +279,158 @@ export function DataTablePage() {
           defaultPagination={{ pageSize: 10 }}
         />
       </Demo>
+
+      <Demo
+        title="Loading skeletons"
+        hint="Flip the toggle — while loading, N skeleton rows shimmer in place of the body. Header + toolbar stay put."
+        intensity="soft"
+        wide
+      >
+        <LoadingDemo rows={small} columns={baseColumns} />
+      </Demo>
+
+      <Demo
+        title="Error state + retry"
+        hint="When error is set, the body is replaced by an error panel with a Retry button."
+        intensity="soft"
+        wide
+      >
+        <ErrorDemo rows={small} columns={baseColumns} />
+      </Demo>
+
+      <Demo
+        title="Server mode — debounced search, remote sort + paginate"
+        hint="mode='server' stops local processing. Sort / search / page edits fire onXChange callbacks; the consumer fetches + re-supplies rows + totalCount. 500ms artificial latency so you see the skeleton."
+        intensity="soft"
+        wide
+      >
+        <ServerModeDemo pool={medium} columns={baseColumns} />
+      </Demo>
     </Group>
+  );
+}
+
+function LoadingDemo({
+  rows,
+  columns,
+}: {
+  rows: Service[];
+  columns: ColumnDef<Service>[];
+}) {
+  const [loading, setLoading] = useState(false);
+  return (
+    <Col>
+      <div className="flex gap-2">
+        <Button size="sm" variant="secondary" onClick={() => setLoading((v) => !v)}>
+          {loading ? "Stop loading" : "Start loading"}
+        </Button>
+      </div>
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        loading={loading}
+        skeletonRows={6}
+        defaultPagination={{ pageSize: 10 }}
+      />
+    </Col>
+  );
+}
+
+function ErrorDemo({
+  rows,
+  columns,
+}: {
+  rows: Service[];
+  columns: ColumnDef<Service>[];
+}) {
+  const [error, setError] = useState<string | null>(
+    "Couldn't reach the services API (503 Service Unavailable).",
+  );
+  return (
+    <DataTable
+      rows={rows}
+      columns={columns}
+      rowId={(r) => r.id}
+      error={error ?? undefined}
+      onRetry={() => setError(null)}
+      defaultPagination={{ pageSize: 10 }}
+    />
+  );
+}
+
+/** Simulated server adapter — filters + sorts + paginates against an
+ *  in-memory pool, with artificial latency so the skeleton state is
+ *  visible during interaction. A real consumer would call its own fetch
+ *  here and pass the response rows + totalCount straight to DataTable. */
+function ServerModeDemo({
+  pool,
+  columns,
+}: {
+  pool: Service[];
+  columns: ColumnDef<Service>[];
+}) {
+  const [sort, setSort] = useState<SortState[]>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 0,
+    pageSize: 25,
+  });
+  const [rows, setRows] = useState<Service[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    const h = window.setTimeout(() => {
+      const q = globalFilter.trim().toLowerCase();
+      let filtered = q
+        ? pool.filter((r) =>
+            [r.name, r.owner, r.region, r.env, r.status].some((v) =>
+              String(v).toLowerCase().includes(q),
+            ),
+          )
+        : pool;
+      if (sort.length > 0) {
+        filtered = [...filtered].sort((a, b) => {
+          for (const s of sort) {
+            const av = (a as unknown as Record<string, unknown>)[s.id];
+            const bv = (b as unknown as Record<string, unknown>)[s.id];
+            const cmp =
+              typeof av === "number" && typeof bv === "number"
+                ? av - bv
+                : String(av).localeCompare(String(bv), undefined, {
+                    numeric: true,
+                  });
+            if (cmp !== 0) return s.direction === "asc" ? cmp : -cmp;
+          }
+          return 0;
+        });
+      }
+      const start = pagination.page * pagination.pageSize;
+      setRows(filtered.slice(start, start + pagination.pageSize));
+      setTotalCount(filtered.length);
+      setLoading(false);
+    }, 500);
+    return () => window.clearTimeout(h);
+  }, [sort, globalFilter, pagination, pool]);
+
+  return (
+    <DataTable
+      mode="server"
+      rows={rows}
+      totalCount={totalCount}
+      columns={columns}
+      rowId={(r) => r.id}
+      sort={sort}
+      onSortChange={setSort}
+      globalFilter={globalFilter}
+      onGlobalFilterChange={setGlobalFilter}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      loading={loading}
+      showGlobalSearch
+      globalSearchDebounce={300}
+    />
   );
 }
