@@ -461,11 +461,19 @@ export function DataTable<T>(props: DataTableProps<T>) {
         }
         return;
       }
-      if (e.key === "Enter" && onRowClick) {
-        e.preventDefault();
+      if (e.key === "Enter") {
         const row = pageRows[cur.rowIdx];
-        if (row) onRowClick(row);
-        return;
+        const col = layout.orderedColumns[cur.colIdx];
+        if (row && col?.editable) {
+          e.preventDefault();
+          table.startEdit(rowId(row), col.id);
+          return;
+        }
+        if (row && onRowClick) {
+          e.preventDefault();
+          onRowClick(row);
+          return;
+        }
       }
       if (e.key === "Escape") {
         setActiveCell(null);
@@ -797,6 +805,10 @@ export function DataTable<T>(props: DataTableProps<T>) {
                           activeCell.colIdx === colIndex;
                         const isFirstDataCell = colIndex === 0;
                         const canExpand = item.canExpand;
+                        const isEditing =
+                          state.editingCell != null &&
+                          state.editingCell.rowId === id &&
+                          state.editingCell.colId === col.id;
                         return (
                           <BodyCell
                             key={col.id}
@@ -811,6 +823,14 @@ export function DataTable<T>(props: DataTableProps<T>) {
                             stickyEnd={pinSide === "end" ? pinOffset : undefined}
                             zIndex={pinSide ? 10 : undefined}
                             active={isActive}
+                            onDoubleClick={
+                              col.editable
+                                ? (e) => {
+                                    e.stopPropagation();
+                                    table.startEdit(id, col.id);
+                                  }
+                                : undefined
+                            }
                           >
                             {isFirstDataCell && canExpand ? (
                               <ExpandToggle
@@ -822,7 +842,22 @@ export function DataTable<T>(props: DataTableProps<T>) {
                                 }}
                               />
                             ) : null}
-                            {content}
+                            {isEditing && col.editable ? (
+                              <EditingCellInput
+                                row={row}
+                                value={value}
+                                config={col.editable}
+                                onCommit={async (next) => {
+                                  const v = col.editable!.validate?.(next, row);
+                                  if (v !== undefined && v !== true) return;
+                                  await col.editable!.onCommit(row, next);
+                                  table.cancelEdit();
+                                }}
+                                onCancel={table.cancelEdit}
+                              />
+                            ) : (
+                              content
+                            )}
                           </BodyCell>
                         );
                       })}
@@ -1074,6 +1109,7 @@ interface BodyCellProps {
   stickyEnd?: number;
   zIndex?: number;
   onClick?: (e: React.MouseEvent) => void;
+  onDoubleClick?: (e: React.MouseEvent) => void;
   active?: boolean;
   children: ReactNode;
 }
@@ -1088,6 +1124,7 @@ function BodyCell({
   stickyEnd,
   zIndex,
   onClick,
+  onDoubleClick,
   active,
   children,
 }: BodyCellProps) {
@@ -1117,6 +1154,7 @@ function BodyCell({
       )}
       style={style}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
     >
       <span className="truncate" data-measure>
         {children}
@@ -1470,6 +1508,150 @@ function HeaderMenu<T>({ table, col, pinSide, offsetEnd }: HeaderMenuProps<T>) {
 
 interface ColumnVisibilityPickerProps<T> {
   table: TableInstance<T>;
+}
+
+/* ================================================================== */
+/* EditingCellInput — inline input rendered inside an editing cell     */
+/* ================================================================== */
+
+interface EditingCellInputProps<T> {
+  row: T;
+  value: unknown;
+  config: NonNullable<ColumnDef<T>["editable"]>;
+  onCommit: (next: unknown) => void;
+  onCancel: () => void;
+}
+
+function EditingCellInput<T>({
+  row,
+  value,
+  config,
+  onCommit,
+  onCancel,
+}: EditingCellInputProps<T>) {
+  const initial =
+    config.type === "number"
+      ? typeof value === "number"
+        ? value
+        : Number(value ?? 0)
+      : value == null
+        ? ""
+        : String(value);
+  const [draft, setDraft] = useState<string | number>(
+    initial as string | number,
+  );
+  const [error, setError] = useState<string | null>(null);
+  const ref = useRef<HTMLInputElement | HTMLSelectElement | null>(null);
+
+  useEffect(() => {
+    // Auto-focus + select-all so a second click doesn't land caret
+    // somewhere awkward.
+    const el = ref.current;
+    if (!el) return;
+    el.focus();
+    if (
+      "setSelectionRange" in el &&
+      typeof (el as HTMLInputElement).setSelectionRange === "function"
+    ) {
+      try {
+        (el as HTMLInputElement).select();
+      } catch {
+        // select() fails on non-text inputs (number / select) — ignore.
+      }
+    }
+  }, []);
+
+  function attempt(next: unknown) {
+    const v = config.validate?.(next, row);
+    if (v !== undefined && v !== true) {
+      setError(v);
+      return false;
+    }
+    setError(null);
+    onCommit(next);
+    return true;
+  }
+
+  function onKey(e: React.KeyboardEvent) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      attempt(draft);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      onCancel();
+    } else if (e.key === "Tab") {
+      // Commit on Tab but let focus leave naturally — the parent grid
+      // will pick up keyboard focus afterwards.
+      attempt(draft);
+    }
+    // Stop Arrow / Space / Cmd-A bleeding into the grid's key handler.
+    e.stopPropagation();
+  }
+
+  const common = {
+    ref: ref as React.Ref<HTMLInputElement & HTMLSelectElement>,
+    onKeyDown: onKey,
+    onBlur: () => attempt(draft),
+    "aria-invalid": error ? true : undefined,
+    className: cn(
+      "w-full h-7 px-2 rounded-md text-sm text-white outline-none",
+      "bg-[#14141c] border",
+      error ? "border-rose-400/70" : "border-fuchsia-400/60",
+    ),
+  } as const;
+
+  if (config.type === "select") {
+    return (
+      <span className="relative block w-full">
+        <select
+          {...common}
+          value={String(draft ?? "")}
+          onChange={(e) => setDraft(e.target.value)}
+        >
+          {(config.options ?? []).map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        {error ? (
+          <span
+            role="alert"
+            className="absolute left-0 top-full mt-1 text-[10px] text-rose-300"
+          >
+            {error}
+          </span>
+        ) : null}
+      </span>
+    );
+  }
+
+  return (
+    <span className="relative block w-full">
+      <input
+        {...common}
+        type={config.type === "number" ? "number" : "text"}
+        value={String(draft ?? "")}
+        onChange={(e) =>
+          setDraft(
+            config.type === "number"
+              ? e.target.value === ""
+                ? ""
+                : Number(e.target.value)
+              : e.target.value,
+          )
+        }
+      />
+      {error ? (
+        <span
+          role="alert"
+          className="absolute left-0 top-full mt-1 text-[10px] text-rose-300"
+        >
+          {error}
+        </span>
+      ) : null}
+    </span>
+  );
 }
 
 /* ================================================================== */

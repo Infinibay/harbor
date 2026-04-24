@@ -330,6 +330,15 @@ export function DataTablePage() {
       </Demo>
 
       <Demo
+        title="Inline cell editing"
+        hint="Double-click any cell (or press Enter) to edit. Enter commits, Escape cancels, Tab commits + exits. Try owner / region to see the select variant."
+        intensity="soft"
+        wide
+      >
+        <InlineEditDemo pool={small} />
+      </Demo>
+
+      <Demo
         title="Expandable detail rows"
         hint="Click the caret at the start of a row to reveal the detail panel below."
         intensity="soft"
@@ -361,6 +370,101 @@ export function DataTablePage() {
         />
       </Demo>
     </Group>
+  );
+}
+
+function InlineEditDemo({ pool }: { pool: Service[] }) {
+  const [rows, setRows] = useState(() => pool.slice(0, 10));
+  const [lastEdit, setLastEdit] = useState<string | null>(null);
+  const editableCols: ColumnDef<Service>[] = useMemo(
+    () => [
+      {
+        id: "name",
+        header: "Service",
+        editable: {
+          type: "text",
+          onCommit: (row, v) => {
+            setRows((rs) =>
+              rs.map((r) =>
+                r.id === row.id ? { ...r, name: String(v) } : r,
+              ),
+            );
+            setLastEdit(`${row.id}.name → ${v}`);
+          },
+          validate: (v) =>
+            typeof v === "string" && v.length >= 2
+              ? true
+              : "At least 2 characters",
+        },
+      },
+      {
+        id: "owner",
+        header: "Owner",
+        editable: {
+          type: "select",
+          options: OWNERS.map((o) => ({ value: o, label: o })),
+          onCommit: (row, v) => {
+            setRows((rs) =>
+              rs.map((r) =>
+                r.id === row.id ? { ...r, owner: String(v) } : r,
+              ),
+            );
+            setLastEdit(`${row.id}.owner → ${v}`);
+          },
+        },
+      },
+      {
+        id: "region",
+        header: "Region",
+        editable: {
+          type: "select",
+          options: REGIONS.map((r) => ({ value: r, label: r })),
+          onCommit: (row, v) => {
+            setRows((rs) =>
+              rs.map((r) =>
+                r.id === row.id ? { ...r, region: String(v) } : r,
+              ),
+            );
+            setLastEdit(`${row.id}.region → ${v}`);
+          },
+        },
+      },
+      {
+        id: "cpu",
+        header: "CPU %",
+        align: "end",
+        editable: {
+          type: "number",
+          onCommit: (row, v) => {
+            setRows((rs) =>
+              rs.map((r) =>
+                r.id === row.id ? { ...r, cpu: Number(v) } : r,
+              ),
+            );
+            setLastEdit(`${row.id}.cpu → ${v}`);
+          },
+          validate: (v) =>
+            typeof v === "number" && v >= 0 && v <= 100
+              ? true
+              : "Must be 0–100",
+        },
+      },
+    ],
+    [],
+  );
+  return (
+    <Col>
+      <DataTable
+        rows={rows}
+        columns={editableCols}
+        rowId={(r) => r.id}
+        defaultPagination={{ pageSize: 10 }}
+        hidePagination
+      />
+      <div className="text-xs font-mono text-white/50">
+        last commit: {lastEdit ?? "—"}
+      </div>
+    </Col>
   );
 }
 

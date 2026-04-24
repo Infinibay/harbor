@@ -6,6 +6,7 @@ import type {
   ColumnVisibilityState,
   ColumnWidthsState,
   Density,
+  EditingCellState,
   ExpandedState,
   FilterState,
   GroupingState,
@@ -105,6 +106,9 @@ export function useDataTable<T>(
     options.defaultExpanded ?? {},
     options.onExpandedChange,
   );
+  // Editing cell is always internal state — it's a UI-focus-y thing,
+  // not something a consumer typically needs to control externally.
+  const [editingCell, setEditingCell] = useState<EditingCellState | null>(null);
 
   /* Track last-selected row for shift+range selection. Refs don't
    *  trigger re-renders and the range toggle doesn't need reactive
@@ -401,6 +405,12 @@ export function useDataTable<T>(
     [expanded.value],
   );
 
+  const startEdit = useCallback(
+    (rowId: string, colId: string) => setEditingCell({ rowId, colId }),
+    [],
+  );
+  const cancelEdit = useCallback(() => setEditingCell(null), []);
+
   const setDensity = useCallback(
     (d: Density) => density.set(d),
     [density],
@@ -428,6 +438,7 @@ export function useDataTable<T>(
       columnPinning: columnPinning.value,
       grouping: grouping.value,
       expanded: expanded.value,
+      editingCell,
       density: density.value,
     },
 
@@ -455,6 +466,8 @@ export function useDataTable<T>(
     expandAll,
     collapseAll,
     isExpanded,
+    startEdit,
+    cancelEdit,
     setDensity,
 
     rowId,

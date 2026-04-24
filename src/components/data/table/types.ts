@@ -85,6 +85,25 @@ export interface ColumnDef<T> {
     | "first"
     | "last"
     | ((rows: readonly T[]) => ReactNode);
+  /** Make this column's cells editable. Double-click enters edit mode;
+   *  Enter / blur commits; Escape cancels; Tab commits + moves to the
+   *  next editable cell. The consumer's `onCommit` handler is
+   *  responsible for persisting the new value. */
+  editable?: ColumnEditConfig<T>;
+}
+
+export interface ColumnEditConfig<T> {
+  /** Input widget to render in edit mode. */
+  type: "text" | "number" | "select";
+  /** For `type="select"`, the option list. Ignored otherwise. */
+  options?: Array<{ value: string; label: string }>;
+  /** Fired when the user commits a change (Enter or blur). The consumer
+   *  is responsible for merging the new value back into the data. */
+  onCommit: (row: T, nextValue: unknown) => void | Promise<void>;
+  /** Optional sync validator. Return `true` to accept, a string to
+   *  reject with that error message. Invalid values keep the cell in
+   *  edit mode with the error flashing below the input. */
+  validate?: (value: unknown, row: T) => true | string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -135,6 +154,11 @@ export interface ColumnPinningState {
 }
 
 export type Density = "compact" | "comfortable" | "spacious";
+
+export interface EditingCellState {
+  rowId: string;
+  colId: string;
+}
 
 /* ------------------------------------------------------------------ */
 /* Render items                                                         */
@@ -205,6 +229,7 @@ export interface TableInstance<T> {
     columnPinning: ColumnPinningState;
     grouping: GroupingState;
     expanded: ExpandedState;
+    editingCell: EditingCellState | null;
     density: Density;
   };
 
@@ -233,6 +258,8 @@ export interface TableInstance<T> {
   expandAll: () => void;
   collapseAll: () => void;
   isExpanded: (key: string) => boolean;
+  startEdit: (rowId: string, colId: string) => void;
+  cancelEdit: () => void;
   setDensity: (d: Density) => void;
 
   /* Identity */

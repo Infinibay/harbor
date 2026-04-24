@@ -700,6 +700,126 @@ describe("DataTable — renderExpanded detail rows", () => {
   });
 });
 
+describe("DataTable — inline cell editing", () => {
+  interface ERow {
+    id: string;
+    name: string;
+    count: number;
+  }
+  const eRows: ERow[] = [
+    { id: "r1", name: "alpha", count: 10 },
+    { id: "r2", name: "bravo", count: 20 },
+  ];
+
+  it("double-clicking an editable cell enters edit mode", async () => {
+    const onCommit = vi.fn();
+    const cols: ColumnDef<ERow>[] = [
+      {
+        id: "name",
+        header: "Name",
+        editable: { type: "text", onCommit },
+      },
+      { id: "count", header: "Count" },
+    ];
+    const { user } = renderWithHarbor(
+      <DataTable rows={eRows} columns={cols} rowId={(r) => r.id} />,
+    );
+    await user.dblClick(screen.getByText("alpha"));
+    const input = screen.getByDisplayValue("alpha") as HTMLInputElement;
+    expect(input).toBeInTheDocument();
+    expect(document.activeElement).toBe(input);
+  });
+
+  it("Enter commits the new value", async () => {
+    const onCommit = vi.fn();
+    const cols: ColumnDef<ERow>[] = [
+      {
+        id: "name",
+        header: "Name",
+        editable: { type: "text", onCommit },
+      },
+    ];
+    const { user } = renderWithHarbor(
+      <DataTable rows={eRows} columns={cols} rowId={(r) => r.id} />,
+    );
+    await user.dblClick(screen.getByText("alpha"));
+    const input = screen.getByDisplayValue("alpha");
+    await user.clear(input);
+    await user.type(input, "zeta");
+    await user.keyboard("{Enter}");
+    expect(onCommit).toHaveBeenCalledWith(eRows[0], "zeta");
+    // Cell exited edit mode.
+    expect(screen.queryByDisplayValue("zeta")).not.toBeInTheDocument();
+  });
+
+  it("Escape cancels without calling onCommit", async () => {
+    const onCommit = vi.fn();
+    const cols: ColumnDef<ERow>[] = [
+      {
+        id: "name",
+        header: "Name",
+        editable: { type: "text", onCommit },
+      },
+    ];
+    const { user } = renderWithHarbor(
+      <DataTable rows={eRows} columns={cols} rowId={(r) => r.id} />,
+    );
+    await user.dblClick(screen.getByText("alpha"));
+    const input = screen.getByDisplayValue("alpha");
+    await user.clear(input);
+    await user.type(input, "nope");
+    await user.keyboard("{Escape}");
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it("validate() blocks commit and shows the error", async () => {
+    const onCommit = vi.fn();
+    const cols: ColumnDef<ERow>[] = [
+      {
+        id: "name",
+        header: "Name",
+        editable: {
+          type: "text",
+          onCommit,
+          validate: (v) =>
+            typeof v === "string" && v.length >= 3 ? true : "Too short",
+        },
+      },
+    ];
+    const { user } = renderWithHarbor(
+      <DataTable rows={eRows} columns={cols} rowId={(r) => r.id} />,
+    );
+    await user.dblClick(screen.getByText("alpha"));
+    const input = screen.getByDisplayValue("alpha");
+    await user.clear(input);
+    await user.type(input, "ab");
+    await user.keyboard("{Enter}");
+    expect(onCommit).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent("Too short");
+    // Still in edit mode.
+    expect(screen.getByDisplayValue("ab")).toBeInTheDocument();
+  });
+
+  it("Enter from keyboard nav enters edit mode on an editable cell", async () => {
+    const onCommit = vi.fn();
+    const cols: ColumnDef<ERow>[] = [
+      {
+        id: "name",
+        header: "Name",
+        editable: { type: "text", onCommit },
+      },
+    ];
+    const { user } = renderWithHarbor(
+      <DataTable rows={eRows} columns={cols} rowId={(r) => r.id} />,
+    );
+    const grid = screen.getByRole("grid");
+    grid.focus();
+    await user.keyboard("{ArrowDown}"); // activeCell → (0,0)
+    await user.keyboard("{Enter}");
+    expect(screen.getByDisplayValue("alpha")).toBeInTheDocument();
+  });
+});
+
 describe("DataTable — a11y", () => {
   it("has no violations in a basic rendered state", async () => {
     const { container } = renderWithHarbor(
