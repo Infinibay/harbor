@@ -1,6 +1,7 @@
 export * from "./ActionRow";
 export * from "./Calendar";
 export * from "./Checkbox";
+export * from "./CodeEditor";
 export * from "./ColorPicker";
 export * from "./ColorSwatch";
 export * from "./Combobox";

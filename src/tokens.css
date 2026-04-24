@@ -56,6 +56,25 @@
   /* Borders (always use with alpha) */
   --harbor-border: 255 255 255;
 
+  /* Syntax colors — consumed by CodeEditor / CodeBlock highlighting.
+     RGB triplets; callers can override any of these on a subtree for
+     a themed editor. Chosen to read well on both dark and light
+     surfaces (see [data-theme="light"] below for the light overrides). */
+  --harbor-syntax-keyword: 232 121 249;     /* fuchsia-400 */
+  --harbor-syntax-string: 110 231 183;      /* emerald-300 */
+  --harbor-syntax-comment: 148 163 184;     /* slate-400 */
+  --harbor-syntax-number: 252 211 77;       /* amber-300 */
+  --harbor-syntax-function: 125 211 252;    /* sky-300 */
+  --harbor-syntax-type: 56 189 248;         /* sky-400 */
+  --harbor-syntax-variable: 226 232 240;    /* slate-200 */
+  --harbor-syntax-operator: 203 213 225;    /* slate-300 */
+  --harbor-syntax-property: 147 197 253;    /* blue-300 */
+  --harbor-syntax-attribute: 251 191 36;    /* amber-400 */
+  --harbor-syntax-tag: 251 113 133;         /* rose-400 */
+  --harbor-syntax-regex: 251 146 60;        /* orange-400 */
+  --harbor-syntax-meta: 103 232 249;        /* cyan-300 */
+  --harbor-syntax-error: 244 63 94;         /* rose-500 */
+
   /* === Typography ========================================== */
 
   --harbor-font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -197,6 +216,23 @@
   /* Brand foreground stays white — accent/fuchsia surfaces still read
      best with white text on either theme. */
   --harbor-brand-fg: 255 255 255;
+
+  /* Syntax colors — darker variants so they carry weight on white
+     surfaces. Same semantic roles as the dark defaults. */
+  --harbor-syntax-keyword: 168 85 247;      /* purple-500 */
+  --harbor-syntax-string: 5 150 105;        /* emerald-600 */
+  --harbor-syntax-comment: 100 116 139;     /* slate-500 */
+  --harbor-syntax-number: 180 83 9;         /* amber-700 */
+  --harbor-syntax-function: 2 132 199;      /* sky-600 */
+  --harbor-syntax-type: 3 105 161;          /* sky-700 */
+  --harbor-syntax-variable: 30 41 59;       /* slate-800 */
+  --harbor-syntax-operator: 71 85 105;      /* slate-600 */
+  --harbor-syntax-property: 29 78 216;      /* blue-700 */
+  --harbor-syntax-attribute: 180 83 9;      /* amber-700 */
+  --harbor-syntax-tag: 190 18 60;           /* rose-700 */
+  --harbor-syntax-regex: 194 65 12;         /* orange-700 */
+  --harbor-syntax-meta: 14 116 144;         /* cyan-700 */
+  --harbor-syntax-error: 225 29 72;         /* rose-600 */
 
   color-scheme: light;
 }
