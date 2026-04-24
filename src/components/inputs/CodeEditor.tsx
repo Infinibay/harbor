@@ -299,6 +299,157 @@ export function CodeEditor({
     [autoClose, editor, readOnly, readSelection, textareaRef],
   );
 
+  const handleToggleLineComment = useCallback((): boolean => {
+    if (readOnly) return false;
+    const marker = editor.language.lineComment;
+    if (!marker) return false;
+    const { start, end } = readSelection();
+    const { lineStart, lineEnd } = extractLineRange(start, end);
+    const block = editor.value.slice(lineStart, lineEnd);
+    const blockLines = block.split("\n");
+    // Toggle logic: if every non-empty line starts with the marker, strip
+    // it; otherwise prepend it at the minimum indentation level.
+    const nonEmpty = blockLines.filter((ln) => ln.trim().length > 0);
+    const allCommented =
+      nonEmpty.length > 0 &&
+      nonEmpty.every((ln) => ln.trimStart().startsWith(marker));
+    let out: string;
+    if (allCommented) {
+      out = blockLines
+        .map((ln) => {
+          const idx = ln.indexOf(marker);
+          if (idx === -1) return ln;
+          const after = ln.slice(idx + marker.length);
+          // Strip a single space that we might have inserted.
+          return ln.slice(0, idx) + (after.startsWith(" ") ? after.slice(1) : after);
+        })
+        .join("\n");
+    } else {
+      const minIndent = nonEmpty.reduce((acc, ln) => {
+        const m = ln.match(/^[\t ]*/);
+        return Math.min(acc, m ? m[0].length : 0);
+      }, Infinity);
+      const pad = Number.isFinite(minIndent) ? minIndent : 0;
+      out = blockLines
+        .map((ln) =>
+          ln.trim().length === 0
+            ? ln
+            : ln.slice(0, pad) + marker + " " + ln.slice(pad),
+        )
+        .join("\n");
+    }
+    const delta = out.length - block.length;
+    replaceRange(lineStart, lineEnd, out, {
+      start,
+      end: end + delta,
+    });
+    return true;
+  }, [
+    editor.language,
+    editor.value,
+    extractLineRange,
+    readOnly,
+    readSelection,
+    replaceRange,
+  ]);
+
+  const handleMoveLines = useCallback(
+    (direction: "up" | "down"): boolean => {
+      if (readOnly) return false;
+      const { start, end } = readSelection();
+      const { lineStart, lineEnd } = extractLineRange(start, end);
+      const v = editor.value;
+      if (direction === "up") {
+        if (lineStart === 0) return true;
+        const prevStart = v.lastIndexOf("\n", lineStart - 2) + 1;
+        const prevLine = v.slice(prevStart, lineStart); // includes trailing \n
+        const block = v.slice(lineStart, lineEnd);
+        const suffix = lineEnd < v.length && v.charAt(lineEnd) === "\n" ? "\n" : "";
+        const next =
+          v.slice(0, prevStart) +
+          block +
+          (suffix || "\n") +
+          prevLine.replace(/\n$/, "") +
+          v.slice(lineEnd + suffix.length);
+        const shift = -(prevLine.length);
+        pendingSelectionRef.current = {
+          start: start + shift,
+          end: end + shift,
+        };
+        editor.setValue(next);
+        return true;
+      }
+      // down
+      if (lineEnd >= v.length) return true;
+      const nextEnd = v.indexOf("\n", lineEnd + 1);
+      const nextLineEnd = nextEnd === -1 ? v.length : nextEnd;
+      const nextLine = v.slice(lineEnd + 1, nextLineEnd);
+      const block = v.slice(lineStart, lineEnd);
+      const out =
+        v.slice(0, lineStart) +
+        nextLine +
+        "\n" +
+        block +
+        v.slice(nextLineEnd);
+      const shift = nextLine.length + 1;
+      pendingSelectionRef.current = {
+        start: start + shift,
+        end: end + shift,
+      };
+      editor.setValue(out);
+      return true;
+    },
+    [editor, extractLineRange, readOnly, readSelection],
+  );
+
+  const handleDuplicateLines = useCallback(
+    (direction: "up" | "down"): boolean => {
+      if (readOnly) return false;
+      const { start, end } = readSelection();
+      const { lineStart, lineEnd } = extractLineRange(start, end);
+      const block = editor.value.slice(lineStart, lineEnd);
+      const insert = block + "\n";
+      const at = direction === "down" ? lineEnd + 1 : lineStart;
+      // When duplicating down, block already has no trailing newline;
+      // we insert after lineEnd+1 but need to avoid missing newline at
+      // file end.
+      const target = direction === "down" ? lineEnd : lineStart;
+      const v = editor.value;
+      const sep = direction === "down" ? "\n" : "";
+      const out =
+        v.slice(0, target) +
+        sep +
+        block +
+        (direction === "up" ? "\n" : "") +
+        v.slice(target);
+      const shift =
+        direction === "down" ? insert.length : 0;
+      pendingSelectionRef.current = {
+        start: start + shift + (direction === "up" ? 0 : 0),
+        end: end + shift + (direction === "up" ? 0 : 0),
+      };
+      void at;
+      editor.setValue(out);
+      return true;
+    },
+    [editor, extractLineRange, readOnly, readSelection],
+  );
+
+  const handleDeleteLine = useCallback((): boolean => {
+    if (readOnly) return false;
+    const { start, end } = readSelection();
+    const { lineStart, lineEnd } = extractLineRange(start, end);
+    const v = editor.value;
+    const hasTrailing = lineEnd < v.length && v.charAt(lineEnd) === "\n";
+    const cut = hasTrailing ? lineEnd + 1 : lineEnd;
+    const nextStart =
+      lineStart >= v.length - (cut - lineStart)
+        ? Math.max(0, v.lastIndexOf("\n", lineStart - 1) + 1)
+        : lineStart;
+    replaceRange(lineStart, cut, "", { start: nextStart, end: nextStart });
+    return true;
+  }, [editor.value, extractLineRange, readOnly, readSelection, replaceRange]);
+
   const handleSelectLine = useCallback((): boolean => {
     const ta = textareaRef.current;
     if (!ta) return false;
@@ -318,6 +469,114 @@ export function CodeEditor({
   }, [editor.value, readSelection, textareaRef]);
 
   const selectNextAnchorRef = useRef<{ word: string } | null>(null);
+
+  interface FindState {
+    open: boolean;
+    withReplace: boolean;
+    query: string;
+    replace: string;
+    caseSensitive: boolean;
+    wholeWord: boolean;
+    regex: boolean;
+  }
+  const [find, setFind] = useState<FindState>({
+    open: false,
+    withReplace: false,
+    query: "",
+    replace: "",
+    caseSensitive: false,
+    wholeWord: false,
+    regex: false,
+  });
+
+  const findMatches = useMemo((): Array<{ from: number; to: number }> => {
+    if (!find.open || !find.query) return [];
+    const v = editor.value;
+    const out: Array<{ from: number; to: number }> = [];
+    let pattern: RegExp;
+    try {
+      const flags = find.caseSensitive ? "g" : "gi";
+      const src = find.regex
+        ? find.query
+        : escapeRegex(find.query);
+      const wrapped = find.wholeWord ? `\\b(?:${src})\\b` : src;
+      pattern = new RegExp(wrapped, flags);
+    } catch {
+      return [];
+    }
+    let m: RegExpExecArray | null;
+    while ((m = pattern.exec(v)) !== null) {
+      if (m.index === pattern.lastIndex) pattern.lastIndex++;
+      out.push({ from: m.index, to: m.index + m[0].length });
+      if (out.length >= 10_000) break;
+    }
+    return out;
+  }, [find.open, find.query, find.caseSensitive, find.wholeWord, find.regex, editor.value]);
+
+  const [findIndex, setFindIndex] = useState(0);
+
+  const openFind = useCallback((withReplace = false) => {
+    setFind((s) => ({ ...s, open: true, withReplace }));
+  }, []);
+  const closeFind = useCallback(() => {
+    setFind((s) => ({ ...s, open: false }));
+    textareaRef.current?.focus();
+  }, [textareaRef]);
+
+  const findNext = useCallback(
+    (delta: 1 | -1) => {
+      if (findMatches.length === 0) return;
+      const idx = (findIndex + delta + findMatches.length) % findMatches.length;
+      setFindIndex(idx);
+      const m = findMatches[idx];
+      const ta = textareaRef.current;
+      if (ta) {
+        ta.setSelectionRange(m.from, m.to);
+        // Scroll the match into view
+        const { line } = editor.lineAt(m.from);
+        const y = line * LINE_HEIGHT;
+        if (scrollRef.current) {
+          if (y < scrollRef.current.scrollTop) {
+            scrollRef.current.scrollTop = y - LINE_HEIGHT * 2;
+          } else if (
+            y >
+            scrollRef.current.scrollTop + scrollRef.current.clientHeight - LINE_HEIGHT
+          ) {
+            scrollRef.current.scrollTop =
+              y - scrollRef.current.clientHeight + LINE_HEIGHT * 3;
+          }
+        }
+      }
+    },
+    [editor, findIndex, findMatches, textareaRef],
+  );
+
+  const replaceCurrent = useCallback(() => {
+    if (readOnly || findMatches.length === 0) return;
+    const m = findMatches[Math.min(findIndex, findMatches.length - 1)];
+    if (!m) return;
+    const next =
+      editor.value.slice(0, m.from) +
+      find.replace +
+      editor.value.slice(m.to);
+    pendingSelectionRef.current = {
+      start: m.from + find.replace.length,
+      end: m.from + find.replace.length,
+    };
+    editor.setValue(next);
+  }, [editor, find.replace, findIndex, findMatches, readOnly]);
+
+  const replaceAll = useCallback(() => {
+    if (readOnly || findMatches.length === 0) return;
+    let out = "";
+    let cursor = 0;
+    for (const m of findMatches) {
+      out += editor.value.slice(cursor, m.from) + find.replace;
+      cursor = m.to;
+    }
+    out += editor.value.slice(cursor);
+    editor.setValue(out);
+  }, [editor, find.replace, findMatches, readOnly]);
 
   const handleSelectNextMatch = useCallback((): boolean => {
     const ta = textareaRef.current;
@@ -377,6 +636,41 @@ export function CodeEditor({
         if (handleSelectLine()) e.preventDefault();
         return;
       }
+      if (mod && e.key === "/") {
+        if (handleToggleLineComment()) e.preventDefault();
+        return;
+      }
+      if (mod && e.key === "]") {
+        if (handleTab(false)) e.preventDefault();
+        return;
+      }
+      if (mod && e.key === "[") {
+        if (handleTab(true)) e.preventDefault();
+        return;
+      }
+      if (mod && e.shiftKey && (e.key === "k" || e.key === "K")) {
+        if (handleDeleteLine()) e.preventDefault();
+        return;
+      }
+      if (e.altKey && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+        const dir = e.key === "ArrowUp" ? "up" : "down";
+        if (e.shiftKey) {
+          if (handleDuplicateLines(dir)) e.preventDefault();
+        } else {
+          if (handleMoveLines(dir)) e.preventDefault();
+        }
+        return;
+      }
+      if (mod && (e.key === "f" || e.key === "F")) {
+        openFind(false);
+        e.preventDefault();
+        return;
+      }
+      if (mod && (e.key === "h" || e.key === "H")) {
+        openFind(true);
+        e.preventDefault();
+        return;
+      }
       if (autoClose && !readOnly) {
         if (e.key === "(" || e.key === "[" || e.key === "{" || e.key === '"' || e.key === "'" || e.key === "`") {
           if (handleAutoClose(e.key)) e.preventDefault();
@@ -391,12 +685,17 @@ export function CodeEditor({
     [
       autoClose,
       handleAutoClose,
+      handleDeleteLine,
+      handleDuplicateLines,
       handleEnter,
+      handleMoveLines,
       handleSelectLine,
       handleSelectNextMatch,
       handleSkipOver,
       handleTab,
+      handleToggleLineComment,
       onKeyDownProp,
+      openFind,
       readOnly,
     ],
   );
@@ -582,6 +881,30 @@ export function CodeEditor({
             />
           </>
         )}
+        {find.open &&
+          findMatches.map((m, i) => {
+            const { line: ln, col: c0 } = editor.lineAt(m.from);
+            const { col: c1 } = editor.lineAt(m.to);
+            const isCurrent = i === findIndex % Math.max(1, findMatches.length);
+            return (
+              <span
+                key={`${m.from}-${m.to}`}
+                aria-hidden
+                className={cn(
+                  "absolute pointer-events-none rounded-[2px]",
+                  isCurrent
+                    ? "bg-[rgb(var(--harbor-accent)/0.45)] ring-1 ring-[rgb(var(--harbor-accent))]"
+                    : "bg-[rgb(var(--harbor-accent)/0.18)]",
+                )}
+                style={{
+                  top: PADDING_Y + ln * LINE_HEIGHT,
+                  left: PADDING_X + c0 * charWidth,
+                  width: Math.max(1, (c1 - c0) * charWidth),
+                  height: LINE_HEIGHT,
+                }}
+              />
+            );
+          })}
         <textarea
           {...rest}
           ref={textareaRef}
@@ -615,7 +938,203 @@ export function CodeEditor({
           }}
         />
       </div>
+      {find.open && (
+        <FindPanel
+          state={find}
+          setState={setFind}
+          matchCount={findMatches.length}
+          currentIndex={findIndex}
+          onNext={() => findNext(1)}
+          onPrev={() => findNext(-1)}
+          onReplace={replaceCurrent}
+          onReplaceAll={replaceAll}
+          onClose={closeFind}
+          readOnly={readOnly}
+        />
+      )}
     </div>
+  );
+}
+
+interface FindPanelProps {
+  state: {
+    open: boolean;
+    withReplace: boolean;
+    query: string;
+    replace: string;
+    caseSensitive: boolean;
+    wholeWord: boolean;
+    regex: boolean;
+  };
+  setState: React.Dispatch<React.SetStateAction<FindPanelProps["state"]>>;
+  matchCount: number;
+  currentIndex: number;
+  onNext: () => void;
+  onPrev: () => void;
+  onReplace: () => void;
+  onReplaceAll: () => void;
+  onClose: () => void;
+  readOnly: boolean;
+}
+
+function FindPanel({
+  state,
+  setState,
+  matchCount,
+  currentIndex,
+  onNext,
+  onPrev,
+  onReplace,
+  onReplaceAll,
+  onClose,
+  readOnly,
+}: FindPanelProps) {
+  const queryRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    queryRef.current?.focus();
+    queryRef.current?.select();
+  }, [state.withReplace]);
+  const currentHuman = matchCount === 0 ? 0 : (currentIndex % matchCount) + 1;
+  return (
+    <div
+      role="region"
+      aria-label="Find and replace"
+      className="absolute top-2 right-2 z-10 rounded-md border border-white/10 bg-[rgb(var(--harbor-bg-elev-2))] shadow-md p-2 flex flex-col gap-1 text-xs"
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          onClose();
+        }
+      }}
+    >
+      <div className="flex items-center gap-1">
+        <input
+          ref={queryRef}
+          aria-label="Search"
+          className="w-48 bg-black/20 border border-white/10 rounded px-2 py-1 outline-none focus:border-[rgb(var(--harbor-accent))]"
+          placeholder="Find…"
+          value={state.query}
+          onChange={(e) => setState((s) => ({ ...s, query: e.target.value }))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (e.shiftKey) onPrev();
+              else onNext();
+            }
+          }}
+        />
+        <button
+          type="button"
+          aria-label="Previous match"
+          className="px-1.5 py-1 rounded hover:bg-white/5"
+          onClick={onPrev}
+        >
+          ↑
+        </button>
+        <button
+          type="button"
+          aria-label="Next match"
+          className="px-1.5 py-1 rounded hover:bg-white/5"
+          onClick={onNext}
+        >
+          ↓
+        </button>
+        <span className="text-[10px] text-[rgb(var(--harbor-text-muted))] tabular-nums min-w-[56px] text-right">
+          {matchCount === 0 ? "No results" : `${currentHuman}/${matchCount}`}
+        </span>
+        <button
+          type="button"
+          aria-label="Close"
+          className="px-1.5 py-1 rounded hover:bg-white/5"
+          onClick={onClose}
+        >
+          ×
+        </button>
+      </div>
+      <div className="flex items-center gap-1">
+        <FindToggle
+          label="Aa"
+          title="Case sensitive"
+          active={state.caseSensitive}
+          onClick={() => setState((s) => ({ ...s, caseSensitive: !s.caseSensitive }))}
+        />
+        <FindToggle
+          label="W"
+          title="Whole word"
+          active={state.wholeWord}
+          onClick={() => setState((s) => ({ ...s, wholeWord: !s.wholeWord }))}
+        />
+        <FindToggle
+          label=".*"
+          title="Regex"
+          active={state.regex}
+          onClick={() => setState((s) => ({ ...s, regex: !s.regex }))}
+        />
+        {!state.withReplace && !readOnly && (
+          <button
+            type="button"
+            className="ml-auto text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))]"
+            onClick={() => setState((s) => ({ ...s, withReplace: true }))}
+          >
+            Replace…
+          </button>
+        )}
+      </div>
+      {state.withReplace && !readOnly && (
+        <div className="flex items-center gap-1">
+          <input
+            aria-label="Replace with"
+            className="w-48 bg-black/20 border border-white/10 rounded px-2 py-1 outline-none focus:border-[rgb(var(--harbor-accent))]"
+            placeholder="Replace with…"
+            value={state.replace}
+            onChange={(e) => setState((s) => ({ ...s, replace: e.target.value }))}
+          />
+          <button
+            type="button"
+            className="px-2 py-1 rounded border border-white/10 hover:bg-white/5"
+            onClick={onReplace}
+          >
+            Replace
+          </button>
+          <button
+            type="button"
+            className="px-2 py-1 rounded border border-white/10 hover:bg-white/5"
+            onClick={onReplaceAll}
+          >
+            All
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FindToggle({
+  label,
+  title,
+  active,
+  onClick,
+}: {
+  label: string;
+  title: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      aria-pressed={active}
+      onClick={onClick}
+      className={cn(
+        "px-1.5 py-0.5 rounded border border-white/10 font-mono text-[11px]",
+        active
+          ? "bg-[rgb(var(--harbor-accent)/0.2)] border-[rgb(var(--harbor-accent))] text-[rgb(var(--harbor-text))]"
+          : "text-[rgb(var(--harbor-text-muted))] hover:bg-white/5",
+      )}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -721,6 +1240,10 @@ function HighlightLine({ line, tokens }: HighlightLineProps) {
       {"\n"}
     </div>
   );
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function tokenClass(type: Token["type"]): string {

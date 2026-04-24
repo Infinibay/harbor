@@ -293,6 +293,124 @@ describe("CodeEditor — selection commands", () => {
   });
 });
 
+describe("CodeEditor — line commands", () => {
+  function mount(initial: string) {
+    let current = initial;
+    function Host() {
+      const [v, setV] = useState(initial);
+      current = v;
+      return (
+        <CodeEditor
+          ariaLabel="source"
+          value={v}
+          onChange={setV}
+          language={jsLang()}
+        />
+      );
+    }
+    const res = renderWithHarbor(<Host />);
+    const ta = res.getByLabelText("source") as HTMLTextAreaElement;
+    return { ...res, ta, get current() { return current; } };
+  }
+
+  it("Ctrl+/ toggles a line comment on the current line", async () => {
+    const ctx = mount("hello");
+    await ctx.user.click(ctx.ta);
+    ctx.ta.setSelectionRange(0, 0);
+    await ctx.user.keyboard("{Control>}/{/Control}");
+    expect(ctx.current).toBe("// hello");
+    await ctx.user.keyboard("{Control>}/{/Control}");
+    expect(ctx.current).toBe("hello");
+  });
+
+  it("Alt+ArrowUp moves the current line up", async () => {
+    const ctx = mount("line one\nline two");
+    await ctx.user.click(ctx.ta);
+    ctx.ta.setSelectionRange(9, 9); // inside line two
+    await ctx.user.keyboard("{Alt>}{ArrowUp}{/Alt}");
+    expect(ctx.current).toBe("line two\nline one");
+  });
+
+  it("Alt+ArrowDown moves the current line down", async () => {
+    const ctx = mount("line one\nline two");
+    await ctx.user.click(ctx.ta);
+    ctx.ta.setSelectionRange(0, 0);
+    await ctx.user.keyboard("{Alt>}{ArrowDown}{/Alt}");
+    expect(ctx.current).toBe("line two\nline one");
+  });
+
+  it("Ctrl+Shift+K deletes the current line", async () => {
+    const ctx = mount("line one\nline two\nline three");
+    await ctx.user.click(ctx.ta);
+    ctx.ta.setSelectionRange(9, 9);
+    await ctx.user.keyboard("{Control>}{Shift>}k{/Shift}{/Control}");
+    expect(ctx.current).toBe("line one\nline three");
+  });
+});
+
+describe("CodeEditor — find & replace", () => {
+  it("Ctrl+F opens a find panel", async () => {
+    const { user } = renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue="apple banana apple cherry"
+        language={jsLang()}
+      />,
+    );
+    const ta = screen.getByLabelText("source") as HTMLTextAreaElement;
+    await user.click(ta);
+    await user.keyboard("{Control>}f{/Control}");
+    expect(screen.getByRole("region", { name: /find and replace/i })).toBeTruthy();
+  });
+
+  it("Find + Enter jumps through matches", async () => {
+    const { user } = renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue="apple banana apple cherry"
+        language={jsLang()}
+      />,
+    );
+    const ta = screen.getByLabelText("source") as HTMLTextAreaElement;
+    await user.click(ta);
+    await user.keyboard("{Control>}f{/Control}");
+    const search = screen.getByLabelText("Search") as HTMLInputElement;
+    await user.type(search, "apple");
+    // Count: 2 matches (positions 0 and 13).
+    expect(screen.getByText("1/2")).toBeTruthy();
+    await user.keyboard("{Enter}"); // next → 2/2
+    expect(screen.getByText("2/2")).toBeTruthy();
+  });
+
+  it("Ctrl+H replaces the current match", async () => {
+    let current = "apple banana apple";
+    function Host() {
+      const [v, setV] = useState(current);
+      current = v;
+      return (
+        <CodeEditor
+          ariaLabel="source"
+          value={v}
+          onChange={setV}
+          language={jsLang()}
+        />
+      );
+    }
+    const { user } = renderWithHarbor(<Host />);
+    const ta = screen.getByLabelText("source") as HTMLTextAreaElement;
+    await user.click(ta);
+    await user.keyboard("{Control>}h{/Control}");
+    const search = screen.getByLabelText("Search") as HTMLInputElement;
+    await user.type(search, "apple");
+    const replace = screen.getByLabelText("Replace with") as HTMLInputElement;
+    await user.type(replace, "orange");
+    await user.click(screen.getByRole("button", { name: /^Replace$/ }));
+    expect(current).toBe("orange banana apple");
+    await user.click(screen.getByRole("button", { name: /^All$/ }));
+    expect(current).toBe("orange banana orange");
+  });
+});
+
 describe("CodeEditor — virtualization", () => {
   it("renders far fewer DOM nodes than source lines for a 10k-line file", () => {
     const lines = Array.from({ length: 10_000 }, (_, i) => `const v${i} = ${i};`);
