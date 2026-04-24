@@ -167,6 +167,89 @@ describe("DataTable — loading / onRowClick", () => {
   });
 });
 
+describe("DataTable — virtualization", () => {
+  const manyRows: Row[] = Array.from({ length: 1000 }, (_, i) => ({
+    id: `r${i}`,
+    name: `row-${i}`,
+    score: i,
+  }));
+
+  it("only renders the windowed slice when maxHeight is set", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={manyRows}
+        columns={columns}
+        rowId={(r) => r.id}
+        defaultPagination={{ pageSize: 1000 }}
+        maxHeight={400}
+        rowHeight={40}
+        overscan={4}
+      />,
+    );
+    // Viewport ≈ 400/40 = 10 visible + 2*4 overscan = ~18 rendered.
+    // Well under 1000.
+    const rowEls = screen.getAllByRole("row");
+    expect(rowEls.length).toBeLessThan(40);
+    expect(rowEls.length).toBeGreaterThan(10);
+  });
+
+  it("renders every row when maxHeight is not set", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={manyRows.slice(0, 50)}
+        columns={columns}
+        rowId={(r) => r.id}
+        defaultPagination={{ pageSize: 100 }}
+      />,
+    );
+    // Header + 50 body rows = 51.
+    expect(screen.getAllByRole("row")).toHaveLength(51);
+  });
+});
+
+describe("DataTable — resize handle", () => {
+  it("renders a resize handle in each resizable header cell", () => {
+    const { container } = renderWithHarbor(
+      <DataTable rows={rows} columns={columns} rowId={(r) => r.id} />,
+    );
+    const handles = container.querySelectorAll(".cursor-col-resize");
+    expect(handles.length).toBe(columns.length);
+  });
+
+  it("skips the handle for columns with resizable=false", () => {
+    const { container } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={[
+          { id: "name", header: "Name", resizable: false },
+          ...columns.slice(1),
+        ]}
+        rowId={(r) => r.id}
+      />,
+    );
+    const handles = container.querySelectorAll(".cursor-col-resize");
+    expect(handles.length).toBe(columns.length - 1);
+  });
+});
+
+describe("DataTable — pinning", () => {
+  it("pinned columns render with position: sticky", () => {
+    const { container } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={[
+          { id: "name", header: "Name", pinned: "start", width: 150 },
+          { id: "score", header: "Score", align: "end", pinned: "end", width: 100 },
+        ]}
+        rowId={(r) => r.id}
+      />,
+    );
+    const headers = container.querySelectorAll('[role="columnheader"]');
+    expect(headers[0].getAttribute("style")).toMatch(/sticky/);
+    expect(headers[1].getAttribute("style")).toMatch(/sticky/);
+  });
+});
+
 describe("DataTable — a11y", () => {
   it("has no violations in a basic rendered state", async () => {
     const { container } = renderWithHarbor(

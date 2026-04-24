@@ -2,7 +2,9 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type {
   ColumnDef,
   ColumnOrderState,
+  ColumnPinningState,
   ColumnVisibilityState,
+  ColumnWidthsState,
   Density,
   FilterState,
   PaginationState,
@@ -79,6 +81,16 @@ export function useDataTable<T>(
     options.density,
     options.defaultDensity ?? "comfortable",
     options.onDensityChange,
+  );
+  const columnWidths = useControllable<ColumnWidthsState>(
+    options.columnWidths,
+    options.defaultColumnWidths ?? buildInitialColumnWidths(columns),
+    options.onColumnWidthsChange,
+  );
+  const columnPinning = useControllable<ColumnPinningState>(
+    options.columnPinning,
+    options.defaultColumnPinning ?? buildInitialColumnPinning(columns),
+    options.onColumnPinningChange,
   );
 
   /* Track last-selected row for shift+range selection. Refs don't
@@ -302,6 +314,37 @@ export function useDataTable<T>(
     [columnOrder],
   );
 
+  const resizeColumn = useCallback(
+    (id: string, width: number) => {
+      const col = columnsById.get(id);
+      const min = col?.minWidth ?? 64;
+      const max = col?.maxWidth ?? Infinity;
+      const clamped = Math.max(min, Math.min(max, Math.round(width)));
+      columnWidths.set({ ...columnWidths.value, [id]: clamped });
+    },
+    [columnWidths, columnsById],
+  );
+
+  const resetColumnWidth = useCallback(
+    (id: string) => {
+      const next = { ...columnWidths.value };
+      delete next[id];
+      columnWidths.set(next);
+    },
+    [columnWidths],
+  );
+
+  const pinColumn = useCallback(
+    (id: string, side: "start" | "end" | null) => {
+      const start = columnPinning.value.start.filter((x) => x !== id);
+      const end = columnPinning.value.end.filter((x) => x !== id);
+      if (side === "start") start.push(id);
+      else if (side === "end") end.push(id);
+      columnPinning.set({ start, end });
+    },
+    [columnPinning],
+  );
+
   const setDensity = useCallback(
     (d: Density) => density.set(d),
     [density],
@@ -325,6 +368,8 @@ export function useDataTable<T>(
       selection: selection.value,
       columnVisibility: columnVisibility.value,
       columnOrder: columnOrder.value,
+      columnWidths: columnWidths.value,
+      columnPinning: columnPinning.value,
       density: density.value,
     },
 
@@ -343,6 +388,9 @@ export function useDataTable<T>(
     isRowSelected,
     toggleColumnVisibility,
     setColumnOrder,
+    resizeColumn,
+    resetColumnWidth,
+    pinColumn,
     setDensity,
 
     rowId,
@@ -387,6 +435,28 @@ function buildInitialVisibility<T>(
     if (c.hidden) out[c.id] = false;
   }
   return out;
+}
+
+function buildInitialColumnWidths<T>(
+  cols: readonly ColumnDef<T>[],
+): ColumnWidthsState {
+  const out: Record<string, number> = {};
+  for (const c of cols) {
+    if (typeof c.width === "number") out[c.id] = c.width;
+  }
+  return out;
+}
+
+function buildInitialColumnPinning<T>(
+  cols: readonly ColumnDef<T>[],
+): ColumnPinningState {
+  const start: string[] = [];
+  const end: string[] = [];
+  for (const c of cols) {
+    if (c.pinned === "start") start.push(c.id);
+    else if (c.pinned === "end") end.push(c.id);
+  }
+  return { start, end };
 }
 
 /** Read a column's value from a row. Defaults to `row[id]` when no

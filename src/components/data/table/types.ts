@@ -104,6 +104,16 @@ export type ColumnVisibilityState = Readonly<Record<string, boolean>>;
 
 export type ColumnOrderState = readonly string[];
 
+export type ColumnWidthsState = Readonly<Record<string, number>>;
+
+/** Columns pinned to the start (inline-start edge, i.e. left in LTR /
+ *  right in RTL) or to the end. Order within each array follows render
+ *  order of the pinned group. */
+export interface ColumnPinningState {
+  start: readonly string[];
+  end: readonly string[];
+}
+
 export type Density = "compact" | "comfortable" | "spacious";
 
 /* ------------------------------------------------------------------ */
@@ -134,6 +144,8 @@ export interface TableInstance<T> {
     selection: SelectionState;
     columnVisibility: ColumnVisibilityState;
     columnOrder: ColumnOrderState;
+    columnWidths: ColumnWidthsState;
+    columnPinning: ColumnPinningState;
     density: Density;
   };
 
@@ -153,6 +165,9 @@ export interface TableInstance<T> {
   isRowSelected: (id: string) => boolean;
   toggleColumnVisibility: (id: string) => void;
   setColumnOrder: (order: string[]) => void;
+  resizeColumn: (id: string, width: number) => void;
+  resetColumnWidth: (id: string) => void;
+  pinColumn: (id: string, side: "start" | "end" | null) => void;
   setDensity: (d: Density) => void;
 
   /* Identity */
@@ -196,6 +211,14 @@ export interface UseDataTableOptions<T> {
   columnOrder?: ColumnOrderState;
   defaultColumnOrder?: ColumnOrderState;
   onColumnOrderChange?: (next: ColumnOrderState) => void;
+
+  columnWidths?: ColumnWidthsState;
+  defaultColumnWidths?: ColumnWidthsState;
+  onColumnWidthsChange?: (next: ColumnWidthsState) => void;
+
+  columnPinning?: ColumnPinningState;
+  defaultColumnPinning?: ColumnPinningState;
+  onColumnPinningChange?: (next: ColumnPinningState) => void;
 
   density?: Density;
   defaultDensity?: Density;

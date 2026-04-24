@@ -223,8 +223,10 @@ describe("useDataTable — column visibility + order", () => {
 describe("useDataTable — controlled", () => {
   it("respects controlled sort + fires onChange", () => {
     const onSortChange = vi.fn();
+    type SortEntry = { id: string; direction: "asc" | "desc" };
+    const initialProps: { sort: SortEntry[] } = { sort: [] };
     const { result, rerender } = renderHook(
-      ({ sort }: { sort: Array<{ id: string; direction: "asc" | "desc" }> }) =>
+      ({ sort }: { sort: SortEntry[] }) =>
         useDataTable<Row>({
           rows,
           columns,
@@ -232,7 +234,7 @@ describe("useDataTable — controlled", () => {
           sort,
           onSortChange,
         }),
-      { initialProps: { sort: [] } },
+      { initialProps },
     );
     expect(result.current.state.sort).toEqual([]);
     act(() => result.current.toggleSort("score"));
@@ -242,7 +244,7 @@ describe("useDataTable — controlled", () => {
     // Controlled — still `[]` because the caller hasn't pushed the update.
     expect(result.current.state.sort).toEqual([]);
     // Now push the controlled update.
-    rerender({ sort: [{ id: "score", direction: "asc" }] });
+    rerender({ sort: [{ id: "score", direction: "asc" as const }] });
     expect(result.current.state.sort).toEqual([
       { id: "score", direction: "asc" },
     ]);
@@ -265,5 +267,100 @@ describe("useDataTable — server mode", () => {
     // Local sort wouldn't re-sort — order is preserved from input.
     act(() => result.current.toggleSort("score"));
     expect(result.current.processedRows.map((r) => r.id)).toEqual(["r1", "r2"]);
+  });
+});
+
+describe("useDataTable — column widths", () => {
+  it("resizeColumn writes to state.columnWidths", () => {
+    const { result } = setup();
+    act(() => result.current.resizeColumn("name", 240));
+    expect(result.current.state.columnWidths.name).toBe(240);
+  });
+
+  it("clamps width to the column's min/max bounds", () => {
+    const { result } = renderHook(() =>
+      useDataTable<Row>({
+        rows,
+        columns: [
+          { id: "name", header: "Name", minWidth: 100, maxWidth: 300 },
+          { id: "score", header: "Score" },
+          { id: "team", header: "Team" },
+        ],
+        rowId: (r) => r.id,
+      }),
+    );
+    act(() => result.current.resizeColumn("name", 50));
+    expect(result.current.state.columnWidths.name).toBe(100);
+    act(() => result.current.resizeColumn("name", 9999));
+    expect(result.current.state.columnWidths.name).toBe(300);
+  });
+
+  it("resetColumnWidth removes the committed width", () => {
+    const { result } = setup();
+    act(() => result.current.resizeColumn("name", 240));
+    act(() => result.current.resetColumnWidth("name"));
+    expect(result.current.state.columnWidths.name).toBeUndefined();
+  });
+
+  it("seeds initial widths from ColumnDef.width", () => {
+    const { result } = renderHook(() =>
+      useDataTable<Row>({
+        rows,
+        columns: [
+          { id: "name", header: "Name", width: 250 },
+          { id: "score", header: "Score" },
+          { id: "team", header: "Team" },
+        ],
+        rowId: (r) => r.id,
+      }),
+    );
+    expect(result.current.state.columnWidths.name).toBe(250);
+  });
+});
+
+describe("useDataTable — pinning", () => {
+  it("pinColumn('start') puts the id in pinning.start", () => {
+    const { result } = setup();
+    act(() => result.current.pinColumn("team", "start"));
+    expect(result.current.state.columnPinning.start).toContain("team");
+    expect(result.current.state.columnPinning.end).not.toContain("team");
+  });
+
+  it("pinColumn('end') puts the id in pinning.end", () => {
+    const { result } = setup();
+    act(() => result.current.pinColumn("team", "end"));
+    expect(result.current.state.columnPinning.end).toContain("team");
+  });
+
+  it("pinColumn(null) removes from both sides", () => {
+    const { result } = setup();
+    act(() => result.current.pinColumn("team", "start"));
+    act(() => result.current.pinColumn("team", null));
+    expect(result.current.state.columnPinning.start).not.toContain("team");
+    expect(result.current.state.columnPinning.end).not.toContain("team");
+  });
+
+  it("switching sides doesn't leave stale entries", () => {
+    const { result } = setup();
+    act(() => result.current.pinColumn("team", "start"));
+    act(() => result.current.pinColumn("team", "end"));
+    expect(result.current.state.columnPinning.start).not.toContain("team");
+    expect(result.current.state.columnPinning.end).toContain("team");
+  });
+
+  it("seeds from ColumnDef.pinned", () => {
+    const { result } = renderHook(() =>
+      useDataTable<Row>({
+        rows,
+        columns: [
+          { id: "name", header: "Name", pinned: "start" },
+          { id: "score", header: "Score" },
+          { id: "team", header: "Team", pinned: "end" },
+        ],
+        rowId: (r) => r.id,
+      }),
+    );
+    expect(result.current.state.columnPinning.start).toEqual(["name"]);
+    expect(result.current.state.columnPinning.end).toEqual(["team"]);
   });
 });
