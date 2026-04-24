@@ -119,6 +119,9 @@ export function CommandPalette({
           onClick={() => onOpenChange(false)}
         >
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Command palette"
             initial={{ opacity: 0, y: -16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
@@ -135,12 +138,14 @@ export function CommandPalette({
                 stroke="currentColor"
                 strokeWidth="2"
                 className="text-white/40"
+                aria-hidden
               >
                 <circle cx="11" cy="11" r="7" />
                 <path d="m20 20-3.5-3.5" strokeLinecap="round" />
               </svg>
               <input
                 autoFocus
+                aria-label={placeholder}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder={placeholder}

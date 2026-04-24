@@ -7,6 +7,7 @@ import {
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { useFormField } from "./FormField";
 
 export interface TextFieldProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -39,7 +40,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     ref,
   ) {
     const autoId = useId();
-    const inputId = id ?? autoId;
+    const ff = useFormField();
+    const inputId = id ?? ff?.id ?? autoId;
     const [focus, setFocus] = useState(false);
     const [internal, setInternal] = useState(
       (defaultValue as string) ?? (value as string) ?? "",
@@ -99,6 +101,9 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
           <input
             ref={ref}
             id={inputId}
+            aria-describedby={ff?.describedBy}
+            aria-invalid={error || ff?.invalid ? true : undefined}
+            aria-required={ff?.required || undefined}
             value={value}
             defaultValue={defaultValue}
             onChange={(e) => {

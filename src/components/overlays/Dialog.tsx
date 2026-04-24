@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useId, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
@@ -41,6 +41,9 @@ export function Dialog({
   footerAlign = "end",
   className,
 }: DialogProps) {
+  const titleId = useId();
+  const descId = useId();
+
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -67,6 +70,10 @@ export function Dialog({
           onClick={onClose}
         >
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={title ? titleId : undefined}
+            aria-describedby={description ? descId : undefined}
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
@@ -81,10 +88,14 @@ export function Dialog({
             {(title || description) && (
               <div className="p-6 pb-3">
                 {title ? (
-                  <h2 className="text-lg font-semibold text-white">{title}</h2>
+                  <h2 id={titleId} className="text-lg font-semibold text-white">
+                    {title}
+                  </h2>
                 ) : null}
                 {description ? (
-                  <p className="text-sm text-white/55 mt-1">{description}</p>
+                  <p id={descId} className="text-sm text-white/55 mt-1">
+                    {description}
+                  </p>
                 ) : null}
               </div>
             )}
@@ -100,11 +111,13 @@ export function Dialog({
               </div>
             ) : null}
             <button
+              type="button"
+              aria-label="Close"
               onClick={onClose}
               data-cursor="button"
               className="absolute top-3 right-3 w-8 h-8 rounded-lg grid place-items-center text-white/50 hover:text-white hover:bg-white/5"
             >
-              ×
+              <span aria-hidden>×</span>
             </button>
           </motion.div>
         </motion.div>

@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useId, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
@@ -41,6 +41,8 @@ export function Drawer({
   footer,
   className,
 }: DrawerProps) {
+  const titleId = useId();
+
   useEffect(() => {
     if (!open) return;
     function k(e: KeyboardEvent) {
@@ -70,6 +72,9 @@ export function Drawer({
           onClick={onClose}
         >
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={title ? titleId : undefined}
             initial={initialVariants[side]}
             animate={{ x: 0, y: 0 }}
             exit={initialVariants[side]}
@@ -88,13 +93,17 @@ export function Drawer({
           >
             {title ? (
               <div className="px-5 py-4 border-b border-white/8 flex items-center justify-between">
-                <div className="text-white font-semibold">{title}</div>
+                <div id={titleId} className="text-white font-semibold">
+                  {title}
+                </div>
                 <button
+                  type="button"
+                  aria-label="Close"
                   onClick={onClose}
                   data-cursor="button"
                   className="w-8 h-8 rounded-lg grid place-items-center text-white/50 hover:text-white hover:bg-white/5"
                 >
-                  ×
+                  <span aria-hidden>×</span>
                 </button>
               </div>
             ) : null}
