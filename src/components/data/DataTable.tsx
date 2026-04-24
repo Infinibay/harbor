@@ -15,12 +15,18 @@ import { useT } from "../../lib/i18n";
 import { Skeleton } from "../display/Skeleton";
 import { Menu, MenuItem, MenuSeparator } from "../overlays/Menu";
 import { Select } from "../inputs/Select";
-import { useDataTable, getCellValue } from "./table/useDataTable";
+import {
+  aggregateColumn,
+  buildRowItems,
+  useDataTable,
+  getCellValue,
+} from "./table/useDataTable";
 import type {
   ColumnDef,
   ColumnPinningState,
   ColumnWidthsState,
   Density,
+  RowItem,
   TableInstance,
   UseDataTableOptions,
 } from "./table/types";
@@ -90,6 +96,14 @@ export interface DataTableProps<T> extends UseDataTableOptions<T> {
   /** Rows rendered above + below the visible viewport during
    *  virtualization, to hide the pop-in during fast scrolls. Default `8`. */
   overscan?: number;
+  /** Render detail content under a row when it's expanded. Supplying
+   *  this enables the row-level expand toggle (caret in the first
+   *  column). Without grouping, clicking any row's caret calls
+   *  `toggleExpanded(rowId)` + renders `renderExpanded(row)` below. */
+  renderExpanded?: (row: T) => ReactNode;
+  /** Height (px) of a rendered expanded-detail row when virtualization
+   *  is active. Ignored otherwise. Default `120`. */
+  expandedRowHeight?: number;
   /** Render a per-column menu button (⋯) in each data header. The menu
    *  exposes sort / pin / hide / move actions. Default `true`. */
   columnMenu?: boolean;
@@ -183,6 +197,8 @@ export function DataTable<T>(props: DataTableProps<T>) {
     globalSearchDebounce = 300,
     globalSearchPlaceholder,
     keyboardNavigation = true,
+    renderExpanded,
+    expandedRowHeight = 120,
     className,
     style,
     ...hookOptions
@@ -223,11 +239,41 @@ export function DataTable<T>(props: DataTableProps<T>) {
     };
   }, [layout]);
 
+  /* ---------- Row items (grouping + expanded) ---------- */
+
+  const rowItems = useMemo<RowItem<T>[]>(
+    () =>
+      buildRowItems<T>({
+        rows: pageRows,
+        grouping: state.grouping,
+        expanded: state.expanded,
+        columnsById: layout.columnsById,
+        rowId,
+        renderExpandedAvailable: Boolean(renderExpanded),
+      }),
+    [
+      pageRows,
+      state.grouping,
+      state.expanded,
+      layout.columnsById,
+      rowId,
+      renderExpanded,
+    ],
+  );
+
   /* ---------- Virtualization ---------- */
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
-  const virtualized = maxHeight != null;
+  // Virtualization only applies when items are uniform leaf rows. With
+  // grouping or expandable detail rows, item heights differ — disable
+  // virt and let the browser scroll the full list. Large-scale grouped
+  // views are an uncommon combination; 100k+ virtualization is reserved
+  // for the flat case.
+  const virtualized =
+    maxHeight != null &&
+    state.grouping.length === 0 &&
+    !renderExpanded;
 
   useEffect(() => {
     if (!virtualized) return;
@@ -238,26 +284,23 @@ export function DataTable<T>(props: DataTableProps<T>) {
     return () => el.removeEventListener("scroll", onScroll);
   }, [virtualized]);
 
-  const { startIdx, paddingTop, paddingBottom, renderRows } =
-    useMemo(() => {
-      if (!virtualized || !maxHeight) {
-        return {
-          startIdx: 0,
-          paddingTop: 0,
-          paddingBottom: 0,
-          renderRows: pageRows,
-        };
-      }
-      const visCount = Math.ceil(maxHeight / rowHeightPx) + overscan * 2;
-      const s = Math.max(0, Math.floor(scrollTop / rowHeightPx) - overscan);
-      const e = Math.min(pageRows.length, s + visCount);
+  const { paddingTop, paddingBottom, renderItems } = useMemo(() => {
+    if (!virtualized || !maxHeight) {
       return {
-        startIdx: s,
-        paddingTop: s * rowHeightPx,
-        paddingBottom: (pageRows.length - e) * rowHeightPx,
-        renderRows: pageRows.slice(s, e),
+        paddingTop: 0,
+        paddingBottom: 0,
+        renderItems: rowItems,
       };
-    }, [virtualized, maxHeight, rowHeightPx, scrollTop, overscan, pageRows]);
+    }
+    const visCount = Math.ceil(maxHeight / rowHeightPx) + overscan * 2;
+    const s = Math.max(0, Math.floor(scrollTop / rowHeightPx) - overscan);
+    const e = Math.min(rowItems.length, s + visCount);
+    return {
+      paddingTop: s * rowHeightPx,
+      paddingBottom: (rowItems.length - e) * rowHeightPx,
+      renderItems: rowItems.slice(s, e),
+    };
+  }, [virtualized, maxHeight, rowHeightPx, scrollTop, overscan, rowItems]);
 
   /* ---------- Selection summary ---------- */
 
@@ -647,9 +690,40 @@ export function DataTable<T>(props: DataTableProps<T>) {
                   )}
                 </div>
               ) : (
-                renderRows.map((row, i) => {
-                  const rowIndex = startIdx + i;
-                  const id = rowId(row);
+                renderItems.map((item) => {
+                  if (item.kind === "group") {
+                    return (
+                      <GroupRow
+                        key={item.id}
+                        item={item}
+                        layout={layout}
+                        selectable={Boolean(selectable)}
+                        density={state.density}
+                        onToggle={() => table.toggleExpanded(item.id)}
+                      />
+                    );
+                  }
+                  if (item.kind === "detail") {
+                    return (
+                      <div
+                        key={item.id}
+                        role="row"
+                        className="border-b border-white/5 bg-white/[0.02]"
+                        style={{
+                          height: virtualized ? expandedRowHeight : undefined,
+                          paddingInlineStart: item.level > 0 ? 24 : 0,
+                        }}
+                      >
+                        <div className="px-5 py-3 min-w-max">
+                          {renderExpanded?.(item.row)}
+                        </div>
+                      </div>
+                    );
+                  }
+                  // Leaf data row.
+                  const row = item.row;
+                  const rowIndex = item.index;
+                  const id = item.id;
                   const selected = state.selection.has(id);
                   const canSelect =
                     !selectable ||
@@ -721,6 +795,8 @@ export function DataTable<T>(props: DataTableProps<T>) {
                           activeCell != null &&
                           activeCell.rowIdx === rowIndex &&
                           activeCell.colIdx === colIndex;
+                        const isFirstDataCell = colIndex === 0;
+                        const canExpand = item.canExpand;
                         return (
                           <BodyCell
                             key={col.id}
@@ -736,6 +812,16 @@ export function DataTable<T>(props: DataTableProps<T>) {
                             zIndex={pinSide ? 10 : undefined}
                             active={isActive}
                           >
+                            {isFirstDataCell && canExpand ? (
+                              <ExpandToggle
+                                expanded={item.expanded}
+                                indent={item.level}
+                                onToggle={(e: React.MouseEvent) => {
+                                  e.stopPropagation();
+                                  table.toggleExpanded(id);
+                                }}
+                              />
+                            ) : null}
                             {content}
                           </BodyCell>
                         );
@@ -1384,6 +1470,164 @@ function HeaderMenu<T>({ table, col, pinSide, offsetEnd }: HeaderMenuProps<T>) {
 
 interface ColumnVisibilityPickerProps<T> {
   table: TableInstance<T>;
+}
+
+/* ================================================================== */
+/* ExpandToggle — caret button inside a row's first data cell          */
+/* ================================================================== */
+
+interface ExpandToggleProps {
+  expanded: boolean;
+  indent: number;
+  onToggle: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+function ExpandToggle({ expanded, indent, onToggle }: ExpandToggleProps) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={expanded}
+      aria-label={expanded ? "Collapse row" : "Expand row"}
+      className={cn(
+        "me-1.5 w-5 h-5 rounded grid place-items-center shrink-0",
+        "text-white/55 hover:text-white hover:bg-white/10 transition-colors",
+      )}
+      style={{ marginInlineStart: indent > 0 ? indent * 20 : 0 }}
+    >
+      <svg
+        width="10"
+        height="10"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        style={{
+          transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+          transition: "transform 160ms ease",
+        }}
+        aria-hidden
+      >
+        <path d="M9 6 L15 12 L9 18" />
+      </svg>
+    </button>
+  );
+}
+
+/* ================================================================== */
+/* GroupRow — single full-width grouping header with aggregates        */
+/* ================================================================== */
+
+interface GroupRowProps<T> {
+  item: Extract<RowItem<T>, { kind: "group" }>;
+  layout: Layout<T>;
+  selectable: boolean;
+  density: Density;
+  onToggle: () => void;
+}
+
+function GroupRow<T>({
+  item,
+  layout,
+  selectable,
+  density,
+  onToggle,
+}: GroupRowProps<T>) {
+  const groupCol = layout.columnsById.get(item.groupId);
+  const groupLabel =
+    typeof groupCol?.header === "string"
+      ? groupCol.header
+      : groupCol?.id ?? item.groupId;
+  const groupValue =
+    item.groupValue == null ? "—" : String(item.groupValue);
+
+  // Columns with an `aggregate` configured. Rendered as a compact inline
+  // list (`Avg CPU 67`, `Sum Requests 12.4k`, …) alongside the group
+  // value + count.
+  const aggregates = layout.orderedColumns
+    .filter((c) => c.aggregate != null && c.id !== item.groupId)
+    .map((c) => {
+      const value = aggregateColumn(c, item.rows);
+      if (value == null) return null;
+      const label =
+        typeof c.header === "string" ? c.header : c.id;
+      return { id: c.id, label, value };
+    })
+    .filter(Boolean) as Array<{
+    id: string;
+    label: string;
+    value: unknown;
+  }>;
+
+  return (
+    <div
+      role="row"
+      aria-expanded={item.expanded}
+      className={cn(
+        "border-b border-white/8 bg-white/[0.03]",
+        "flex items-center gap-3 min-w-max",
+        "text-[11px] uppercase tracking-wider text-white/70",
+        CELL_PADDING_X[density],
+        ROW_HEIGHT_CLASS[density],
+      )}
+      onClick={onToggle}
+    >
+      {selectable ? (
+        <span className="w-10 shrink-0" aria-hidden />
+      ) : null}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle();
+        }}
+        aria-label={item.expanded ? "Collapse group" : "Expand group"}
+        aria-expanded={item.expanded}
+        className="w-5 h-5 rounded grid place-items-center text-white/55 hover:text-white hover:bg-white/10"
+      >
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          style={{
+            transform: item.expanded ? "rotate(90deg)" : "rotate(0deg)",
+            transition: "transform 160ms ease",
+          }}
+          aria-hidden
+        >
+          <path d="M9 6 L15 12 L9 18" />
+        </svg>
+      </button>
+      <span className="text-white/55 font-normal normal-case">
+        {groupLabel}
+      </span>
+      <span className="text-white font-medium normal-case">{groupValue}</span>
+      <span className="text-white/40 normal-case">· {item.count}</span>
+      {aggregates.length > 0 ? (
+        <span className="flex items-center gap-3 normal-case text-white/55 font-normal">
+          {aggregates.map((a) => (
+            <span key={a.id}>
+              <span className="text-white/40">{a.label}:</span>{" "}
+              <span className="text-white/80">{formatAggregate(a.value)}</span>
+            </span>
+          ))}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function formatAggregate(v: unknown): string {
+  if (v == null) return "—";
+  if (typeof v === "number") {
+    return Number.isInteger(v) ? v.toLocaleString() : v.toFixed(2);
+  }
+  return String(v);
 }
 
 /* ================================================================== */

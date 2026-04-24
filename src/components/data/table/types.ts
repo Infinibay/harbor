@@ -71,6 +71,20 @@ export interface ColumnDef<T> {
   hidden?: boolean;
   /** Custom sort comparator. Signature matches `Array.prototype.sort`. */
   compare?: (a: unknown, b: unknown, rowA: T, rowB: T) => number;
+  /** How to aggregate this column's values when a grouping row is
+   *  rendered above the column. `"count"` ignores the accessor and
+   *  counts rows; the others consume the column's accessed values.
+   *  A function receives the rows in the group and returns the cell
+   *  content to render in the group header. */
+  aggregate?:
+    | "count"
+    | "sum"
+    | "avg"
+    | "min"
+    | "max"
+    | "first"
+    | "last"
+    | ((rows: readonly T[]) => ReactNode);
 }
 
 /* ------------------------------------------------------------------ */
@@ -104,6 +118,12 @@ export type ColumnVisibilityState = Readonly<Record<string, boolean>>;
 
 export type ColumnOrderState = readonly string[];
 
+export type GroupingState = readonly string[];
+
+/** Expanded state keys are stable per-row-id for leaf expansion and
+ *  `"group:<colId>:<value>"` for group headers. */
+export type ExpandedState = Readonly<Record<string, boolean>>;
+
 export type ColumnWidthsState = Readonly<Record<string, number>>;
 
 /** Columns pinned to the start (inline-start edge, i.e. left in LTR /
@@ -115,6 +135,43 @@ export interface ColumnPinningState {
 }
 
 export type Density = "compact" | "comfortable" | "spacious";
+
+/* ------------------------------------------------------------------ */
+/* Render items                                                         */
+/* ------------------------------------------------------------------ */
+
+/** A row-render item produced by `buildRowItems`. The body renders the
+ *  list of items in order; each kind gets a different layout.
+ *  - `row`   : a normal data row
+ *  - `group` : a grouping header (toggle + aggregates)
+ *  - `detail`: the expanded-row content rendered below the row that
+ *              opened it (driven by `renderExpanded`) */
+export type RowItem<T> =
+  | {
+      kind: "row";
+      id: string;
+      row: T;
+      level: number;
+      index: number;
+      canExpand: boolean;
+      expanded: boolean;
+    }
+  | {
+      kind: "group";
+      id: string;
+      level: number;
+      groupId: string;
+      groupValue: unknown;
+      count: number;
+      rows: readonly T[];
+      expanded: boolean;
+    }
+  | {
+      kind: "detail";
+      id: string;
+      row: T;
+      level: number;
+    };
 
 /* ------------------------------------------------------------------ */
 /* Instance                                                             */
@@ -146,6 +203,8 @@ export interface TableInstance<T> {
     columnOrder: ColumnOrderState;
     columnWidths: ColumnWidthsState;
     columnPinning: ColumnPinningState;
+    grouping: GroupingState;
+    expanded: ExpandedState;
     density: Density;
   };
 
@@ -168,6 +227,12 @@ export interface TableInstance<T> {
   resizeColumn: (id: string, width: number) => void;
   resetColumnWidth: (id: string) => void;
   pinColumn: (id: string, side: "start" | "end" | null) => void;
+  setGrouping: (next: string[]) => void;
+  toggleGrouping: (id: string) => void;
+  toggleExpanded: (key: string) => void;
+  expandAll: () => void;
+  collapseAll: () => void;
+  isExpanded: (key: string) => boolean;
   setDensity: (d: Density) => void;
 
   /* Identity */
@@ -219,6 +284,14 @@ export interface UseDataTableOptions<T> {
   columnPinning?: ColumnPinningState;
   defaultColumnPinning?: ColumnPinningState;
   onColumnPinningChange?: (next: ColumnPinningState) => void;
+
+  grouping?: GroupingState;
+  defaultGrouping?: GroupingState;
+  onGroupingChange?: (next: GroupingState) => void;
+
+  expanded?: ExpandedState;
+  defaultExpanded?: ExpandedState;
+  onExpandedChange?: (next: ExpandedState) => void;
 
   density?: Density;
   defaultDensity?: Density;

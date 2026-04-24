@@ -306,7 +306,72 @@ export function DataTablePage() {
       >
         <ServerModeDemo pool={medium} columns={baseColumns} />
       </Demo>
+
+      <Demo
+        title="Grouped by owner — with column aggregates"
+        hint="Click any group row to expand / collapse. Aggregates (count · avg CPU · sum requests) render on the header."
+        intensity="soft"
+        wide
+      >
+        <DataTable
+          rows={small}
+          rowId={(r) => r.id}
+          columns={baseColumns.map((c) => {
+            if (c.id === "cpu") return { ...c, aggregate: "avg" as const };
+            if (c.id === "memory") return { ...c, aggregate: "avg" as const };
+            if (c.id === "requests") return { ...c, aggregate: "sum" as const };
+            if (c.id === "uptime") return { ...c, aggregate: "avg" as const };
+            return c;
+          })}
+          defaultGrouping={["owner"]}
+          defaultPagination={{ pageSize: 25 }}
+          hidePagination
+        />
+      </Demo>
+
+      <Demo
+        title="Expandable detail rows"
+        hint="Click the caret at the start of a row to reveal the detail panel below."
+        intensity="soft"
+        wide
+      >
+        <DataTable
+          rows={small}
+          columns={baseColumns}
+          rowId={(r) => r.id}
+          renderExpanded={(row) => (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <LabeledValue label="Service" value={row.name} />
+              <LabeledValue label="Owner" value={row.owner} />
+              <LabeledValue label="Region" value={row.region} />
+              <LabeledValue label="Environment" value={row.env} />
+              <LabeledValue label="CPU" value={`${row.cpu}%`} />
+              <LabeledValue label="Memory" value={`${row.memory}%`} />
+              <LabeledValue
+                label="Requests"
+                value={row.requests.toLocaleString()}
+              />
+              <LabeledValue
+                label="Uptime"
+                value={`${row.uptime.toFixed(2)}%`}
+              />
+            </div>
+          )}
+          defaultPagination={{ pageSize: 10 }}
+        />
+      </Demo>
     </Group>
+  );
+}
+
+function LabeledValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-widest text-white/40">
+        {label}
+      </div>
+      <div className="text-white">{value}</div>
+    </div>
   );
 }
 

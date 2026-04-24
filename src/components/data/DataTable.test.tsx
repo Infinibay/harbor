@@ -597,6 +597,109 @@ describe("DataTable — server mode", () => {
   });
 });
 
+describe("DataTable — grouping + aggregation", () => {
+  interface GRow {
+    id: string;
+    team: string;
+    score: number;
+  }
+  const gRows: GRow[] = [
+    { id: "r1", team: "red", score: 10 },
+    { id: "r2", team: "red", score: 20 },
+    { id: "r3", team: "blue", score: 5 },
+    { id: "r4", team: "blue", score: 15 },
+  ];
+  const gCols: ColumnDef<GRow>[] = [
+    { id: "team", header: "Team" },
+    { id: "score", header: "Score", aggregate: "sum" },
+  ];
+
+  it("renders one group header per partition; rows collapse by default", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={gRows}
+        columns={gCols}
+        rowId={(r) => r.id}
+        defaultGrouping={["team"]}
+      />,
+    );
+    // Two group headers: red + blue.
+    expect(screen.getAllByRole("row", { expanded: false }).length).toBe(2);
+    // Leaf rows collapsed.
+    expect(screen.queryByText("r1")).not.toBeInTheDocument();
+  });
+
+  it("clicking a group header expands its rows", async () => {
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={gRows}
+        columns={gCols}
+        rowId={(r) => r.id}
+        defaultGrouping={["team"]}
+      />,
+    );
+    // Before expand — leaf r1's score "10" shouldn't be present.
+    expect(screen.queryByText("10")).not.toBeInTheDocument();
+    // Click the red group row.
+    const redHeader = screen.getByText("red").closest('[role="row"]')!;
+    await user.click(redHeader as HTMLElement);
+    // Leaf score for r1 appears in the body.
+    expect(screen.getByText("10")).toBeInTheDocument();
+  });
+
+  it("computes and renders aggregates in the group header", () => {
+    renderWithHarbor(
+      <DataTable
+        rows={gRows}
+        columns={gCols}
+        rowId={(r) => r.id}
+        defaultGrouping={["team"]}
+      />,
+    );
+    // Score sum for red = 30, for blue = 20.
+    expect(screen.getByText("30")).toBeInTheDocument();
+    expect(screen.getByText("20")).toBeInTheDocument();
+  });
+});
+
+describe("DataTable — renderExpanded detail rows", () => {
+  it("adds an expand caret per row; clicking shows the detail", async () => {
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        renderExpanded={(row) => (
+          <div data-testid={`detail-${row.id}`}>detail · {row.name}</div>
+        )}
+      />,
+    );
+    expect(screen.queryByTestId("detail-r1")).not.toBeInTheDocument();
+    const toggles = screen.getAllByRole("button", { name: /Expand row/i });
+    expect(toggles.length).toBe(rows.length);
+    await user.click(toggles[0]);
+    expect(screen.getByTestId("detail-r1")).toBeInTheDocument();
+    expect(screen.getByText("detail · alpha")).toBeInTheDocument();
+  });
+
+  it("toggling a second time collapses the row", async () => {
+    const { user } = renderWithHarbor(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowId={(r) => r.id}
+        renderExpanded={(row) => <div data-testid={`detail-${row.id}`} />}
+      />,
+    );
+    const toggle = screen.getAllByRole("button", { name: /Expand row/i })[0];
+    await user.click(toggle);
+    expect(screen.getByTestId("detail-r1")).toBeInTheDocument();
+    // Role changes to "Collapse row" when expanded — query by fresh name.
+    await user.click(screen.getByRole("button", { name: /Collapse row/i }));
+    expect(screen.queryByTestId("detail-r1")).not.toBeInTheDocument();
+  });
+});
+
 describe("DataTable — a11y", () => {
   it("has no violations in a basic rendered state", async () => {
     const { container } = renderWithHarbor(

@@ -6,8 +6,11 @@ import type {
   ColumnVisibilityState,
   ColumnWidthsState,
   Density,
+  ExpandedState,
   FilterState,
+  GroupingState,
   PaginationState,
+  RowItem,
   SelectionState,
   SortState,
   TableInstance,
@@ -91,6 +94,16 @@ export function useDataTable<T>(
     options.columnPinning,
     options.defaultColumnPinning ?? buildInitialColumnPinning(columns),
     options.onColumnPinningChange,
+  );
+  const grouping = useControllable<GroupingState>(
+    options.grouping,
+    options.defaultGrouping ?? [],
+    options.onGroupingChange,
+  );
+  const expanded = useControllable<ExpandedState>(
+    options.expanded,
+    options.defaultExpanded ?? {},
+    options.onExpandedChange,
   );
 
   /* Track last-selected row for shift+range selection. Refs don't
@@ -345,6 +358,49 @@ export function useDataTable<T>(
     [columnPinning],
   );
 
+  const setGrouping = useCallback(
+    (next: string[]) => grouping.set(next),
+    [grouping],
+  );
+
+  const toggleGrouping = useCallback(
+    (id: string) => {
+      grouping.set(
+        grouping.value.includes(id)
+          ? grouping.value.filter((g) => g !== id)
+          : [...grouping.value, id],
+      );
+    },
+    [grouping],
+  );
+
+  const toggleExpanded = useCallback(
+    (key: string) => {
+      const cur = expanded.value;
+      const next = { ...cur };
+      if (next[key]) delete next[key];
+      else next[key] = true;
+      expanded.set(next);
+    },
+    [expanded],
+  );
+
+  const expandAll = useCallback(() => {
+    // Expand every known group + leaf. Group keys depend on data, so we
+    // flip a sentinel `*` that the render path treats as "expand every
+    // group it encounters" (cheaper than materialising every key).
+    expanded.set({ "*": true, ...expanded.value });
+  }, [expanded]);
+
+  const collapseAll = useCallback(() => {
+    expanded.set({});
+  }, [expanded]);
+
+  const isExpanded = useCallback(
+    (key: string) => Boolean(expanded.value[key] ?? expanded.value["*"]),
+    [expanded.value],
+  );
+
   const setDensity = useCallback(
     (d: Density) => density.set(d),
     [density],
@@ -370,6 +426,8 @@ export function useDataTable<T>(
       columnOrder: columnOrder.value,
       columnWidths: columnWidths.value,
       columnPinning: columnPinning.value,
+      grouping: grouping.value,
+      expanded: expanded.value,
       density: density.value,
     },
 
@@ -391,6 +449,12 @@ export function useDataTable<T>(
     resizeColumn,
     resetColumnWidth,
     pinColumn,
+    setGrouping,
+    toggleGrouping,
+    toggleExpanded,
+    expandAll,
+    collapseAll,
+    isExpanded,
     setDensity,
 
     rowId,
@@ -521,5 +585,180 @@ function runFilter<T>(
     }
     default:
       return true;
+  }
+}
+
+/* ================================================================== */
+/* Grouping / expansion — row item builder                              */
+/* ================================================================== */
+
+export interface BuildRowItemsOptions<T> {
+  rows: readonly T[];
+  grouping: readonly string[];
+  expanded: ExpandedState;
+  columnsById: ReadonlyMap<string, ColumnDef<T>>;
+  rowId: (row: T) => string;
+  renderExpandedAvailable: boolean;
+}
+
+/** Flatten data rows into a linear render list, injecting group-header
+ *  items (and expanded-detail placeholders) according to the hook's
+ *  grouping + expanded state.
+ *
+ *  Keeps it single-level for the general case — `grouping` typically
+ *  holds a single column id. Multi-entry arrays fall back to grouping
+ *  by the first entry only (enough for 95% of product dashboards;
+ *  multi-level nesting is a future extension). */
+export function buildRowItems<T>({
+  rows,
+  grouping,
+  expanded,
+  columnsById,
+  rowId,
+  renderExpandedAvailable,
+}: BuildRowItemsOptions<T>): RowItem<T>[] {
+  const items: RowItem<T>[] = [];
+  const expandAll = Boolean(expanded["*"]);
+
+  if (grouping.length === 0) {
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const id = rowId(row);
+      const isExpanded = Boolean(expanded[id] ?? expandAll);
+      items.push({
+        kind: "row",
+        id,
+        row,
+        level: 0,
+        index: i,
+        canExpand: renderExpandedAvailable,
+        expanded: isExpanded,
+      });
+      if (renderExpandedAvailable && isExpanded) {
+        items.push({
+          kind: "detail",
+          id: `detail:${id}`,
+          row,
+          level: 0,
+        });
+      }
+    }
+    return items;
+  }
+
+  // Single-level grouping by the first grouping id. Preserves the
+  // order the rows arrived in — the caller has already applied sort.
+  const groupColId = grouping[0];
+  const groupCol = columnsById.get(groupColId);
+  if (!groupCol) {
+    // Unknown column — fall through as if ungrouped.
+    return buildRowItems({
+      rows,
+      grouping: [],
+      expanded,
+      columnsById,
+      rowId,
+      renderExpandedAvailable,
+    });
+  }
+
+  // Partition rows by group value, preserving first-seen order.
+  const partitions = new Map<string, { value: unknown; rows: T[] }>();
+  for (const row of rows) {
+    const raw =
+      groupCol.accessor != null
+        ? groupCol.accessor(row)
+        : (row as Record<string, unknown>)[groupColId];
+    const key = raw == null ? "∅" : String(raw);
+    let bucket = partitions.get(key);
+    if (!bucket) {
+      bucket = { value: raw, rows: [] };
+      partitions.set(key, bucket);
+    }
+    bucket.rows.push(row);
+  }
+
+  let idx = 0;
+  for (const [key, bucket] of partitions) {
+    const groupKey = `group:${groupColId}:${key}`;
+    const isExpanded = Boolean(expanded[groupKey] ?? expandAll);
+    items.push({
+      kind: "group",
+      id: groupKey,
+      level: 0,
+      groupId: groupColId,
+      groupValue: bucket.value,
+      count: bucket.rows.length,
+      rows: bucket.rows,
+      expanded: isExpanded,
+    });
+    if (isExpanded) {
+      for (const row of bucket.rows) {
+        const rid = rowId(row);
+        const leafExpanded = Boolean(expanded[rid] ?? expandAll);
+        items.push({
+          kind: "row",
+          id: rid,
+          row,
+          level: 1,
+          index: idx++,
+          canExpand: renderExpandedAvailable,
+          expanded: leafExpanded,
+        });
+        if (renderExpandedAvailable && leafExpanded) {
+          items.push({
+            kind: "detail",
+            id: `detail:${rid}`,
+            row,
+            level: 1,
+          });
+        }
+      }
+    }
+  }
+  return items;
+}
+
+/** Resolve the aggregated cell content for a grouped column. Returns
+ *  `undefined` when the column has no `aggregate` configured. */
+export function aggregateColumn<T>(
+  col: ColumnDef<T>,
+  rows: readonly T[],
+): unknown {
+  const agg = col.aggregate;
+  if (agg == null) return undefined;
+  if (typeof agg === "function") return agg(rows);
+  const values = rows.map((r) =>
+    col.accessor
+      ? col.accessor(r)
+      : (r as Record<string, unknown>)[col.id],
+  );
+  switch (agg) {
+    case "count":
+      return rows.length;
+    case "sum":
+      return values.reduce<number>(
+        (acc, v) => acc + (typeof v === "number" ? v : 0),
+        0,
+      );
+    case "avg": {
+      const nums = values.filter((v): v is number => typeof v === "number");
+      if (nums.length === 0) return undefined;
+      return nums.reduce((a, b) => a + b, 0) / nums.length;
+    }
+    case "min":
+      return values.reduce<number | undefined>((acc, v) => {
+        if (typeof v !== "number") return acc;
+        return acc == null || v < acc ? v : acc;
+      }, undefined);
+    case "max":
+      return values.reduce<number | undefined>((acc, v) => {
+        if (typeof v !== "number") return acc;
+        return acc == null || v > acc ? v : acc;
+      }, undefined);
+    case "first":
+      return values[0];
+    case "last":
+      return values[values.length - 1];
   }
 }
