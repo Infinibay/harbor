@@ -75,8 +75,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
                 scale: floated ? 0.82 : 1,
                 x: floated ? -4 : 0,
                 color: focus
-                  ? "rgb(232, 121, 249)"
-                  : "rgba(255, 255, 255, 0.55)",
+                  ? "rgb(var(--harbor-accent))"
+                  : "rgb(var(--harbor-text-muted))",
               }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
               style={{
@@ -86,7 +86,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
                 translate: "0 -50%",
                 pointerEvents: "none",
                 transformOrigin: "left center",
-                background: floated ? "#12121a" : "transparent",
+                background: floated ? "rgb(var(--harbor-bg-elev-1))" : "transparent",
                 padding: floated ? "0 4px" : "0",
                 fontSize: 14,
                 zIndex: 1,
