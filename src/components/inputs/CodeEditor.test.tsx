@@ -293,6 +293,26 @@ describe("CodeEditor — selection commands", () => {
   });
 });
 
+describe("CodeEditor — virtualization", () => {
+  it("renders far fewer DOM nodes than source lines for a 10k-line file", () => {
+    const lines = Array.from({ length: 10_000 }, (_, i) => `const v${i} = ${i};`);
+    const source = lines.join("\n");
+    const { container } = renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue={source}
+        language={jsLang()}
+        height={400}
+      />,
+    );
+    const rendered = container.querySelectorAll("[data-line]").length;
+    // Viewport is 0 at jsdom render time, but we cap the initial budget
+    // so first paint doesn't yield 10k nodes. Real browsers measure the
+    // viewport via ResizeObserver and then further shrink the window.
+    expect(rendered).toBeLessThan(200);
+  });
+});
+
 describe("CodeEditor — a11y", () => {
   it("passes axe with label + default content", async () => {
     const { container } = renderWithHarbor(

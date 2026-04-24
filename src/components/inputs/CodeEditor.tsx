@@ -87,7 +87,9 @@ export function CodeEditor({
 
   const textareaRef = editor.textareaRef;
   const [scrollTop, setScrollTop] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(0);
   const composingRef = useRef(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // Programmatic value updates — keep textarea in sync when caller
   // controls `value`. React does this for us but we also propagate
@@ -446,6 +448,55 @@ export function CodeEditor({
 
   const charWidth = FONT_SIZE * 0.6;
 
+  // ResizeObserver tracks the scroll viewport's visible height so the
+  // virtualized line range can be computed deterministically.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const update = () => setViewportHeight(el.clientHeight);
+    update();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", update);
+      return () => window.removeEventListener("resize", update);
+    }
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const overscan = 8;
+  // When the viewport hasn't been measured yet (first paint / jsdom /
+  // hidden containers), fall back to an approx window large enough to
+  // cover the provided `height` prop; if none, default to ~40 lines.
+  const fallbackVisible = (() => {
+    if (typeof height === "number") return Math.ceil(height / LINE_HEIGHT);
+    if (typeof minHeight === "number") return Math.ceil(minHeight / LINE_HEIGHT);
+    return 40;
+  })();
+  const approxVisible = viewportHeight > 0
+    ? Math.max(1, Math.ceil(viewportHeight / LINE_HEIGHT))
+    : fallbackVisible;
+  const startLine = Math.max(
+    0,
+    Math.floor(scrollTop / LINE_HEIGHT) - overscan,
+  );
+  const endLine = Math.min(
+    editor.lineCount,
+    startLine + approxVisible + overscan * 2,
+  );
+
+  // Warm the token cache for the rendered range + a small idle prefetch.
+  useEffect(() => {
+    editor.primeLines(startLine, endLine - 1);
+    if (typeof requestIdleCallback === "function" && endLine < editor.lineCount) {
+      const id = requestIdleCallback(() => {
+        editor.primeLines(endLine, Math.min(endLine + 200, editor.lineCount - 1));
+      });
+      return () => cancelIdleCallback(id);
+    }
+  }, [editor, startLine, endLine]);
+
+
   const containerStyle: CSSProperties = {
     height,
     minHeight,
@@ -484,15 +535,22 @@ export function CodeEditor({
           }}
         >
           <div style={{ transform: `translateY(${-scrollTop}px)` }}>
-            {editor.lines.map((_, i) => (
-              <div key={i} style={{ height: LINE_HEIGHT }}>
-                {i + 1}
+            <div style={{ height: startLine * LINE_HEIGHT }} />
+            {Array.from({ length: endLine - startLine }, (_, i) => (
+              <div key={startLine + i} style={{ height: LINE_HEIGHT }}>
+                {startLine + i + 1}
               </div>
             ))}
+            <div
+              style={{
+                height: Math.max(0, (editor.lineCount - endLine) * LINE_HEIGHT),
+              }}
+            />
           </div>
         </div>
       )}
       <div
+        ref={scrollRef}
         className="relative flex-1 min-w-0 overflow-auto"
         onScroll={(e) => {
           setScrollTop(e.currentTarget.scrollTop);
@@ -502,6 +560,10 @@ export function CodeEditor({
         <HighlightLayer
           lines={editor.lines}
           tokensForLine={editor.tokensForLine}
+          startLine={startLine}
+          endLine={endLine}
+          lineHeight={LINE_HEIGHT}
+          totalLines={editor.lineCount}
           style={textStyle}
           paddingX={PADDING_X}
           paddingY={PADDING_Y}
@@ -560,6 +622,10 @@ export function CodeEditor({
 interface HighlightLayerProps {
   lines: readonly string[];
   tokensForLine: (line: number) => Token[];
+  startLine: number;
+  endLine: number;
+  lineHeight: number;
+  totalLines: number;
   style: CSSProperties;
   paddingX: number;
   paddingY: number;
@@ -589,10 +655,16 @@ function BracketMarker({ line, col, charWidth }: BracketMarkerProps) {
 function HighlightLayer({
   lines,
   tokensForLine,
+  startLine,
+  endLine,
+  lineHeight,
+  totalLines,
   style,
   paddingX,
   paddingY,
 }: HighlightLayerProps) {
+  const topSpacer = startLine * lineHeight;
+  const bottomSpacer = Math.max(0, (totalLines - endLine) * lineHeight);
   return (
     <pre
       aria-hidden
@@ -605,13 +677,18 @@ function HighlightLayer({
       }}
     >
       <code>
-        {lines.map((line, i) => (
-          <HighlightLine
-            key={i}
-            line={line}
-            tokens={tokensForLine(i)}
-          />
-        ))}
+        {topSpacer > 0 && <div style={{ height: topSpacer }} />}
+        {Array.from({ length: endLine - startLine }, (_, i) => {
+          const idx = startLine + i;
+          return (
+            <HighlightLine
+              key={idx}
+              line={lines[idx] ?? ""}
+              tokens={tokensForLine(idx)}
+            />
+          );
+        })}
+        {bottomSpacer > 0 && <div style={{ height: bottomSpacer }} />}
       </code>
     </pre>
   );
