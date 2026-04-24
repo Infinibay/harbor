@@ -28,6 +28,7 @@
     "./dev": "./src/components/dev/index.ts",
     "./sections": "./src/components/sections/index.ts",
     "./theme": "./src/lib/theme/index.ts",
+    "./i18n": "./src/lib/i18n/index.ts",
     "./lib/cursor": "./src/lib/cursor.tsx",
     "./lib/z": "./src/lib/z.ts",
     "./lib/cn": "./src/lib/cn.ts",

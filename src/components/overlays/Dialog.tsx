@@ -1,6 +1,7 @@
 import { useEffect, useId, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { useT } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
 
@@ -43,6 +44,7 @@ export function Dialog({
 }: DialogProps) {
   const titleId = useId();
   const descId = useId();
+  const { t } = useT();
 
   useEffect(() => {
     if (!open) return;
@@ -112,10 +114,10 @@ export function Dialog({
             ) : null}
             <button
               type="button"
-              aria-label="Close"
+              aria-label={t("harbor.action.close")}
               onClick={onClose}
               data-cursor="button"
-              className="absolute top-3 right-3 w-8 h-8 rounded-lg grid place-items-center text-white/50 hover:text-white hover:bg-white/5"
+              className="absolute top-3 end-3 w-8 h-8 rounded-lg grid place-items-center text-white/50 hover:text-white hover:bg-white/5"
             >
               <span aria-hidden>×</span>
             </button>

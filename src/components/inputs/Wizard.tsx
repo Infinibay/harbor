@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import { useT } from "../../lib/i18n";
 import { ContentSwap } from "../motion/ContentSwap";
 
 export interface WizardStep {
@@ -22,11 +23,12 @@ export function Wizard({ steps, onComplete, className }: WizardProps) {
   const [error, setError] = useState<string | null>(null);
   const step = steps[current];
   const isLast = current === steps.length - 1;
+  const { t } = useT();
 
   async function next() {
     const r = await step.validate?.();
     if (r === false) {
-      setError("Required fields missing");
+      setError(t("harbor.wizard.defaultError"));
       return;
     }
     if (typeof r === "string") {
@@ -49,7 +51,7 @@ export function Wizard({ steps, onComplete, className }: WizardProps) {
                 onClick={() => i < current && setCurrent(i)}
                 disabled={i > current}
                 className={cn(
-                  "flex items-center gap-2 text-left min-w-0",
+                  "flex items-center gap-2 text-start min-w-0",
                   i > current && "opacity-60",
                 )}
               >
@@ -112,16 +114,19 @@ export function Wizard({ steps, onComplete, className }: WizardProps) {
           disabled={current === 0}
           className="text-sm px-3 py-1.5 rounded-md text-white/70 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          Back
+          {t("harbor.action.back")}
         </button>
         <span className="text-xs text-white/45 self-center">
-          Step {current + 1} of {steps.length}
+          {t("harbor.wizard.stepOfN", {
+            current: current + 1,
+            total: steps.length,
+          })}
         </span>
         <button
           onClick={next}
           className="text-sm px-4 py-1.5 rounded-md bg-fuchsia-500/85 hover:bg-fuchsia-500 text-white"
         >
-          {isLast ? "Finish" : "Next"}
+          {isLast ? t("harbor.action.finish") : t("harbor.action.next")}
         </button>
       </div>
     </div>

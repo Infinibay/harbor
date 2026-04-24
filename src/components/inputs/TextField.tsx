@@ -64,7 +64,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
           )}
         >
           {icon ? (
-            <span className="pl-3 text-white/50 grid place-items-center">
+            <span className="ps-3 text-white/50 grid place-items-center">
               {icon}
             </span>
           ) : null}
@@ -122,14 +122,14 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             data-cursor="text"
             className={cn(
               "flex-1 bg-transparent outline-none py-3 text-white placeholder:text-white/30",
-              icon ? "pl-3" : "px-4",
-              suffix || valid || error ? "pr-3" : "pr-4",
+              icon ? "ps-3" : "px-4",
+              suffix || valid || error ? "pe-3" : "pe-4",
               className,
             )}
             {...rest}
           />
 
-          <div className="pr-3 flex items-center gap-2 text-white/40">
+          <div className="pe-3 flex items-center gap-2 text-white/40">
             <AnimatePresence>
               {valid && !error ? (
                 <motion.svg

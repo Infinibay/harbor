@@ -1,6 +1,7 @@
 import { useEffect, useId, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { useT } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
 
@@ -42,6 +43,7 @@ export function Drawer({
   className,
 }: DrawerProps) {
   const titleId = useId();
+  const { t } = useT();
 
   useEffect(() => {
     if (!open) return;
@@ -98,7 +100,7 @@ export function Drawer({
                 </div>
                 <button
                   type="button"
-                  aria-label="Close"
+                  aria-label={t("harbor.action.close")}
                   onClick={onClose}
                   data-cursor="button"
                   className="w-8 h-8 rounded-lg grid place-items-center text-white/50 hover:text-white hover:bg-white/5"

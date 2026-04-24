@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion, useTransform } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { useT } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
 import { useCursorProximity } from "../../lib/cursor";
 import { Z } from "../../lib/z";
@@ -29,11 +30,13 @@ export function Select({
   value,
   defaultValue,
   onChange,
-  placeholder = "Select…",
+  placeholder,
   label,
   className,
   disabled,
 }: SelectProps) {
+  const { t } = useT();
+  const effectivePlaceholder = placeholder ?? t("harbor.select.placeholder");
   const layoutId = useId();
   const [internal, setInternal] = useState(defaultValue);
   const current = value ?? internal;
@@ -111,7 +114,7 @@ export function Select({
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKey}
         className={cn(
-          "relative overflow-hidden w-full h-11 px-4 rounded-xl border bg-white/5 flex items-center justify-between text-left outline-none",
+          "relative overflow-hidden w-full h-11 px-4 rounded-xl border bg-white/5 flex items-center justify-between text-start outline-none",
           "border-white/10 hover:bg-white/[0.07] transition-colors",
           open && "border-fuchsia-400/60",
           "focus-visible:ring-2 focus-visible:ring-fuchsia-400/60 focus-bloom disabled:opacity-50",
@@ -129,7 +132,7 @@ export function Select({
           )}
         >
           {selected?.icon}
-          {selected?.label ?? placeholder}
+          {selected?.label ?? effectivePlaceholder}
         </span>
         <motion.svg
           animate={{ rotate: open ? 180 : 0 }}
@@ -172,7 +175,7 @@ export function Select({
                       onClick={() => pick(o.value)}
                       onMouseEnter={() => setFocusIdx(i)}
                       className={cn(
-                        "relative w-full text-left pl-4 pr-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-colors",
+                        "relative w-full text-start ps-4 pe-3 py-2 rounded-lg text-sm flex items-center gap-2.5 transition-colors",
                         focusIdx === i ? "bg-white/5" : "",
                         o.disabled && "opacity-40 cursor-not-allowed",
                       )}
@@ -180,7 +183,7 @@ export function Select({
                       {current === o.value ? (
                         <motion.span
                           layoutId={`${layoutId}-select-ind`}
-                          className="absolute left-1 inset-y-0 my-auto h-4 w-0.5 rounded-full bg-fuchsia-400 pointer-events-none"
+                          className="absolute start-1 inset-y-0 my-auto h-4 w-0.5 rounded-full bg-fuchsia-400 pointer-events-none"
                           transition={{
                             type: "spring",
                             stiffness: 500,

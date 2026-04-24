@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useT } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
 
@@ -43,8 +44,11 @@ export function CommandPalette({
   open,
   onOpenChange,
   commands,
-  placeholder = "Type a command…",
+  placeholder,
 }: CommandPaletteProps) {
+  const { t } = useT();
+  const effectivePlaceholder =
+    placeholder ?? t("harbor.commandPalette.placeholder");
   const [q, setQ] = useState("");
   const [idx, setIdx] = useState(0);
   const listRef = useRef<HTMLUListElement | null>(null);
@@ -121,7 +125,7 @@ export function CommandPalette({
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label="Command palette"
+            aria-label={t("harbor.commandPalette.title")}
             initial={{ opacity: 0, y: -16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
@@ -145,15 +149,15 @@ export function CommandPalette({
               </svg>
               <input
                 autoFocus
-                aria-label={placeholder}
+                aria-label={effectivePlaceholder}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={placeholder}
+                placeholder={effectivePlaceholder}
                 data-cursor="text"
                 className="flex-1 bg-transparent outline-none text-white placeholder:text-white/30 text-sm"
               />
               <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/60">
-                ESC
+                {t("harbor.commandPalette.escKey")}
               </kbd>
             </div>
             <ul

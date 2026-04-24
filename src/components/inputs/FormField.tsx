@@ -6,6 +6,7 @@ import {
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { useT } from "../../lib/i18n";
 import { useFieldRow } from "./FieldRow";
 import { useLabelLane } from "./LabelLane";
 
@@ -71,6 +72,7 @@ export function FormField({
   const describedBy = [helperId, errorId].filter(Boolean).join(" ") || undefined;
   const inFieldRow = Boolean(useFieldRow());
   const inLabelLane = Boolean(useLabelLane());
+  const { t } = useT();
 
   const ctx: FormFieldCtx = {
     id,
@@ -87,11 +89,13 @@ export function FormField({
       <span>{label}</span>
       {required ? (
         <span className="text-rose-300" aria-hidden>
-          *
+          {t("harbor.field.requiredMark")}
         </span>
       ) : null}
       {optional ? (
-        <span className="text-white/30 text-xs font-normal">(optional)</span>
+        <span className="text-white/30 text-xs font-normal">
+          {t("harbor.field.optional")}
+        </span>
       ) : null}
     </label>
   ) : null;
