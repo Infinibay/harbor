@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { ContentSwap } from "../motion/ContentSwap";
 
 export interface WizardStep {
   id: string;
@@ -89,14 +89,8 @@ export function Wizard({ steps, onComplete, className }: WizardProps) {
 
       {/* Step body */}
       <div className="p-5 min-h-[220px]">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step.id}
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -24 }}
-            transition={{ duration: 0.2 }}
-          >
+        <ContentSwap id={step.id} variant="slide-left" duration={200}>
+          <div>
             <div className="mb-4">
               <div className="text-base font-semibold text-white">{step.label}</div>
               {step.description ? (
@@ -104,8 +98,8 @@ export function Wizard({ steps, onComplete, className }: WizardProps) {
               ) : null}
             </div>
             {step.content}
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        </ContentSwap>
         {error ? (
           <div className="mt-3 text-xs text-rose-300">{error}</div>
         ) : null}

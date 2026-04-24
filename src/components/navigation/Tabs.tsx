@@ -7,6 +7,7 @@ import {
 } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { ContentSwap } from "../motion/ContentSwap";
 
 const TabsCtx = createContext<{
   value: string;
@@ -180,22 +181,19 @@ export function TabPanel({
   if (!ctx) throw new Error();
   if (ctx.value !== value) return null;
 
-  // No per-panel AnimatePresence. Each TabPanel is a React sibling, so
-  // wrapping each in its own AnimatePresence means the outgoing panel
-  // exits in one tree while the incoming panel enters in another —
-  // both render simultaneously and the content visibly stacks during
-  // the transition. Rendering only the active panel and letting it
-  // fade/translate in on mount keeps the transition clean: the old
-  // panel unmounts synchronously, the new one animates in.
+  // The active panel mounts on tab change; the previous panel unmounts
+  // synchronously (React sibling). ContentSwap here drives a fade-up on
+  // mount — we pass animateInitial so every activation animates, and we
+  // skip `exit` work because siblings mean the old panel is already
+  // gone by the time we render.
   return (
-    <motion.div
-      key={value}
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.18 }}
+    <ContentSwap
+      id={value}
+      variant="fade-up"
+      duration={180}
       className={cn("mt-4", className)}
     >
       {children}
-    </motion.div>
+    </ContentSwap>
   );
 }
