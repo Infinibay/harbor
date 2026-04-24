@@ -6,6 +6,8 @@ import {
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { useFieldRow } from "./FieldRow";
+import { useLabelLane } from "./LabelLane";
 
 interface FormFieldCtx {
   id: string;
@@ -47,7 +49,10 @@ export interface FormFieldProps {
  *    <TextField type="email" />
  *  </FormField>
  *  ```
- */
+ *
+ *  Layout adapts to parent context: inside a `FieldRow`, labels, controls,
+ *  and messages line up across sibling fields via CSS subgrid. Inside a
+ *  `LabelLane`, the label column width is shared across all rows. */
 export function FormField({
   label,
   helper,
@@ -64,6 +69,8 @@ export function FormField({
   const helperId = helper ? `${id}-h` : undefined;
   const errorId = error ? `${id}-e` : undefined;
   const describedBy = [helperId, errorId].filter(Boolean).join(" ") || undefined;
+  const inFieldRow = Boolean(useFieldRow());
+  const inLabelLane = Boolean(useLabelLane());
 
   const ctx: FormFieldCtx = {
     id,
@@ -116,6 +123,61 @@ export function FormField({
       ) : null}
     </AnimatePresence>
   );
+
+  const hasMessage = Boolean(error) || Boolean(helper);
+
+  // Inside a FieldRow: render as a 3-row subgrid span so the label,
+  // control, and message of every sibling field line up to the same Y.
+  if (inFieldRow) {
+    return (
+      <FormFieldContext.Provider value={ctx}>
+        <div
+          className={cn(
+            "flex flex-col gap-1.5 min-w-0",
+            "md:grid md:grid-rows-subgrid md:row-span-3 md:gap-0",
+            className,
+          )}
+        >
+          {labelEl ? (
+            <div className="md:row-start-1 md:self-start">{labelEl}</div>
+          ) : (
+            <div aria-hidden className="hidden md:block md:row-start-1" />
+          )}
+          <div className="md:row-start-2 md:self-start flex flex-col gap-1.5 min-w-0">
+            {children}
+          </div>
+          <div
+            className={cn(
+              "md:row-start-3 md:self-start min-w-0",
+              hasMessage ? undefined : "hidden md:block",
+            )}
+          >
+            {message}
+          </div>
+        </div>
+      </FormFieldContext.Provider>
+    );
+  }
+
+  // Inside a LabelLane: snap into the shared label column via col subgrid.
+  if (inLabelLane) {
+    return (
+      <FormFieldContext.Provider value={ctx}>
+        <div
+          className={cn(
+            "grid grid-cols-1 md:grid-cols-subgrid md:col-span-2 gap-x-6 gap-y-1.5 items-start min-w-0",
+            className,
+          )}
+        >
+          <div className="md:pt-2">{labelEl}</div>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            {children}
+            {message}
+          </div>
+        </div>
+      </FormFieldContext.Provider>
+    );
+  }
 
   return (
     <FormFieldContext.Provider value={ctx}>

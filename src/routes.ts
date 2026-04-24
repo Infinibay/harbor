@@ -18,6 +18,7 @@ export const routeGroups: RouteGroup[] = [
       { path: "/foundations/theming", label: "Theming · customization" },
       { path: "/foundations/buttons", label: "Buttons" },
       { path: "/foundations/inputs", label: "Inputs & Forms" },
+      { path: "/foundations/alignment", label: "Alignment · form grids" },
       { path: "/foundations/display", label: "Display" },
       { path: "/foundations/data", label: "Data" },
       { path: "/foundations/feedback", label: "Feedback" },
