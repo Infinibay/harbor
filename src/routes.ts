@@ -20,6 +20,7 @@ export const routeGroups: RouteGroup[] = [
       { path: "/foundations/inputs", label: "Inputs & Forms" },
       { path: "/foundations/alignment", label: "Alignment · form grids" },
       { path: "/foundations/i18n", label: "I18n · locales · RTL" },
+      { path: "/foundations/forms", label: "Forms · schema · orchestration" },
       { path: "/foundations/display", label: "Display" },
       { path: "/foundations/data", label: "Data" },
       { path: "/foundations/feedback", label: "Feedback" },

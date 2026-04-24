@@ -6,6 +6,7 @@ import { ButtonsPage } from "./pages/foundations/ButtonsPage";
 import { InputsPage } from "./pages/foundations/InputsPage";
 import { AlignmentPage } from "./pages/foundations/AlignmentPage";
 import { I18nPage } from "./pages/foundations/I18nPage";
+import { FormsPage } from "./pages/foundations/FormsPage";
 import { DisplayPage } from "./pages/foundations/DisplayPage";
 import { DataPage } from "./pages/foundations/DataPage";
 import { FeedbackPage } from "./pages/foundations/FeedbackPage";
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="inputs" element={<InputsPage />} />
             <Route path="alignment" element={<AlignmentPage />} />
             <Route path="i18n" element={<I18nPage />} />
+            <Route path="forms" element={<FormsPage />} />
             <Route path="display" element={<DisplayPage />} />
             <Route path="data" element={<DataPage />} />
             <Route path="feedback" element={<FeedbackPage />} />
