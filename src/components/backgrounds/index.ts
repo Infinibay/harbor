@@ -1,5 +1,6 @@
 export * from "./AnimatedBackground";
 export * from "./Aurora";
+export * from "./BackgroundDistortion";
 export * from "./Bubbles";
 export * from "./Constellations";
 export * from "./MacScape";

@@ -8,6 +8,10 @@ import { Orbs, type OrbsProps } from "./Orbs";
 import { PlasmaField, type PlasmaFieldProps } from "./PlasmaField";
 import { Bubbles, type BubblesProps } from "./Bubbles";
 import { MacScape, type MacScapeProps } from "./MacScape";
+import {
+  BackgroundDistortion,
+  type BackgroundDistortionProps,
+} from "./BackgroundDistortion";
 
 export type BackgroundVariant =
   | "mesh"
@@ -70,14 +74,24 @@ export function BackgroundScene({
   bgProps,
   className,
   overlay,
+  distortion,
 }: {
   children?: ReactNode;
   bgProps: AnimatedBackgroundProps;
   /** Optional color/gradient overlay pane above the background for
    *  contrast with content (e.g. `rgba(10,10,15,0.4)`). */
   overlay?: string;
+  /** Distortion preset to layer on top of the background (CRT, grain,
+   *  VHS, …). Passing just a string is shorthand for `{ preset: ... }`. */
+  distortion?: BackgroundDistortionProps | BackgroundDistortionProps["preset"];
   className?: string;
 }) {
+  const distortionProps: BackgroundDistortionProps | null = distortion
+    ? typeof distortion === "string"
+      ? { preset: distortion }
+      : distortion
+    : null;
+
   return (
     <div className={cn("relative", className)}>
       <AnimatedBackground {...bgProps} />
@@ -88,6 +102,7 @@ export function BackgroundScene({
           style={{ background: overlay }}
         />
       ) : null}
+      {distortionProps ? <BackgroundDistortion {...distortionProps} /> : null}
       <div className="relative">{children}</div>
     </div>
   );

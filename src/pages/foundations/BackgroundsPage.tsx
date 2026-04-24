@@ -3,6 +3,7 @@ import { Group, Demo, Row, Col } from "../../showcase/ShowcaseCard";
 import {
   AnimatedBackground,
   Aurora,
+  BackgroundDistortion,
   Bubbles,
   Constellations,
   MacScape,
@@ -12,6 +13,7 @@ import {
   Waves,
   DEFAULT_PALETTE,
   type BackgroundVariant,
+  type DistortionPreset,
 } from "../../components";
 
 const PALETTES = {
@@ -30,6 +32,8 @@ export function BackgroundsPage() {
   const [intensity, setIntensity] = useState(0.6);
   const [palette, setPalette] = useState<PaletteName>("Harbor");
   const [paused, setPaused] = useState(false);
+  const [distortion, setDistortion] = useState<DistortionPreset | "none">("none");
+  const [distIntensity, setDistIntensity] = useState(0.6);
 
   return (
     <Group
@@ -120,6 +124,51 @@ export function BackgroundsPage() {
               paused
             </label>
           </Row>
+          <Row className="gap-2 flex-wrap items-center">
+            <span className="text-[10px] uppercase tracking-widest text-white/40">
+              Distortion
+            </span>
+            {(
+              [
+                "none",
+                "crt",
+                "scanlines",
+                "grain",
+                "vhs",
+                "pixel-grid",
+                "dither",
+                "vignette",
+                "bloom",
+                "interlace",
+              ] as const
+            ).map((d) => (
+              <button
+                key={d}
+                onClick={() => setDistortion(d)}
+                className={`px-2 py-0.5 text-xs rounded border transition-colors ${
+                  distortion === d
+                    ? "bg-fuchsia-500/20 border-fuchsia-400/50 text-fuchsia-100"
+                    : "border-white/10 bg-white/[0.03] text-white/70 hover:bg-white/5"
+                }`}
+              >
+                {d}
+              </button>
+            ))}
+            <label className="flex items-center gap-2 text-xs text-white/70 ml-2">
+              dist. intensity
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={distIntensity}
+                onChange={(e) => setDistIntensity(Number(e.target.value))}
+              />
+              <span className="tabular-nums font-mono w-10 text-right">
+                {distIntensity.toFixed(2)}
+              </span>
+            </label>
+          </Row>
           <div className="relative h-[400px] rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a10]">
             <AnimatedBackground
               variant={variant as BackgroundVariant}
@@ -128,6 +177,12 @@ export function BackgroundsPage() {
               palette={PALETTES[palette]}
               paused={paused}
             />
+            {distortion !== "none" ? (
+              <BackgroundDistortion
+                preset={distortion}
+                intensity={distIntensity}
+              />
+            ) : null}
             <div className="absolute inset-0 grid place-items-center pointer-events-none">
               <div className="text-center">
                 <div className="text-[10px] uppercase tracking-widest text-white/60">
@@ -140,6 +195,93 @@ export function BackgroundsPage() {
             </div>
           </div>
         </Col>
+      </Demo>
+
+      <Demo
+        title="Distortion presets · all nine"
+        hint="Same Aurora underneath. Each card adds one preset on top."
+        wide
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full">
+          {(
+            [
+              "crt",
+              "scanlines",
+              "grain",
+              "vhs",
+              "pixel-grid",
+              "dither",
+              "vignette",
+              "bloom",
+              "interlace",
+            ] as DistortionPreset[]
+          ).map((p) => (
+            <div
+              key={p}
+              className="relative h-44 rounded-xl overflow-hidden border border-white/10 bg-[#0a0a10]"
+            >
+              <Aurora intensity={0.8} />
+              <BackgroundDistortion preset={p} intensity={0.65} />
+              <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/55 backdrop-blur-sm text-[10px] uppercase tracking-widest text-white/90">
+                {p}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Demo>
+
+      <Demo
+        title="CRT · terminal vibes"
+        hint="Scanlines + flicker + vignette over a Mesh"
+        wide
+      >
+        <div className="relative h-[300px] rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a10]">
+          <MeshGradient intensity={0.5} />
+          <BackgroundDistortion preset="crt" intensity={0.75} />
+          <div className="absolute inset-0 grid place-items-center">
+            <div className="font-mono text-emerald-300 text-sm leading-relaxed text-center mix-blend-screen">
+              <div>$ ssh prod-01.harbor</div>
+              <div className="opacity-70">Last login: Fri Apr 24 2026</div>
+              <div className="mt-2">harbor&gt; <span className="animate-pulse">_</span></div>
+            </div>
+          </div>
+        </div>
+      </Demo>
+
+      <Demo
+        title="VHS · tracking band drifts down"
+        hint="RGB fringing + slow white sweep. Looks like a tape rewinding."
+        wide
+      >
+        <div className="relative h-[300px] rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a10]">
+          <Waves intensity={0.7} palette={["#f472b6", "#38bdf8", "#a855f7"]} />
+          <BackgroundDistortion preset="vhs" intensity={0.7} />
+        </div>
+      </Demo>
+
+      <Demo
+        title="Pixel-grid · LCD phosphor feel"
+        hint="4px cells tinted fuchsia. Great for retro-game hero areas."
+      >
+        <div className="relative h-[240px] rounded-xl overflow-hidden border border-white/10 bg-[#0a0a10]">
+          <PlasmaField intensity={0.8} />
+          <BackgroundDistortion
+            preset="pixel-grid"
+            intensity={0.9}
+            tint="#f0abfc"
+          />
+        </div>
+      </Demo>
+
+      <Demo
+        title="Compose · grain + vignette"
+        hint="Distortion layers stack. Grain adds texture; vignette frames it."
+      >
+        <div className="relative h-[240px] rounded-xl overflow-hidden border border-white/10 bg-[#0a0a10]">
+          <MacScape layers={5} blur={10} />
+          <BackgroundDistortion preset="grain" intensity={0.5} />
+          <BackgroundDistortion preset="vignette" intensity={0.7} />
+        </div>
       </Demo>
 
       <Demo title="All eight · side-by-side" wide>

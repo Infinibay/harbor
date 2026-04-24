@@ -326,3 +326,33 @@ input::-webkit-inner-spin-button {
 .focus-bloom:focus-visible {
   animation: focus-bloom 0.7s ease-out;
 }
+
+/* Distortion overlay keyframes — used by BackgroundDistortion presets
+   (crt / vhs / scanlines). Reduced-motion users get the static look. */
+@keyframes harbor-crt-flicker {
+  0%, 100% { opacity: var(--harbor-crt-opacity, 1); }
+  47% { opacity: calc(var(--harbor-crt-opacity, 1) - var(--harbor-crt-flick, 0.04)); }
+  52% { opacity: var(--harbor-crt-opacity, 1); }
+  71% { opacity: calc(var(--harbor-crt-opacity, 1) - var(--harbor-crt-flick, 0.04) * 1.4); }
+  73% { opacity: var(--harbor-crt-opacity, 1); }
+}
+@keyframes harbor-scanline-roll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 var(--harbor-scanline-step, 6px); }
+}
+@keyframes harbor-vhs-track {
+  0% { transform: translate3d(0, -25%, 0); }
+  100% { transform: translate3d(0, 120%, 0); }
+}
+@keyframes harbor-vhs-jitter {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  20% { transform: translate3d(0.5px, 0, 0); }
+  40% { transform: translate3d(-0.3px, 0, 0); }
+  60% { transform: translate3d(0.2px, 0, 0); }
+  80% { transform: translate3d(-0.4px, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .harbor-distort-anim {
+    animation: none !important;
+  }
+}
