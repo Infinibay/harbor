@@ -98,7 +98,7 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
 
   if (ctx.variant === "pill")
     return (
-      <button
+      <button type="button"
         onClick={() => !disabled && ctx.onChange(value)}
         disabled={disabled}
         data-cursor="button"
@@ -124,7 +124,7 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
 
   if (ctx.variant === "underline")
     return (
-      <button
+      <button type="button"
         onClick={() => !disabled && ctx.onChange(value)}
         disabled={disabled}
         data-cursor="button"
@@ -150,7 +150,7 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
     );
 
   return (
-    <button
+    <button type="button"
       onClick={() => !disabled && ctx.onChange(value)}
       disabled={disabled}
       data-cursor="button"
