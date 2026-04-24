@@ -890,7 +890,7 @@ describe("DataTable — density / export / row actions (4f)", () => {
       await user.click(screen.getByRole("button", { name: /Export/i }));
       await user.click(await screen.findByText(/Export as CSV/i));
       expect(createObjectURL).toHaveBeenCalled();
-      const blob = createObjectURL.mock.calls[0][0] as Blob;
+      const blob = (createObjectURL.mock.calls[0] as unknown as [Blob])[0];
       // Read bytes directly so we can see the BOM + CRLF that
       // `blob.text()` / TextDecoder would silently strip.
       const buf = new Uint8Array(await blob.arrayBuffer());
