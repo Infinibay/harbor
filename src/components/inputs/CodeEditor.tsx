@@ -14,6 +14,7 @@ import { cn } from "../../lib/cn";
 import { useCodeEditor, type Selection } from "../../lib/code/useCodeEditor";
 import { matchBracket, type BracketMatch } from "../../lib/code/brackets";
 import type { Diagnostic, Language, Token } from "../../lib/code/types";
+import { useT } from "../../lib/i18n";
 
 export interface CodeEditorProps
   extends Omit<
@@ -74,6 +75,8 @@ export function CodeEditor({
   ...rest
 }: CodeEditorProps) {
   const autoId = useId();
+  const diagnosticsListId = `${autoId}-diagnostics`;
+  const { t } = useT();
   const editor = useCodeEditor({
     value,
     defaultValue,
@@ -823,7 +826,7 @@ export function CodeEditor({
       {showLineNumbers && (
         <div
           aria-hidden
-          className="shrink-0 select-none text-right text-[rgb(var(--harbor-text-subtle))] border-r border-white/5 bg-[rgb(var(--harbor-bg))]/40"
+          className="shrink-0 select-none text-right text-[rgb(var(--harbor-text-subtle))] border-r border-white/5 bg-[rgb(var(--harbor-bg))]/40 relative"
           style={{
             ...textStyle,
             width: gutterWidth,
@@ -835,11 +838,33 @@ export function CodeEditor({
         >
           <div style={{ transform: `translateY(${-scrollTop}px)` }}>
             <div style={{ height: startLine * LINE_HEIGHT }} />
-            {Array.from({ length: endLine - startLine }, (_, i) => (
-              <div key={startLine + i} style={{ height: LINE_HEIGHT }}>
-                {startLine + i + 1}
-              </div>
-            ))}
+            {Array.from({ length: endLine - startLine }, (_, i) => {
+              const lineNum = startLine + i + 1;
+              const worstSeverity = worstDiagnosticOnLine(diagnostics, lineNum);
+              return (
+                <div
+                  key={startLine + i}
+                  style={{ height: LINE_HEIGHT }}
+                  className="relative"
+                >
+                  {worstSeverity && (
+                    <span
+                      className={cn(
+                        "absolute top-1.5 left-0 w-1.5 h-1.5 rounded-full",
+                        worstSeverity === "error" &&
+                          "bg-[rgb(var(--harbor-danger))]",
+                        worstSeverity === "warning" &&
+                          "bg-[rgb(var(--harbor-warning))]",
+                        (worstSeverity === "info" ||
+                          worstSeverity === "hint") &&
+                          "bg-[rgb(var(--harbor-info))]",
+                      )}
+                    />
+                  )}
+                  {lineNum}
+                </div>
+              );
+            })}
             <div
               style={{
                 height: Math.max(0, (editor.lineCount - endLine) * LINE_HEIGHT),
@@ -881,6 +906,42 @@ export function CodeEditor({
             />
           </>
         )}
+        {diagnostics.map((d, i) => {
+          const ln = d.line - 1;
+          const col0 = (d.column ?? 1) - 1;
+          const endLn = (d.endLine ?? d.line) - 1;
+          const endCol = d.endColumn ?? (editor.lines[endLn]?.length ?? col0 + 1) + 1;
+          // Only render on the first line when diagnostic spans multiple —
+          // keeps the overlay simple for the 99% case.
+          const top = PADDING_Y + ln * LINE_HEIGHT + LINE_HEIGHT - 3;
+          const left = PADDING_X + col0 * charWidth;
+          const width = Math.max(
+            charWidth,
+            (endLn === ln ? endCol - 1 - col0 : editor.lines[ln].length - col0) * charWidth,
+          );
+          const color =
+            d.severity === "error"
+              ? "rgb(var(--harbor-danger))"
+              : d.severity === "warning"
+              ? "rgb(var(--harbor-warning))"
+              : "rgb(var(--harbor-info))";
+          return (
+            <span
+              key={`diag-${i}`}
+              aria-hidden
+              title={d.message}
+              style={{
+                position: "absolute",
+                top,
+                left,
+                width,
+                height: 3,
+                backgroundImage: `repeating-linear-gradient(135deg, ${color} 0 2px, transparent 2px 4px)`,
+                pointerEvents: "none",
+              }}
+            />
+          );
+        })}
         {find.open &&
           findMatches.map((m, i) => {
             const { line: ln, col: c0 } = editor.lineAt(m.from);
@@ -912,6 +973,14 @@ export function CodeEditor({
           aria-label={ariaLabel}
           aria-multiline="true"
           aria-readonly={readOnly || undefined}
+          aria-errormessage={
+            diagnostics.some((d) => d.severity === "error")
+              ? diagnosticsListId
+              : undefined
+          }
+          aria-invalid={
+            diagnostics.some((d) => d.severity === "error") ? true : undefined
+          }
           data-cursor="text"
           value={editor.value}
           readOnly={readOnly}
@@ -938,6 +1007,30 @@ export function CodeEditor({
           }}
         />
       </div>
+      {diagnostics.length > 0 && (
+        <ul
+          id={diagnosticsListId}
+          className="sr-only"
+          aria-live="polite"
+        >
+          {diagnostics.map((d, i) => {
+            const label =
+              d.severity === "error"
+                ? t("harbor.codeeditor.diagnosticError")
+                : d.severity === "warning"
+                ? t("harbor.codeeditor.diagnosticWarning")
+                : d.severity === "info"
+                ? t("harbor.codeeditor.diagnosticInfo")
+                : t("harbor.codeeditor.diagnosticHint");
+            return (
+              <li key={i}>
+                {label}: {d.message} (line {d.line}
+                {d.column !== undefined ? `, col ${d.column}` : ""})
+              </li>
+            );
+          })}
+        </ul>
+      )}
       {find.open && (
         <FindPanel
           state={find}
@@ -989,6 +1082,7 @@ function FindPanel({
   onClose,
   readOnly,
 }: FindPanelProps) {
+  const { t } = useT();
   const queryRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     queryRef.current?.focus();
@@ -998,7 +1092,7 @@ function FindPanel({
   return (
     <div
       role="region"
-      aria-label="Find and replace"
+      aria-label={t("harbor.codeeditor.regionLabel")}
       className="absolute top-2 right-2 z-10 rounded-md border border-white/10 bg-[rgb(var(--harbor-bg-elev-2))] shadow-md p-2 flex flex-col gap-1 text-xs"
       onKeyDown={(e) => {
         if (e.key === "Escape") {
@@ -1010,9 +1104,9 @@ function FindPanel({
       <div className="flex items-center gap-1">
         <input
           ref={queryRef}
-          aria-label="Search"
+          aria-label={t("harbor.codeeditor.searchLabel")}
           className="w-48 bg-black/20 border border-white/10 rounded px-2 py-1 outline-none focus:border-[rgb(var(--harbor-accent))]"
-          placeholder="Find…"
+          placeholder={t("harbor.codeeditor.findPlaceholder")}
           value={state.query}
           onChange={(e) => setState((s) => ({ ...s, query: e.target.value }))}
           onKeyDown={(e) => {
@@ -1025,7 +1119,7 @@ function FindPanel({
         />
         <button
           type="button"
-          aria-label="Previous match"
+          aria-label={t("harbor.codeeditor.prev")}
           className="px-1.5 py-1 rounded hover:bg-white/5"
           onClick={onPrev}
         >
@@ -1033,18 +1127,20 @@ function FindPanel({
         </button>
         <button
           type="button"
-          aria-label="Next match"
+          aria-label={t("harbor.codeeditor.next")}
           className="px-1.5 py-1 rounded hover:bg-white/5"
           onClick={onNext}
         >
           ↓
         </button>
         <span className="text-[10px] text-[rgb(var(--harbor-text-muted))] tabular-nums min-w-[56px] text-right">
-          {matchCount === 0 ? "No results" : `${currentHuman}/${matchCount}`}
+          {matchCount === 0
+            ? t("harbor.codeeditor.noMatches")
+            : `${currentHuman}/${matchCount}`}
         </span>
         <button
           type="button"
-          aria-label="Close"
+          aria-label={t("harbor.codeeditor.close")}
           className="px-1.5 py-1 rounded hover:bg-white/5"
           onClick={onClose}
         >
@@ -1054,19 +1150,19 @@ function FindPanel({
       <div className="flex items-center gap-1">
         <FindToggle
           label="Aa"
-          title="Case sensitive"
+          title={t("harbor.codeeditor.caseSensitive")}
           active={state.caseSensitive}
           onClick={() => setState((s) => ({ ...s, caseSensitive: !s.caseSensitive }))}
         />
         <FindToggle
           label="W"
-          title="Whole word"
+          title={t("harbor.codeeditor.wholeWord")}
           active={state.wholeWord}
           onClick={() => setState((s) => ({ ...s, wholeWord: !s.wholeWord }))}
         />
         <FindToggle
           label=".*"
-          title="Regex"
+          title={t("harbor.codeeditor.regex")}
           active={state.regex}
           onClick={() => setState((s) => ({ ...s, regex: !s.regex }))}
         />
@@ -1076,16 +1172,16 @@ function FindPanel({
             className="ml-auto text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))]"
             onClick={() => setState((s) => ({ ...s, withReplace: true }))}
           >
-            Replace…
+            {t("harbor.codeeditor.replace")}…
           </button>
         )}
       </div>
       {state.withReplace && !readOnly && (
         <div className="flex items-center gap-1">
           <input
-            aria-label="Replace with"
+            aria-label={t("harbor.codeeditor.replaceLabel")}
             className="w-48 bg-black/20 border border-white/10 rounded px-2 py-1 outline-none focus:border-[rgb(var(--harbor-accent))]"
-            placeholder="Replace with…"
+            placeholder={t("harbor.codeeditor.replacePlaceholder")}
             value={state.replace}
             onChange={(e) => setState((s) => ({ ...s, replace: e.target.value }))}
           />
@@ -1094,14 +1190,14 @@ function FindPanel({
             className="px-2 py-1 rounded border border-white/10 hover:bg-white/5"
             onClick={onReplace}
           >
-            Replace
+            {t("harbor.codeeditor.replaceOne")}
           </button>
           <button
             type="button"
             className="px-2 py-1 rounded border border-white/10 hover:bg-white/5"
             onClick={onReplaceAll}
           >
-            All
+            {t("harbor.codeeditor.replaceAll")}
           </button>
         </div>
       )}
@@ -1244,6 +1340,25 @@ function HighlightLine({ line, tokens }: HighlightLineProps) {
 
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function worstDiagnosticOnLine(
+  diagnostics: readonly Diagnostic[],
+  line: number,
+): Diagnostic["severity"] | null {
+  let worst: Diagnostic["severity"] | null = null;
+  const rank: Record<Diagnostic["severity"], number> = {
+    error: 4,
+    warning: 3,
+    info: 2,
+    hint: 1,
+  };
+  for (const d of diagnostics) {
+    if (d.line === line) {
+      if (!worst || rank[d.severity] > rank[worst]) worst = d.severity;
+    }
+  }
+  return worst;
 }
 
 function tokenClass(type: Token["type"]): string {

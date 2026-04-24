@@ -431,6 +431,57 @@ describe("CodeEditor — virtualization", () => {
   });
 });
 
+describe("CodeEditor — diagnostics", () => {
+  it("renders gutter markers for lines with diagnostics", () => {
+    const { container } = renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue={"good\nbad\nok"}
+        language={jsLang()}
+        diagnostics={[
+          { line: 2, severity: "error", message: "parse error" },
+        ]}
+      />,
+    );
+    // Look for the severity marker class.
+    const markers = container.querySelectorAll(".bg-\\[rgb\\(var\\(--harbor-danger\\)\\)\\]");
+    expect(markers.length).toBeGreaterThan(0);
+  });
+
+  it("sets aria-invalid + aria-errormessage when an error is present", () => {
+    renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue="hi"
+        language={jsLang()}
+        diagnostics={[
+          { line: 1, severity: "error", message: "oh no" },
+        ]}
+      />,
+    );
+    const ta = screen.getByLabelText("source");
+    expect(ta.getAttribute("aria-invalid")).toBe("true");
+    expect(ta.getAttribute("aria-errormessage")).toBeTruthy();
+  });
+
+  it("exposes the message to assistive tech via the live region", () => {
+    const { container } = renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue="hi"
+        language={jsLang()}
+        diagnostics={[
+          { line: 1, column: 3, severity: "warning", message: "style nit" },
+        ]}
+      />,
+    );
+    const srOnly = container.querySelector(".sr-only");
+    expect(srOnly?.textContent).toContain("style nit");
+    expect(srOnly?.textContent).toContain("line 1");
+    expect(srOnly?.textContent).toContain("col 3");
+  });
+});
+
 describe("CodeEditor — a11y", () => {
   it("passes axe with label + default content", async () => {
     const { container } = renderWithHarbor(
@@ -440,6 +491,25 @@ describe("CodeEditor — a11y", () => {
         language={jsLang()}
       />,
     );
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("passes axe with diagnostics + find panel open", async () => {
+    const { container, user } = renderWithHarbor(
+      <CodeEditor
+        ariaLabel="source"
+        defaultValue={"alpha\nbeta\ngamma"}
+        language={jsLang()}
+        diagnostics={[
+          { line: 2, column: 1, severity: "error", message: "bad" },
+        ]}
+      />,
+    );
+    const ta = screen.getByLabelText("source");
+    await user.click(ta);
+    await user.keyboard("{Control>}f{/Control}");
+    const search = screen.getByLabelText("Search") as HTMLInputElement;
+    await user.type(search, "a");
     expect(await axe(container)).toHaveNoViolations();
   });
 
