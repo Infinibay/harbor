@@ -898,12 +898,21 @@ export function CodeEditor({
       )}
       <div
         ref={scrollRef}
-        className="relative flex-1 min-w-0 overflow-auto"
+        className="flex-1 min-w-0 overflow-auto"
         onScroll={(e) => {
           setScrollTop(e.currentTarget.scrollTop);
         }}
         dir="ltr"
       >
+        {/*
+          Inner wrapper sized to the highlight layer's intrinsic content
+          height. Both the highlighted display and the input textarea
+          live inside this single scrollable surface so they stay
+          aligned: dragging a selection past the viewport autoscrolls
+          the OUTER container (the only scrollable ancestor), and the
+          textarea cannot scroll independently of the highlight.
+        */}
+        <div className="relative min-h-full">
         <HighlightLayer
           lines={editor.lines}
           tokensForLine={editor.tokensForLine}
@@ -1027,8 +1036,13 @@ export function CodeEditor({
             padding: `${PADDING_Y}px ${PADDING_X}px`,
             whiteSpace: "pre",
             overflowWrap: "normal",
+            // Prevent the textarea from establishing its own scroll
+            // surface — drag-select autoscroll bubbles to the outer
+            // container, keeping the highlight layer in sync.
+            overflow: "hidden",
           }}
         />
+        </div>
       </div>
       {diagnostics.length > 0 && (
         <ul
