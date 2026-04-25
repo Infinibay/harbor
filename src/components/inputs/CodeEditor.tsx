@@ -97,18 +97,34 @@ export function CodeEditor({
   // Programmatic value updates — keep textarea in sync when caller
   // controls `value`. React does this for us but we also propagate
   // selection state after inserts so the caret lands where we set it.
+  //
+  // `latestValueRef` and `latestSelectionRef` exist because the React
+  // controlled-component cycle is asynchronous: a `setValue` call queues
+  // a parent re-render, but a second keydown that fires before that
+  // render commits would otherwise read the previous value/selection
+  // from a stale closure and overwrite the first edit. The refs are
+  // updated synchronously inside `replaceRange` so consecutive same-tick
+  // keystrokes compose instead of clobbering.
   const pendingSelectionRef = useRef<Selection | null>(null);
+  const latestValueRef = useRef(editor.value);
+  const latestSelectionRef = useRef<Selection | null>(null);
+
   useLayoutEffect(() => {
+    latestValueRef.current = editor.value;
     const ta = textareaRef.current;
     if (!ta) return;
     if (pendingSelectionRef.current) {
       const { start, end } = pendingSelectionRef.current;
       ta.setSelectionRange(start, end);
       pendingSelectionRef.current = null;
+      latestSelectionRef.current = null;
     }
   }, [editor.value, textareaRef]);
 
   const readSelection = useCallback((): Selection => {
+    // Prefer the in-flight selection set by a previous same-tick edit;
+    // the textarea's `selectionStart` lags behind until React commits.
+    if (latestSelectionRef.current) return latestSelectionRef.current;
     const ta = textareaRef.current;
     if (!ta) return { start: 0, end: 0 };
     return { start: ta.selectionStart ?? 0, end: ta.selectionEnd ?? 0 };
@@ -116,9 +132,13 @@ export function CodeEditor({
 
   const replaceRange = useCallback(
     (from: number, to: number, text: string, nextSel?: Selection) => {
-      const v = editor.value;
+      const v = latestValueRef.current;
       const next = v.slice(0, from) + text + v.slice(to);
-      if (nextSel) pendingSelectionRef.current = nextSel;
+      latestValueRef.current = next;
+      if (nextSel) {
+        pendingSelectionRef.current = nextSel;
+        latestSelectionRef.current = nextSel;
+      }
       editor.setValue(next);
     },
     [editor],
@@ -126,6 +146,10 @@ export function CodeEditor({
 
   const handleTextareaChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      // User-driven native edit — clear in-flight programmatic state so
+      // subsequent reads pick up the textarea's authoritative position.
+      latestValueRef.current = e.target.value;
+      latestSelectionRef.current = null;
       editor.setValue(e.target.value);
     },
     [editor],
@@ -140,13 +164,13 @@ export function CodeEditor({
 
   const extractLineRange = useCallback(
     (start: number, end: number) => {
-      const v = editor.value;
+      const v = latestValueRef.current;
       const lineStart = v.lastIndexOf("\n", start - 1) + 1;
       let lineEnd = v.indexOf("\n", end);
       if (lineEnd === -1) lineEnd = v.length;
       return { lineStart, lineEnd };
     },
-    [editor.value],
+    [],
   );
 
   const handleTab = useCallback(
@@ -158,7 +182,7 @@ export function CodeEditor({
           // dedent current line — strip leading whitespace from lineStart,
           // regardless of where the caret is on the line
           const { lineStart } = extractLineRange(start, end);
-          const leading = editor.value.slice(lineStart);
+          const leading = latestValueRef.current.slice(lineStart);
           let removed = 0;
           while (
             removed < indentSize &&
@@ -182,7 +206,7 @@ export function CodeEditor({
       }
       // multi-line indent / dedent
       const { lineStart, lineEnd } = extractLineRange(start, end);
-      const block = editor.value.slice(lineStart, lineEnd);
+      const block = latestValueRef.current.slice(lineStart, lineEnd);
       const out = shift
         ? block
             .split("\n")
@@ -217,20 +241,20 @@ export function CodeEditor({
 
   const currentLineIndent = useCallback(
     (offset: number): string => {
-      const v = editor.value;
+      const v = latestValueRef.current;
       const lineStart = v.lastIndexOf("\n", offset - 1) + 1;
       const m = v.slice(lineStart).match(/^[\t ]*/);
       return m ? m[0] : "";
     },
-    [editor.value],
+    [],
   );
 
   const handleEnter = useCallback((): boolean => {
     if (!autoIndent || readOnly) return false;
     const { start, end } = readSelection();
     const indent = currentLineIndent(start);
-    const prevChar = editor.value.charAt(start - 1);
-    const nextChar = editor.value.charAt(end);
+    const prevChar = latestValueRef.current.charAt(start - 1);
+    const nextChar = latestValueRef.current.charAt(end);
     const opens = prevChar.length === 1 && "{([".includes(prevChar);
     const closes = nextChar.length === 1 && "})]".includes(nextChar);
     if (opens && closes) {
@@ -266,7 +290,7 @@ export function CodeEditor({
       if (!close) return false;
       const { start, end } = readSelection();
       if (start !== end) {
-        const selected = editor.value.slice(start, end);
+        const selected = latestValueRef.current.slice(start, end);
         replaceRange(start, end, open + selected + close, {
           start: start + 1,
           end: end + 1,
@@ -287,19 +311,18 @@ export function CodeEditor({
       if (!autoClose || readOnly) return false;
       const { start, end } = readSelection();
       if (start !== end) return false;
-      if (editor.value.charAt(start) !== ch) return false;
+      if (latestValueRef.current.charAt(start) !== ch) return false;
       // only skip for actual close characters we might have inserted
       if (!/[)\]}"'`]/.test(ch)) return false;
-      pendingSelectionRef.current = { start: start + 1, end: start + 1 };
-      editor.setValue(editor.value); // no-op content change, triggers effect
-      // Setting the selection manually — direct setSelectionRange avoids
-      // flushing the pending selection through the React state roundtrip.
+      // Move the caret directly — no value change, no React roundtrip.
+      // Track the new position in the latestSelectionRef so a same-tick
+      // follow-up keystroke composes from the correct caret.
       const ta = textareaRef.current;
       if (ta) ta.setSelectionRange(start + 1, start + 1);
-      pendingSelectionRef.current = null;
+      latestSelectionRef.current = { start: start + 1, end: start + 1 };
       return true;
     },
-    [autoClose, editor, readOnly, readSelection, textareaRef],
+    [autoClose, readOnly, readSelection, textareaRef],
   );
 
   const handleToggleLineComment = useCallback((): boolean => {
