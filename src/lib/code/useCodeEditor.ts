@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { TokenCache } from "./cache";
 import type { Diagnostic, Language, Token } from "./types";
 
@@ -71,24 +71,29 @@ export function useCodeEditor<State = unknown>(
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
 
-  // Re-create the cache when the language changes (identity-compared).
+  // Cache + invalidation must be synchronised DURING render: token
+  // lookups happen in the same render that produces a new `lines`
+  // array, so deferring invalidation to a useEffect would emit stale
+  // tokens for one render — visible as a 1-character highlight lag
+  // while typing.
   const cacheRef = useRef<TokenCache<State>>(null as unknown as TokenCache<State>);
   if (cacheRef.current === null || cacheRef.current === undefined) {
     cacheRef.current = new TokenCache(language, tabSize);
-  }
-  useEffect(() => {
+  } else {
+    // Both setters early-out when the value matches, so this is cheap.
     cacheRef.current.setLanguage(language);
     cacheRef.current.setTabSize(tabSize);
-  }, [language, tabSize]);
+  }
 
   const lines = useMemo(() => value.split("\n"), [value]);
   const lineCount = lines.length;
 
-  // Invalidate cache from the first changed line on every value change.
-  const prevLinesRef = useRef<readonly string[]>(lines);
-  useEffect(() => {
+  // Invalidate from the first changed line synchronously, before any
+  // `tokensForLine` call in this render reads the cache.
+  const prevLinesRef = useRef<readonly string[] | null>(null);
+  if (prevLinesRef.current !== lines) {
     const prev = prevLinesRef.current;
-    if (prev !== lines) {
+    if (prev) {
       let firstChange = 0;
       const minLen = Math.min(prev.length, lines.length);
       while (
@@ -98,9 +103,9 @@ export function useCodeEditor<State = unknown>(
         firstChange++;
       }
       cacheRef.current.invalidateFrom(firstChange);
-      prevLinesRef.current = lines;
     }
-  }, [lines]);
+    prevLinesRef.current = lines;
+  }
 
   const setValue = useCallback(
     (next: string) => {
