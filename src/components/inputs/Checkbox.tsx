@@ -40,14 +40,20 @@ export function Checkbox({
         onChange={onChange}
         {...rest}
       />
+      {/* Motion cannot interpolate colors expressed via CSS var() —
+          rgb(var(--harbor-text) / ...) is computed by the browser at
+          render time, not a parseable color string. Use literal rgba
+          for the off-state so animation stays smooth. The tone is
+          close to both the dark and light harbor-text defaults, so
+          theme switching remains visually acceptable. */}
       <motion.span
         animate={{
           background: isChecked
             ? "linear-gradient(135deg,#a855f7,#38bdf8)"
-            : "rgb(var(--harbor-text) / 0.06)",
+            : "rgba(148,163,184,0.08)",
           borderColor: isChecked
             ? "rgba(168, 85, 247, 0.5)"
-            : "rgb(var(--harbor-text) / 0.35)",
+            : "rgba(148,163,184,0.35)",
         }}
         whileTap={{ scale: 0.85 }}
         transition={{ type: "spring", stiffness: 400, damping: 20 }}

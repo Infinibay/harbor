@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
 import { useAnimationFrame } from "../../lib/useAnimationFrame";
 import { DEFAULT_PALETTE, type BackgroundCommonProps } from "./types";
@@ -63,12 +63,17 @@ export function Aurora({
     register(el);
   };
 
-  // One-off: trigger re-render once so `ref={...}` gets attached to the
-  // paths (strict mode safe).
-  if (pathRefs.current.length !== bands) {
-    pathRefs.current = new Array(bands).fill(null);
-    setTimeout(() => bump((n) => n + 1), 0);
-  }
+  // Keep the ref array in sync with band count. Doing this in an effect
+  // instead of during render avoids the "state update during render"
+  // warning and is strict-mode safe.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (pathRefs.current.length !== bands) {
+      pathRefs.current = new Array(bands).fill(null);
+      bump((n) => n + 1);
+    }
+  }, [bands]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <div

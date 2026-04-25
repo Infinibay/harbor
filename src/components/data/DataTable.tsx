@@ -1314,14 +1314,17 @@ function CheckCell({
       whileTap={disabled ? undefined : { scale: 0.85 }}
       disabled={disabled}
       animate={{
+        // Motion cannot interpolate `rgb(var(--x) / ...)` — the browser
+        // resolves CSS vars at render time, so the color string isn't
+        // parseable. Use literal rgba for the off-state.
         background:
           checked || indeterminate
             ? "linear-gradient(135deg,#a855f7,#38bdf8)"
-            : "rgb(var(--harbor-text) / 0.06)",
+            : "rgba(148,163,184,0.08)",
         borderColor:
           checked || indeterminate
             ? "transparent"
-            : "rgb(var(--harbor-text) / 0.35)",
+            : "rgba(148,163,184,0.35)",
         opacity: disabled ? 0.35 : 1,
       }}
       className="w-4 h-4 rounded border grid place-items-center disabled:cursor-not-allowed"
