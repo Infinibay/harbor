@@ -800,11 +800,12 @@ export function DataTable<T>(props: DataTableProps<T>) {
                     <motion.div
                       key={id}
                       role="row"
+                      data-selected={selected ? "true" : undefined}
                       aria-rowindex={rowIndex + 2}
                       aria-selected={selectable ? selected : undefined}
                       initial={false}
                       className={cn(
-                        "grid border-b border-white/5 transition-colors",
+                        "group/row grid border-b border-white/5 transition-colors",
                         "hover:bg-white/[0.03]",
                         selected && "bg-fuchsia-500/[0.08]",
                         onRowClick && "cursor-pointer",
@@ -1191,13 +1192,17 @@ function BodyCell({
   children,
 }: BodyCellProps) {
   const sticky = stickyStart != null || stickyEnd != null;
+  // Sticky cells need an opaque background so content scrolling under them
+  // doesn't bleed through. We layer two backgrounds: the base body color +
+  // an overlay that mirrors the row's hover/selected tint via group-hover
+  // and the parent row's data-selected attribute. Without this the sticky
+  // checkbox column reads as a separate dark stripe that ignores row state.
   const style: CSSProperties | undefined = sticky
     ? {
         position: "sticky",
         insetInlineStart: stickyStart,
         insetInlineEnd: stickyEnd,
         zIndex,
-        background: "rgb(15 15 22)",
       }
     : undefined;
   return (
@@ -1211,6 +1216,13 @@ function BodyCell({
         CELL_PADDING_X[density],
         ROW_HEIGHT_CLASS[density],
         ALIGN_CLASS[align],
+        // Sticky cells need an opaque base + overlays that mirror the row's
+        // hover / selected tints, otherwise they paint as a dark stripe that
+        // ignores row state. The row sets `group/row` and data-selected.
+        sticky && "relative bg-[rgb(15_15_22)]",
+        sticky && "before:content-[''] before:absolute before:inset-0 before:pointer-events-none before:transition-colors",
+        sticky && "group-hover/row:before:bg-white/[0.03]",
+        sticky && "group-data-[selected=true]/row:before:bg-fuchsia-500/[0.08]",
         active &&
           "outline outline-2 outline-offset-[-2px] outline-fuchsia-400/70",
       )}
@@ -1218,7 +1230,7 @@ function BodyCell({
       onClick={onClick}
       onDoubleClick={onDoubleClick}
     >
-      <span className="truncate" data-measure>
+      <span className="truncate relative z-[1]" data-measure>
         {children}
       </span>
     </div>
