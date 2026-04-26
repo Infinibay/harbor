@@ -46,3 +46,6 @@ coverage
 # OS
 .DS_Store
 Thumbs.db
+
+# Infinidev local
+.infinidev/
