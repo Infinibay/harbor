@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { cn } from "../../lib/cn";
+import { Select } from "./Select";
 
 export type QueryOp =
   | "=="
@@ -135,41 +136,31 @@ function ConditionEditor({
 
   return (
     <div className="flex flex-wrap items-center gap-1.5 py-1">
-      <select
+      <Select
+        size="sm"
+        placeholder="field…"
+        menuWidth="auto"
         value={value.field}
-        onChange={(e) => onChange({ ...value, field: e.target.value })}
-        className="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40"
-      >
-        <option value="">field…</option>
-        {fields.map((f) => (
-          <option key={f.id} value={f.id}>
-            {f.label}
-          </option>
-        ))}
-      </select>
-      <select
+        onChange={(v: string) => onChange({ ...value, field: v })}
+        options={fields.map((f) => ({ value: f.id, label: f.label }))}
+        className="w-auto"
+      />
+      <Select
+        size="sm"
         value={value.op}
-        onChange={(e) => onChange({ ...value, op: e.target.value as QueryOp })}
-        className="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40 font-mono"
-      >
-        {ops.map((op) => (
-          <option key={op} value={op}>
-            {op}
-          </option>
-        ))}
-      </select>
+        onChange={(v: string) => onChange({ ...value, op: v as QueryOp })}
+        options={ops.map((op) => ({ value: op, label: op }))}
+        className="w-auto font-mono"
+      />
       {field?.kind === "enum" ? (
-        <select
+        <Select
+          size="sm"
+          menuWidth="auto"
           value={String(value.value)}
-          onChange={(e) => onChange({ ...value, value: e.target.value })}
-          className="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40"
-        >
-          {(field.options ?? []).map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+          onChange={(v: string) => onChange({ ...value, value: v })}
+          options={(field.options ?? []).map((o) => ({ value: o.value, label: o.label }))}
+          className="w-auto"
+        />
       ) : value.op === "between" ? (
         <BetweenEditor value={value} onChange={onChange} />
       ) : (
@@ -188,7 +179,7 @@ function ConditionEditor({
             })
           }
           placeholder={value.op === "in" ? "a, b, c" : "value"}
-          className="min-w-[140px] bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
+          className="h-7 min-w-[140px] bg-white/5 border border-white/10 rounded-md px-2 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
         />
       )}
       {onRemove ? (
@@ -218,14 +209,14 @@ function BetweenEditor({
         type="number"
         value={pair[0] ?? ""}
         onChange={(e) => onChange({ ...value, value: [e.target.value, pair[1] ?? ""] })}
-        className="w-20 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
+        className="h-7 w-20 bg-white/5 border border-white/10 rounded-md px-2 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
       />
       <span className="text-white/40">and</span>
       <input
         type="number"
         value={pair[1] ?? ""}
         onChange={(e) => onChange({ ...value, value: [pair[0] ?? "", e.target.value] })}
-        className="w-20 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
+        className="h-7 w-20 bg-white/5 border border-white/10 rounded-md px-2 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
       />
     </div>
   );

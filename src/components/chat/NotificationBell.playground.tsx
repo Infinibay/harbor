@@ -1,5 +1,5 @@
 import { NotificationBell } from "./NotificationBell";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const samples = [
   { id: "1", title: "Ana commented on PR #421", at: new Date(Date.now() - 1000 * 60 * 5), read: false },

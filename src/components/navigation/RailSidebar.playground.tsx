@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { RailSidebar } from "./RailSidebar";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const items = [
   { id: "files", label: "Files", icon: <span>📁</span> },

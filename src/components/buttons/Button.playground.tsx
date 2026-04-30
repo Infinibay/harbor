@@ -1,5 +1,5 @@
 import { Button } from "./Button";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 /**
  * Playground manifest for <Button>. Only the props that make sense to

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { ReactionsBar } from "./ReactionsBar";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ReactionsBarDemo(props: any) {
   const [reactions, setReactions] = useState([
-    { emoji: "👍", count: 4, byMe: false },
-    { emoji: "🎉", count: 2, byMe: true },
+    { emoji: "👍", count: 4, mine: false },
+    { emoji: "🎉", count: 2, mine: true },
   ]);
   return (
     <ReactionsBar
@@ -17,13 +17,13 @@ function ReactionsBarDemo(props: any) {
           const i = prev.findIndex((r) => r.emoji === emoji);
           if (i >= 0) {
             const r = prev[i];
-            const next = r.byMe ? r.count - 1 : r.count + 1;
+            const next = r.mine ? r.count - 1 : r.count + 1;
             const updated = next > 0
-              ? [...prev.slice(0, i), { ...r, count: next, byMe: !r.byMe }, ...prev.slice(i + 1)]
+              ? [...prev.slice(0, i), { ...r, count: next, mine: !r.mine }, ...prev.slice(i + 1)]
               : [...prev.slice(0, i), ...prev.slice(i + 1)];
             return updated;
           }
-          return [...prev, { emoji, count: 1, byMe: true }];
+          return [...prev, { emoji, count: 1, mine: true }];
         });
         props.onToggle?.(emoji);
       }}

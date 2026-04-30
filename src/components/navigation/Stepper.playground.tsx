@@ -1,5 +1,5 @@
 import { Stepper } from "./Stepper";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const steps = [
   { id: "1", label: "Account" },

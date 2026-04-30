@@ -1,5 +1,5 @@
 import { CodeBlock } from "./CodeBlock";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const sample = `import { Button } from "@infinibay/harbor/buttons";
 

@@ -69,9 +69,6 @@ export interface DataTableProps<T> extends UseDataTableOptions<T> {
   /** Number of skeleton rows to render when `loading` is on. Defaults
    *  to the current `pageSize`, capped at `10`. */
   skeletonRows?: number;
-  /** @deprecated kept for backwards compatibility; no longer used when
-   *  `loading` renders skeleton rows. */
-  loadingLabel?: ReactNode;
   /** Replaces the body with an error panel when set. String / number
    *  values render as the title; a ReactNode replaces the whole panel. */
   error?: ReactNode;
@@ -203,9 +200,6 @@ export function DataTable<T>(props: DataTableProps<T>) {
     emptyState,
     loading,
     skeletonRows,
-    // `loadingLabel` is deprecated but still accepted for backwards
-    // compat. It no longer drives the loading UI — skeleton rows do.
-    loadingLabel: _loadingLabel,
     error,
     onRetry,
     hidePagination,

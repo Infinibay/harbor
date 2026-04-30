@@ -26,6 +26,11 @@ export interface SelectProps {
    *  pagination bars, chrome — anywhere a full-size input would
    *  overwhelm the surrounding UI. */
   size?: "sm" | "md";
+  /** How wide the dropdown menu should be.
+   *  - `"trigger"` (default) — match the trigger's width exactly.
+   *  - `"auto"` — at least the trigger's width, grows with the longest option.
+   *  - a CSS length (`240`, `"16rem"`, `"min(90vw, 400px)"`) — fixed width. */
+  menuWidth?: "trigger" | "auto" | number | string;
   className?: string;
   disabled?: boolean;
 }
@@ -51,6 +56,7 @@ export function Select({
   placeholder,
   label,
   size = "md",
+  menuWidth = "trigger",
   className,
   disabled,
 }: SelectProps) {
@@ -191,7 +197,11 @@ export function Select({
                 position: "fixed",
                 left: rect.x,
                 top: rect.y,
-                width: rect.w,
+                ...(menuWidth === "trigger"
+                  ? { width: rect.w }
+                  : menuWidth === "auto"
+                    ? { minWidth: rect.w, maxWidth: "min(90vw, 480px)" }
+                    : { width: typeof menuWidth === "number" ? menuWidth : menuWidth, minWidth: rect.w }),
                 zIndex: Z.POPOVER,
               }}
               className="rounded-xl bg-[#14141c] border border-white/10 shadow-2xl overflow-hidden p-1"

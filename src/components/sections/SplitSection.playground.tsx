@@ -1,6 +1,6 @@
 import { SplitSection } from "./SplitSection";
 import { Button } from "../../components/buttons/Button";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const fakeMedia = (
   <div className="aspect-[4/3] w-full rounded-xl border border-white/10 bg-gradient-to-br from-fuchsia-500/40 via-sky-500/30 to-emerald-500/40" />

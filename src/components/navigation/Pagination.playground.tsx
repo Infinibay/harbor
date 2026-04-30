@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pagination } from "./Pagination";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function PaginationDemo(props: any) {

@@ -1,6 +1,6 @@
 import { Menu } from "./Menu";
 import { Button } from "../buttons/Button";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function MenuDemo(props: any) {

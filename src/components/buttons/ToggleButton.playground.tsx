@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ToggleButton } from "./ToggleButton";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 /**
  * `pressed` is normally a controlled prop; the playground turns it into

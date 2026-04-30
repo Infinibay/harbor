@@ -1,10 +1,10 @@
 import { CopyCommand } from "./CopyCommand";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const variants = [
-  { label: "npm", command: "npm install @infinibay/harbor" },
-  { label: "pnpm", command: "pnpm add @infinibay/harbor" },
-  { label: "yarn", command: "yarn add @infinibay/harbor" },
+  { label: "npm", code: "npm install @infinibay/harbor" },
+  { label: "pnpm", code: "pnpm add @infinibay/harbor" },
+  { label: "yarn", code: "yarn add @infinibay/harbor" },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

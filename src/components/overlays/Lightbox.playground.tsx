@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Lightbox } from "./Lightbox";
 import { Button } from "../buttons/Button";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const images = [
-  { src: "https://images.unsplash.com/photo-1503264116251-35a269479413?w=800", alt: "Mountain" },
-  { src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800", alt: "Beach" },
-  { src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800", alt: "Forest" },
+  { id: "1", src: "/picture.png", alt: "Picture 1", caption: "First picture" },
+  { id: "2", src: "/picture.png", alt: "Picture 2", caption: "Second picture" },
+  { id: "3", src: "/picture.png", alt: "Picture 3", caption: "Third picture" },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

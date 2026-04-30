@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { CommandPalette } from "./CommandPalette";
 import { Button } from "../buttons/Button";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const sampleCommands = [
-  { id: "new-doc", label: "New document", section: "Workspace", run: () => {} },
-  { id: "new-folder", label: "New folder", section: "Workspace", run: () => {} },
-  { id: "go-home", label: "Go to home", section: "Navigate", run: () => {} },
-  { id: "go-billing", label: "Go to billing", section: "Navigate", run: () => {} },
-  { id: "theme-light", label: "Theme: Light", section: "Preferences", run: () => {} },
-  { id: "theme-dark", label: "Theme: Dark", section: "Preferences", run: () => {} },
-  { id: "logout", label: "Sign out", section: "Account", run: () => {} },
+  { id: "new-doc", label: "New document", section: "Workspace", action: () => {} },
+  { id: "new-folder", label: "New folder", section: "Workspace", action: () => {} },
+  { id: "go-home", label: "Go to home", section: "Navigate", action: () => {} },
+  { id: "go-billing", label: "Go to billing", section: "Navigate", action: () => {} },
+  { id: "theme-light", label: "Theme: Light", section: "Preferences", action: () => {} },
+  { id: "theme-dark", label: "Theme: Dark", section: "Preferences", action: () => {} },
+  { id: "logout", label: "Sign out", section: "Account", action: () => {} },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

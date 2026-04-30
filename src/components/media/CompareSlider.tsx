@@ -48,7 +48,7 @@ export function CompareSlider({
         className,
       )}
     >
-      <img src={before} alt="" className="absolute inset-0 w-full h-full object-cover" />
+      <img src={before} alt="" draggable={false} className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
       <div
         className="absolute inset-y-0 left-0 overflow-hidden"
         style={{ width: `${pct}%` }}
@@ -56,7 +56,8 @@ export function CompareSlider({
         <img
           src={after}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          draggable={false}
+          className="absolute inset-0 h-full w-full object-cover pointer-events-none"
           style={{ width: ref.current?.clientWidth ?? "100%", maxWidth: "none" }}
         />
       </div>

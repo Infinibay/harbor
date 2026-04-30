@@ -18,6 +18,10 @@ export interface CardProps
   interactive?: boolean;
   tilt?: boolean;
   spotlight?: boolean;
+  /** Spotlight intensity. `"strong"` is the default cursor-following
+   *  highlight; `"soft"` is dialed back for forms/tables; `"quiet"` is
+   *  barely-there for prose. Ignored when `spotlight` is `false`. */
+  spotlightStrength?: "quiet" | "soft" | "strong";
   glow?: boolean;
   selected?: boolean;
   disabled?: boolean;
@@ -33,7 +37,8 @@ export interface CardProps
 const variants: Record<Variant, string> = {
   default:
     "hbr-card bg-[rgb(var(--harbor-bg-elev-1))] border border-white/10",
-  glass: "glass",
+  glass:
+    "bg-[rgb(var(--harbor-bg-elev-1)/0.55)] backdrop-blur-xl backdrop-saturate-150 border border-white/10",
   solid: "bg-[#14141c] border border-white/8",
 };
 
@@ -43,6 +48,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
     interactive = false,
     tilt = false,
     spotlight = true,
+    spotlightStrength = "strong",
     glow = true,
     selected = false,
     disabled = false,
@@ -118,7 +124,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
         "relative rounded-2xl p-5 overflow-hidden transition-colors",
         fullHeight && "h-full flex flex-col",
         variants[variant],
-        spotlight && !disabled && "spotlight",
+        spotlight && !disabled && (
+          spotlightStrength === "quiet" ? "spotlight-quiet" :
+          spotlightStrength === "soft"  ? "spotlight-soft"  :
+          "spotlight"
+        ),
         glow && !disabled && "glow-border",
         interactive && !disabled && "cursor-pointer",
         disabled && "opacity-50 cursor-not-allowed pointer-events-none",

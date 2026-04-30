@@ -1,5 +1,5 @@
 import { MoreButton } from "./MoreButton";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 export const playground: PlaygroundManifest = {
   component: MoreButton as never,

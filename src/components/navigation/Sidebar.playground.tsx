@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Sidebar } from "./Sidebar";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const sections = [
   {

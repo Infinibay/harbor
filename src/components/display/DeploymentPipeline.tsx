@@ -106,7 +106,9 @@ export function DeploymentPipeline({
     <div
       className={cn(
         "flex",
-        vertical ? "flex-col gap-0" : "flex-wrap items-stretch gap-0",
+        vertical
+          ? "flex-col gap-2"
+          : "flex-nowrap items-stretch gap-0 overflow-x-auto pb-2",
         className,
       )}
     >
@@ -120,7 +122,7 @@ export function DeploymentPipeline({
             key={s.id}
             className={cn(
               "flex",
-              vertical ? "flex-row items-center gap-3" : "items-center",
+              vertical ? "flex-row items-center gap-3" : "items-center shrink-0",
             )}
           >
             {i > 0 ? (

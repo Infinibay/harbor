@@ -1,52 +1,111 @@
+import {
+  Children,
+  createContext,
+  isValidElement,
+  useContext,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { cn } from "../../lib/cn";
 import { Avatar } from "../display/Avatar";
 import { Tooltip } from "../overlays/Tooltip";
 
-export interface PresenceUser {
-  id: string;
-  name: string;
-  color?: string;
-  status?: "viewing" | "editing" | "idle";
-}
+/* ------------------------------------------------------------------ *
+ *  Presence — composable.
+ *
+ *  Recommended composable API:
+ *
+ *    <Presence max={4} size="sm">
+ *      <PresenceUser name="Ana" status="editing" />
+ *      <PresenceUser name="Bruno" status="viewing" />
+ *      <PresenceUser name="Cinto" status="idle" />
+ *      <PresenceUser name="Diego" />
+ *    </Presence>
+ *
+ *  The legacy `users={[…]}` prop still works — it maps to the same
+ *  subcomponents internally — so existing call sites don't have to
+ *  migrate immediately.
+ * ------------------------------------------------------------------ */
+
+export type PresenceStatus = "viewing" | "editing" | "idle";
 
 export interface PresenceProps {
-  users: PresenceUser[];
   max?: number;
   size?: "sm" | "md" | "lg";
   className?: string;
+  children?: ReactNode;
 }
 
-export function Presence({ users, max = 4, size = "sm", className }: PresenceProps) {
-  const shown = users.slice(0, max);
-  const extra = users.length - shown.length;
+type Ctx = { size: "sm" | "md" | "lg" };
+const PresenceCtx = createContext<Ctx | null>(null);
+
+function usePresenceCtx(component: string): Ctx {
+  const ctx = useContext(PresenceCtx);
+  if (!ctx) {
+    throw new Error(`<${component}> must be rendered inside <Presence>.`);
+  }
+  return ctx;
+}
+
+export function Presence({
+  max = 4,
+  size = "sm",
+  className,
+  children,
+}: PresenceProps) {
+  const allChildren: ReactElement[] = [];
+  Children.forEach(children, (child) => {
+    if (isValidElement(child)) allChildren.push(child);
+  });
+
+  const total = allChildren.length;
+  const shown = allChildren.slice(0, max);
+  const extra = Math.max(0, total - shown.length);
 
   return (
-    <div className={cn("inline-flex items-center gap-2", className)}>
-      <div className="flex -space-x-1.5">
-        {shown.map((u) => (
-          <Tooltip key={u.id} content={`${u.name}${u.status ? ` · ${u.status}` : ""}`}>
-            <span className="relative">
-              <Avatar
-                name={u.name}
-                size={size}
-                status={u.status === "idle" ? "away" : "online"}
-              />
-              {u.status === "editing" ? (
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-fuchsia-400 ring-2 ring-[#0a0a0f] animate-pulse" />
-              ) : null}
+    <PresenceCtx.Provider value={{ size }}>
+      <div className={cn("inline-flex items-center gap-2", className)}>
+        <div className="flex -space-x-1.5">
+          {shown}
+          {extra > 0 ? (
+            <span className="w-7 h-7 rounded-full bg-white/10 border border-white/15 text-white/70 text-[11px] font-medium grid place-items-center">
+              +{extra}
             </span>
-          </Tooltip>
-        ))}
-        {extra > 0 ? (
-          <span className="w-7 h-7 rounded-full bg-white/10 border border-white/15 text-white/70 text-[11px] font-medium grid place-items-center">
-            +{extra}
-          </span>
-        ) : null}
+          ) : null}
+        </div>
+        <span className="text-xs text-white/55">
+          {total} {total === 1 ? "person" : "people"}
+        </span>
       </div>
-      <span className="text-xs text-white/55">
-        {users.length} {users.length === 1 ? "person" : "people"}
+    </PresenceCtx.Provider>
+  );
+}
+
+export interface PresenceUserProps {
+  name: string;
+  color?: string;
+  status?: PresenceStatus;
+}
+
+/**
+ * Single user pip inside `<Presence>`. Reads size from the parent
+ * via context — pass it on `<Presence size>`, not here.
+ */
+export function PresenceUser({ name, status }: PresenceUserProps) {
+  const { size } = usePresenceCtx("PresenceUser");
+  return (
+    <Tooltip content={`${name}${status ? ` · ${status}` : ""}`}>
+      <span className="relative">
+        <Avatar
+          name={name}
+          size={size}
+          status={status === "idle" ? "away" : "online"}
+        />
+        {status === "editing" ? (
+          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-fuchsia-400 ring-2 ring-[#0a0a0f] animate-pulse" />
+        ) : null}
       </span>
-    </div>
+    </Tooltip>
   );
 }
 

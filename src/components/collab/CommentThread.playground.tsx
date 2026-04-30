@@ -1,39 +1,50 @@
-import { CommentThread } from "./CommentThread";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import { CommentThread, Comment } from "./CommentThread";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
-const sampleComments = [
-  {
-    id: "1",
-    author: { name: "Ana" },
-    body: "Should we move the CTA above the fold?",
-    at: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    replies: [
-      { id: "1a", author: { name: "Bruno" }, body: "Yes — A/B test showed +14% click-through.", at: new Date(Date.now() - 1000 * 60 * 60) },
-    ],
-  },
-  {
-    id: "2",
-    author: { name: "Cinto" },
-    body: "Quick nit: the eyebrow could be larger.",
-    at: new Date(Date.now() - 1000 * 60 * 30),
-  },
-];
+const ana = { name: "Ana" };
+const bruno = { name: "Bruno" };
+const cinto = { name: "Cinto" };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CommentThreadDemo(props: any) {
   return (
-    <CommentThread
-      {...props}
-      comments={sampleComments}
-      currentUser={{ name: "You" }}
-    />
+    <CommentThread {...props} currentUser={{ name: "You" }}>
+      <Comment
+        id="1"
+        author={ana}
+        time="2h ago"
+        reactions={[{ emoji: "👍", count: 4 }]}
+      >
+        Should we move the CTA above the fold?
+        <Comment id="1a" author={bruno} time="1h ago">
+          Yes — A/B test showed +14% click-through.
+        </Comment>
+      </Comment>
+      <Comment
+        id="2"
+        author={cinto}
+        time="30m ago"
+        reactions={[{ emoji: "🎉", count: 2, mine: true }]}
+      >
+        Quick nit: the eyebrow could be larger.
+      </Comment>
+    </CommentThread>
   );
 }
 
 export const playground: PlaygroundManifest = {
   component: CommentThreadDemo as never,
   importPath: "@infinibay/harbor/collab",
-  controls: {},
+  controls: {
+    canComment: { type: "boolean", default: true },
+    canReply: { type: "boolean", default: true },
+  },
+  variants: [
+    { label: "Full (comment + reply)", props: { canComment: true, canReply: true } },
+    { label: "Read-only", props: { canComment: false, canReply: false } },
+    { label: "Reply only", props: { canComment: false, canReply: true } },
+    { label: "Flat (top-level only)", props: { canComment: true, canReply: false } },
+  ],
   events: [
     { name: "onReply", signature: "(parentId: string | null, text: string) => void" },
     { name: "onReact", signature: "(commentId: string, emoji: string) => void" },

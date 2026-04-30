@@ -1,10 +1,27 @@
 import { Carousel } from "./Carousel";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const slides = [
-  { id: "1", src: "https://images.unsplash.com/photo-1503264116251-35a269479413?w=1200", alt: "Mountain" },
-  { id: "2", src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200", alt: "Forest" },
-  { id: "3", src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200", alt: "Beach" },
+  {
+    id: "1",
+    content: (
+      <img src="/picture.png" alt="Slide 1" className="w-full h-full object-cover" />
+    ),
+  },
+  {
+    id: "2",
+    content: (
+      <div className="w-full h-full grid place-items-center bg-gradient-to-br from-fuchsia-500/30 to-sky-500/30 text-white text-2xl font-semibold">
+        Any ReactNode goes here
+      </div>
+    ),
+  },
+  {
+    id: "3",
+    content: (
+      <img src="/picture.png" alt="Slide 3" className="w-full h-full object-cover" />
+    ),
+  },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,6 +1,6 @@
 import { HeroSection } from "./HeroSection";
 import { Button } from "../../components/buttons/Button";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function HeroSectionDemo(props: any) {
@@ -24,7 +24,7 @@ export const playground: PlaygroundManifest = {
     layout: { type: "select", options: ["centered", "split"], default: "centered" },
     eyebrow: { type: "text", default: "v0.4 · just shipped" },
     title: { type: "text", default: "Build interfaces that feel alive." },
-    highlight: { type: "text", default: "alive", description: "Substring inside `title` that gets the brand gradient." },
+    highlight: { type: "text", default: "alive", description: "Optional second line rendered below `title` with the brand gradient." },
     description: { type: "text", default: "120 React components that respond to the cursor and coordinate with their siblings." },
   },
   variants: [

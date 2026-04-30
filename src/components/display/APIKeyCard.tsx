@@ -17,6 +17,10 @@ export interface KeyCardProps {
   createdAt?: Date | string | number;
   /** When true, renders the "privileged key" warning strip. */
   privileged?: boolean;
+  /** Controlled flag for the Reveal button label — `true` shows "Hide".
+   *  Purely cosmetic: the component never masks/unmasks the fingerprint
+   *  itself; it's the parent's job to swap the value passed in. */
+  revealed?: boolean;
   /** Callbacks — if omitted, the corresponding button is hidden. */
   onReveal?: () => void;
   onCopy?: () => void;
@@ -34,6 +38,7 @@ function KeyCard({
   lastUsed,
   createdAt,
   privileged,
+  revealed,
   onReveal,
   onCopy,
   onRotate,
@@ -104,7 +109,7 @@ function KeyCard({
       <div className="flex items-center gap-2 pt-2 border-t border-white/8">
         {onReveal ? (
           <button onClick={onReveal} className="text-xs text-white/70 hover:text-white px-2 py-1">
-            Reveal
+            {revealed ? "Hide" : "Reveal"}
           </button>
         ) : null}
         <button onClick={copy} className="text-xs text-white/70 hover:text-white px-2 py-1">

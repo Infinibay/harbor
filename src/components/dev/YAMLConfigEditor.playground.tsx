@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { YAMLConfigEditor } from "./YAMLConfigEditor";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const initial = `service: harbor
 version: 0.4.2

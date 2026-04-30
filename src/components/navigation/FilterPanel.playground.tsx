@@ -1,24 +1,24 @@
 import { useState } from "react";
 import { FilterPanel } from "./FilterPanel";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const groups = [
   {
     id: "status",
     label: "Status",
     options: [
-      { id: "open", label: "Open", count: 14 },
-      { id: "closed", label: "Closed", count: 38 },
-      { id: "draft", label: "Draft", count: 3 },
+      { value: "open", label: "Open", count: 14 },
+      { value: "closed", label: "Closed", count: 38 },
+      { value: "draft", label: "Draft", count: 3 },
     ],
   },
   {
     id: "owner",
     label: "Owner",
     options: [
-      { id: "ana", label: "Ana", count: 7 },
-      { id: "bruno", label: "Bruno", count: 4 },
-      { id: "diego", label: "Diego", count: 2 },
+      { value: "ana", label: "Ana", count: 7 },
+      { value: "bruno", label: "Bruno", count: 4 },
+      { value: "diego", label: "Diego", count: 2 },
     ],
   },
 ];

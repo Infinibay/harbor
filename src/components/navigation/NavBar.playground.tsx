@@ -1,5 +1,5 @@
 import { NavBar } from "./NavBar";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const items = [
   { id: "dashboard", label: "Dashboard" },

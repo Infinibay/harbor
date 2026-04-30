@@ -1,5 +1,5 @@
 import { SocialButton } from "./SocialButton";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 export const playground: PlaygroundManifest = {
   component: SocialButton as never,
@@ -7,7 +7,7 @@ export const playground: PlaygroundManifest = {
   controls: {
     provider: {
       type: "select",
-      options: ["github", "google", "apple", "discord", "twitter", "facebook", "microsoft", "gitlab"],
+      options: ["github", "google", "apple", "microsoft", "x", "gitlab", "discord", "slack"],
       default: "github",
     },
     label: { type: "text", default: "Continue with GitHub" },

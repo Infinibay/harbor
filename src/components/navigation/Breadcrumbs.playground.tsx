@@ -1,5 +1,5 @@
 import { Breadcrumbs } from "./Breadcrumbs";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const items = [
   { label: "Home", href: "#" },

@@ -52,13 +52,22 @@ export function Progress({
       <div className="relative h-2 rounded-full bg-white/5 overflow-hidden">
         {indeterminate ? (
           <motion.div
-            animate={{ x: ["-60%", "160%"] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+            key="indeterminate"
+            initial={{ x: "-100%" }}
+            animate={{ x: "260%" }}
+            transition={{
+              duration: 1.6,
+              repeat: Infinity,
+              repeatType: "loop",
+              ease: [0.4, 0, 0.2, 1],
+            }}
             className="absolute top-0 h-full w-2/5 rounded-full"
             style={{ background: tones[tone] }}
           />
         ) : (
           <motion.div
+            key="determinate"
+            initial={{ width: 0 }}
             animate={{ width: `${pct}%` }}
             transition={{ type: "spring", stiffness: 200, damping: 30 }}
             className="relative h-full rounded-full"

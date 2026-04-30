@@ -1,22 +1,20 @@
 import { useState } from "react";
-import { ShortcutSheet } from "./ShortcutSheet";
+import { ShortcutSheet, type ShortcutGroup } from "./ShortcutSheet";
 import { Button } from "../buttons/Button";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
-const groups = [
+const groups: ShortcutGroup[] = [
   {
-    id: "global",
-    label: "Global",
-    shortcuts: [
+    title: "Global",
+    items: [
       { keys: ["⌘", "K"], description: "Open command palette" },
       { keys: ["⌘", "/"], description: "Toggle this shortcut sheet" },
       { keys: ["⌘", ","], description: "Open settings" },
     ],
   },
   {
-    id: "navigation",
-    label: "Navigation",
-    shortcuts: [
+    title: "Navigation",
+    items: [
       { keys: ["G", "H"], description: "Go home" },
       { keys: ["G", "P"], description: "Go to projects" },
       { keys: ["?"], description: "Show help" },

@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { FacetedSearch } from "./FacetedSearch";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const groups = [
   {
     id: "type",
     label: "Type",
     options: [
-      { id: "issue", label: "Issue", count: 102 },
-      { id: "pr", label: "Pull request", count: 48 },
+      { value: "issue", label: "Issue", count: 102 },
+      { value: "pr", label: "Pull request", count: 48 },
     ],
   },
   {
     id: "label",
     label: "Label",
     options: [
-      { id: "bug", label: "bug", count: 22 },
-      { id: "feature", label: "feature", count: 18 },
-      { id: "docs", label: "docs", count: 7 },
+      { value: "bug", label: "bug", count: 22 },
+      { value: "feature", label: "feature", count: 18 },
+      { value: "docs", label: "docs", count: 7 },
     ],
   },
 ];

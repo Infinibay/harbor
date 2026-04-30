@@ -1,12 +1,12 @@
 import { CompareSlider } from "./CompareSlider";
-import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 export const playground: PlaygroundManifest = {
   component: CompareSlider as never,
   importPath: "@infinibay/harbor/media",
   controls: {
-    before: { type: "text", default: "https://images.unsplash.com/photo-1495805442109-bf1cf975750b?w=1200" },
-    after: { type: "text", default: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=1200" },
+    before: { type: "text", default: "/picture.png" },
+    after: { type: "text", default: "/picture.png" },
     beforeLabel: { type: "text", default: "Before" },
     afterLabel: { type: "text", default: "After" },
     defaultValue: { type: "number", default: 50, min: 0, max: 100, step: 5 },
