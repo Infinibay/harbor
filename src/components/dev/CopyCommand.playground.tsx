@@ -1,0 +1,25 @@
+import { CopyCommand } from "./CopyCommand";
+import type { PlaygroundManifest } from "../../../../harbor-site/src/harbor/lib/playground";
+
+const variants = [
+  { label: "npm", command: "npm install @infinibay/harbor" },
+  { label: "pnpm", command: "pnpm add @infinibay/harbor" },
+  { label: "yarn", command: "yarn add @infinibay/harbor" },
+];
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function CopyCommandDemo(props: any) {
+  return <CopyCommand {...props} variants={variants} />;
+}
+
+export const playground: PlaygroundManifest = {
+  component: CopyCommandDemo as never,
+  importPath: "@infinibay/harbor/dev",
+  controls: {
+    showPrompt: { type: "boolean", default: true, description: "Render the leading $ prompt." },
+  },
+  variants: [
+    { label: "With prompt", props: { showPrompt: true } },
+    { label: "No prompt", props: { showPrompt: false } },
+  ],
+};
