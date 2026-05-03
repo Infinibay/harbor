@@ -53,21 +53,25 @@ describe("FlameGraph", () => {
 
   it("shows breadcrumbs after clicking a zoomable frame", async () => {
     const { user } = renderWithHarbor(<FlameGraph frames={frames} />);
-    // Click root frame to zoom in
-    const rootFrame = screen.getByTitle(/main\(\)/);
-    await user.click(rootFrame);
-    // Should now show breadcrumb with "root" button and "main()" 
-    expect(screen.getByText("root")).toBeTruthy();
+    // The "root" zoom-out button is always rendered but disabled until we
+    // zoom in; verify that clicking the root frame enables it.
+    const rootBtn = screen.getByRole("button", { name: "root" });
+    expect(rootBtn).toBeDisabled();
+    await user.click(screen.getByTitle(/main\(\)/));
+    expect(rootBtn).not.toBeDisabled();
+    // Breadcrumb chain now contains main() (the zoomed-in frame's label),
+    // in addition to the frame label rendered inside the heatmap itself.
+    expect(screen.getAllByText("main()").length).toBeGreaterThan(1);
   });
 
   it("renders root button for zoom-out navigation", async () => {
     const { user } = renderWithHarbor(<FlameGraph frames={frames} />);
-    const rootFrame = screen.getByTitle(/main\(\)/);
-    await user.click(rootFrame);
-    const rootBtn = screen.getByText("root");
-    expect(rootBtn).toBeTruthy();
-    // Click root button to zoom out
+    await user.click(screen.getByTitle(/main\(\)/));
+    const rootBtn = screen.getByRole("button", { name: "root" });
+    expect(rootBtn).not.toBeDisabled();
+    // Clicking the root button zooms out, which disables it again.
     await user.click(rootBtn);
+    expect(rootBtn).toBeDisabled();
   });
 
   it("uses custom formatValue", () => {

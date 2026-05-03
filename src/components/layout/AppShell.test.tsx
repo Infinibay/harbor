@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
@@ -47,8 +47,8 @@ describe("AppShell", () => {
     const { container } = renderWithHarbor(
       <AppShell contentPadding="sm">X</AppShell>,
     );
-    // sm padding = px-3 py-3
-    expect(container.textContent).toContain("X");
+    // sm padding = px-3 py-3 (see AppShell paddings record).
+    expect(container.querySelector(".px-3.py-3")).toBeTruthy();
   });
 
   it("applies custom className", () => {

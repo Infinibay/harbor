@@ -39,7 +39,6 @@ describe("LineChart", () => {
     const { container } = renderWithHarbor(
       <LineChart series={series} area={true} />,
     );
-    const svg = container.querySelector("svg");
     // Area fill uses linearGradient
     const gradient = container.querySelector("svg linearGradient");
     expect(gradient).toBeTruthy();

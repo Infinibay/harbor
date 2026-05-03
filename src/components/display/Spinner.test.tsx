@@ -28,8 +28,16 @@ describe("Spinner", () => {
     expect(container.querySelector(".my-spin")).toBeTruthy();
   });
 
-  it("a11y: no violations", async () => {
-    const { container } = renderWithHarbor(<Spinner />);
+  it("a11y: no violations when used inside a labeled status region", async () => {
+    // Spinner is a bare decorative <span>. Rendered alone with no surrounding
+    // context, axe is silently lenient. Test the realistic usage shape: the
+    // spinner sits inside a role="status" with an accessible name (which is
+    // how loading indicators communicate to assistive tech).
+    const { container } = renderWithHarbor(
+      <div role="status" aria-label="Loading">
+        <Spinner />
+      </div>,
+    );
     expect(await axe(container)).toHaveNoViolations();
   });
 });

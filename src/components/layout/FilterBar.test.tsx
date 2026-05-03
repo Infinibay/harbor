@@ -44,7 +44,7 @@ describe("FilterBar", () => {
     const applied: AppliedFilter[] = [
       { id: "status", label: "Status", value: "Active" },
     ];
-    const { user, container } = renderWithHarbor(
+    const { user } = renderWithHarbor(
       <FilterBar filters={filters} applied={applied} onChange={onChange} />,
     );
     // Click the × button on the pill

@@ -56,7 +56,7 @@ describe("FluidGrid", () => {
   });
 
   it("renders empty children gracefully", () => {
-    const { container } = renderWithHarbor(<FluidGrid />);
+    const { container } = renderWithHarbor(<FluidGrid>{null}</FluidGrid>);
     expect(container.querySelector(".grid")).toBeTruthy();
   });
 

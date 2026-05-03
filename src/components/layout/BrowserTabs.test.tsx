@@ -30,7 +30,7 @@ describe("BrowserTabs", () => {
   });
 
   it("renders close buttons when onClose provided", () => {
-    const { container } = renderWithHarbor(
+    renderWithHarbor(
       <BrowserTabs
         tabs={tabs}
         activeId="a"

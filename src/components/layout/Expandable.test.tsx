@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { Expandable } from "./Expandable";
@@ -28,16 +28,18 @@ describe("Expandable", () => {
   });
 
   it("expands on click in collapsed state", async () => {
-    const { user, container } = renderWithHarbor(
+    const { user } = renderWithHarbor(
       <Expandable
         collapsed={<span>Click me</span>}
         expanded={<span>Expanded!</span>}
       />,
     );
     await user.click(screen.getByText("Click me"));
-    // AnimatePresence mode="wait" — expanded replaces collapsed after animation
-    // Verify the component transitions by checking onOpenChange instead of DOM
-    expect(container.textContent).toBeTruthy();
+    // AnimatePresence mode="wait" replaces collapsed with expanded after the
+    // exit animation completes — waitFor lets that settle.
+    await waitFor(() =>
+      expect(screen.getByText("Expanded!")).toBeInTheDocument(),
+    );
   });
 
   it("fires onOpenChange when toggled", async () => {

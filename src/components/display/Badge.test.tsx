@@ -29,8 +29,8 @@ describe("Badge", () => {
 
   it("renders pulse dot when pulse=true", () => {
     const { container } = renderWithHarbor(<Badge pulse>Live</Badge>);
-    const dot = container.querySelector(".animate-spin, [class*='scale']");
-    // Pulse renders a motion.span with animate
+    // Pulse renders an extra `<span class="relative inline-flex …">` wrapper
+    // around the animated indicator dot.
     expect(container.querySelector("span.relative.inline-flex")).toBeTruthy();
   });
 

@@ -86,18 +86,14 @@ describe("ReactionsBar", () => {
   });
 
   it("applies 'mine' style when reaction.mine=true", () => {
-    const { container } = renderWithHarbor(
-      <ReactionsBar reactions={reactions} onToggle={vi.fn()} />,
-    );
+    renderWithHarbor(<ReactionsBar reactions={reactions} onToggle={vi.fn()} />);
     // The heart button (mine=true) should have fuchsia border
     const heartBtn = screen.getByText("❤️").closest("button")!;
     expect(heartBtn.className).toContain("border-fuchsia-400/40");
   });
 
   it("applies 'not mine' style when reaction.mine=false", () => {
-    const { container } = renderWithHarbor(
-      <ReactionsBar reactions={reactions} onToggle={vi.fn()} />,
-    );
+    renderWithHarbor(<ReactionsBar reactions={reactions} onToggle={vi.fn()} />);
     const thumbBtn = screen.getByText("👍").closest("button")!;
     expect(thumbBtn.className).toContain("border-white/10");
   });

@@ -33,11 +33,15 @@ describe("Breadcrumbs", () => {
     expect(separators[0].textContent).toBe("›");
   });
 
-  it("does not render separator after last item", () => {
+  it("does not render an extra separator after the last item", () => {
     const { container } = renderWithHarbor(<Breadcrumbs items={items} />);
-    const allSpans = container.querySelectorAll("span");
-    // Last item label should not be followed by a separator
-    expect(container.textContent).toContain("Harbor");
+    // Separators are spans with the className "px-1 text-white/30" emitted
+    // BETWEEN items only — for N items there should be exactly N-1 of them.
+    const sepGlyphSpans = Array.from(container.querySelectorAll("span")).filter(
+      (s) => s.textContent === "›",
+    );
+    const linkCount = container.querySelectorAll("a").length;
+    expect(sepGlyphSpans.length).toBe(linkCount - 1);
   });
 
   it("renders last item with text-white class", () => {

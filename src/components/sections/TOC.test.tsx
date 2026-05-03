@@ -54,13 +54,13 @@ describe("TOC", () => {
   });
 
   it("applies level-2 padding class", () => {
-    const { container } = renderWithHarbor(<TOC items={items} />);
+    renderWithHarbor(<TOC items={items} />);
     const setupLink = screen.getByText("Setup").closest("a");
     expect(setupLink?.className).toContain("pl-5");
   });
 
   it("applies level-3 padding class", () => {
-    const { container } = renderWithHarbor(<TOC items={items} />);
+    renderWithHarbor(<TOC items={items} />);
     const configLink = screen.getByText("Configuration").closest("a");
     expect(configLink?.className).toContain("pl-7");
   });

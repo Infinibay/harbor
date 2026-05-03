@@ -59,7 +59,7 @@ describe("Marquee", () => {
   });
 
   it("renders empty children gracefully", () => {
-    const { container } = renderWithHarbor(<Marquee />);
+    const { container } = renderWithHarbor(<Marquee>{null}</Marquee>);
     expect(container.querySelector(".overflow-hidden")).toBeTruthy();
   });
 

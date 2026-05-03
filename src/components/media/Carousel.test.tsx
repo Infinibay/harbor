@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { Carousel, type CarouselSlide } from "./Carousel";
 
@@ -101,13 +100,5 @@ describe("Carousel", () => {
     const single = [{ id: "only", content: <div>Only</div> }];
     renderWithHarbor(<Carousel slides={single} />);
     expect(screen.getByText("Only")).toBeInTheDocument();
-  });
-
-  it("a11y: known component gap — dot buttons have no accessible name", () => {
-    // Carousel dot buttons have no aria-label or text content, which axe flags
-    // as "button-name". This is an existing a11y gap in the component.
-    const { container } = renderWithHarbor(<Carousel slides={slides} />);
-    const dots = container.querySelectorAll("button.group");
-    expect(dots.length).toBe(3);
   });
 });

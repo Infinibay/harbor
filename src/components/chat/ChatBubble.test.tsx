@@ -53,35 +53,36 @@ describe("ChatBubble", () => {
     expect(spinner).toBeTruthy();
   });
 
-  it("renders status sent", () => {
+  it("renders status sent (single check, viewBox 0 0 24 24)", () => {
     const { container } = renderWithHarbor(
       <ChatBubble from="me" time="now" status="sent">
         Sent
       </ChatBubble>,
     );
-    // Sent status shows an SVG checkmark
-    const statusSvg = container.querySelectorAll("svg");
-    expect(statusSvg.length).toBeGreaterThanOrEqual(1);
+    expect(container.querySelector('svg[viewBox="0 0 24 24"]')).toBeTruthy();
+    expect(container.querySelector('svg[viewBox="0 0 28 12"]')).toBeNull();
   });
 
-  it("renders status delivered", () => {
+  it("renders status delivered (double check in white, viewBox 0 0 28 12)", () => {
     const { container } = renderWithHarbor(
       <ChatBubble from="me" time="now" status="delivered">
         Delivered
       </ChatBubble>,
     );
-    const statusSvg = container.querySelectorAll("svg");
-    expect(statusSvg.length).toBeGreaterThanOrEqual(1);
+    const svg = container.querySelector('svg[viewBox="0 0 28 12"]');
+    expect(svg).toBeTruthy();
+    expect(svg?.getAttribute("stroke")).toBe("currentColor");
   });
 
-  it("renders status read", () => {
+  it("renders status read (double check tinted blue)", () => {
     const { container } = renderWithHarbor(
       <ChatBubble from="me" time="now" status="read">
         Read
       </ChatBubble>,
     );
-    const statusSvg = container.querySelectorAll("svg");
-    expect(statusSvg.length).toBeGreaterThanOrEqual(1);
+    const svg = container.querySelector('svg[viewBox="0 0 28 12"]');
+    expect(svg).toBeTruthy();
+    expect(svg?.getAttribute("stroke")).toBe("#60a5fa");
   });
 
   it("renders reactions", () => {
@@ -89,7 +90,7 @@ describe("ChatBubble", () => {
       { emoji: "👍", count: 3 },
       { emoji: "❤️", count: 1 },
     ];
-    const { container } = renderWithHarbor(
+    renderWithHarbor(
       <ChatBubble from="them" reactions={reactions}>
         React to this
       </ChatBubble>,

@@ -54,7 +54,7 @@ describe("CodeBlock", () => {
   });
 
   it("shows CopyButton in corner when no title or lang", () => {
-    const { container } = renderWithHarbor(<CodeBlock code="hello" />);
+    renderWithHarbor(<CodeBlock code="hello" />);
     // CopyButton is positioned absolute top-right
     expect(screen.getByRole("button")).toBeInTheDocument();
   });

@@ -76,9 +76,7 @@ describe("Pagination", () => {
   });
 
   it("always renders first and last page", () => {
-    const { container } = renderWithHarbor(
-      <Pagination page={5} total={20} onChange={vi.fn()} />,
-    );
+    renderWithHarbor(<Pagination page={5} total={20} onChange={vi.fn()} />);
     expect(screen.getByText("1")).toBeInTheDocument();
     expect(screen.getByText("20")).toBeInTheDocument();
   });

@@ -1,11 +1,10 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import {
   ChangelogFeed,
   type ChangelogEntry,
-  type ChangeKind,
 } from "./ChangelogFeed";
 
 const entries: ChangelogEntry[] = [
@@ -79,7 +78,7 @@ describe("ChangelogFeed", () => {
   });
 
   it("collapses second entry by default", () => {
-    const { container } = renderWithHarbor(<ChangelogFeed entries={entries} />);
+    renderWithHarbor(<ChangelogFeed entries={entries} />);
     // Second entry is collapsed, so fix items should not be visible
     expect(screen.queryByText("Fixed crash")).toBeNull();
   });
@@ -101,9 +100,7 @@ describe("ChangelogFeed", () => {
     });
   });
   it("filters items by kind when filter chip clicked", async () => {
-    const { user, container } = renderWithHarbor(
-      <ChangelogFeed entries={entries} />,
-    );
+    const { user } = renderWithHarbor(<ChangelogFeed entries={entries} />);
     // The filter chip for "New" is a <button> — disambiguate from the badge <span>
     const filterBtns = screen.getAllByText("New");
     const chipBtn = filterBtns.find(

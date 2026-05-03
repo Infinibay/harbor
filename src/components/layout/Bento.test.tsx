@@ -65,7 +65,7 @@ describe("Bento", () => {
   });
 
   it("renders empty children gracefully", () => {
-    const { container } = renderWithHarbor(<Bento />);
+    const { container } = renderWithHarbor(<Bento>{null}</Bento>);
     expect(container.querySelector(".grid")).toBeTruthy();
   });
 

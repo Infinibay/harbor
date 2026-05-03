@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { SplitButton } from "./SplitButton";
 

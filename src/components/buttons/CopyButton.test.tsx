@@ -1,23 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { CopyButton } from "./CopyButton";
 
 describe("CopyButton", () => {
-  let writeTextSpy: ReturnType<typeof vi.fn>;
-
-  beforeEach(() => {
-    writeTextSpy = vi.fn().mockResolvedValue(undefined);
-    // stubGlobal replaces the global navigator entirely
-    vi.stubGlobal("navigator", {
-      clipboard: { writeText: writeTextSpy },
-    });
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
 
   it("renders with default label Copy", () => {
     renderWithHarbor(<CopyButton value="hello" />);
@@ -28,15 +15,13 @@ describe("CopyButton", () => {
     renderWithHarbor(<CopyButton value="hello">Copy code</CopyButton>);
     expect(screen.getByText("Copy code")).toBeInTheDocument();
   });
-  it("fires click handler on the button", async () => {
+  it("writes the value to the clipboard and shows the Copied state", async () => {
     const { user } = renderWithHarbor(<CopyButton value="test-text" />);
-    const btn = screen.getByRole("button");
-    expect(btn).toBeInTheDocument();
-    // Verify the button is clickable (motion.button in jsdom)
-    await user.click(btn);
-    // If clipboard API isn't available in jsdom, the component catches the error silently.
-    // We verify the click was received by checking the button is still functional.
-    expect(screen.getByRole("button")).toBeInTheDocument();
+    // user-event installs its own clipboard stub on setup, so spy AFTER render.
+    const writeTextSpy = vi.spyOn(navigator.clipboard, "writeText");
+    await user.click(screen.getByRole("button"));
+    expect(writeTextSpy).toHaveBeenCalledWith("test-text");
+    expect(await screen.findByText("Copied")).toBeInTheDocument();
   });
 
   it("renders as a button element", () => {

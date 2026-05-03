@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { ExpandingSearch } from "./ExpandingSearch";
 

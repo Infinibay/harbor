@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { TraceWaterfall, SpanBar, type Span } from "./TraceWaterfall";
@@ -35,16 +36,18 @@ describe("TraceWaterfall", () => {
     const { user } = renderWithHarbor(
       <TraceWaterfall spans={spans} onSpanClick={onSpanClick} />,
     );
-    // SpanBar divs have cursor-pointer
-    const bars = document.querySelectorAll("[title]");
-    // Click on the root span bar
-    const rootBar = Array.from(bars).find((b) =>
-      b.getAttribute("title")?.includes("GET /api"),
+    // Each row contains the span name on the left + the SpanBar (the [title]
+    // element) on the right. Walk up from the row label to the row container,
+    // then click the bar.
+    const row = screen.getByText("GET /api").closest(".flex.items-center.gap-3");
+    expect(row).toBeTruthy();
+    const bar = row!.querySelector("[title]");
+    expect(bar).toBeTruthy();
+    await user.click(bar!);
+    expect(onSpanClick).toHaveBeenCalledTimes(1);
+    expect(onSpanClick).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "root", name: "GET /api" }),
     );
-    if (rootBar) {
-      await user.click(rootBar);
-      expect(onSpanClick).toHaveBeenCalledTimes(1);
-    }
   });
 
   it("renders with custom totalMs", () => {
@@ -111,9 +114,8 @@ describe("SpanBar", () => {
       <SpanBar name="clickable" start={0} duration={100} totalMs={200} onClick={onClick} />,
     );
     const bar = container.querySelector("div");
-    if (bar) {
-      await user.click(bar);
-      expect(onClick).toHaveBeenCalledTimes(1);
-    }
+    expect(bar).toBeTruthy();
+    await user.click(bar!);
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

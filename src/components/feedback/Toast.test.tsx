@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { screen, act, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { ToastProvider, useToast } from "./Toast";
 
@@ -130,7 +130,7 @@ describe("Toast", () => {
   });
 
   it("applies tone style classes", async () => {
-    const { user, container } = renderWithHarbor(
+    const { user } = renderWithHarbor(
       <ToastProvider>
         <ToastCaller
           action={(push) =>

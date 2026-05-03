@@ -15,9 +15,7 @@ describe("Callout", () => {
   });
 
   it("renders nothing when open=false", () => {
-    const { container } = renderWithHarbor(
-      <Callout open={false} title="Hidden" />,
-    );
+    renderWithHarbor(<Callout open={false} title="Hidden" />);
     // Portal doesn't render content when open=false
     expect(screen.queryByText("Hidden")).toBeNull();
   });
@@ -28,9 +26,7 @@ describe("Callout", () => {
   });
 
   it("renders dot indicators for total steps", () => {
-    const { container } = renderWithHarbor(
-      <Callout open={true} step={1} total={3} />,
-    );
+    renderWithHarbor(<Callout open={true} step={1} total={3} />);
     const dots = document.querySelectorAll("span.rounded-full.w-1\\.5");
     expect(dots.length).toBe(3);
   });
@@ -86,7 +82,7 @@ describe("Callout", () => {
   });
 
   it("renders via Portal (elements in document, not just container)", () => {
-    const { container } = renderWithHarbor(<Callout open={true} title="Portal" />);
+    renderWithHarbor(<Callout open={true} title="Portal" />);
     // The callout renders in a Portal, so it's in document but may not be in container
     expect(screen.getByText("Portal")).toBeInTheDocument();
   });

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
@@ -23,53 +23,63 @@ describe("ButtonGroup", () => {
     expect(screen.getByRole("button", { name: "C" })).toBeInTheDocument();
   });
 
-  it("renders as a div container", () => {
-    const { container } = renderWithHarbor(
-      <ButtonGroup>
-        <Button>X</Button>
-      </ButtonGroup>,
-    );
-    expect(container.querySelector("div")).toBeTruthy();
-  });
-
-  it("renders in attached mode by default", () => {
+  it("attached mode (default) collapses inner borders via the segmented classes", () => {
     const { container } = renderWithHarbor(
       <ButtonGroup>
         <Button>A</Button>
         <Button>B</Button>
       </ButtonGroup>,
     );
-    const group = container.querySelector("div");
-    expect(group?.querySelectorAll("button").length).toBe(2);
+    const group = screen.getByRole("button", { name: "A" }).parentElement!;
+    expect(group.className).toContain("[&>*+*]:-ml-px");
+    expect(group.className).toContain("[&>*:first-child]:rounded-l-lg");
+    expect(group.className).not.toContain("gap-2");
+    expect(container.querySelectorAll("button").length).toBe(2);
   });
 
-  it("renders in detached mode with attached=false", () => {
-    const { container } = renderWithHarbor(
+  it("detached mode (attached=false) uses gap-2 spacing instead of segmented classes", () => {
+    renderWithHarbor(
       <ButtonGroup attached={false}>
         <Button>A</Button>
         <Button>B</Button>
       </ButtonGroup>,
     );
-    const group = container.querySelector("div");
-    expect(group?.querySelectorAll("button").length).toBe(2);
+    const group = screen.getByRole("button", { name: "A" }).parentElement!;
+    expect(group.className).toContain("gap-2");
+    expect(group.className).not.toContain("[&>*+*]:-ml-px");
   });
 
-  it("passes size prop to children when provided", () => {
+  it("passes size prop to children when set on the group (and child has no own size)", () => {
     renderWithHarbor(
       <ButtonGroup size="sm" attached={false}>
         <Button>Small</Button>
       </ButtonGroup>,
     );
-    expect(screen.getByRole("button", { name: "Small" })).toBeInTheDocument();
+    // Button "sm" → h-8 px-3 text-xs (see buttons/Button.tsx sizes record).
+    const btn = screen.getByRole("button", { name: "Small" });
+    expect(btn.className).toContain("h-8");
+    expect(btn.className).toContain("text-xs");
   });
 
-  it("applies custom className", () => {
-    const { container } = renderWithHarbor(
+  it("child's own size prop wins over the group's size", () => {
+    renderWithHarbor(
+      <ButtonGroup size="sm" attached={false}>
+        <Button size="lg">Big</Button>
+      </ButtonGroup>,
+    );
+    const btn = screen.getByRole("button", { name: "Big" });
+    expect(btn.className).toContain("h-12");
+    expect(btn.className).not.toContain("h-8");
+  });
+
+  it("applies custom className to the group wrapper", () => {
+    renderWithHarbor(
       <ButtonGroup className="my-group">
         <Button>A</Button>
       </ButtonGroup>,
     );
-    expect(container.querySelector("div")).toBeTruthy();
+    const group = screen.getByRole("button", { name: "A" }).parentElement!;
+    expect(group.className).toContain("my-group");
   });
 
   it("a11y: no violations", async () => {

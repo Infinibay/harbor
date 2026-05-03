@@ -36,19 +36,24 @@ describe("DeploymentPipeline", () => {
     const { user } = renderWithHarbor(
       <DeploymentPipeline stages={stages} onStageClick={fn} />,
     );
-    // Click on any stage button
     const buttons = document.querySelectorAll("button");
-    if (buttons.length > 0) {
-      await user.click(buttons[0]);
-      expect(fn).toHaveBeenCalledTimes(1);
-    }
+    expect(buttons.length).toBeGreaterThan(0);
+    await user.click(buttons[0]);
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "build" }),
+    );
   });
 
-  it("renders vertical orientation", () => {
-    const { container } = renderWithHarbor(
+  it("renders vertical orientation with row-style stage layout", () => {
+    const { container: vert } = renderWithHarbor(
       <DeploymentPipeline stages={stages} orientation="vertical" />,
     );
-    expect(container.textContent).toContain("Build");
+    // Each stage row has `flex-row` in vertical mode only (see component:
+    // `vertical ? "flex-row items-center gap-3" : "items-center shrink-0"`).
+    // Horizontal mode never emits `flex-row`, so its absence is the discriminator.
+    expect(vert.querySelector(".flex-row")).toBeTruthy();
+    expect(vert.querySelector(".overflow-x-auto")).toBeNull();
   });
 
   it("renders detail text", () => {

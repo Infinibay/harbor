@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { screen, waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { FindBar } from "./FindBar";
@@ -11,9 +11,7 @@ describe("FindBar", () => {
   });
 
   it("does not render when open=false", () => {
-    const { container } = renderWithHarbor(
-      <FindBar open={false} onClose={vi.fn()} />,
-    );
+    renderWithHarbor(<FindBar open={false} onClose={vi.fn()} />);
     expect(screen.queryByPlaceholderText("Find")).toBeNull();
   });
 
@@ -33,16 +31,12 @@ describe("FindBar", () => {
   });
 
   it("shows Match case toggle (Aa)", () => {
-    const { container } = renderWithHarbor(
-      <FindBar open={true} onClose={vi.fn()} />,
-    );
+    renderWithHarbor(<FindBar open={true} onClose={vi.fn()} />);
     expect(screen.getByTitle("Match case")).toBeTruthy();
   });
 
   it("shows Use regex toggle (.*)", () => {
-    const { container } = renderWithHarbor(
-      <FindBar open={true} onClose={vi.fn()} />,
-    );
+    renderWithHarbor(<FindBar open={true} onClose={vi.fn()} />);
     expect(screen.getByTitle("Use regex")).toBeTruthy();
   });
 

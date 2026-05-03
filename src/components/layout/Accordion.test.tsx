@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { Accordion, AccordionItem } from "./Accordion";
@@ -64,7 +64,10 @@ describe("Accordion", () => {
     );
     expect(screen.getByText("Toggle content")).toBeInTheDocument();
     await user.click(screen.getByText("Section A"));
-    // AnimatePresence may keep element briefly
+    // AnimatePresence keeps the panel briefly; wait for the exit to finish.
+    await waitFor(() =>
+      expect(screen.queryByText("Toggle content")).toBeNull(),
+    );
   });
 
   it("allows multiple open with multiple=true", async () => {
@@ -87,7 +90,7 @@ describe("Accordion", () => {
       <Accordion>
         <AccordionItem value="a" title="With Icon" icon={<span>📁</span>}>
           Content
-        </AccordionItem>,
+        </AccordionItem>
       </Accordion>,
     );
     expect(screen.getByText("📁")).toBeInTheDocument();

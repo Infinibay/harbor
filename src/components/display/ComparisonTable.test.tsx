@@ -83,13 +83,19 @@ describe("ComparisonTable", () => {
     expect(container.querySelector(".my-table")).toBeTruthy();
   });
 
-  it("a11y: known component issue — empty-table-header", () => {
-    // The ComparisonTable renders an empty <th> in the header row for the
-    // label column. axe flags this as "empty-table-header". This is an
-    // existing a11y gap in the component. Verify it renders instead.
+  it("a11y: no violations beyond the documented empty-table-header gap", async () => {
+    // ComparisonTable's first <th> is intentionally empty (it sits above the
+    // row-label column). axe flags it as "empty-table-header"; disable just
+    // that rule so the test still catches any *other* a11y regression.
+    // Component bug to be tracked separately: the <> fragment inside
+    // groups.map() has no key, producing a React key warning at runtime —
+    // wrap it as `<React.Fragment key={g.label}>` to fix.
     const { container } = renderWithHarbor(
       <ComparisonTable plans={plans} groups={groups} />,
     );
-    expect(container.querySelector("table")).toBeTruthy();
+    const results = await axe(container, {
+      rules: { "empty-table-header": { enabled: false } },
+    });
+    expect(results).toHaveNoViolations();
   });
 });

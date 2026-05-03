@@ -67,11 +67,9 @@ describe("MetricHeatmap", () => {
       <MetricHeatmap rows={rows} cols={cols} cells={cells} onCellClick={onCellClick} />,
     );
     const rects = document.querySelectorAll("svg rect");
-    // Click the first data cell
-    if (rects.length > 0) {
-      await user.click(rects[0]);
-      expect(onCellClick).toHaveBeenCalledTimes(1);
-    }
+    expect(rects.length).toBeGreaterThan(0);
+    await user.click(rects[0]);
+    expect(onCellClick).toHaveBeenCalledTimes(1);
   });
 
   it("renders with custom cellSize", () => {

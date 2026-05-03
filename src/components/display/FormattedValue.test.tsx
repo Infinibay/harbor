@@ -26,9 +26,10 @@ describe("FormattedBytes", () => {
     expect(span?.getAttribute("title")).toBeFalsy();
   });
 
-  it("handles null value", () => {
+  it("handles null value (renders em-dash placeholder)", () => {
     const { container } = renderWithHarbor(<FormattedBytes value={null} />);
-    expect(container.textContent).toBeTruthy();
+    // formatBytes(null) → "—" (see lib/format.ts).
+    expect(container.querySelector("span")?.textContent).toBe("—");
   });
 
   it("applies custom className", () => {
@@ -58,8 +59,9 @@ describe("FormattedNumber", () => {
 
   it("supports compact format", () => {
     const { container } = renderWithHarbor(<FormattedNumber value={1234567} compact />);
-    // Compact should produce "1.2M" or similar
-    expect(container.textContent).toBeTruthy();
+    // Intl compact notation produces a single letter suffix M / millions / etc.
+    // Locale-tolerant: "1.2M", "1,2M", or full word "1.2 million".
+    expect(container.textContent).toMatch(/1[.,]\d+\s?(M|million)/i);
   });
 
   it("shows raw value in title", () => {
@@ -77,9 +79,9 @@ describe("FormattedPercent", () => {
     expect(span?.textContent).toMatch(/42[.,]4%/);
   });
 
-  it("handles null value", () => {
+  it("handles null value (renders em-dash placeholder)", () => {
     const { container } = renderWithHarbor(<FormattedPercent value={null} />);
-    expect(container.textContent).toBeTruthy();
+    expect(container.querySelector("span")?.textContent).toBe("—");
   });
 
   it("uses custom decimals", () => {

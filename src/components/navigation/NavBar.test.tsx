@@ -43,9 +43,7 @@ describe("NavBar", () => {
   });
 
   it("supports controlled value", () => {
-    const { container } = renderWithHarbor(
-      <NavBar items={items} value="about" />,
-    );
+    renderWithHarbor(<NavBar items={items} value="about" />);
     // Active item should have text-white class
     const aboutLink = screen.getByText("About").closest("a");
     expect(aboutLink?.className).toContain("text-white");

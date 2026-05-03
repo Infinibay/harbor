@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { Stepper, type Step } from "./Stepper";
 

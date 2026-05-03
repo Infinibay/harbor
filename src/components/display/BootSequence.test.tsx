@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
-import { ErrorState } from "./ErrorState";
 import { BootSequence, type BootStage } from "./BootSequence";
 
 const stages: BootStage[] = [
@@ -29,9 +28,11 @@ describe("BootSequence", () => {
 
   it("renders duration for completed stages", () => {
     const { container } = renderWithHarbor(<BootSequence stages={stages} />);
-    // formatDuration(1200, {includeMs:true}) outputs "1s 200ms" or "1.2s"
-    expect(container.textContent).toContain("1");
-    expect(container.textContent).toContain("3");
+    // formatDuration drops ms remainders (DURATION_UNITS has no ms unit), so
+    // 1200 → "1s" and 3400 → "3s". Assert the actual rendered strings rather
+    // than weak digit substrings.
+    expect(container.textContent).toContain("1s");
+    expect(container.textContent).toContain("3s");
   });
 
   it("renders detail text", () => {

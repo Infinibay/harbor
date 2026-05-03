@@ -20,7 +20,10 @@ describe("ContainerBox", () => {
       <ContainerBox type="size">X</ContainerBox>,
     );
     const div = container.querySelector("div");
-    expect(div?.getAttribute("style")).toContain("size");
+    // The default `inline-size` also contains the substring "size" — match
+    // `container-type: size` with a word boundary so the default doesn't
+    // accidentally satisfy this assertion.
+    expect(div?.getAttribute("style")).toMatch(/container-type:\s*size(?!-)/);
   });
 
   it("sets containerName when name provided", () => {

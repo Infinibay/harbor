@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
-import { Orbs } from "./Orbs";
+import { Orbs, type OrbsProps } from "./Orbs";
 
 describe("Orbs", () => {
   it("renders without crashing", () => {
@@ -31,7 +31,7 @@ describe("Orbs", () => {
   });
 
   it("renders with different blend modes", () => {
-    const blends: Orbs["blend"][] = [
+    const blends: NonNullable<OrbsProps["blend"]>[] = [
       "screen",
       "plus-lighter",
       "lighten",

@@ -53,11 +53,17 @@ describe("Sidebar", () => {
   });
 
   it("applies active class for selected item", () => {
-    const { container } = renderWithHarbor(
-      <Sidebar sections={sections} selected="home" />,
-    );
-    const activeLink = container.querySelector(".text-white");
-    expect(activeLink).toBeTruthy();
+    renderWithHarbor(<Sidebar sections={sections} selected="home" />);
+    // Inactive items use `text-white/60`; the active item uses bare `text-white`.
+    // Scope the assertion to the Home anchor so other text-white elsewhere
+    // (badges, icons, header/footer slots) doesn't accidentally satisfy it.
+    const homeLink = screen.getByText("Home").closest("a");
+    expect(homeLink).toBeTruthy();
+    expect(homeLink!.className).toMatch(/(^|\s)text-white(\s|$)/);
+    expect(homeLink!.className).not.toContain("text-white/60");
+
+    const projectsLink = screen.getByText("Projects").closest("a");
+    expect(projectsLink!.className).toContain("text-white/60");
   });
 
   it("renders header slot", () => {

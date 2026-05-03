@@ -2,7 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
-import { FacetedSearch, type FilterGroup } from "./FacetedSearch";
+import { FacetedSearch } from "./FacetedSearch";
+import type { FilterGroup } from "./FilterPanel";
 
 const groups: FilterGroup[] = [
   {
@@ -54,7 +55,7 @@ describe("FacetedSearch", () => {
   });
 
   it("renders active filter chips", () => {
-    const { container } = renderWithHarbor(
+    renderWithHarbor(
       <FacetedSearch
         groups={groups}
         value={{ status: ["active"] }}

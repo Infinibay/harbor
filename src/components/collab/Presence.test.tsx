@@ -114,18 +114,14 @@ describe("CollabCursor", () => {
   });
 
   it("uses custom color", () => {
-    const { container } = renderWithHarbor(
-      <CollabCursor x={0} y={0} name="Color" color="#ff0000" />,
-    );
+    renderWithHarbor(<CollabCursor x={0} y={0} name="Color" color="#ff0000" />);
     // jsdom converts hex colors to rgb() in style attributes
     const label = screen.getByText("Color");
     expect(label?.closest("span")?.getAttribute("style")).toContain("rgb(255, 0, 0)");
   });
 
   it("uses default purple color", () => {
-    const { container } = renderWithHarbor(
-      <CollabCursor x={0} y={0} name="Default" />,
-    );
+    renderWithHarbor(<CollabCursor x={0} y={0} name="Default" />);
     const label = screen.getByText("Default");
     expect(label?.closest("span")?.getAttribute("style")).toContain("rgb(168, 85, 247)");
   });
