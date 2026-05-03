@@ -9,6 +9,31 @@ afterEach(() => {
   cleanup();
 });
 
+// Suppress "act()" warnings from React StrictMode double-render + async axe()
+// inside accessibility tests. These are expected (jsdom + StrictMode artifact)
+// and do not indicate real test failures.
+const _origError = console.error.bind(console.error);
+console.error = (...args: unknown[]) => {
+  if (typeof args[0] === "string" && args[0].includes("was not wrapped in act")) {
+    return;
+  }
+  _origError(...args);
+};
+
+// Suppress jsdom "Not implemented: HTMLCanvasElement.getContext" messages.
+// Canvas-based backgrounds render without a real canvas in jsdom; the
+// component gracefully degrades (no animation, no crash).
+const _origWarn = console.warn.bind(console.warn);
+console.warn = (...args: unknown[]) => {
+  if (
+    typeof args[0] === "string" &&
+    args[0].includes("Not implemented")
+  ) {
+    return;
+  }
+  _origWarn(...args);
+};
+
 // jsdom is missing a few APIs that Harbor components reach for.
 // Shim the common ones so tests don't need to do it individually.
 
