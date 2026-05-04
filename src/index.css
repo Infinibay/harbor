@@ -84,8 +84,16 @@ option {
   background-color: rgb(var(--harbor-bg-elev-1));
   color: rgb(var(--harbor-text));
 }
-option:checked,
-option:hover {
+/* Quiet indicator for the already-selected row when the popup is open.
+   Just a barely-there lift — anything louder reads as "active/hover"
+   and competes with the actual hover affordance. */
+option:checked {
+  background-color: rgb(var(--harbor-text) / 0.06);
+  color: rgb(var(--harbor-text));
+}
+/* Hover (and keyboard-focus highlight) is the loud one — accent tint. */
+option:hover,
+option:checked:hover {
   background-color: rgb(var(--harbor-accent) / 0.22);
   color: rgb(var(--harbor-text));
 }
