@@ -68,6 +68,31 @@ input:-webkit-autofill:active {
   caret-color: rgb(var(--harbor-text));
 }
 
+/* Native <select> + <option>. Without these, Chromium/Firefox draw the
+   dropdown popup with the OS default (often light) while the page sets
+   `color: white` on the <select>, producing white-on-white options that
+   are only legible on hover (when the row inverts to a dark highlight).
+   `color-scheme` tells the browser which theme to render native chrome
+   in; the explicit `option` rule covers browsers that ignore it. */
+select {
+  color-scheme: dark;
+}
+[data-theme="light"] select {
+  color-scheme: light;
+}
+option {
+  background-color: rgb(var(--harbor-bg-elev-1));
+  color: rgb(var(--harbor-text));
+}
+option:checked,
+option:hover {
+  background-color: rgb(var(--harbor-accent) / 0.22);
+  color: rgb(var(--harbor-text));
+}
+option:disabled {
+  color: rgb(var(--harbor-text) / 0.4);
+}
+
 .grain::before {
   content: "";
   position: absolute;
