@@ -46,7 +46,7 @@ export function CanvasZoomControls({
   return (
     <div
       className={cn(
-        "pointer-events-auto inline-flex items-center gap-0 p-0.5 rounded-lg bg-[#14141c]/85 backdrop-blur-md border border-white/10 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.5)] text-sm",
+        "pointer-events-auto inline-flex items-center gap-0 p-0.5 rounded-lg bg-surface-2/85 backdrop-blur-md border border-white/10 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.5)] text-sm",
         posCls,
         className,
       )}

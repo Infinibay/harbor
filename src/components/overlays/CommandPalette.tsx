@@ -131,7 +131,7 @@ export function CommandPalette({
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-xl rounded-2xl overflow-hidden border border-white/10 bg-[#14141c] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]"
+            className="relative w-full max-w-xl rounded-2xl overflow-hidden border border-white/10 bg-surface-2 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]"
           >
             <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8">
               <svg

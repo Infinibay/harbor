@@ -67,7 +67,7 @@ export function CanvasAlignmentToolbar({
   return (
     <div
       className={cn(
-        "pointer-events-auto inline-flex items-center gap-0.5 p-1 rounded-xl bg-[#14141c]/85 backdrop-blur-md border border-white/10",
+        "pointer-events-auto inline-flex items-center gap-0.5 p-1 rounded-xl bg-surface-2/85 backdrop-blur-md border border-white/10",
         className,
       )}
     >

@@ -135,7 +135,7 @@ export function YAMLConfigEditor({
       {header}
       <div
         className={cn(
-          "rounded-xl border overflow-hidden font-mono text-sm bg-[#0a0a10]",
+          "rounded-xl border overflow-hidden font-mono text-sm bg-surface-2",
           focus ? "border-fuchsia-400/40" : hasErrors ? "border-rose-400/30" : "border-white/10",
         )}
       >

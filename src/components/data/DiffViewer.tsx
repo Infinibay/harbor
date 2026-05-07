@@ -86,7 +86,7 @@ export function DiffViewer({
 
   if (mode === "split") {
     return (
-      <div className={cn("rounded-lg bg-[#0d0d14] border border-white/8 overflow-hidden font-mono text-[12.5px]", className)}>
+      <div className={cn("rounded-lg bg-surface-2 border border-white/8 overflow-hidden font-mono text-[12.5px]", className)}>
         {header}
         <div className="grid grid-cols-2 divide-x divide-white/8">
           <div>
@@ -109,7 +109,7 @@ export function DiffViewer({
   }
 
   return (
-    <div className={cn("rounded-lg bg-[#0d0d14] border border-white/8 overflow-hidden font-mono text-[12.5px]", className)}>
+    <div className={cn("rounded-lg bg-surface-2 border border-white/8 overflow-hidden font-mono text-[12.5px]", className)}>
       {header}
       <div>
         {lines.map((l, i) => (

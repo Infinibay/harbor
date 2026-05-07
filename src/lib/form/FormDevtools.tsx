@@ -59,7 +59,7 @@ function FormDevtoolsImpl({
   return (
     <div
       className={cn(
-        "fixed z-[9999] rounded-xl bg-[#0f0f16]/90 border border-white/10 backdrop-blur text-[11px] font-mono shadow-2xl",
+        "fixed z-[9999] rounded-xl bg-surface-2/90 border border-white/10 backdrop-blur text-[11px] font-mono shadow-2xl",
         "max-w-[380px]",
         posClass,
         className,

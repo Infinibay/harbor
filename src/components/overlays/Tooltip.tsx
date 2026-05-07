@@ -107,7 +107,7 @@ export function Tooltip({
                 zIndex: Z.TOOLTIP,
                 pointerEvents: "none",
               }}
-              className="px-2.5 py-1.5 rounded-lg bg-[#1c1c26] border border-white/10 text-white text-xs shadow-xl whitespace-nowrap"
+              className="px-2.5 py-1.5 rounded-lg bg-surface-3 border border-white/10 text-white text-xs shadow-xl whitespace-nowrap"
             >
               {content}
             </motion.div>

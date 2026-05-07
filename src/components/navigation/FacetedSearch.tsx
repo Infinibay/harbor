@@ -125,7 +125,7 @@ export function FacetedSearch({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 520, damping: 32 }}
-                className="absolute right-0 mt-1 w-56 rounded-md border border-white/10 bg-[#14141c] shadow-2xl z-10 p-1"
+                className="absolute right-0 mt-1 w-56 rounded-md border border-white/10 bg-surface-2 shadow-2xl z-10 p-1"
               >
                 <button
                   onClick={() => {

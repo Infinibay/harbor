@@ -13,7 +13,7 @@ function BrowserTabsDemo(props: any) {
   const [active, setActive] = useState("2");
 
   return (
-    <div style={{ width: "100%", maxWidth: 720 }} className="rounded-xl border border-white/10 bg-[#0f0f16]">
+    <div style={{ width: "100%", maxWidth: 720 }} className="rounded-xl border border-white/10 bg-surface-2">
       <BrowserTabs
         {...props}
         tabs={tabs}

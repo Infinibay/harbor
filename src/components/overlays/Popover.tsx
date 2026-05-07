@@ -121,7 +121,7 @@ export function Popover({
                 zIndex: Z.POPOVER,
               }}
               className={cn(
-                "rounded-xl bg-[#14141c] border border-white/10 shadow-2xl p-3",
+                "rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-3",
                 className,
               )}
             >

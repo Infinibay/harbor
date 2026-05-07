@@ -939,7 +939,7 @@ function CanvasContextMenu({
                 zIndex: Z.CONTEXT_MENU,
                 transformOrigin: "top left",
               }}
-              className="min-w-[200px] rounded-xl bg-[#14141c] border border-white/10 shadow-2xl p-1"
+              className="min-w-[200px] rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1"
             >
               {children}
             </motion.div>

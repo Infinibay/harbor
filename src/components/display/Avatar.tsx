@@ -104,7 +104,7 @@ export function Avatar({
       {status ? (
         <span
           className={cn(
-            "absolute bottom-0 right-0 rounded-full ring-2 ring-[#12121a] z-[2]",
+            "absolute bottom-0 right-0 rounded-full ring-2 ring-surface z-[2]",
             statusColor[status],
           )}
           style={{ width: s.dot, height: s.dot }}

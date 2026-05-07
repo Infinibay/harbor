@@ -105,7 +105,7 @@ export function HoverCard({
                 zIndex: Z.HOVER_CARD,
               }}
               className={cn(
-                "rounded-2xl bg-[#14141c] border border-white/10 shadow-2xl p-4",
+                "rounded-2xl bg-surface-2 border border-white/10 shadow-2xl p-4",
                 className,
               )}
             >

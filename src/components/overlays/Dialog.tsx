@@ -108,7 +108,7 @@ export function Dialog({
                 transition={{ type: "spring", stiffness: 300, damping: 28 }}
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
-                  "relative w-full rounded-2xl bg-[#14141c] border border-white/10 shadow-2xl overflow-hidden flex flex-col",
+                  "relative w-full rounded-2xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden flex flex-col",
                   sizes[size],
                   className,
                 )}

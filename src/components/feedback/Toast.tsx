@@ -83,7 +83,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               exit={{ opacity: 0, x: 30, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 28 }}
               className={cn(
-                "pointer-events-auto relative overflow-hidden rounded-xl border bg-[#14141c]/95 backdrop-blur-xl shadow-2xl min-w-[280px] max-w-sm",
+                "pointer-events-auto relative overflow-hidden rounded-xl border bg-surface-2/95 backdrop-blur-xl shadow-2xl min-w-[280px] max-w-sm",
                 toneStyles[t.tone ?? "default"],
               )}
             >

@@ -102,7 +102,7 @@ export function TimeRangePicker({
     <div
       ref={anchorRef}
       className={cn(
-        "inline-flex items-center gap-0.5 p-0.5 rounded-xl bg-[#14141c]/85 border border-white/10",
+        "inline-flex items-center gap-0.5 p-0.5 rounded-xl bg-surface-2/85 border border-white/10",
         className,
       )}
     >
@@ -155,7 +155,7 @@ export function TimeRangePicker({
                 top: pos.y,
                 zIndex: Z.POPOVER,
               }}
-              className="w-[320px] rounded-xl bg-[#14141c] border border-white/10 shadow-2xl p-3"
+              className="w-[320px] rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-3"
             >
               <CustomRangeEditor
                 initial={resolved}

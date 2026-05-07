@@ -84,7 +84,7 @@ export function Drawer({
             onClick={(e) => e.stopPropagation()}
             style={sz}
             className={cn(
-              "absolute bg-[#14141c] border border-white/10 shadow-2xl flex flex-col",
+              "absolute bg-surface-2 border border-white/10 shadow-2xl flex flex-col",
               positions[side],
               side === "right" && "rounded-l-2xl",
               side === "left" && "rounded-r-2xl",

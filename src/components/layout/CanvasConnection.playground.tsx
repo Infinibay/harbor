@@ -17,7 +17,7 @@ function CanvasConnectionDemo(props: any) {
           <CanvasItem key={n.id} id={n.id} x={n.x} y={n.y}>
             <div
               style={{ width: n.w, height: n.h }}
-              className="rounded-lg bg-[#1a1a24] border border-white/10 grid place-items-center text-sm text-white shadow-lg"
+              className="rounded-lg bg-surface-2 border border-white/10 grid place-items-center text-sm text-white shadow-lg"
             >
               {n.label}
             </div>

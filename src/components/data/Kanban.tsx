@@ -313,7 +313,7 @@ function KanbanCard({
         onDragEnd={() => ctx.setDrag(null)}
         onDragOver={onDragOverCard}
         onDrop={onDropOnCard}
-        className="group relative rounded-xl bg-[#14141c] border border-white/10 p-3 cursor-grab active:cursor-grabbing"
+        className="group relative rounded-xl bg-surface-2 border border-white/10 p-3 cursor-grab active:cursor-grabbing"
       >
       <div className="text-sm text-white font-medium pr-6">{card.title}</div>
       {card.meta ? (
@@ -339,7 +339,7 @@ function KanbanCard({
                 initial={{ opacity: 0, y: -4, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.95 }}
-                className="absolute right-0 mt-1 min-w-[140px] rounded-lg bg-[#1c1c26] border border-white/10 shadow-xl p-1 z-10"
+                className="absolute right-0 mt-1 min-w-[140px] rounded-lg bg-surface-3 border border-white/10 shadow-xl p-1 z-10"
               >
                 {moveTo.map((t) => (
                   <button

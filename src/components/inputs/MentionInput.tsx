@@ -124,7 +124,7 @@ export function MentionInput({
                 zIndex: Z.POPOVER,
                 width: 260,
               }}
-              className="rounded-xl bg-[#14141c] border border-white/10 shadow-2xl p-1 max-h-[240px] overflow-auto"
+              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1 max-h-[240px] overflow-auto"
             >
               {filtered.map((u, i) => (
                 <button

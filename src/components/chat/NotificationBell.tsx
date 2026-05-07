@@ -118,7 +118,7 @@ export function NotificationBell({
                 width: 360,
                 zIndex: Z.POPOVER,
               }}
-              className="rounded-2xl bg-[#14141c] border border-white/10 shadow-2xl overflow-hidden"
+              className="rounded-2xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
                 <span className="text-sm font-semibold text-white">

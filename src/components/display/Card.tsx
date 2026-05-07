@@ -39,7 +39,7 @@ const variants: Record<Variant, string> = {
     "hbr-card bg-[rgb(var(--harbor-bg-elev-1))] border border-white/10",
   glass:
     "bg-[rgb(var(--harbor-bg-elev-1)/0.55)] backdrop-blur-xl backdrop-saturate-150 border border-white/10",
-  solid: "bg-[#14141c] border border-white/8",
+  solid: "bg-surface-2 border border-white/8",
 };
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(

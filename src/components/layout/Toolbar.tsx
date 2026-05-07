@@ -22,7 +22,7 @@ export function Toolbar({
           ? "flex items-center gap-0.5"
           : "flex flex-col items-center gap-0.5",
         variant === "floating" &&
-          "rounded-xl bg-[#14141c]/90 border border-white/10 p-1 shadow-lg backdrop-blur-md",
+          "rounded-xl bg-surface-2/90 border border-white/10 p-1 shadow-lg backdrop-blur-md",
         className,
       )}
     >

@@ -314,7 +314,7 @@ export function NetworkGraph({
       ref={wrapRef}
       style={{ height, cursor: "grab" }}
       className={cn(
-        "relative w-full overflow-hidden select-none rounded-2xl border border-white/10 bg-[#0d0d14]",
+        "relative w-full overflow-hidden select-none rounded-2xl border border-white/10 bg-surface-2",
         className,
       )}
     >

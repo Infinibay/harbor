@@ -172,7 +172,7 @@ export function CanvasMinimap({
       onMouseDown={handleClick}
       style={{ width: mmWidth, height: mmHeight }}
       className={cn(
-        "pointer-events-auto relative overflow-hidden rounded-lg bg-[#14141c]/85 backdrop-blur-md border border-white/10 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.5)] cursor-crosshair",
+        "pointer-events-auto relative overflow-hidden rounded-lg bg-surface-2/85 backdrop-blur-md border border-white/10 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.5)] cursor-crosshair",
         posCls,
         className,
       )}

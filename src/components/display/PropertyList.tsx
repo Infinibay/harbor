@@ -45,7 +45,7 @@ export function PropertyList({
       {Array.from(grouped.entries()).map(([section, rows]) => (
         <section key={section} className="flex flex-col">
           {section ? (
-            <div className="sticky top-0 z-10 text-[10px] uppercase tracking-widest text-white/40 px-1 py-1 bg-[#0d0d14]">
+            <div className="sticky top-0 z-10 text-[10px] uppercase tracking-widest text-white/40 px-1 py-1 bg-surface-2">
               {section}
             </div>
           ) : null}

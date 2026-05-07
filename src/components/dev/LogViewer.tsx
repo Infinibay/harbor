@@ -87,7 +87,7 @@ export function LogViewer({
   return (
     <div
       className={cn(
-        "rounded-lg bg-[#0a0a10] border border-white/8 flex flex-col overflow-hidden font-mono text-[12px]",
+        "rounded-lg bg-surface-2 border border-white/8 flex flex-col overflow-hidden font-mono text-[12px]",
         className,
       )}
     >

@@ -70,7 +70,7 @@ export function ChatBubble({
                     damping: 20,
                     delay: i * 0.04,
                   }}
-                  className="inline-flex items-center gap-0.5 bg-[#14141c] border border-white/10 rounded-full px-1.5 py-0.5 text-[10px] text-white"
+                  className="inline-flex items-center gap-0.5 bg-surface-2 border border-white/10 rounded-full px-1.5 py-0.5 text-[10px] text-white"
                 >
                   <span>{r.emoji}</span>
                   <span className="text-white/70">{r.count}</span>

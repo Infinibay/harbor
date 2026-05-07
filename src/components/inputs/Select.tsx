@@ -204,7 +204,7 @@ export function Select({
                     : { width: typeof menuWidth === "number" ? menuWidth : menuWidth, minWidth: rect.w }),
                 zIndex: Z.POPOVER,
               }}
-              className="rounded-xl bg-[#14141c] border border-white/10 shadow-2xl overflow-hidden p-1"
+              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden p-1"
             >
               <ul className="max-h-64 overflow-y-auto overflow-x-hidden">
                 {options.map((o, i) => (

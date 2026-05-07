@@ -36,14 +36,14 @@ export function WindowFrame({
     <motion.div
       layout
       className={cn(
-        "relative flex flex-col rounded-xl overflow-hidden border border-white/10 bg-[#0f0f16] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]",
+        "relative flex flex-col rounded-xl overflow-hidden border border-white/10 bg-surface-2 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]",
         className,
       )}
     >
       <div
         className={cn(
           "group relative flex items-center gap-3 px-3 select-none",
-          chromeStyle === "macos" ? "h-8 bg-[#1b1b24]" : "h-9 bg-[#17171f]",
+          chromeStyle === "macos" ? "h-8 bg-surface-2" : "h-9 bg-surface-2",
           "border-b border-white/[0.06]",
         )}
       >

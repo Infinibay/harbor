@@ -28,7 +28,7 @@ export function ZoomControls({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-lg bg-[#14141c] border border-white/10 p-0.5",
+        "inline-flex items-center gap-0.5 rounded-lg bg-surface-2 border border-white/10 p-0.5",
         className,
       )}
     >
@@ -41,7 +41,7 @@ export function ZoomControls({
         </button>
         <motion.div
           initial={false}
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity min-w-[120px] rounded-lg bg-[#1c1c26] border border-white/10 p-1 shadow-xl z-50"
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity min-w-[120px] rounded-lg bg-surface-3 border border-white/10 p-1 shadow-xl z-50"
         >
           {presets.map((p) => (
             <button

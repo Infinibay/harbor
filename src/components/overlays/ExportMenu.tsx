@@ -105,7 +105,7 @@ export function ExportMenu({
                   top: pos.y,
                   zIndex: Z.POPOVER,
                 }}
-                className="w-[280px] rounded-xl bg-[#14141c] border border-white/10 shadow-2xl p-3 flex flex-col gap-2"
+                className="w-[280px] rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-3 flex flex-col gap-2"
               >
                 <div className="text-[10px] uppercase tracking-widest text-white/40">
                   Format

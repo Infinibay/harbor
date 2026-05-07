@@ -139,7 +139,7 @@ export function ColorPicker({
   return (
     <div
       className={cn(
-        "w-64 p-3 rounded-2xl bg-[#14141c] border border-white/10 space-y-3",
+        "w-64 p-3 rounded-2xl bg-surface-2 border border-white/10 space-y-3",
         className,
       )}
     >

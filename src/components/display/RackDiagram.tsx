@@ -55,7 +55,7 @@ export function RackDiagram({
   return (
     <div
       className={cn(
-        "inline-flex flex-col gap-2 p-3 rounded-xl border border-white/10 bg-[#0d0d14]/80",
+        "inline-flex flex-col gap-2 p-3 rounded-xl border border-white/10 bg-surface-2/80",
         className,
       )}
     >

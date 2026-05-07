@@ -289,7 +289,7 @@ export function CanvasConnection({
             pointerEvents: "auto",
           }}
           className={cn(
-            "px-1.5 py-0.5 rounded bg-[#14141c] border border-white/10 text-[10px] text-white/75 whitespace-nowrap",
+            "px-1.5 py-0.5 rounded bg-surface-2 border border-white/10 text-[10px] text-white/75 whitespace-nowrap",
           )}
         >
           {label}

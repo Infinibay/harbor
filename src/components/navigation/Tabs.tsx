@@ -112,7 +112,7 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
         {active ? (
           <motion.span
             layoutId={`${ctx.layoutId}-pill`}
-            className="absolute inset-0 rounded-lg bg-[#0d0d14]/90 border border-fuchsia-400/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+            className="absolute inset-0 rounded-lg bg-surface-2/90 border border-fuchsia-400/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         ) : null}
@@ -158,7 +158,7 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
       className={cn(
         "relative px-4 py-2 text-sm font-medium rounded-t-lg inline-flex items-center gap-2 border border-b-0 transition-colors",
         active
-          ? "bg-[#14141c] border-white/10 text-white"
+          ? "bg-surface-2 border-white/10 text-white"
           : "border-transparent text-white/50 hover:text-white/80",
       )}
     >

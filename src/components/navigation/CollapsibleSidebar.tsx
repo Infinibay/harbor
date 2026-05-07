@@ -46,7 +46,7 @@ export function CollapsibleSidebar({
       animate={{ width }}
       transition={{ type: "spring", stiffness: 400, damping: 36 }}
       className={cn(
-        "h-full flex flex-col gap-2 bg-[#0f0f16] border-r border-white/8 overflow-hidden",
+        "h-full flex flex-col gap-2 bg-surface-2 border-r border-white/8 overflow-hidden",
         className,
       )}
     >

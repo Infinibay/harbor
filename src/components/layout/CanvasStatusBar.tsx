@@ -46,7 +46,7 @@ export function CanvasStatusBar({
   return (
     <div
       className={cn(
-        "pointer-events-auto flex items-center gap-4 px-3 h-7 rounded-md bg-[#14141c]/85 backdrop-blur-md border border-white/10 text-[11px] text-white/60",
+        "pointer-events-auto flex items-center gap-4 px-3 h-7 rounded-md bg-surface-2/85 backdrop-blur-md border border-white/10 text-[11px] text-white/60",
         floating && "absolute bottom-3 left-3 right-3",
         className,
       )}

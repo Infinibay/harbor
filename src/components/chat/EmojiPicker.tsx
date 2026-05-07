@@ -28,7 +28,7 @@ export function EmojiPicker({ onPick, className }: EmojiPickerProps) {
   return (
     <div
       className={cn(
-        "w-64 rounded-2xl bg-[#14141c] border border-white/10 shadow-2xl overflow-hidden",
+        "w-64 rounded-2xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden",
         className,
       )}
     >

@@ -82,7 +82,7 @@ export function CanvasPanel({
       ref={panelRef}
       style={{ position: "absolute", left: pos.x, top: pos.y, width }}
       className={cn(
-        "pointer-events-auto rounded-xl bg-[#14141c]/92 backdrop-blur-md border border-white/10 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.7)] overflow-hidden",
+        "pointer-events-auto rounded-xl bg-surface-2/92 backdrop-blur-md border border-white/10 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.7)] overflow-hidden",
         className,
       )}
     >

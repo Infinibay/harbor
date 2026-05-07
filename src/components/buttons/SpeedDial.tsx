@@ -54,12 +54,12 @@ export function SpeedDial({
                     setOpen(false);
                   }}
                   aria-label={a.label}
-                  className="group relative w-10 h-10 rounded-full bg-[#1c1c26] border border-white/10 text-white/85 hover:text-white shadow-lg grid place-items-center"
+                  className="group relative w-10 h-10 rounded-full bg-surface-3 border border-white/10 text-white/85 hover:text-white shadow-lg grid place-items-center"
                 >
                   {a.icon}
                   <span
                     className={cn(
-                      "absolute whitespace-nowrap px-2 py-0.5 rounded bg-[#14141c] border border-white/10 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none",
+                      "absolute whitespace-nowrap px-2 py-0.5 rounded bg-surface-2 border border-white/10 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none",
                       direction === "up" && "right-full mr-2 top-1/2 -translate-y-1/2",
                       direction === "down" && "right-full mr-2 top-1/2 -translate-y-1/2",
                       direction === "left" && "bottom-full mb-2 left-1/2 -translate-x-1/2",

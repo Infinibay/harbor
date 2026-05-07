@@ -102,7 +102,7 @@ export function PresenceUser({ name, status }: PresenceUserProps) {
           status={status === "idle" ? "away" : "online"}
         />
         {status === "editing" ? (
-          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-fuchsia-400 ring-2 ring-[#0a0a0f] animate-pulse" />
+          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-fuchsia-400 ring-2 ring-surface animate-pulse" />
         ) : null}
       </span>
     </Tooltip>

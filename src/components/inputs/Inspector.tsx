@@ -22,7 +22,7 @@ export function Inspector({ sections, className }: InspectorProps) {
   return (
     <div
       className={cn(
-        "flex flex-col divide-y divide-white/5 bg-[#12121a] border border-white/8 rounded-xl overflow-hidden",
+        "flex flex-col divide-y divide-white/5 bg-surface-1 border border-white/8 rounded-xl overflow-hidden",
         className,
       )}
     >

@@ -31,7 +31,7 @@ export function RailSidebar({
   return (
     <aside
       className={cn(
-        "w-14 h-full flex flex-col items-center py-3 gap-1 rounded-2xl bg-[#0f0f16] border border-white/8",
+        "w-14 h-full flex flex-col items-center py-3 gap-1 rounded-2xl bg-surface-2 border border-white/8",
         className,
       )}
     >

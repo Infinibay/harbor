@@ -54,7 +54,7 @@ export function BrowserTabs({
                 className={cn(
                   "group relative flex items-center gap-2 h-8 pl-3 pr-2 rounded-t-md cursor-pointer max-w-[180px] min-w-[80px]",
                   active
-                    ? "bg-[#14141c] text-white"
+                    ? "bg-surface-2 text-white"
                     : "bg-white/[0.03] text-white/65 hover:bg-white/[0.06] hover:text-white/90",
                 )}
                 onClick={() => onActivate(t.id)}
@@ -62,7 +62,7 @@ export function BrowserTabs({
                 {active ? (
                   <motion.span
                     layoutId="tab-bottom"
-                    className="absolute left-0 right-0 -bottom-px h-px bg-[#14141c]"
+                    className="absolute left-0 right-0 -bottom-px h-px bg-surface-2"
                   />
                 ) : null}
                 <span className="w-4 h-4 grid place-items-center text-xs shrink-0">

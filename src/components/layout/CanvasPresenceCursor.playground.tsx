@@ -41,7 +41,7 @@ function CanvasPresenceCursorDemo(props: any) {
     <div className="relative w-full" style={{ height: 480 }}>
       <Canvas grid="dots">
         <CanvasItem x={80} y={80}>
-          <div className="w-48 h-32 rounded-lg bg-[#1a1a24] border border-white/10 grid place-items-center text-sm text-white/70">
+          <div className="w-48 h-32 rounded-lg bg-surface-2 border border-white/10 grid place-items-center text-sm text-white/70">
             Shared canvas
           </div>
         </CanvasItem>

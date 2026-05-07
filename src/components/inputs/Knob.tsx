@@ -145,7 +145,7 @@ export function Knob({
           <motion.div
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute -top-7 left-1/2 -translate-x-1/2 text-[11px] font-mono text-white bg-[#1c1c26] border border-white/10 px-2 py-0.5 rounded-md"
+            className="absolute -top-7 left-1/2 -translate-x-1/2 text-[11px] font-mono text-white bg-surface-3 border border-white/10 px-2 py-0.5 rounded-md"
           >
             {current}
             {unit ? <span className="text-white/40 ml-0.5">{unit}</span> : null}

@@ -123,7 +123,7 @@ export function PermissionMatrix({
         <thead>
           <tr>
             <th
-              className="sticky left-0 top-0 z-20 bg-[#14141c] border-b border-r border-white/10 px-3 py-2 text-left text-[10px] uppercase tracking-widest text-white/40"
+              className="sticky left-0 top-0 z-20 bg-surface-2 border-b border-r border-white/10 px-3 py-2 text-left text-[10px] uppercase tracking-widest text-white/40"
               style={{ minWidth: 180 }}
             >
               Principal
@@ -132,7 +132,7 @@ export function PermissionMatrix({
               <th
                 key={`grp-${group}`}
                 colSpan={items.length}
-                className="sticky top-0 z-10 bg-[#14141c] border-b border-white/10 px-2 py-1 text-[10px] uppercase tracking-widest text-white/35"
+                className="sticky top-0 z-10 bg-surface-2 border-b border-white/10 px-2 py-1 text-[10px] uppercase tracking-widest text-white/35"
               >
                 {group || "\u00A0"}
               </th>
@@ -140,12 +140,12 @@ export function PermissionMatrix({
           </tr>
           <tr>
             <th
-              className="sticky left-0 top-8 z-20 bg-[#14141c] border-b border-r border-white/10 px-3 py-1"
+              className="sticky left-0 top-8 z-20 bg-surface-2 border-b border-r border-white/10 px-3 py-1"
             />
             {resources.map((r) => (
               <th
                 key={`rh-${r.id}`}
-                className="sticky top-8 z-10 bg-[#14141c] border-b border-r border-white/5 px-2 py-1 text-[10px] text-white/60 text-center whitespace-nowrap cursor-pointer hover:bg-white/[0.04]"
+                className="sticky top-8 z-10 bg-surface-2 border-b border-r border-white/5 px-2 py-1 text-[10px] text-white/60 text-center whitespace-nowrap cursor-pointer hover:bg-white/[0.04]"
                 onClick={() => bulkCol(r.id)}
                 title="Click to toggle entire column"
               >
@@ -159,7 +159,7 @@ export function PermissionMatrix({
             <tr key={p.id} style={{ height: rowH }}>
               <th
                 onClick={() => bulkRow(p.id)}
-                className="sticky left-0 z-10 bg-[#0d0d14] border-r border-white/10 text-left px-3 cursor-pointer hover:bg-white/[0.04]"
+                className="sticky left-0 z-10 bg-surface-2 border-r border-white/10 text-left px-3 cursor-pointer hover:bg-white/[0.04]"
                 style={{ minWidth: 180 }}
               >
                 <div className="flex items-center gap-2">
@@ -203,7 +203,7 @@ export function PermissionMatrix({
           ))}
         </tbody>
       </table>
-      <div className="px-3 py-2 border-t border-white/5 bg-[#0d0d14] text-[10px] text-white/40 flex items-center gap-3">
+      <div className="px-3 py-2 border-t border-white/5 bg-surface-2 text-[10px] text-white/40 flex items-center gap-3">
         <span>
           {principals.length} principals × {totalCols} resources
         </span>

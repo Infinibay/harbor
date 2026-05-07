@@ -132,7 +132,7 @@ export function Slider({
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
-              className="absolute -top-9 text-xs font-mono text-white bg-[#1c1c26] border border-white/10 px-2 py-1 rounded-md"
+              className="absolute -top-9 text-xs font-mono text-white bg-surface-3 border border-white/10 px-2 py-1 rounded-md"
               style={{ left: `${pct}%`, translate: "-50% 0" }}
             >
               {current}

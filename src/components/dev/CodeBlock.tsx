@@ -120,18 +120,18 @@ export function CodeBlock({
       )}
     >
       {(title || lang) && (
-        <div className="flex items-center justify-between px-3 py-2 border-b border-white/8 bg-white/[0.02]">
-          <div className="flex items-center gap-2 text-xs text-white/55">
+        <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-white/8 bg-white/[0.02]">
+          <div className="flex min-w-0 items-center gap-2 text-xs text-white/55">
             <span className="flex gap-1">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-400/60" />
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400/60" />
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/60" />
             </span>
             {title ? (
-              <span className="text-white/70 font-mono">{title}</span>
+              <span className="min-w-0 truncate text-white/70 font-mono">{title}</span>
             ) : null}
             {lang ? (
-              <span className="ml-auto text-[10px] uppercase tracking-wider text-white/40">
+              <span className="shrink-0 text-[10px] uppercase tracking-wider text-white/40">
                 {lang}
               </span>
             ) : null}

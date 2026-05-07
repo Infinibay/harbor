@@ -626,7 +626,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
           {/* Header */}
           <div
             role="rowgroup"
-            className="sticky top-0 z-20 bg-[#0f0f16]/95 backdrop-blur"
+            className="sticky top-0 z-20 bg-surface-2/95 backdrop-blur"
           >
             <div
               role="row"
@@ -1838,7 +1838,7 @@ function EditingCellInput<T>({
     "aria-invalid": error ? true : undefined,
     className: cn(
       "w-full h-7 px-2 rounded-md text-sm text-white outline-none",
-      "bg-[#14141c] border",
+      "bg-surface-2 border",
       error ? "border-rose-400/70" : "border-fuchsia-400/60",
     ),
   } as const;

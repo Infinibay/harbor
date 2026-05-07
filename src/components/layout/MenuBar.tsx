@@ -129,7 +129,7 @@ export function MenuBar({ items, className }: MenuBarProps) {
                 zIndex: Z.POPOVER,
                 minWidth: 220,
               }}
-              className="rounded-xl bg-[#14141c] border border-white/10 shadow-2xl p-1"
+              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1"
             >
               {activeItem.children.map((c) => (
                 <MenuBarRow
@@ -219,7 +219,7 @@ function MenuBarRow({
                 zIndex: Z.SUBMENU,
                 minWidth: 200,
               }}
-              className="rounded-xl bg-[#14141c] border border-white/10 shadow-2xl p-1"
+              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1"
             >
               {entry.submenu.map((s) => (
                 <MenuBarRow key={s.id} entry={s} onClose={onClose} />

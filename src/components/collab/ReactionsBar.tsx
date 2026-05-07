@@ -55,7 +55,7 @@ export function ReactionsBar({
               className="fixed inset-0"
               onClick={() => setPickerOpen(false)}
             />
-            <div className="absolute bottom-full left-0 mb-2 rounded-xl bg-[#14141c] border border-white/10 p-2 shadow-xl flex gap-1 z-10">
+            <div className="absolute bottom-full left-0 mb-2 rounded-xl bg-surface-2 border border-white/10 p-2 shadow-xl flex gap-1 z-10">
               {quickEmojis.map((em) => (
                 <button
                   key={em}

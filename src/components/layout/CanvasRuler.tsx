@@ -56,7 +56,7 @@ export function CanvasRuler({
       <div
         aria-hidden
         className={cn(
-          "pointer-events-none absolute bg-[#14141c]/70 border-white/10",
+          "pointer-events-none absolute bg-surface-2/70 border-white/10",
           orientation === "horizontal"
             ? "top-0 left-0 right-0 border-b"
             : "top-0 left-0 bottom-0 border-r",
@@ -97,7 +97,7 @@ export function CanvasRuler({
     <div
       aria-hidden
       className={cn(
-        "pointer-events-none absolute bg-[#14141c]/70 backdrop-blur-sm border-white/10 overflow-hidden",
+        "pointer-events-none absolute bg-surface-2/70 backdrop-blur-sm border-white/10 overflow-hidden",
         isH ? "top-0 left-0 right-0 border-b" : "top-0 left-0 bottom-0 border-r",
         className,
       )}

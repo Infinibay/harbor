@@ -62,7 +62,7 @@ export function FindBar({
           exit={{ opacity: 0, y: -8 }}
           transition={{ type: "spring", stiffness: 400, damping: 28 }}
           className={cn(
-            "flex flex-col gap-1 p-2 rounded-xl bg-[#14141c]/95 border border-white/10 shadow-2xl backdrop-blur-md min-w-[360px]",
+            "flex flex-col gap-1 p-2 rounded-xl bg-surface-2/95 border border-white/10 shadow-2xl backdrop-blur-md min-w-[360px]",
             className,
           )}
         >

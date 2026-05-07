@@ -30,7 +30,7 @@ const variants = {
   primary:
     "text-white bg-gradient-to-br from-fuchsia-500 to-sky-500 shadow-[0_12px_40px_-8px_rgba(168,85,247,0.55)]",
   secondary:
-    "text-white bg-[#1c1c26] border border-white/10 shadow-[0_12px_30px_-8px_rgba(0,0,0,0.6)]",
+    "text-white bg-surface-3 border border-white/10 shadow-[0_12px_30px_-8px_rgba(0,0,0,0.6)]",
 };
 
 export function FAB({

@@ -60,7 +60,7 @@ export function Calendar({
   return (
     <div
       className={cn(
-        "w-[280px] p-3 rounded-2xl bg-[#14141c] border border-white/10",
+        "w-[280px] p-3 rounded-2xl bg-surface-2 border border-white/10",
         className,
       )}
     >

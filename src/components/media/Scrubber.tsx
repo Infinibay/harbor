@@ -138,7 +138,7 @@ export function Scrubber({
             className="absolute -top-7 pointer-events-none"
             style={{ left: `${(hover / duration) * 100}%` }}
           >
-            <div className="-translate-x-1/2 text-[11px] font-mono text-white bg-[#1c1c26] border border-white/10 px-1.5 py-0.5 rounded-md">
+            <div className="-translate-x-1/2 text-[11px] font-mono text-white bg-surface-3 border border-white/10 px-1.5 py-0.5 rounded-md">
               {fmt(hover)}
             </div>
           </div>

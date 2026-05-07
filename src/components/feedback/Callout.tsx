@@ -156,7 +156,7 @@ export function Callout({
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
             style={{ width: 320, ...tipPos }}
             className={cn(
-              "absolute pointer-events-auto rounded-xl bg-[#14141c] border border-white/10 shadow-2xl p-4",
+              "absolute pointer-events-auto rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-4",
               className,
             )}
           >

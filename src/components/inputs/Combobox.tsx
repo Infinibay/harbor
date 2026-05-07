@@ -120,7 +120,7 @@ export function Combobox({
               width: rect.w,
               zIndex: Z.POPOVER,
             }}
-            className="rounded-xl bg-[#14141c] border border-white/10 shadow-2xl overflow-hidden"
+            className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden"
           >
             <input
               autoFocus

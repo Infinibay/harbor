@@ -47,7 +47,7 @@ export function CanvasToolbar({
   return (
     <div
       className={cn(
-        "pointer-events-auto flex gap-0.5 p-1 rounded-xl bg-[#14141c]/85 backdrop-blur-md border border-white/10 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.5)]",
+        "pointer-events-auto flex gap-0.5 p-1 rounded-xl bg-surface-2/85 backdrop-blur-md border border-white/10 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.5)]",
         orientation === "vertical" ? "flex-col" : "flex-row items-center",
         posCls,
         className,
