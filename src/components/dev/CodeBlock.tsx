@@ -53,7 +53,7 @@ function highlightLine(line: string): ReactNode[] {
     const key = `${i++}`;
     if (m[1]) {
       tokens.push(
-        <span key={key} className="text-white/35">
+        <span key={key} className="text-fg-subtle">
           {m[1]}
         </span>,
       );
@@ -84,13 +84,13 @@ function highlightLine(line: string): ReactNode[] {
         );
       else
         tokens.push(
-          <span key={key} className="text-white/85">
+          <span key={key} className="text-fg">
             {m[5]}
           </span>,
         );
     } else if (m[6]) {
       tokens.push(
-        <span key={key} className="text-white/45">
+        <span key={key} className="text-fg-subtle">
           {m[6]}
         </span>,
       );
@@ -115,23 +115,23 @@ export function CodeBlock({
   return (
     <div
       className={cn(
-        "relative rounded-xl overflow-hidden border border-white/10 bg-black/50 backdrop-blur",
+        "relative overflow-hidden rounded-xl border border-white/10 bg-surface-1/95 text-fg shadow-harbor-sm backdrop-blur",
         className,
       )}
     >
       {(title || lang) && (
-        <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-white/8 bg-white/[0.02]">
-          <div className="flex min-w-0 items-center gap-2 text-xs text-white/55">
+        <div className="flex items-center justify-between gap-3 border-b border-white/8 bg-white/[0.02] px-3 py-2">
+          <div className="flex min-w-0 items-center gap-2 text-xs text-fg-muted">
             <span className="flex gap-1">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-400/60" />
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400/60" />
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/60" />
             </span>
             {title ? (
-              <span className="min-w-0 truncate text-white/70 font-mono">{title}</span>
+              <span className="min-w-0 truncate font-mono text-fg-muted">{title}</span>
             ) : null}
             {lang ? (
-              <span className="shrink-0 text-[10px] uppercase tracking-wider text-white/40">
+              <span className="shrink-0 text-[10px] uppercase tracking-wider text-fg-subtle">
                 {lang}
               </span>
             ) : null}
@@ -151,7 +151,7 @@ export function CodeBlock({
               )}
             >
               {showLineNumbers ? (
-                <span className="text-white/25 text-right select-none">
+                <span className="select-none text-right text-fg-subtle">
                   {i + 1}
                 </span>
               ) : null}

@@ -108,7 +108,7 @@ export function Dialog({
                 transition={{ type: "spring", stiffness: 300, damping: 28 }}
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
-                  "relative w-full rounded-2xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden flex flex-col",
+                  "relative w-full overflow-hidden rounded-2xl border border-white/10 bg-surface-2 text-fg shadow-2xl flex flex-col",
                   sizes[size],
                   className,
                 )}
@@ -119,7 +119,7 @@ export function Dialog({
                   aria-label={t("harbor.action.close")}
                   onClick={onClose}
                   data-cursor="button"
-                  className="absolute top-3 end-3 w-8 h-8 rounded-lg grid place-items-center text-white/50 hover:text-white hover:bg-white/5"
+                  className="absolute top-3 end-3 grid h-8 w-8 place-items-center rounded-lg text-fg-muted hover:bg-white/5 hover:text-fg"
                 >
                   <span aria-hidden>×</span>
                 </button>
@@ -163,7 +163,7 @@ export function DialogTitle({
   return (
     <h2
       id={titleId}
-      className={cn("px-6 pt-6 text-lg font-semibold text-white", className)}
+      className={cn("px-6 pt-6 text-lg font-semibold text-fg", className)}
       {...rest}
     >
       {children}
@@ -183,7 +183,7 @@ export function DialogDescription({
   return (
     <p
       id={descId}
-      className={cn("px-6 pt-1 text-sm text-white/55", className)}
+      className={cn("px-6 pt-1 text-sm text-fg-muted", className)}
       {...rest}
     >
       {children}

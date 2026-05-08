@@ -82,27 +82,27 @@ export function Combobox({
   return (
     <div className={cn("relative w-full", className)}>
       {label ? (
-        <label className="block text-xs text-white/60 mb-1.5">{label}</label>
+        <label className="block text-xs text-fg-muted mb-1.5">{label}</label>
       ) : null}
       <button
         ref={anchorRef}
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "w-full h-11 px-4 rounded-xl border bg-white/5 flex items-center justify-between transition-colors outline-none",
-          "border-white/10 hover:bg-white/[0.07]",
+          "w-full h-11 rounded-xl border bg-surface-1/80 px-4 flex items-center justify-between transition-colors outline-none",
+          "border-white/10 hover:bg-surface-2",
           open && "border-fuchsia-400/60",
         )}
       >
         <span
           className={cn(
             "text-sm truncate",
-            selected ? "text-white" : "text-white/40",
+            selected ? "text-fg" : "text-fg-subtle",
           )}
         >
           {selected?.label ?? placeholder}
         </span>
-        <span className="text-white/40 text-xs">⌄</span>
+        <span className="text-xs text-fg-subtle">⌄</span>
       </button>
       <Portal>
       <AnimatePresence>
@@ -128,7 +128,7 @@ export function Combobox({
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search…"
               data-cursor="text"
-              className="w-full px-4 py-3 bg-transparent text-white text-sm outline-none border-b border-white/10 placeholder:text-white/30"
+              className="w-full border-b border-white/10 bg-transparent px-4 py-3 text-sm text-fg outline-none placeholder:text-fg-subtle"
             />
             <ul className="max-h-60 overflow-auto p-1">
               <AnimatePresence initial={false}>
@@ -148,11 +148,11 @@ export function Combobox({
                       }}
                       data-cursor="button"
                       className={cn(
-                        "w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between hover:bg-white/5",
-                        value === o.value && "bg-white/5 text-white",
+                        "w-full rounded-lg px-3 py-2 text-left text-sm flex items-center justify-between hover:bg-white/5",
+                        value === o.value && "bg-white/5 text-fg",
                       )}
                     >
-                      <span className="text-white">{o.label}</span>
+                      <span className="text-fg">{o.label}</span>
                       {value === o.value ? (
                         <span className="text-fuchsia-300 text-xs">✓</span>
                       ) : null}
@@ -161,7 +161,7 @@ export function Combobox({
                 ))}
               </AnimatePresence>
               {filtered.length === 0 ? (
-                <li className="px-3 py-3 text-sm text-white/40">
+                <li className="px-3 py-3 text-sm text-fg-subtle">
                   {emptyText}
                 </li>
               ) : null}

@@ -91,21 +91,21 @@ export function VMConsole({
     <div
       ref={rootRef}
       className={cn(
-        "rounded-xl border border-white/10 bg-black/80 overflow-hidden flex flex-col",
+        "flex flex-col overflow-hidden rounded-xl border border-white/10 bg-surface-1/95 text-fg shadow-harbor-sm",
         className,
       )}
     >
-      <div className="flex items-center gap-3 px-3 h-9 border-b border-white/10 bg-white/[0.02]">
+      <div className="flex h-9 items-center gap-3 border-b border-white/10 bg-white/[0.02] px-3">
         <StatusDot status={connected ? status : "offline"} label={null} size={8} />
         <div className="flex flex-col gap-0 min-w-0">
-          <div className="text-xs text-white font-medium truncate">{name}</div>
+          <div className="truncate text-xs font-medium text-fg">{name}</div>
           {subtitle ? (
-            <div className="text-[10px] text-white/50 truncate">{subtitle}</div>
+            <div className="truncate text-[10px] text-fg-muted">{subtitle}</div>
           ) : null}
         </div>
         <span className="flex-1" />
         {resolution ? (
-          <span className="text-[10px] text-white/40 tabular-nums font-mono">
+          <span className="font-mono text-[10px] tabular-nums text-fg-subtle">
             {resolution}
           </span>
         ) : null}
@@ -123,7 +123,7 @@ export function VMConsole({
         ) : onConnect ? (
           <button
             onClick={onConnect}
-            className="text-[10px] uppercase tracking-widest text-fuchsia-200 hover:text-white px-1.5"
+            className="px-1.5 text-[10px] uppercase tracking-widest text-fuchsia-200 hover:text-fg"
           >
             Connect
           </button>
@@ -131,7 +131,7 @@ export function VMConsole({
         <button
           onClick={handleFullscreen}
           title="Fullscreen"
-          className="text-white/50 hover:text-white px-1"
+          className="px-1 text-fg-muted hover:text-fg"
         >
           ⛶
         </button>

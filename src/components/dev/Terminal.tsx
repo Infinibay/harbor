@@ -18,8 +18,8 @@ export interface TerminalProps {
 }
 
 const colors = {
-  out: "text-white/80",
-  cmd: "text-white",
+  out: "text-fg-muted",
+  cmd: "text-fg",
   err: "text-rose-300",
   info: "text-sky-300",
 };
@@ -41,17 +41,17 @@ export function Terminal({
   return (
     <div
       className={cn(
-        "rounded-xl overflow-hidden border border-white/10 bg-black/70 backdrop-blur",
+        "overflow-hidden rounded-xl border border-white/10 bg-surface-1/95 text-fg shadow-harbor-sm backdrop-blur",
         className,
       )}
     >
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-white/8 bg-white/[0.02]">
+      <div className="flex items-center gap-2 border-b border-white/8 bg-white/[0.02] px-3 py-2">
         <span className="flex gap-1">
           <span className="w-2.5 h-2.5 rounded-full bg-rose-400/60" />
           <span className="w-2.5 h-2.5 rounded-full bg-amber-400/60" />
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/60" />
         </span>
-        <span className="text-xs text-white/55 font-mono">{title}</span>
+        <span className="font-mono text-xs text-fg-muted">{title}</span>
       </div>
       <div
         ref={ref}
@@ -77,7 +77,7 @@ export function Terminal({
             </motion.div>
           ))}
         </AnimatePresence>
-        <span className="inline-block w-2 h-4 bg-white/80 align-middle animate-pulse" />
+        <span className="inline-block h-4 w-2 animate-pulse bg-fg align-middle" />
       </div>
     </div>
   );

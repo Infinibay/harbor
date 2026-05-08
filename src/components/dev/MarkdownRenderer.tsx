@@ -15,7 +15,7 @@ export function MarkdownRenderer({ source, className }: MarkdownRendererProps) {
   const blocks = useMemo(() => parseBlocks(source), [source]);
 
   return (
-    <div className={cn("text-sm text-white/80 leading-relaxed space-y-3", className)}>
+    <div className={cn("space-y-3 text-sm leading-relaxed text-fg-muted", className)}>
       {blocks}
     </div>
   );
@@ -43,10 +43,10 @@ function parseBlocks(src: string): ReactNode[] {
       out.push(
         <pre
           key={key++}
-          className="rounded-lg bg-black/40 border border-white/8 p-3 overflow-auto text-[12.5px] font-mono text-white/85"
+          className="overflow-auto rounded-lg border border-white/8 bg-surface-1/95 p-3 font-mono text-[12.5px] text-fg"
         >
           {lang ? (
-            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">{lang}</div>
+            <div className="mb-1 text-[10px] uppercase tracking-wider text-fg-subtle">{lang}</div>
           ) : null}
           <code>{codeLines.join("\n")}</code>
         </pre>,
@@ -61,12 +61,12 @@ function parseBlocks(src: string): ReactNode[] {
       const content = renderInline(h[2]);
       const cls =
         level === 1
-          ? "text-2xl font-bold text-white"
+          ? "text-2xl font-bold text-fg"
           : level === 2
-            ? "text-xl font-semibold text-white"
+            ? "text-xl font-semibold text-fg"
             : level === 3
-              ? "text-lg font-semibold text-white"
-              : "text-base font-semibold text-white/90";
+              ? "text-lg font-semibold text-fg"
+              : "text-base font-semibold text-fg";
       if (level === 1) out.push(<h1 key={key++} className={cls}>{content}</h1>);
       else if (level === 2) out.push(<h2 key={key++} className={cls}>{content}</h2>);
       else if (level === 3) out.push(<h3 key={key++} className={cls}>{content}</h3>);
@@ -94,7 +94,7 @@ function parseBlocks(src: string): ReactNode[] {
       out.push(
         <blockquote
           key={key++}
-          className="border-l-2 border-fuchsia-400/50 pl-3 text-white/70 italic"
+          className="border-l-2 border-fuchsia-400/50 pl-3 italic text-fg-muted"
         >
           {renderInline(q.join(" "))}
         </blockquote>,
@@ -110,7 +110,7 @@ function parseBlocks(src: string): ReactNode[] {
         i++;
       }
       out.push(
-        <ul key={key++} className="list-disc list-inside space-y-1 text-white/80">
+        <ul key={key++} className="list-inside list-disc space-y-1 text-fg-muted">
           {items.map((it, idx) => (
             <li key={idx}>{renderInline(it)}</li>
           ))}
@@ -127,7 +127,7 @@ function parseBlocks(src: string): ReactNode[] {
         i++;
       }
       out.push(
-        <ol key={key++} className="list-decimal list-inside space-y-1 text-white/80">
+        <ol key={key++} className="list-inside list-decimal space-y-1 text-fg-muted">
           {items.map((it, idx) => (
             <li key={idx}>{renderInline(it)}</li>
           ))}
@@ -158,7 +158,7 @@ function parseBlocks(src: string): ReactNode[] {
       i++;
     }
     out.push(
-      <p key={key++} className="text-white/80">
+      <p key={key++} className="text-fg-muted">
         {renderInline(para.join(" "))}
       </p>,
     );
@@ -180,7 +180,7 @@ function renderInline(text: string): ReactNode[] {
       out.push(
         <code
           key={key++}
-          className="px-1 py-0.5 rounded bg-white/8 font-mono text-[0.9em] text-fuchsia-200"
+          className="rounded bg-white/8 px-1 py-0.5 font-mono text-[0.9em] text-fuchsia-200"
         >
           {codeM[1]}
         </code>,
@@ -192,7 +192,7 @@ function renderInline(text: string): ReactNode[] {
     const boldM = /^\*\*([^*]+)\*\*/.exec(rest);
     if (boldM) {
       out.push(
-        <strong key={key++} className="text-white font-semibold">
+        <strong key={key++} className="font-semibold text-fg">
           {renderInline(boldM[1])}
         </strong>,
       );

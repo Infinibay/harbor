@@ -45,6 +45,16 @@
 [data-theme="light"] .hover\:text-white\/85:hover { color: rgb(var(--harbor-text) / 0.85); }
 [data-theme="light"] .hover\:text-white\/90:hover { color: rgb(var(--harbor-text) / 0.90); }
 
+/* === semantic token text family ========================== */
+/* These utilities already resolve through CSS variables, but keeping
+   them here gives light-theme token text the same high-specificity
+   protection as the legacy text-white family. */
+[data-theme="light"] .text-fg { color: rgb(var(--harbor-text)); }
+[data-theme="light"] .text-fg-muted { color: rgb(var(--harbor-text-muted)); }
+[data-theme="light"] .text-fg-subtle { color: rgb(var(--harbor-text-subtle)); }
+[data-theme="light"] .hover\:text-fg:hover { color: rgb(var(--harbor-text)); }
+[data-theme="light"] .hover\:text-fg-muted:hover { color: rgb(var(--harbor-text-muted)); }
+
 /* === bg-white family ===================================== */
 /* These are almost always "subtle surface wash" tints on top of elev-*
    surfaces. Under light theme the wash flips to dark-on-light. */

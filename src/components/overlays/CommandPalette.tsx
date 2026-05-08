@@ -131,7 +131,7 @@ export function CommandPalette({
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-xl rounded-2xl overflow-hidden border border-white/10 bg-surface-2 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]"
+            className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-surface-2 text-fg shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]"
           >
             <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8">
               <svg
@@ -141,7 +141,7 @@ export function CommandPalette({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
-                className="text-white/40"
+                className="text-fg-subtle"
                 aria-hidden
               >
                 <circle cx="11" cy="11" r="7" />
@@ -154,9 +154,9 @@ export function CommandPalette({
                 onChange={(e) => setQ(e.target.value)}
                 placeholder={effectivePlaceholder}
                 data-cursor="text"
-                className="flex-1 bg-transparent outline-none text-white placeholder:text-white/30 text-sm"
+                className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-fg-subtle"
               />
-              <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/60">
+              <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-fg-muted">
                 {t("harbor.commandPalette.escKey")}
               </kbd>
             </div>
@@ -166,7 +166,7 @@ export function CommandPalette({
             >
               {grouped.map(([section, items]) => (
                 <li key={section}>
-                  <div className="px-2 pt-2 pb-1 text-[10px] uppercase tracking-wider text-white/35 font-semibold">
+                  <div className="px-2 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-fg-subtle">
                     {section}
                   </div>
                   <ul>
@@ -194,13 +194,13 @@ export function CommandPalette({
                               }`}
                             >
                               {c.icon ? (
-                                <span className="text-white/55">{c.icon}</span>
+                                <span className="text-fg-muted">{c.icon}</span>
                               ) : null}
-                              <span className="flex-1 text-white">
+                              <span className="flex-1 text-fg">
                                 {c.label}
                               </span>
                               {c.shortcut ? (
-                                <span className="text-[10px] text-white/40 font-mono">
+                                <span className="font-mono text-[10px] text-fg-subtle">
                                   {c.shortcut}
                                 </span>
                               ) : null}
@@ -213,7 +213,7 @@ export function CommandPalette({
                 </li>
               ))}
               {filtered.length === 0 ? (
-                <li className="px-3 py-6 text-center text-white/40 text-sm">
+                <li className="px-3 py-6 text-center text-sm text-fg-subtle">
                   No commands match “{q}”
                 </li>
               ) : null}

@@ -159,11 +159,11 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
     return (
       <div
         className={cn(
-          "flex flex-col rounded-xl bg-black/60 border border-white/10 overflow-hidden font-mono",
+          "flex flex-col overflow-hidden rounded-xl border border-white/10 bg-surface-1/95 font-mono text-fg shadow-harbor-sm",
           className,
         )}
       >
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10 bg-white/[0.02]">
+        <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.02] px-3 py-2">
           {(Object.keys(LEVEL_COLOR) as LogLevel[]).map((lv) => {
             const on = levelFilter.has(lv);
             return (
@@ -174,7 +174,7 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
                   "text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border transition-colors",
                   on
                     ? `${LEVEL_BG[lv]} ${LEVEL_COLOR[lv]} border-white/15`
-                    : "text-white/30 border-white/10 hover:border-white/20",
+                    : "border-white/10 text-fg-subtle hover:border-white/20",
                 )}
               >
                 {lv}
@@ -185,7 +185,7 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={searchPlaceholder}
-            className="flex-1 bg-transparent border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40"
+            className="flex-1 rounded border border-white/10 bg-transparent px-2 py-1 text-xs text-fg outline-none focus:border-fuchsia-400/40"
           />
           <button
             onClick={() => setUseRegex((r) => !r)}
@@ -194,12 +194,12 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
               "text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border transition-colors",
               useRegex
                 ? "bg-fuchsia-500/15 text-fuchsia-200 border-fuchsia-400/30"
-                : "text-white/40 border-white/10 hover:border-white/20",
+                : "border-white/10 text-fg-subtle hover:border-white/20",
             )}
           >
             .*
           </button>
-          <span className="text-[10px] text-white/40 tabular-nums font-sans">
+          <span className="font-sans text-[10px] tabular-nums text-fg-subtle">
             {visible.length}/{entries.length}
           </span>
           {!following ? (
@@ -221,10 +221,10 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
           ref={scrollRef}
           onScroll={onScroll}
           style={{ height }}
-          className="overflow-auto text-xs leading-relaxed px-3 py-2 text-white/80"
+          className="overflow-auto px-3 py-2 text-xs leading-relaxed text-fg-muted"
         >
           {visible.length === 0 ? (
-            <div className="text-white/40 text-xs py-6 text-center font-sans">
+            <div className="py-6 text-center font-sans text-xs text-fg-subtle">
               No entries match.
             </div>
           ) : (
@@ -235,7 +235,7 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
                   : e.time;
               return (
                 <div key={e.id} className="flex items-start gap-2 py-0.5">
-                  <span className="text-white/35 tabular-nums shrink-0">{timeStr}</span>
+                  <span className="shrink-0 tabular-nums text-fg-subtle">{timeStr}</span>
                   <span
                     className={cn(
                       "shrink-0 w-12 uppercase text-[10px] tracking-wider font-semibold",
@@ -245,7 +245,7 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
                     {e.level}
                   </span>
                   {e.source ? (
-                    <span className="text-white/45 shrink-0 w-32 truncate">
+                    <span className="w-32 shrink-0 truncate text-fg-subtle">
                       {e.source}
                     </span>
                   ) : null}

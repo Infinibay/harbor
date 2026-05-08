@@ -38,7 +38,7 @@ describe("CopyCommand", () => {
       />,
     );
     // No $ prompt spans
-    const prompt = container.querySelector("span.text-white\\/30");
+    const prompt = container.querySelector('[data-slot="prompt"]');
     expect(prompt).toBeNull();
   });
 
@@ -109,7 +109,7 @@ describe("CopyCommand", () => {
       />,
     );
     // The first line starts with #, so no $ for that line
-    const prompts = container.querySelectorAll("span.text-white\\/30");
+    const prompts = container.querySelectorAll('[data-slot="prompt"]');
     // Only "echo hi" line should have a prompt
     expect(prompts.length).toBe(1);
   });

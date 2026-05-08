@@ -18,7 +18,7 @@ export function JsonViewer({
   return (
     <div
       className={cn(
-        "font-mono text-[12.5px] leading-6 p-3 rounded-lg bg-black/40 border border-white/8 overflow-auto",
+        "overflow-auto rounded-lg border border-white/8 bg-surface-1/95 p-3 font-mono text-[12.5px] leading-6 text-fg",
         className,
       )}
     >
@@ -64,22 +64,22 @@ function Node({
           <motion.span
             animate={{ rotate: open ? 0 : -90 }}
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className="inline-block text-white/35 text-[10px] leading-none"
+            className="inline-block text-[10px] leading-none text-fg-subtle"
           >
             ▼
           </motion.span>
           {label ? (
             <span className="text-sky-300">"{label}"</span>
           ) : null}
-          {label ? <span className="text-white/30">:</span> : null}
-          <span className="text-white/60">{openChar}</span>
+          {label ? <span className="text-fg-subtle">:</span> : null}
+          <span className="text-fg-muted">{openChar}</span>
           {!open ? (
-            <span className="text-white/30">
+            <span className="text-fg-subtle">
               {entries.length} {type === "array" ? "items" : "keys"}
             </span>
           ) : null}
           {!open ? (
-            <span className="text-white/60">
+            <span className="text-fg-muted">
               {closeChar}
               {isLast ? "" : ","}
             </span>
@@ -105,7 +105,7 @@ function Node({
                 />
               ))}
               <div style={{ paddingLeft: 16 * (depth === 0 ? 0 : 1) }}>
-                <span className="text-white/60">
+                <span className="text-fg-muted">
                   {closeChar}
                   {isLast ? "" : ","}
                 </span>
@@ -122,11 +122,11 @@ function Node({
       {label ? (
         <>
           <span className="text-sky-300">"{label}"</span>
-          <span className="text-white/30">: </span>
+          <span className="text-fg-subtle">: </span>
         </>
       ) : null}
       <Primitive value={value} />
-      {isLast ? "" : <span className="text-white/30">,</span>}
+      {isLast ? "" : <span className="text-fg-subtle">,</span>}
     </div>
   );
 }
@@ -140,7 +140,7 @@ function Primitive({ value }: { value: unknown }) {
     return <span className="text-amber-300">{String(value)}</span>;
   if (typeof value === "boolean")
     return <span className="text-fuchsia-300">{String(value)}</span>;
-  return <span className="text-white/70">{String(value)}</span>;
+  return <span className="text-fg-muted">{String(value)}</span>;
 }
 
 function getType(v: unknown): "string" | "number" | "boolean" | "null" | "array" | "object" {

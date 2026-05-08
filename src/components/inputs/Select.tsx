@@ -139,7 +139,7 @@ export function Select({
   return (
     <div className={cn("relative w-full", className)}>
       {label ? (
-        <label className="block text-xs text-white/60 mb-1.5">{label}</label>
+        <label className="block text-xs text-fg-muted mb-1.5">{label}</label>
       ) : null}
       <button
         ref={anchorRef}
@@ -148,9 +148,9 @@ export function Select({
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKey}
         className={cn(
-          "relative overflow-hidden w-full border bg-white/5 flex items-center justify-between text-start outline-none",
+          "relative overflow-hidden w-full border bg-surface-1/80 flex items-center justify-between text-start outline-none",
           SIZE_TRIGGER[size],
-          "border-white/10 hover:bg-white/[0.07] transition-colors",
+          "border-white/10 hover:bg-surface-2 transition-colors",
           open && "border-fuchsia-400/60",
           "focus-visible:ring-2 focus-visible:ring-fuchsia-400/60 focus-bloom disabled:opacity-50",
         )}
@@ -164,7 +164,7 @@ export function Select({
           className={cn(
             "relative truncate flex items-center gap-2",
             SIZE_LABEL[size],
-            selected ? "text-white" : "text-white/40",
+            selected ? "text-fg" : "text-fg-subtle",
           )}
         >
           {selected?.icon}
@@ -179,7 +179,7 @@ export function Select({
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          className="relative text-white/50"
+          className="relative text-fg-muted"
         >
           <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
         </motion.svg>
@@ -216,7 +216,7 @@ export function Select({
                       onMouseEnter={() => setFocusIdx(i)}
                       className={cn(
                         "relative w-full text-start ps-4 pe-3 py-2 rounded-md text-sm flex items-center gap-2.5 transition-colors",
-                        focusIdx === i ? "bg-white/5" : "",
+                        focusIdx === i ? "bg-surface-3/80" : "",
                         o.disabled && "opacity-40 cursor-not-allowed",
                       )}
                     >
@@ -232,12 +232,12 @@ export function Select({
                         />
                       ) : null}
                       {o.icon ? (
-                        <span className="text-white/60 mt-0.5">{o.icon}</span>
+                        <span className="text-fg-muted mt-0.5">{o.icon}</span>
                       ) : null}
                       <span className="flex-1 flex flex-col gap-0.5">
-                        <span className="text-white">{o.label}</span>
+                        <span className="text-fg">{o.label}</span>
                         {o.description ? (
-                          <span className="text-xs text-white/50">
+                          <span className="text-xs text-fg-muted">
                             {o.description}
                           </span>
                         ) : null}

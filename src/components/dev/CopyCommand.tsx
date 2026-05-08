@@ -63,12 +63,12 @@ export function CopyCommand({
   return (
     <div
       className={cn(
-        "rounded-xl border border-white/10 bg-black/60 overflow-hidden",
+        "overflow-hidden rounded-xl border border-white/10 bg-surface-1/95 text-fg shadow-harbor-sm",
         className,
       )}
     >
       {variants.length > 1 ? (
-        <div className="flex items-center gap-0.5 px-2 pt-1.5 border-b border-white/5">
+        <div className="flex items-center gap-0.5 border-b border-white/5 px-2 pt-1.5">
           {variants.map((vt, i) => (
             <button
               key={vt.label}
@@ -76,8 +76,8 @@ export function CopyCommand({
               className={cn(
                 "text-[11px] px-2 py-1 rounded-t-md",
                 i === activeIdx
-                  ? "bg-white/[0.06] text-white"
-                  : "text-white/50 hover:text-white/80",
+                  ? "bg-white/[0.06] text-fg"
+                  : "text-fg-muted hover:text-fg",
               )}
             >
               {vt.label}
@@ -86,7 +86,7 @@ export function CopyCommand({
           <span className="flex-1" />
           <button
             onClick={copy}
-            className="text-[11px] text-white/60 hover:text-white px-2 py-1"
+            className="px-2 py-1 text-[11px] text-fg-muted hover:text-fg"
           >
             {copied ? "✓ copied" : "Copy"}
           </button>
@@ -95,17 +95,17 @@ export function CopyCommand({
         <div className="flex items-center justify-end px-2 pt-1.5">
           <button
             onClick={copy}
-            className="text-[11px] text-white/60 hover:text-white px-2 py-1"
+            className="px-2 py-1 text-[11px] text-fg-muted hover:text-fg"
           >
             {copied ? "✓ copied" : "Copy"}
           </button>
         </div>
       )}
-      <pre className="p-3 text-sm text-white/90 font-mono whitespace-pre-wrap break-all">
+      <pre className="whitespace-pre-wrap break-all p-3 font-mono text-sm text-fg">
         {v.code.split("\n").map((line, i) => (
           <div key={i}>
             {showPrompt && !line.startsWith("#") ? (
-              <span className="text-white/30 select-none mr-2">$</span>
+              <span data-slot="prompt" className="mr-2 select-none text-fg-subtle">$</span>
             ) : null}
             {line}
           </div>

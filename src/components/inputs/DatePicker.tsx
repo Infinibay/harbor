@@ -54,15 +54,15 @@ export function DatePicker({
   return (
     <div className={cn("relative w-full", className)}>
       {label ? (
-        <label className="block text-xs text-white/60 mb-1.5">{label}</label>
+        <label className="block text-xs text-fg-muted mb-1.5">{label}</label>
       ) : null}
       <button
         ref={anchorRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "w-full h-11 px-4 rounded-xl border bg-white/5 flex items-center gap-3 text-left outline-none text-sm transition-colors",
-          "border-white/10 hover:bg-white/[0.07]",
+          "w-full h-11 rounded-xl border bg-surface-1/80 px-4 flex items-center gap-3 text-left text-sm outline-none transition-colors",
+          "border-white/10 hover:bg-surface-2",
           open && "border-fuchsia-400/60",
         )}
       >
@@ -73,12 +73,12 @@ export function DatePicker({
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          className="text-white/50"
+          className="text-fg-muted"
         >
           <rect x="3" y="5" width="18" height="16" rx="2" />
           <path d="M8 3v4M16 3v4M3 10h18" strokeLinecap="round" />
         </svg>
-        <span className={value ? "text-white" : "text-white/40"}>
+        <span className={value ? "text-fg" : "text-fg-subtle"}>
           {value
             ? value.toLocaleDateString(undefined, {
                 year: "numeric",
