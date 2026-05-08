@@ -42,7 +42,7 @@ export function BarChart({
               onMouseEnter={() => setHover(b.id)}
               onMouseLeave={() => setHover(null)}
             >
-              <span className="w-24 text-xs text-white/60 truncate">{b.label}</span>
+              <span className="w-24 text-xs text-fg-muted truncate">{b.label}</span>
               <div className="flex-1 h-5 rounded bg-white/[0.04] overflow-hidden relative">
                 <div
                   className="h-full rounded transition-all"
@@ -53,7 +53,7 @@ export function BarChart({
                   }}
                 />
               </div>
-              <span className="w-14 text-right text-xs text-white/70 font-mono tabular-nums">
+              <span className="w-14 text-right text-xs text-fg-muted font-mono tabular-nums">
                 {formatValue(b.value)}
               </span>
             </div>
@@ -79,13 +79,19 @@ export function BarChart({
           const y = padTop + innerH - t * innerH;
           return (
             <g key={t}>
-              <line x1={padX} x2={width - 8} y1={y} y2={y} stroke="rgba(255,255,255,0.05)" />
+              <line
+                x1={padX}
+                x2={width - 8}
+                y1={y}
+                y2={y}
+                stroke="rgb(var(--harbor-border) / 0.08)"
+              />
               <text
                 x={padX - 6}
                 y={y + 3}
                 textAnchor="end"
                 fontSize={10}
-                fill="rgba(255,255,255,0.4)"
+                fill="rgb(var(--harbor-text-subtle))"
                 fontFamily="ui-monospace, monospace"
               >
                 {formatValue(t * max)}
@@ -122,7 +128,7 @@ export function BarChart({
                   y={y - 4}
                   textAnchor="middle"
                   fontSize={11}
-                  fill="#fff"
+                  fill="rgb(var(--harbor-text))"
                   fontFamily="ui-monospace, monospace"
                 >
                   {formatValue(b.value)}
@@ -133,7 +139,7 @@ export function BarChart({
                 y={height - 6}
                 textAnchor="middle"
                 fontSize={10}
-                fill="rgba(255,255,255,0.55)"
+                fill="rgb(var(--harbor-text-muted))"
               >
                 {b.label}
               </text>
