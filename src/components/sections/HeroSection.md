@@ -18,7 +18,7 @@ import { HeroSection } from "@infinibay/harbor/sections";
   eyebrow="v0.4 · just shipped"
   title="Build interfaces that feel"
   highlight="alive"
-  description="120 React components that respond to the cursor and coordinate with their siblings."
+  description="250 React components that respond to the cursor and coordinate with their siblings."
   primaryCta={<Button variant="primary">Get started</Button>}
   secondaryCta={<Button variant="ghost">Read the docs</Button>}
   layout="split"

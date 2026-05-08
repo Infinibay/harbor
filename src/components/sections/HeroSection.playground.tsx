@@ -10,7 +10,7 @@ function HeroSectionDemo(props: any) {
       eyebrow={props.eyebrow ?? "v0.4 · just shipped"}
       title={props.title ?? "Build interfaces that feel alive."}
       highlight={props.highlight ?? "alive"}
-      description={props.description ?? "120 React components that respond to the cursor and coordinate with their siblings."}
+      description={props.description ?? "250 React components that respond to the cursor and coordinate with their siblings."}
       primaryCta={<Button variant="primary">Get started</Button>}
       secondaryCta={<Button variant="ghost">Read the docs</Button>}
     />
@@ -25,7 +25,7 @@ export const playground: PlaygroundManifest = {
     eyebrow: { type: "text", default: "v0.4 · just shipped" },
     title: { type: "text", default: "Build interfaces that feel alive." },
     highlight: { type: "text", default: "alive", description: "Optional second line rendered below `title` with the brand gradient." },
-    description: { type: "text", default: "120 React components that respond to the cursor and coordinate with their siblings." },
+    description: { type: "text", default: "250 React components that respond to the cursor and coordinate with their siblings." },
   },
   variants: [
     { label: "Centered", props: { layout: "centered" } },
