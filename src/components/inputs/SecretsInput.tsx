@@ -65,14 +65,14 @@ export const SecretsInput = forwardRef<HTMLInputElement, SecretsInputProps>(
     return (
       <div className={cn("w-full flex flex-col gap-1", className)}>
         {label ? (
-          <div className="text-xs text-white/70">{label}</div>
+          <div className="text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-muted-fg)]">{label}</div>
         ) : null}
         <div
           className={cn(
-            "flex items-center gap-2 rounded-md border bg-white/5 px-2",
+            "flex min-h-[var(--harbor-target-input-height)] items-center gap-2 rounded-[var(--harbor-target-radius)] border bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)]",
             revealed
               ? "border-amber-400/40 bg-amber-500/[0.06]"
-              : "border-white/10",
+              : "border-[color:var(--harbor-field-border)]",
           )}
         >
           <input
@@ -81,19 +81,19 @@ export const SecretsInput = forwardRef<HTMLInputElement, SecretsInputProps>(
             type={revealed ? "text" : "password"}
             value={value}
             className={cn(
-              "flex-1 bg-transparent outline-none text-sm text-white py-1.5 tabular-nums font-mono",
+              "flex-1 bg-transparent py-[var(--harbor-target-control-padding-y)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none placeholder:text-[color:var(--harbor-field-placeholder)]",
               !revealed && "tracking-widest",
             )}
           />
           {!revealed && typeof value === "string" ? (
-            <span className="text-white/20 text-xs tabular-nums font-mono" aria-hidden>
+            <span className="font-mono text-xs tabular-nums text-[color:var(--harbor-field-placeholder)]" aria-hidden>
               {masked}
             </span>
           ) : null}
           <button
             onClick={() => setRevealed((r) => !r)}
             type="button"
-            className="text-white/60 hover:text-white text-xs px-1.5 py-0.5"
+            className="rounded-[calc(var(--harbor-target-radius)-2px)] px-1.5 py-0.5 text-xs text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]"
             title={revealed ? "Hide" : "Reveal"}
           >
             {revealed ? "Hide" : "Reveal"}
@@ -102,7 +102,7 @@ export const SecretsInput = forwardRef<HTMLInputElement, SecretsInputProps>(
             <button
               onClick={copy}
               type="button"
-              className="text-white/60 hover:text-white text-xs px-1.5 py-0.5"
+              className="rounded-[calc(var(--harbor-target-radius)-2px)] px-1.5 py-0.5 text-xs text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]"
               title="Copy"
             >
               {copied ? "✓ copied" : "Copy"}
@@ -115,7 +115,7 @@ export const SecretsInput = forwardRef<HTMLInputElement, SecretsInputProps>(
             {autoReveal > 0 ? ` · auto-hides in ${autoReveal}s` : ""}
           </div>
         ) : caption ? (
-          <div className="text-[11px] text-white/50">{caption}</div>
+          <div className="text-[11px] text-[color:var(--harbor-field-muted-fg)]">{caption}</div>
         ) : null}
       </div>
     );

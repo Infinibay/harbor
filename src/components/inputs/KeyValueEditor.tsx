@@ -118,7 +118,7 @@ export function KeyValueEditor({
                 <button
                   aria-label="Drag to reorder"
                   onPointerDown={onHandleDown(p.id)}
-                  className="text-white/30 hover:text-white/70 cursor-grab active:cursor-grabbing w-5 h-9 grid place-items-center text-xs"
+                  className="grid h-[var(--harbor-target-input-height)] w-5 cursor-grab place-items-center text-xs text-[color:var(--harbor-field-placeholder)] hover:text-[color:var(--harbor-field-muted-fg)] active:cursor-grabbing"
                 >
                   ⋮⋮
                 </button>
@@ -126,7 +126,7 @@ export function KeyValueEditor({
                   value={p.key}
                   onChange={(e) => update(p.id, { key: e.target.value })}
                   placeholder={keyPlaceholder}
-                  className="w-44 bg-white/5 border border-white/10 rounded-md px-2 py-1.5 text-sm text-white uppercase tracking-wider outline-none focus:border-fuchsia-400/40 font-mono"
+                  className="min-h-[var(--harbor-target-input-height)] w-44 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-control-padding-y)] font-mono text-[length:var(--harbor-target-font-size)] uppercase tracking-wider text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
                 />
                 {useSecret ? (
                   <div className="flex-1">
@@ -141,12 +141,12 @@ export function KeyValueEditor({
                     value={p.value}
                     onChange={(e) => update(p.id, { value: e.target.value })}
                     placeholder={valuePlaceholder}
-                    className="flex-1 bg-white/5 border border-white/10 rounded-md px-2 py-1.5 text-sm text-white outline-none focus:border-fuchsia-400/40 font-mono"
+                    className="min-h-[var(--harbor-target-input-height)] flex-1 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-control-padding-y)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
                   />
                 )}
                 <button
                   onClick={() => remove(p.id)}
-                  className="w-8 h-9 text-white/30 hover:text-rose-300 grid place-items-center"
+                  className="grid h-[var(--harbor-target-input-height)] w-8 place-items-center text-[color:var(--harbor-field-placeholder)] hover:text-rose-300"
                   title="Remove"
                 >
                   ×
@@ -156,7 +156,7 @@ export function KeyValueEditor({
           })}
         </AnimatePresence>
         {value.length === 0 ? (
-          <div className="text-xs text-white/40 text-center py-3 border border-dashed border-white/10 rounded-md">
+          <div className="rounded-[var(--harbor-target-radius)] border border-dashed border-[color:var(--harbor-field-border)] py-[var(--harbor-target-panel-padding)] text-center text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-placeholder)]">
             No pairs yet.
           </div>
         ) : null}
@@ -164,7 +164,7 @@ export function KeyValueEditor({
       {!hideAddButton ? (
         <button
           onClick={add}
-          className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-md border border-white/10 bg-white/[0.03] text-xs text-white/70 hover:bg-white/5 hover:text-white"
+          className="inline-flex min-h-[calc(var(--harbor-target-control-height)-8px)] items-center gap-1.5 self-start rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-field-bg-hover)] hover:text-[color:var(--harbor-field-fg)]"
         >
           + Add pair
         </button>

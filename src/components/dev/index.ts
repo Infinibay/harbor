@@ -1,6 +1,7 @@
 export * from "./CodeBlock";
 export * from "./CopyCommand";
 export * from "./FindBar";
+export * from "./FileExplorer";
 export * from "./LogTailer";
 export * from "./LogViewer";
 export * from "./MarkdownRenderer";

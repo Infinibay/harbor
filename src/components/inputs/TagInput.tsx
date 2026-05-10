@@ -55,9 +55,9 @@ export function TagInput({
           document.getElementById("tag-input-inner")?.focus();
         }}
         className={cn(
-          "flex flex-wrap gap-1.5 p-2 rounded-xl bg-white/5 border min-h-11 transition-colors",
-          "border-white/10",
-          focus && "border-fuchsia-400/60 bg-white/[0.07]",
+          "flex min-h-[var(--harbor-target-input-height)] flex-wrap gap-1.5 rounded-[var(--harbor-target-radius)] border bg-[var(--harbor-field-bg)] p-[var(--harbor-target-control-padding-y)] text-[color:var(--harbor-field-fg)] transition-colors",
+          "border-[color:var(--harbor-field-border)]",
+          focus && "border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg-focus)]",
         )}
       >
         <AnimatePresence initial={false}>
@@ -94,7 +94,7 @@ export function TagInput({
           onBlur={() => setFocus(false)}
           placeholder={tags.length === 0 ? placeholder : ""}
           data-cursor="text"
-          className="flex-1 min-w-[100px] bg-transparent outline-none text-sm text-white placeholder:text-white/35 px-1"
+          className="min-w-[100px] flex-1 appearance-none bg-transparent px-1 text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)]"
         />
       </div>
     </div>

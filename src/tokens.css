@@ -165,6 +165,181 @@
   --harbor-container-2xl: 1440px;
   --harbor-container-prose: 66ch;
 
+  /* === Adaptive target tokens ==============================
+     These are the bridge between brand/theme tokens and components.
+     `HarborProvider target="desktop-app" density="compact"` overrides
+     this set on a subtree; components consume these variables instead
+     of baking in one-size-fits-all dimensions. */
+
+  --harbor-target-control-height: 40px;
+  --harbor-target-control-padding-x: var(--harbor-space-4);
+  --harbor-target-control-padding-y: var(--harbor-space-2);
+  --harbor-target-panel-padding: var(--harbor-space-4);
+  --harbor-target-gap: var(--harbor-space-3);
+  --harbor-target-radius: var(--harbor-radius-md);
+  --harbor-target-shadow: var(--harbor-shadow-sm);
+  --harbor-target-font-size: var(--harbor-text-sm);
+  --harbor-target-line-height: var(--harbor-leading-normal);
+  --harbor-target-border-alpha: 0.10;
+  --harbor-target-menu-padding: 4px;
+  --harbor-target-menu-item-padding-x: 10px;
+  --harbor-target-menu-item-padding-y: 6px;
+  --harbor-target-tab-height: 40px;
+  --harbor-target-toolbar-height: 40px;
+  --harbor-target-statusbar-height: 28px;
+  --harbor-target-icon-size: 16px;
+  --harbor-target-input-height: var(--harbor-target-control-height);
+  --harbor-target-card-padding: var(--harbor-target-panel-padding);
+  --harbor-field-bg: rgb(var(--harbor-bg-elev-1) / 0.80);
+  --harbor-field-bg-hover: rgb(var(--harbor-bg-elev-2) / 0.88);
+  --harbor-field-bg-focus: rgb(var(--harbor-bg-elev-2) / 0.92);
+  --harbor-field-fg: rgb(var(--harbor-text));
+  --harbor-field-muted-fg: rgb(var(--harbor-text-muted));
+  --harbor-field-placeholder: rgb(var(--harbor-text-subtle));
+  --harbor-field-border: rgb(var(--harbor-border) / var(--harbor-target-border-alpha));
+  --harbor-field-border-focus: rgb(var(--harbor-accent) / 0.62);
+  --harbor-field-caret: rgb(var(--harbor-accent-2));
+  --harbor-field-selection-bg: rgb(var(--harbor-accent) / 0.32);
+  --harbor-field-selection-fg: rgb(var(--harbor-text));
+  --harbor-field-disabled-opacity: 0.50;
+  --harbor-native-color-scheme: dark;
+
+  /* === Desktop app / workbench tokens ======================
+     Used by editor-style shells, file explorers, tab strips and other
+     dense desktop application surfaces. Values are plain CSS tokens so
+     products can override them on any subtree. */
+
+  --harbor-workbench-bg: rgb(var(--harbor-bg));
+  --harbor-workbench-panel-bg: rgb(var(--harbor-bg-elev-1));
+  --harbor-workbench-panel-deep-bg: rgb(8 8 12);
+  --harbor-workbench-control-bg: rgb(var(--harbor-bg));
+  --harbor-workbench-control-hover-bg: rgb(var(--harbor-bg-elev-2));
+  --harbor-workbench-tab-bg: rgb(var(--harbor-bg-elev-1));
+  --harbor-workbench-tab-active-bg: rgb(var(--harbor-bg));
+  --harbor-workbench-tab-hover-bg: rgb(var(--harbor-bg-elev-2));
+  --harbor-workbench-selection-bg: rgb(var(--harbor-accent) / 0.28);
+  --harbor-workbench-selection-fg: #ffffff;
+  --harbor-workbench-fg: rgb(var(--harbor-text));
+  --harbor-workbench-fg-muted: rgb(var(--harbor-text-muted));
+  --harbor-workbench-fg-subtle: rgb(var(--harbor-text-subtle));
+  --harbor-workbench-icon-muted: rgb(var(--harbor-text-muted) / 0.55);
+  --harbor-workbench-border: rgb(var(--harbor-border) / 0.10);
+  --harbor-workbench-border-strong: rgb(var(--harbor-border) / 0.16);
+  --harbor-workbench-accent: rgb(var(--harbor-accent));
+  --harbor-workbench-accent-hover: rgb(var(--harbor-accent-3));
+  --harbor-workbench-accent-border: rgb(var(--harbor-accent) / 0.65);
+  --harbor-workbench-folder: rgb(var(--harbor-warning));
+  --harbor-workbench-file-ts: rgb(var(--harbor-accent-2));
+  --harbor-workbench-file-css: rgb(var(--harbor-success));
+  --harbor-workbench-file-json: rgb(var(--harbor-warning));
+  --harbor-workbench-file-md: rgb(var(--harbor-text-muted));
+  --harbor-workbench-dirty: rgb(255 255 255 / 0.6);
+
+  --harbor-workbench-font-family: var(--harbor-font-sans);
+  --harbor-workbench-mono-family: var(--harbor-font-mono);
+  --harbor-workbench-font-size: var(--harbor-target-font-size);
+  --harbor-workbench-font-size-xs: 11px;
+  --harbor-workbench-tab-font-size: 12px;
+  --harbor-workbench-badge-font-size: 9px;
+  --harbor-workbench-line-height: var(--harbor-target-line-height);
+
+  --harbor-workbench-radius: var(--harbor-target-radius);
+  --harbor-workbench-panel-padding: var(--harbor-target-panel-padding);
+  --harbor-workbench-gap: var(--harbor-target-gap);
+  --harbor-workbench-control-height: var(--harbor-target-control-height);
+  --harbor-workbench-tree-row-height: 24px;
+  --harbor-workbench-tree-indent: 14px;
+  --harbor-workbench-tree-padding-x: 8px;
+  --harbor-workbench-tree-icon-size: 14px;
+  --harbor-workbench-tree-disclosure-size: 12px;
+  --harbor-workbench-tab-height: var(--harbor-target-tab-height);
+  --harbor-workbench-tab-min-width: 112px;
+  --harbor-workbench-tab-max-width: 220px;
+  --harbor-workbench-tab-padding-x: 12px;
+  --harbor-workbench-tab-gap: 8px;
+  --harbor-workbench-tab-icon-size: 14px;
+  --harbor-workbench-tab-close-size: 16px;
+  --harbor-workbench-tab-new-size: 28px;
+  --harbor-workbench-tab-indicator-height: 2px;
+  --harbor-workbench-statusbar-height: var(--harbor-target-statusbar-height);
+
+  /* === Menu tokens =========================================
+     Generic menu defaults stay rounded and product-like. Desktop apps can
+     override these tokens on a shell to get denser OS/editor-style menus. */
+
+  --harbor-menu-bar-height: var(--harbor-target-toolbar-height);
+  --harbor-menu-bar-gap: 2px;
+  --harbor-menu-bar-padding-x: 4px;
+  --harbor-menu-trigger-padding-x: 8px;
+  --harbor-menu-trigger-radius: var(--harbor-target-radius);
+  --harbor-menu-trigger-active-bg: rgb(255 255 255 / 0.10);
+  --harbor-menu-trigger-hover-bg: rgb(255 255 255 / 0.05);
+  --harbor-menu-trigger-fg: rgb(255 255 255 / 0.75);
+  --harbor-menu-trigger-active-fg: rgb(255 255 255);
+
+  --harbor-menu-surface-bg: rgb(var(--harbor-bg-elev-2));
+  --harbor-menu-surface-border: rgb(255 255 255 / 0.10);
+  --harbor-menu-surface-radius: var(--harbor-target-radius);
+  --harbor-menu-surface-padding: var(--harbor-target-menu-padding);
+  --harbor-menu-surface-shadow: var(--harbor-target-shadow);
+  --harbor-menu-min-width: 220px;
+  --harbor-menu-submenu-min-width: 200px;
+
+  --harbor-menu-item-radius: var(--harbor-target-radius);
+  --harbor-menu-item-padding-x: var(--harbor-target-menu-item-padding-x);
+  --harbor-menu-item-padding-y: var(--harbor-target-menu-item-padding-y);
+  --harbor-menu-item-gap: 10px;
+  --harbor-menu-item-icon-width: 16px;
+  --harbor-menu-item-font-size: var(--harbor-target-font-size);
+  --harbor-menu-item-fg: rgb(255 255 255 / 0.85);
+  --harbor-menu-item-muted-fg: rgb(255 255 255 / 0.50);
+  --harbor-menu-item-disabled-fg: rgb(255 255 255 / 0.30);
+  --harbor-menu-item-danger-fg: rgb(253 164 175);
+  --harbor-menu-item-hover-bg: rgb(255 255 255 / 0.05);
+  --harbor-menu-separator: rgb(255 255 255 / 0.08);
+
+  /* === Terminal tokens ===================================== */
+
+  --harbor-terminal-bg: #050506;
+  --harbor-terminal-header-bg: rgb(255 255 255 / 0.02);
+  --harbor-terminal-border: rgb(255 255 255 / 0.10);
+  --harbor-terminal-radius: var(--harbor-target-radius);
+  --harbor-terminal-padding: var(--harbor-target-panel-padding);
+  --harbor-terminal-font-size: var(--harbor-target-font-size);
+  --harbor-terminal-line-height: var(--harbor-target-line-height);
+  --harbor-terminal-fg: rgb(var(--harbor-text));
+  --harbor-terminal-muted-fg: rgb(var(--harbor-text-muted));
+  --harbor-terminal-prompt: rgb(var(--harbor-success));
+  --harbor-terminal-error: rgb(253 164 175);
+  --harbor-terminal-info: rgb(125 211 252);
+  --harbor-terminal-cursor: rgb(var(--harbor-text));
+  --harbor-terminal-shadow: var(--harbor-target-shadow);
+
+  /* === Graph / workflow tokens ============================= */
+
+  --harbor-graph-node-bg: rgb(var(--harbor-bg-elev-1));
+  --harbor-graph-node-bg-active: rgb(var(--harbor-bg-elev-2));
+  --harbor-graph-node-border: rgb(var(--harbor-border) / var(--harbor-target-border-alpha));
+  --harbor-graph-node-border-active: rgb(var(--harbor-accent) / 0.8);
+  --harbor-graph-node-radius: var(--harbor-target-radius);
+  --harbor-graph-node-shadow: var(--harbor-target-shadow);
+  --harbor-graph-node-width: 220px;
+  --harbor-graph-node-padding: var(--harbor-target-panel-padding);
+  --harbor-graph-node-fg: rgb(var(--harbor-text));
+  --harbor-graph-node-muted-fg: rgb(var(--harbor-text-muted));
+  --harbor-graph-node-subtle-fg: rgb(var(--harbor-text-subtle));
+
+  --harbor-graph-port-size: 12px;
+  --harbor-graph-port-bg: rgb(var(--harbor-accent));
+  --harbor-graph-port-border: rgb(var(--harbor-bg));
+  --harbor-graph-port-ring: rgb(var(--harbor-accent) / 0.35);
+  --harbor-graph-edge: rgb(var(--harbor-accent) / 0.76);
+  --harbor-graph-edge-active: rgb(var(--harbor-success) / 0.9);
+  --harbor-graph-edge-error: rgb(var(--harbor-danger) / 0.9);
+  --harbor-graph-canvas-bg: rgb(var(--harbor-bg));
+  --harbor-graph-panel-bg: rgb(var(--harbor-bg-elev-1));
+  --harbor-graph-panel-border: rgb(var(--harbor-border) / var(--harbor-target-border-alpha));
+
   /* === Backward-compat aliases ============================= */
   /* Kept for code that already reads --bg, --fg, etc. */
 
@@ -175,6 +350,41 @@
   --accent: rgb(var(--harbor-accent));
   --accent-2: rgb(var(--harbor-accent-2));
   --accent-3: rgb(var(--harbor-accent-3));
+}
+
+:where([data-harbor-target]) :where(input, textarea, select, button) {
+  color-scheme: var(--harbor-native-color-scheme);
+  accent-color: rgb(var(--harbor-accent));
+}
+
+:where([data-harbor-target]) :where(input, textarea, select) {
+  color: var(--harbor-field-fg);
+  caret-color: var(--harbor-field-caret);
+  background-color: transparent;
+}
+
+:where([data-harbor-target]) :where(input, textarea)::placeholder {
+  color: var(--harbor-field-placeholder);
+  opacity: 1;
+}
+
+:where([data-harbor-target]) :where(input, textarea)::selection {
+  background: var(--harbor-field-selection-bg);
+  color: var(--harbor-field-selection-fg);
+}
+
+:where([data-harbor-target]) :where(select, option) {
+  background-color: rgb(var(--harbor-bg-elev-2));
+  color: rgb(var(--harbor-text));
+}
+
+:where([data-harbor-target]) :where(input, textarea):-webkit-autofill,
+:where([data-harbor-target]) :where(input, textarea):-webkit-autofill:hover,
+:where([data-harbor-target]) :where(input, textarea):-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--harbor-field-fg);
+  caret-color: var(--harbor-field-caret);
+  box-shadow: 0 0 0 1000px rgb(var(--harbor-bg-elev-1)) inset;
+  transition: background-color 9999s ease-out;
 }
 
 /* === Light theme =========================================
@@ -216,6 +426,7 @@
   /* Brand foreground stays white — accent/fuchsia surfaces still read
      best with white text on either theme. */
   --harbor-brand-fg: 255 255 255;
+  --harbor-native-color-scheme: light;
 
   /* Syntax colors — darker variants so they carry weight on white
      surfaces. Same semantic roles as the dark defaults. */
@@ -258,4 +469,3 @@
     transform: translateY(var(--harbor-marquee-distance, -100%));
   }
 }
-

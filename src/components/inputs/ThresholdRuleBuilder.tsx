@@ -130,7 +130,7 @@ function ConditionEditor({
       <select
         value={value.metric}
         onChange={(e) => onChange({ ...value, metric: e.target.value })}
-        className="bg-white/5 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-fuchsia-400/40 text-xs"
+        className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       >
         <option value="">metric…</option>
         {metrics.map((m) => (
@@ -142,7 +142,7 @@ function ConditionEditor({
       <select
         value={value.op}
         onChange={(e) => onChange({ ...value, op: e.target.value as ConditionOp })}
-        className="bg-white/5 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-fuchsia-400/40 text-xs font-mono"
+        className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       >
         {([">", ">=", "<", "<=", "==", "!="] as ConditionOp[]).map((op) => (
           <option key={op} value={op}>
@@ -154,18 +154,18 @@ function ConditionEditor({
         type="number"
         value={value.value}
         onChange={(e) => onChange({ ...value, value: Number(e.target.value) })}
-        className="w-24 bg-white/5 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-fuchsia-400/40 text-xs tabular-nums"
+        className="min-h-[calc(var(--harbor-target-input-height)-8px)] w-24 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       />
-      {unit ? <span className="text-white/40">{unit}</span> : null}
-      <span className="text-white/40 text-[11px]">for</span>
+      {unit ? <span className="text-[color:var(--harbor-field-muted-fg)]">{unit}</span> : null}
+      <span className="text-[11px] text-[color:var(--harbor-field-muted-fg)]">for</span>
       <input
         type="number"
         min={0}
         value={value.forSeconds ?? 0}
         onChange={(e) => onChange({ ...value, forSeconds: Number(e.target.value) })}
-        className="w-16 bg-white/5 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-fuchsia-400/40 text-xs tabular-nums"
+        className="min-h-[calc(var(--harbor-target-input-height)-8px)] w-16 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       />
-      <span className="text-white/40 text-[11px]">seconds</span>
+      <span className="text-[11px] text-[color:var(--harbor-field-muted-fg)]">seconds</span>
       {onRemove ? (
         <button
           onClick={onRemove}

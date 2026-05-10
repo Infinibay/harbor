@@ -80,14 +80,14 @@ export function MultiSelect({
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "w-full min-h-11 px-3 py-2 rounded-xl border bg-white/5 flex flex-wrap items-center gap-1.5 text-left outline-none transition-colors",
-          "border-white/10 hover:bg-white/[0.07]",
-          open && "border-fuchsia-400/60",
+          "flex min-h-[var(--harbor-target-input-height)] w-full flex-wrap items-center gap-1.5 rounded-[var(--harbor-target-radius)] border bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-control-padding-y)] text-left text-[color:var(--harbor-field-fg)] outline-none transition-colors",
+          "border-[color:var(--harbor-field-border)] hover:bg-[var(--harbor-field-bg-hover)]",
+          open && "border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg-focus)]",
         )}
       >
         <AnimatePresence initial={false}>
           {selectedItems.length === 0 ? (
-            <span className="text-white/40 text-sm px-1">{placeholder}</span>
+            <span className="px-1 text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-placeholder)]">{placeholder}</span>
           ) : (
             selectedItems.map((o) => (
               <motion.span
@@ -129,14 +129,14 @@ export function MultiSelect({
                 width: rect.w,
                 zIndex: Z.POPOVER,
               }}
-              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden"
+              className="overflow-hidden rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
               <input
                 autoFocus
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search…"
-                className="w-full px-4 py-3 bg-transparent text-white text-sm outline-none border-b border-white/10 placeholder:text-white/30"
+                className="w-full appearance-none border-b border-[color:var(--harbor-field-border)] bg-transparent px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-control-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)]"
               />
               <ul className="max-h-60 overflow-auto p-1">
                 {filtered.map((o) => {
@@ -145,7 +145,7 @@ export function MultiSelect({
                     <li key={o.value}>
                       <button
                         onClick={() => toggle(o.value)}
-                        className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between hover:bg-white/5"
+                        className="flex w-full items-center justify-between rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-left text-[length:var(--harbor-menu-item-font-size)] hover:bg-[var(--harbor-menu-item-hover-bg)]"
                       >
                         <span className="inline-flex items-center gap-2 text-white">
                           {o.icon}

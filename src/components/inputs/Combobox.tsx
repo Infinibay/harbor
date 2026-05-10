@@ -89,14 +89,14 @@ export function Combobox({
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "w-full h-11 rounded-xl border bg-surface-1/80 px-4 flex items-center justify-between transition-colors outline-none",
-          "border-white/10 hover:bg-surface-2",
-          open && "border-fuchsia-400/60",
+          "flex h-[var(--harbor-target-input-height)] w-full items-center justify-between rounded-[var(--harbor-target-radius)] border bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] text-[color:var(--harbor-field-fg)] outline-none transition-colors",
+          "border-[color:var(--harbor-field-border)] hover:bg-[var(--harbor-field-bg-hover)]",
+          open && "border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg-focus)]",
         )}
       >
         <span
           className={cn(
-            "text-sm truncate",
+            "truncate text-[length:var(--harbor-target-font-size)]",
             selected ? "text-fg" : "text-fg-subtle",
           )}
         >
@@ -120,7 +120,7 @@ export function Combobox({
               width: rect.w,
               zIndex: Z.POPOVER,
             }}
-            className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden"
+            className="overflow-hidden rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] shadow-[var(--harbor-menu-surface-shadow)]"
           >
             <input
               autoFocus
@@ -128,7 +128,7 @@ export function Combobox({
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search…"
               data-cursor="text"
-              className="w-full border-b border-white/10 bg-transparent px-4 py-3 text-sm text-fg outline-none placeholder:text-fg-subtle"
+              className="w-full appearance-none border-b border-[color:var(--harbor-field-border)] bg-transparent px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-control-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)]"
             />
             <ul className="max-h-60 overflow-auto p-1">
               <AnimatePresence initial={false}>
@@ -148,7 +148,7 @@ export function Combobox({
                       }}
                       data-cursor="button"
                       className={cn(
-                        "w-full rounded-lg px-3 py-2 text-left text-sm flex items-center justify-between hover:bg-white/5",
+                        "flex w-full items-center justify-between rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-left text-[length:var(--harbor-menu-item-font-size)] hover:bg-[var(--harbor-menu-item-hover-bg)]",
                         value === o.value && "bg-white/5 text-fg",
                       )}
                     >

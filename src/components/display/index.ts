@@ -25,7 +25,13 @@ export * from "./ImageGallery";
 export * from "./IncidentTimeline";
 export * from "./LinkPreviewCard";
 export * from "./LiveMigrationIndicator";
-export * from "./NetworkGraph";
+export { NetworkGraph } from "./NetworkGraph";
+export type {
+  GraphEdge,
+  GraphEdge as NetworkGraphEdge,
+  GraphNode as NetworkGraphNode,
+  NetworkGraphProps,
+} from "./NetworkGraph";
 export * from "./PullRequestCard";
 export * from "./MetricCard";
 export * from "./NoteCard";

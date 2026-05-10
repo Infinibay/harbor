@@ -20,7 +20,7 @@ export function FieldSet({
   return (
     <fieldset
       className={cn(
-        "border border-white/10 rounded-xl p-4 flex flex-col gap-4 min-w-0",
+        "flex min-w-0 flex-col gap-[var(--harbor-target-gap)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] p-[var(--harbor-target-panel-padding)]",
         className,
       )}
     >

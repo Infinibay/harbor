@@ -183,13 +183,13 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-[10px] uppercase tracking-widest text-white/40">
+      <div className="text-[10px] uppercase tracking-widest text-[color:var(--harbor-field-muted-fg)]">
         {label}
       </div>
       <select
         value={state.mode}
         onChange={(e) => onChange({ ...state, mode: e.target.value as Mode })}
-        className="bg-white/5 border border-white/10 rounded-md px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40"
+        className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       >
         <option value="any">Any</option>
         <option value="every">Every N</option>
@@ -202,7 +202,7 @@ function Field({
           max={max}
           value={state.every ?? 1}
           onChange={(e) => onChange({ ...state, every: Number(e.target.value) })}
-          className="bg-white/5 border border-white/10 rounded-md px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
+          className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none focus:border-[color:var(--harbor-field-border-focus)]"
         />
       ) : null}
       {state.mode === "list" ? (
@@ -219,7 +219,7 @@ function Field({
             })
           }
           placeholder={`${min},${min + 1},${max}`}
-          className="bg-white/5 border border-white/10 rounded-md px-2 py-1 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
+          className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
         />
       ) : null}
     </div>

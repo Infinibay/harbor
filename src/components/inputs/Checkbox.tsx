@@ -27,7 +27,7 @@ export function Checkbox({
       htmlFor={inputId}
       data-cursor="button"
       className={cn(
-        "group inline-flex items-start gap-3 cursor-pointer select-none",
+        "group inline-flex cursor-pointer select-none items-start gap-[var(--harbor-target-gap)]",
         className,
       )}
     >
@@ -57,7 +57,7 @@ export function Checkbox({
         }}
         whileTap={{ scale: 0.85 }}
         transition={{ type: "spring", stiffness: 400, damping: 20 }}
-        className="relative w-5 h-5 rounded-md border flex-shrink-0 grid place-items-center mt-0.5 peer-focus-visible:ring-2 peer-focus-visible:ring-fuchsia-400/60 focus-bloom"
+        className="relative mt-0.5 grid h-[var(--harbor-target-icon-size)] w-[var(--harbor-target-icon-size)] flex-shrink-0 place-items-center rounded-[calc(var(--harbor-target-radius)/2)] border peer-focus-visible:ring-2 peer-focus-visible:ring-fuchsia-400/60 focus-bloom"
       >
         <AnimatePresence>
           {isChecked ? (
@@ -88,7 +88,7 @@ export function Checkbox({
       {label || description ? (
         <span className="flex flex-col gap-0.5">
           {label ? (
-            <span className="text-sm text-white/90 leading-tight">{label}</span>
+            <span className="text-[length:var(--harbor-target-font-size)] leading-tight text-white/90">{label}</span>
           ) : null}
           {description ? (
             <span className="text-xs text-white/50 leading-snug">

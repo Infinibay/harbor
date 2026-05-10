@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { MenuBar, type MenuBarItemDef } from "./MenuBar";
@@ -59,7 +59,7 @@ describe("MenuBar", () => {
     const { user } = renderWithHarbor(<MenuBar items={items} />);
     await user.click(screen.getByText("File"));
     // Portal renders to document.body, not container
-    const sep = document.querySelector(".bg-white\\/8");
+    const sep = document.querySelector(".bg-\\[var\\(--harbor-menu-separator\\)\\]");
     expect(sep).toBeTruthy();
   });
 
@@ -89,7 +89,7 @@ describe("MenuBar", () => {
     await user.click(screen.getByText("File"));
     expect(screen.getByText("New")).toBeInTheDocument();
     await user.click(screen.getByText("File"));
-    expect(screen.queryByText("New")).toBeNull();
+    await waitFor(() => expect(screen.queryByText("New")).toBeNull());
   });
 
   it("renders disabled items", async () => {

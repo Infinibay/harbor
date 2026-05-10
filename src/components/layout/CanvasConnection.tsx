@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type MouseEvent, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
 export interface CanvasConnectionProps {
@@ -6,6 +6,10 @@ export interface CanvasConnectionProps {
   from: { x: number; y: number };
   /** World-space end point. */
   to: { x: number; y: number };
+  /** Direction the edge should leave the start point. */
+  fromDirection?: "left" | "right" | "top" | "bottom";
+  /** Direction the edge should approach the end point from outside the node. */
+  toDirection?: "left" | "right" | "top" | "bottom";
   curve?: "straight" | "bezier" | "orthogonal" | "smart";
   color?: string;
   thickness?: number;
@@ -20,6 +24,11 @@ export interface CanvasConnectionProps {
   obstacles?: ReadonlyArray<{ x: number; y: number; width: number; height: number }>;
   /** Padding around obstacles (world units). Default 12. */
   obstaclePadding?: number;
+  /** Straight lead-in/out distance before the edge is allowed to bend. Default 22. */
+  endpointPadding?: number;
+  onClick?: (event: MouseEvent<SVGPathElement>) => void;
+  onContextMenu?: (event: MouseEvent<SVGPathElement>) => void;
+  interactionWidth?: number;
   className?: string;
 }
 
@@ -139,6 +148,17 @@ function routeSmart(
   ];
 }
 
+function offsetPoint(point: Point, direction: NonNullable<CanvasConnectionProps["fromDirection"]>, distance: number): Point {
+  if (direction === "left") return { x: point.x - distance, y: point.y };
+  if (direction === "right") return { x: point.x + distance, y: point.y };
+  if (direction === "top") return { x: point.x, y: point.y - distance };
+  return { x: point.x, y: point.y + distance };
+}
+
+function samePoint(a: Point, b: Point): boolean {
+  return a.x === b.x && a.y === b.y;
+}
+
 function polylineToPath(points: ReadonlyArray<Point>, radius = 6): string {
   if (points.length === 0) return "";
   if (points.length === 1) return `M${points[0].x},${points[0].y}`;
@@ -176,6 +196,8 @@ function polylineToPath(points: ReadonlyArray<Point>, radius = 6): string {
 export function CanvasConnection({
   from,
   to,
+  fromDirection,
+  toDirection,
   curve = "bezier",
   color = "rgba(168,85,247,0.75)",
   thickness = 2,
@@ -184,6 +206,10 @@ export function CanvasConnection({
   arrow,
   obstacles,
   obstaclePadding = 12,
+  endpointPadding = 22,
+  onClick,
+  onContextMenu,
+  interactionWidth = 12,
   className,
 }: CanvasConnectionProps) {
   let path: string;
@@ -193,7 +219,14 @@ export function CanvasConnection({
   let bboxMaxY: number;
 
   if (curve === "smart") {
-    const points = routeSmart(from, to, obstacles ?? [], obstaclePadding);
+    const routeFrom = fromDirection && endpointPadding > 0 ? offsetPoint(from, fromDirection, endpointPadding) : from;
+    const routeTo = toDirection && endpointPadding > 0 ? offsetPoint(to, toDirection, endpointPadding) : to;
+    const routedPoints = routeSmart(routeFrom, routeTo, obstacles ?? [], obstaclePadding);
+    const points = [
+      ...(samePoint(from, routeFrom) ? [] : [from]),
+      ...routedPoints,
+      ...(samePoint(routeTo, to) ? [] : [to]),
+    ];
     bboxMinX = Math.min(...points.map((p) => p.x));
     bboxMinY = Math.min(...points.map((p) => p.y));
     bboxMaxX = Math.max(...points.map((p) => p.x));
@@ -225,6 +258,7 @@ export function CanvasConnection({
   const markerId = `ch-arrow-${bboxMinX}-${bboxMinY}-${from.x}-${to.x}`.replace(/\./g, "_");
   const midX = (from.x + to.x) / 2 - bboxMinX;
   const midY = (from.y + to.y) / 2 - bboxMinY;
+  const interactive = Boolean(onClick || onContextMenu);
 
   return (
     <div
@@ -234,14 +268,14 @@ export function CanvasConnection({
         top: bboxMinY,
         width,
         height,
-        pointerEvents: "none",
+        pointerEvents: interactive ? "auto" : "none",
       }}
       className={className}
     >
       <svg
         width={width}
         height={height}
-        style={{ overflow: "visible", position: "absolute", inset: 0 }}
+        style={{ overflow: "visible", position: "absolute", inset: 0, pointerEvents: interactive ? "auto" : "none" }}
       >
         {arrow ? (
           <defs>
@@ -258,6 +292,19 @@ export function CanvasConnection({
             </marker>
           </defs>
         ) : null}
+        {interactive ? (
+          <path
+            d={path}
+            fill="none"
+            stroke="transparent"
+            strokeWidth={Math.max(interactionWidth, thickness)}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ pointerEvents: "stroke" }}
+            onClick={onClick}
+            onContextMenu={onContextMenu}
+          />
+        ) : null}
         <path
           d={path}
           fill="none"
@@ -267,6 +314,7 @@ export function CanvasConnection({
           strokeLinejoin="round"
           strokeDasharray={animated ? "6 5" : undefined}
           markerEnd={arrow ? `url(#${markerId})` : undefined}
+          style={{ pointerEvents: "none" }}
         >
           {animated ? (
             <animate

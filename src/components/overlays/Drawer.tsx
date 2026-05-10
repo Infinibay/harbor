@@ -84,17 +84,17 @@ export function Drawer({
             onClick={(e) => e.stopPropagation()}
             style={sz}
             className={cn(
-              "absolute bg-surface-2 border border-white/10 shadow-2xl flex flex-col",
+              "absolute flex flex-col border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] shadow-[var(--harbor-menu-surface-shadow)]",
               positions[side],
-              side === "right" && "rounded-l-2xl",
-              side === "left" && "rounded-r-2xl",
-              side === "top" && "rounded-b-2xl",
-              side === "bottom" && "rounded-t-2xl",
+              side === "right" && "rounded-l-[var(--harbor-target-radius)]",
+              side === "left" && "rounded-r-[var(--harbor-target-radius)]",
+              side === "top" && "rounded-b-[var(--harbor-target-radius)]",
+              side === "bottom" && "rounded-t-[var(--harbor-target-radius)]",
               className,
             )}
           >
             {title ? (
-              <div className="px-5 py-4 border-b border-white/8 flex items-center justify-between">
+              <div className="flex items-center justify-between border-b border-white/8 px-[var(--harbor-target-panel-padding)] py-[var(--harbor-target-control-padding-y)]">
                 <div id={titleId} className="text-white font-semibold">
                   {title}
                 </div>
@@ -103,15 +103,15 @@ export function Drawer({
                   aria-label={t("harbor.action.close")}
                   onClick={onClose}
                   data-cursor="button"
-                  className="w-8 h-8 rounded-lg grid place-items-center text-white/50 hover:text-white hover:bg-white/5"
+                  className="grid h-[calc(var(--harbor-target-control-height)-4px)] w-[calc(var(--harbor-target-control-height)-4px)] place-items-center rounded-[var(--harbor-target-radius)] text-white/50 hover:bg-white/5 hover:text-white"
                 >
                   <span aria-hidden>×</span>
                 </button>
               </div>
             ) : null}
-            <div className="flex-1 overflow-auto p-5">{children}</div>
+            <div className="flex-1 overflow-auto p-[var(--harbor-target-panel-padding)]">{children}</div>
             {footer ? (
-              <div className="px-5 py-3 border-t border-white/8 bg-white/[0.02]">
+              <div className="border-t border-white/8 bg-white/[0.02] px-[var(--harbor-target-panel-padding)] py-[var(--harbor-target-control-padding-y)]">
                 {footer}
               </div>
             ) : null}

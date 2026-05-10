@@ -121,7 +121,7 @@ export function Popover({
                 zIndex: Z.POPOVER,
               }}
               className={cn(
-                "rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-3",
+                "rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-target-panel-padding)] shadow-[var(--harbor-menu-surface-shadow)]",
                 className,
               )}
             >

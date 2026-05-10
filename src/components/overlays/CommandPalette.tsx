@@ -119,7 +119,7 @@ export function CommandPalette({
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
           }}
-          className="fixed inset-0 flex justify-center items-start pt-[calc(50vh-28px)] px-4 bg-black/55"
+          className="fixed inset-0 flex items-start justify-center bg-black/55 px-[var(--harbor-target-panel-padding)] pt-[calc(50vh-28px)]"
           onClick={() => onOpenChange(false)}
         >
           <motion.div
@@ -131,9 +131,9 @@ export function CommandPalette({
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-surface-2 text-fg shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]"
+            className="relative w-full max-w-xl overflow-hidden rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] text-fg shadow-[var(--harbor-menu-surface-shadow)]"
           >
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8">
+            <div className="flex items-center gap-[var(--harbor-target-gap)] border-b border-white/8 px-[var(--harbor-target-panel-padding)] py-[var(--harbor-target-control-padding-y)]">
               <svg
                 width="16"
                 height="16"
@@ -154,7 +154,7 @@ export function CommandPalette({
                 onChange={(e) => setQ(e.target.value)}
                 placeholder={effectivePlaceholder}
                 data-cursor="text"
-                className="flex-1 bg-transparent outline-none text-sm text-fg placeholder:text-fg-subtle"
+                className="flex-1 appearance-none bg-transparent text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)]"
               />
               <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-fg-muted">
                 {t("harbor.commandPalette.escKey")}
@@ -162,7 +162,7 @@ export function CommandPalette({
             </div>
             <ul
               ref={listRef}
-              className="max-h-[50vh] overflow-auto p-2 space-y-2"
+              className="max-h-[50vh] space-y-2 overflow-auto p-[var(--harbor-menu-surface-padding)]"
             >
               {grouped.map(([section, items]) => (
                 <li key={section}>
@@ -189,8 +189,8 @@ export function CommandPalette({
                                 setQ("");
                               }}
                               data-cursor="button"
-                              className={`w-full text-left px-2.5 py-2 rounded-lg flex items-center gap-2.5 text-sm ${
-                                idx === i ? "bg-white/8" : ""
+                              className={`flex w-full items-center gap-[var(--harbor-menu-item-gap)] rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-left text-[length:var(--harbor-menu-item-font-size)] ${
+                                idx === i ? "bg-[var(--harbor-menu-item-hover-bg)]" : ""
                               }`}
                             >
                               {c.icon ? (

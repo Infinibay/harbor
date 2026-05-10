@@ -74,7 +74,7 @@ export function OTPInput({
   const complete = v.length === length;
 
   return (
-    <div className={cn("inline-flex gap-2", className)}>
+    <div className={cn("inline-flex gap-[var(--harbor-target-gap)]", className)}>
       {Array.from({ length }).map((_, i) => {
         const filled = !!v[i];
         return (
@@ -85,15 +85,15 @@ export function OTPInput({
                 ? "rgba(74, 222, 128, 0.7)"
                 : filled
                   ? "rgba(168, 85, 247, 0.6)"
-                  : "rgba(255, 255, 255, 0.1)",
+                  : "var(--harbor-field-border)",
               background: complete
                 ? "rgba(34, 197, 94, 0.08)"
                 : filled
                   ? "rgba(168, 85, 247, 0.08)"
-                  : "rgba(255, 255, 255, 0.03)",
+                  : "var(--harbor-field-bg)",
             }}
             transition={{ duration: 0.2 }}
-            className="relative w-11 h-14 rounded-xl border grid place-items-center"
+            className="relative grid h-[calc(var(--harbor-target-input-height)+12px)] w-[calc(var(--harbor-target-input-height)+4px)] place-items-center rounded-[var(--harbor-target-radius)] border"
           >
             <input
               ref={(el) => {
@@ -105,7 +105,7 @@ export function OTPInput({
               onPaste={onPaste}
               inputMode="numeric"
               maxLength={1}
-              className="absolute inset-0 bg-transparent text-center text-xl font-mono font-semibold text-white outline-none caret-fuchsia-400"
+              className="absolute inset-0 bg-transparent text-center font-mono text-xl font-semibold text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none"
             />
           </motion.div>
         );

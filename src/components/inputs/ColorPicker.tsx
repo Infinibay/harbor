@@ -139,7 +139,7 @@ export function ColorPicker({
   return (
     <div
       className={cn(
-        "w-64 p-3 rounded-2xl bg-surface-2 border border-white/10 space-y-3",
+        "w-64 space-y-[var(--harbor-target-gap)] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-target-panel-padding)]",
         className,
       )}
     >
@@ -147,7 +147,7 @@ export function ColorPicker({
         ref={saturationRef}
         onPointerDown={onSvDown}
         onPointerMove={(e) => draggingSv && updateSv(e.clientX, e.clientY)}
-        className="relative h-40 rounded-lg overflow-hidden cursor-crosshair select-none"
+        className="relative h-40 cursor-crosshair select-none overflow-hidden rounded-[var(--harbor-target-radius)]"
         style={{
           background: `
             linear-gradient(to top, #000, transparent),
@@ -158,7 +158,7 @@ export function ColorPicker({
         <motion.span
           animate={{ left: `${hsv.s * 100}%`, top: `${(1 - hsv.v) * 100}%` }}
           transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          className="absolute w-3 h-3 rounded-full border-2 border-white shadow pointer-events-none"
+          className="pointer-events-none absolute h-3 w-3 rounded-full border-2 border-[color:var(--harbor-field-fg)] shadow"
           style={{ translate: "-50% -50%", background: hex }}
         />
       </div>
@@ -166,7 +166,7 @@ export function ColorPicker({
         ref={hueRef}
         onPointerDown={onHueDown}
         onPointerMove={(e) => draggingHue && updateHue(e.clientX)}
-        className="relative h-3 rounded-full cursor-pointer select-none"
+        className="relative h-3 cursor-pointer select-none rounded-full"
         style={{
           background:
             "linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
@@ -175,13 +175,13 @@ export function ColorPicker({
         <motion.span
           animate={{ left: `${(hsv.h / 360) * 100}%` }}
           transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow pointer-events-none"
+          className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-[color:var(--harbor-field-fg)] shadow"
           style={{ translate: "-50% -50%", background: `hsl(${hsv.h},100%,50%)` }}
         />
       </div>
       <div className="flex items-center gap-2">
         <div
-          className="w-8 h-8 rounded-md border border-white/10"
+          className="h-8 w-8 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)]"
           style={{ background: hex }}
         />
         <input
@@ -191,18 +191,18 @@ export function ColorPicker({
             if (/^#?[0-9a-f]{6}$/i.test(v.replace(/^#/, "")))
               emit(hexToHsv(v.startsWith("#") ? v : "#" + v));
           }}
-          className="flex-1 px-2 py-1.5 rounded-md bg-white/5 border border-white/10 font-mono text-xs text-white outline-none focus:border-fuchsia-400/60"
+          className="min-h-[calc(var(--harbor-target-input-height)-8px)] flex-1 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
         />
         <CopyButton size="sm" value={hex} />
       </div>
-      <div className="grid grid-cols-3 gap-1.5 text-[10px] text-white/50">
+      <div className="grid grid-cols-3 gap-1.5 text-[10px] text-[color:var(--harbor-field-muted-fg)]">
         <Channel label="R" value={rgb.r} />
         <Channel label="G" value={rgb.g} />
         <Channel label="B" value={rgb.b} />
       </div>
       {swatches?.length ? (
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">
+          <div className="mb-1.5 text-[10px] uppercase tracking-wider text-[color:var(--harbor-field-muted-fg)]">
             Swatches
           </div>
           <div className="grid grid-cols-9 gap-1">
@@ -211,8 +211,8 @@ export function ColorPicker({
                 key={c}
                 onClick={() => emit(hexToHsv(c))}
                 className={cn(
-                  "w-full aspect-square rounded-md border border-white/10 hover:scale-110 transition-transform",
-                  hex.toLowerCase() === c.toLowerCase() && "ring-2 ring-white",
+                  "aspect-square w-full rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] transition-transform hover:scale-110",
+                  hex.toLowerCase() === c.toLowerCase() && "ring-2 ring-[color:var(--harbor-field-fg)]",
                 )}
                 style={{ background: c }}
               />
@@ -226,9 +226,9 @@ export function ColorPicker({
 
 function Channel({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex items-center gap-1 px-2 py-1 rounded bg-white/5 border border-white/10">
+    <div className="flex items-center gap-1 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)]">
       <span>{label}</span>
-      <span className="font-mono text-white ml-auto">{value}</span>
+      <span className="ml-auto font-mono text-[color:var(--harbor-field-fg)]">{value}</span>
     </div>
   );
 }

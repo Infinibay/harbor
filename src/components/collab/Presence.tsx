@@ -30,6 +30,12 @@ import { Tooltip } from "../overlays/Tooltip";
 export type PresenceStatus = "viewing" | "editing" | "idle";
 
 export interface PresenceProps {
+  users?: Array<{
+    id?: string;
+    name: string;
+    color?: string;
+    status?: PresenceStatus;
+  }>;
   max?: number;
   size?: "sm" | "md" | "lg";
   className?: string;
@@ -48,13 +54,22 @@ function usePresenceCtx(component: string): Ctx {
 }
 
 export function Presence({
+  users,
   max = 4,
   size = "sm",
   className,
   children,
 }: PresenceProps) {
+  const content: ReactNode = users?.map((user) => (
+    <PresenceUser
+      key={user.id ?? user.name}
+      name={user.name}
+      color={user.color}
+      status={user.status}
+    />
+  )) ?? children;
   const allChildren: ReactElement[] = [];
-  Children.forEach(children, (child) => {
+  Children.forEach(content, (child) => {
     if (isValidElement(child)) allChildren.push(child);
   });
 

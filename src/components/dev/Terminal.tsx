@@ -14,14 +14,15 @@ export interface TerminalProps {
   title?: string;
   height?: number | string;
   autoScroll?: boolean;
+  variant?: "window" | "console";
   className?: string;
 }
 
 const colors = {
-  out: "text-fg-muted",
-  cmd: "text-fg",
-  err: "text-rose-300",
-  info: "text-sky-300",
+  out: "text-[color:var(--harbor-terminal-muted-fg)]",
+  cmd: "text-[color:var(--harbor-terminal-fg)]",
+  err: "text-[color:var(--harbor-terminal-error)]",
+  info: "text-[color:var(--harbor-terminal-info)]",
 };
 
 export function Terminal({
@@ -30,6 +31,7 @@ export function Terminal({
   title = "terminal",
   height = 260,
   autoScroll = true,
+  variant = "window",
   className,
 }: TerminalProps) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -41,22 +43,32 @@ export function Terminal({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl border border-white/10 bg-surface-1/95 text-fg shadow-harbor-sm backdrop-blur",
+        "overflow-hidden border text-[color:var(--harbor-terminal-fg)]",
+        "border-[color:var(--harbor-terminal-border)] bg-[var(--harbor-terminal-bg)] shadow-[var(--harbor-terminal-shadow)]",
+        variant === "window"
+          ? "rounded-[var(--harbor-terminal-radius)] backdrop-blur"
+          : "rounded-[var(--harbor-workbench-radius,var(--harbor-radius-sm))]",
         className,
       )}
     >
-      <div className="flex items-center gap-2 border-b border-white/8 bg-white/[0.02] px-3 py-2">
-        <span className="flex gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-400/60" />
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-400/60" />
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/60" />
-        </span>
-        <span className="font-mono text-xs text-fg-muted">{title}</span>
-      </div>
+      {variant === "window" ? (
+        <div className="flex items-center gap-2 border-b border-[color:var(--harbor-terminal-border)] bg-[var(--harbor-terminal-header-bg)] px-3 py-2">
+          <span className="flex gap-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-400/60" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400/60" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/60" />
+          </span>
+          <span className="font-mono text-xs text-[color:var(--harbor-terminal-muted-fg)]">{title}</span>
+        </div>
+      ) : title ? (
+        <div className="border-b border-[color:var(--harbor-terminal-border)] px-[var(--harbor-terminal-padding)] py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[color:var(--harbor-terminal-muted-fg)]">
+          {title}
+        </div>
+      ) : null}
       <div
         ref={ref}
         style={{ height }}
-        className="overflow-auto p-3 font-mono text-[12.5px] leading-relaxed"
+        className="overflow-auto p-[var(--harbor-terminal-padding)] font-mono text-[length:var(--harbor-terminal-font-size)] leading-[var(--harbor-terminal-line-height)]"
       >
         <AnimatePresence initial={false}>
           {lines.map((l) => (
@@ -69,7 +81,7 @@ export function Terminal({
               className={cn("whitespace-pre-wrap", colors[l.kind ?? "out"])}
             >
               {l.kind === "cmd" ? (
-                <span className="text-emerald-400 mr-2 select-none">
+                <span className="mr-2 select-none text-emerald-400 text-[color:var(--harbor-terminal-prompt)]">
                   {prompt}
                 </span>
               ) : null}
@@ -77,7 +89,7 @@ export function Terminal({
             </motion.div>
           ))}
         </AnimatePresence>
-        <span className="inline-block h-4 w-2 animate-pulse bg-fg align-middle" />
+        <span className="inline-block h-4 w-2 animate-pulse bg-[var(--harbor-terminal-cursor)] align-middle" />
       </div>
     </div>
   );

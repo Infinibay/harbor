@@ -77,7 +77,7 @@ export function HarborForm<T>({
   return (
     <HarborFormContext.Provider value={ctx}>
       <form
-        ref={ref}
+        ref={ref as never}
         onSubmit={submit}
         noValidate
         className={className}

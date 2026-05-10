@@ -60,7 +60,7 @@ export function Calendar({
   return (
     <div
       className={cn(
-        "w-[280px] p-3 rounded-2xl bg-surface-2 border border-white/10",
+        "w-[280px] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-target-panel-padding)] text-[color:var(--harbor-field-fg)]",
         className,
       )}
     >
@@ -70,7 +70,7 @@ export function Calendar({
             setDir(-1);
             setCursor((c) => addMonths(c, -1));
           }}
-          className="w-7 h-7 rounded-lg grid place-items-center text-white/55 hover:text-white hover:bg-white/5"
+          className="grid h-[calc(var(--harbor-target-control-height)-6px)] w-[calc(var(--harbor-target-control-height)-6px)] place-items-center rounded-[var(--harbor-target-radius)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-white"
         >
           ‹
         </button>
@@ -82,7 +82,7 @@ export function Calendar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: dir >= 0 ? -8 : 8 }}
             transition={{ duration: 0.2 }}
-            className="text-sm font-medium text-white capitalize"
+            className="text-[length:var(--harbor-target-font-size)] font-medium capitalize text-white"
           >
             {monthLabel}
           </motion.div>
@@ -92,7 +92,7 @@ export function Calendar({
             setDir(1);
             setCursor((c) => addMonths(c, 1));
           }}
-          className="w-7 h-7 rounded-lg grid place-items-center text-white/55 hover:text-white hover:bg-white/5"
+          className="grid h-[calc(var(--harbor-target-control-height)-6px)] w-[calc(var(--harbor-target-control-height)-6px)] place-items-center rounded-[var(--harbor-target-radius)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-white"
         >
           ›
         </button>
@@ -120,7 +120,7 @@ export function Calendar({
               onClick={() => onChange?.(d)}
               whileTap={disabled ? undefined : { scale: 0.88 }}
               className={cn(
-                "relative h-9 rounded-lg text-sm transition-colors",
+                "relative h-[var(--harbor-target-control-height)] rounded-[var(--harbor-target-radius)] text-[length:var(--harbor-target-font-size)] transition-colors",
                 inMonth ? "text-white/80" : "text-white/25",
                 !disabled && !isSelected && "hover:bg-white/5",
                 isSelected && "text-white",

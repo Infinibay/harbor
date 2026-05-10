@@ -1130,7 +1130,7 @@ function FindPanel({
     <div
       role="region"
       aria-label={t("harbor.codeeditor.regionLabel")}
-      className="absolute top-2 right-2 z-10 rounded-md border border-white/10 bg-[rgb(var(--harbor-bg-elev-2))] shadow-md p-2 flex flex-col gap-1 text-xs"
+      className="absolute right-2 top-2 z-10 flex flex-col gap-1 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] text-[length:var(--harbor-target-font-size)] shadow-[var(--harbor-menu-surface-shadow)]"
       onKeyDown={(e) => {
         if (e.key === "Escape") {
           e.preventDefault();
@@ -1142,7 +1142,7 @@ function FindPanel({
         <input
           ref={queryRef}
           aria-label={t("harbor.codeeditor.searchLabel")}
-          className="w-48 bg-black/20 border border-white/10 rounded px-2 py-1 outline-none focus:border-[rgb(var(--harbor-accent))]"
+          className="w-48 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
           placeholder={t("harbor.codeeditor.findPlaceholder")}
           value={state.query}
           onChange={(e) => setState((s) => ({ ...s, query: e.target.value }))}
@@ -1217,7 +1217,7 @@ function FindPanel({
         <div className="flex items-center gap-1">
           <input
             aria-label={t("harbor.codeeditor.replaceLabel")}
-            className="w-48 bg-black/20 border border-white/10 rounded px-2 py-1 outline-none focus:border-[rgb(var(--harbor-accent))]"
+          className="w-48 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
             placeholder={t("harbor.codeeditor.replacePlaceholder")}
             value={state.replace}
             onChange={(e) => setState((s) => ({ ...s, replace: e.target.value }))}

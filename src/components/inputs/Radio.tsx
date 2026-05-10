@@ -32,7 +32,7 @@ export function RadioGroup({
       <div
         role="radiogroup"
         className={cn(
-          "flex gap-2",
+          "flex gap-[var(--harbor-target-gap)]",
           orientation === "vertical" ? "flex-col" : "flex-row flex-wrap",
           className,
         )}
@@ -66,7 +66,7 @@ export function Radio({
     <label
       data-cursor="button"
       className={cn(
-        "relative flex items-start gap-3 p-3 rounded-xl border cursor-pointer select-none transition-colors",
+        "relative flex cursor-pointer select-none items-start gap-[var(--harbor-target-gap)] rounded-[var(--harbor-target-radius)] border p-[var(--harbor-target-panel-padding)] transition-colors",
         checked
           ? "border-fuchsia-400/50 bg-fuchsia-500/10"
           : "border-white/10 hover:border-white/20 hover:bg-white/[0.03]",
@@ -98,7 +98,7 @@ export function Radio({
         />
       </span>
       <span className="flex flex-col gap-0.5">
-        <span className="text-sm text-white leading-tight">{label}</span>
+        <span className="text-[length:var(--harbor-target-font-size)] leading-tight text-white">{label}</span>
         {description ? (
           <span className="text-xs text-white/50 leading-snug">
             {description}

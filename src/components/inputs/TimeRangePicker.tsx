@@ -102,7 +102,7 @@ export function TimeRangePicker({
     <div
       ref={anchorRef}
       className={cn(
-        "inline-flex items-center gap-0.5 p-0.5 rounded-xl bg-surface-2/85 border border-white/10",
+        "inline-flex items-center gap-0.5 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] p-0.5",
         className,
       )}
     >
@@ -114,24 +114,24 @@ export function TimeRangePicker({
             onClick={(e) => pickPreset(p, e.shiftKey)}
             title={`Last ${PRESET_LABEL[p]} (shift-click to compare)`}
             className={cn(
-              "h-7 px-2.5 rounded-md text-xs font-medium transition-colors",
+              "h-[calc(var(--harbor-target-control-height)-10px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[length:var(--harbor-target-font-size)] font-medium transition-colors",
               active
                 ? "bg-fuchsia-500/20 text-fuchsia-100"
-                : "text-white/70 hover:bg-white/5 hover:text-white",
+                : "text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]",
             )}
           >
             {PRESET_LABEL[p]}
           </button>
         );
       })}
-      <span className="w-px h-4 bg-white/10 mx-1" />
+      <span className="mx-1 h-4 w-px bg-[color:var(--harbor-field-border)]" />
       <button
         onClick={openCustom}
         className={cn(
-          "h-7 px-2.5 rounded-md text-xs font-medium transition-colors",
+          "h-[calc(var(--harbor-target-control-height)-10px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[length:var(--harbor-target-font-size)] font-medium transition-colors",
           !isPreset
             ? "bg-fuchsia-500/20 text-fuchsia-100"
-            : "text-white/70 hover:bg-white/5 hover:text-white",
+            : "text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]",
         )}
       >
         {formatLabel
@@ -155,7 +155,7 @@ export function TimeRangePicker({
                 top: pos.y,
                 zIndex: Z.POPOVER,
               }}
-              className="w-[320px] rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-3"
+              className="w-[320px] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-target-panel-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
               <CustomRangeEditor
                 initial={resolved}
@@ -185,32 +185,32 @@ function CustomRangeEditor({
   const [from, setFrom] = useState(toInputValue(initial.from));
   const [to, setTo] = useState(toInputValue(initial.to));
   return (
-    <div className="flex flex-col gap-3">
-      <div className="text-[10px] uppercase tracking-widest text-white/50">
+    <div className="flex flex-col gap-[var(--harbor-target-gap)]">
+      <div className="text-[10px] uppercase tracking-widest text-[color:var(--harbor-field-muted-fg)]">
         Custom range
       </div>
-      <label className="flex flex-col gap-1 text-xs text-white/60">
+      <label className="flex flex-col gap-1 text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-muted-fg)]">
         From
         <input
           type="datetime-local"
           value={from}
           onChange={(e) => setFrom(e.target.value)}
-          className="bg-white/5 border border-white/10 rounded-md px-2 py-1 text-white outline-none focus:border-fuchsia-400/50"
+          className="min-h-[var(--harbor-target-input-height)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-control-padding-y)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs text-white/60">
+      <label className="flex flex-col gap-1 text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-muted-fg)]">
         To
         <input
           type="datetime-local"
           value={to}
           onChange={(e) => setTo(e.target.value)}
-          className="bg-white/5 border border-white/10 rounded-md px-2 py-1 text-white outline-none focus:border-fuchsia-400/50"
+          className="min-h-[var(--harbor-target-input-height)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-control-padding-y)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
         />
       </label>
       <div className="flex justify-end gap-2 pt-1">
         <button
           onClick={onCancel}
-          className="h-7 px-3 rounded-md text-xs text-white/70 hover:bg-white/5"
+          className="h-[calc(var(--harbor-target-control-height)-8px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]"
         >
           Cancel
         </button>
@@ -221,7 +221,7 @@ function CustomRangeEditor({
             if (isNaN(f.getTime()) || isNaN(t.getTime()) || f >= t) return;
             onApply({ from: f, to: t });
           }}
-          className="h-7 px-3 rounded-md text-xs font-medium bg-fuchsia-500/20 text-fuchsia-100 hover:bg-fuchsia-500/30"
+          className="h-[calc(var(--harbor-target-control-height)-8px)] rounded-[var(--harbor-target-radius)] bg-fuchsia-500/20 px-[var(--harbor-target-menu-item-padding-x)] text-[length:var(--harbor-target-font-size)] font-medium text-fuchsia-100 hover:bg-fuchsia-500/30"
         >
           Apply
         </button>

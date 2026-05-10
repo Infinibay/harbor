@@ -56,15 +56,15 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         <label
           htmlFor={inputId}
           className={cn(
-            "relative flex items-center rounded-xl border bg-white/5 transition-all",
-            "border-white/10",
-            focus && !error && "border-fuchsia-400/60 bg-white/[0.07]",
+            "relative flex min-h-[var(--harbor-target-input-height)] items-center rounded-[var(--harbor-target-radius)] border bg-[var(--harbor-field-bg)] text-[color:var(--harbor-field-fg)] transition-all",
+            "border-[color:var(--harbor-field-border)]",
+            focus && !error && "border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg-focus)]",
             error && "border-rose-400/60",
             valid && !error && "border-emerald-400/50",
           )}
         >
           {icon ? (
-            <span className="ps-3 text-white/50 grid place-items-center">
+            <span className="grid place-items-center ps-[var(--harbor-target-control-padding-x)] text-[color:var(--harbor-field-muted-fg)]">
               {icon}
             </span>
           ) : null}
@@ -83,7 +83,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
               style={{
                 position: "absolute",
-                left: icon ? 40 : 16,
+                left: icon ? 40 : "var(--harbor-target-control-padding-x)",
                 top: "50%",
                 translate: "0 -50%",
                 pointerEvents: "none",
@@ -121,15 +121,18 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             placeholder={floated ? placeholder : ""}
             data-cursor="text"
             className={cn(
-              "flex-1 bg-transparent outline-none py-3 text-white placeholder:text-white/30",
+              "flex-1 appearance-none bg-transparent py-[var(--harbor-target-control-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)]",
               icon ? "ps-3" : "px-4",
-              suffix || valid || error ? "pe-3" : "pe-4",
+              !icon && "px-[var(--harbor-target-control-padding-x)]",
+              suffix || valid || error
+                ? "pe-3"
+                : "pe-[var(--harbor-target-control-padding-x)]",
               className,
             )}
             {...rest}
           />
 
-          <div className="pe-3 flex items-center gap-2 text-white/40">
+          <div className="pe-3 flex items-center gap-2 text-[color:var(--harbor-field-muted-fg)]">
             <AnimatePresence>
               {valid && !error ? (
                 <motion.svg

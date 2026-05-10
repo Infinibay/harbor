@@ -40,6 +40,10 @@ export interface DialogProps {
   onClose: () => void;
   children?: ReactNode;
   size?: "sm" | "md" | "lg";
+  title?: ReactNode;
+  description?: ReactNode;
+  footer?: ReactNode;
+  footerAlign?: DialogAlign;
   className?: string;
 }
 
@@ -65,11 +69,16 @@ export function Dialog({
   onClose,
   children,
   size = "md",
+  title,
+  description,
+  footer,
+  footerAlign = "end",
   className,
 }: DialogProps) {
   const titleId = useId();
   const descId = useId();
   const { t } = useT();
+  const legacy = title !== undefined || description !== undefined || footer !== undefined;
 
   useEffect(() => {
     if (!open) return;
@@ -94,7 +103,7 @@ export function Dialog({
                 backdropFilter: "blur(10px)",
                 WebkitBackdropFilter: "blur(10px)",
               }}
-              className="fixed inset-0 grid place-items-center p-4 bg-black/55"
+              className="fixed inset-0 grid place-items-center bg-black/55 p-[var(--harbor-target-panel-padding)]"
               onClick={onClose}
             >
               <motion.div
@@ -108,18 +117,21 @@ export function Dialog({
                 transition={{ type: "spring", stiffness: 300, damping: 28 }}
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
-                  "relative w-full overflow-hidden rounded-2xl border border-white/10 bg-surface-2 text-fg shadow-2xl flex flex-col",
+                  "relative flex w-full flex-col overflow-hidden rounded-[var(--harbor-target-radius)] border border-white/10 bg-surface-2 text-fg shadow-[var(--harbor-target-shadow)]",
                   sizes[size],
                   className,
                 )}
               >
-                {children}
+                {title !== undefined ? <DialogTitle>{title}</DialogTitle> : null}
+                {description !== undefined ? <DialogDescription>{description}</DialogDescription> : null}
+                {legacy ? <DialogBody>{children}</DialogBody> : children}
+                {footer !== undefined ? <DialogButtons align={footerAlign}>{footer}</DialogButtons> : null}
                 <button
                   type="button"
                   aria-label={t("harbor.action.close")}
                   onClick={onClose}
                   data-cursor="button"
-                  className="absolute top-3 end-3 grid h-8 w-8 place-items-center rounded-lg text-fg-muted hover:bg-white/5 hover:text-fg"
+                  className="absolute end-3 top-3 grid h-[calc(var(--harbor-target-control-height)-4px)] w-[calc(var(--harbor-target-control-height)-4px)] place-items-center rounded-[var(--harbor-target-radius)] text-fg-muted hover:bg-white/5 hover:text-fg"
                 >
                   <span aria-hidden>×</span>
                 </button>
@@ -146,13 +158,13 @@ export function DialogHeader({
   ...rest
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("p-6 pb-3", className)} {...rest}>
+    <div className={cn("p-[calc(var(--harbor-target-panel-padding)+4px)] pb-[var(--harbor-target-panel-padding)]", className)} {...rest}>
       {children}
     </div>
   );
 }
 
-export interface DialogTitleProps extends HTMLAttributes<HTMLHeadingElement> {}
+export type DialogTitleProps = HTMLAttributes<HTMLHeadingElement>;
 
 export function DialogTitle({
   children,
@@ -163,7 +175,7 @@ export function DialogTitle({
   return (
     <h2
       id={titleId}
-      className={cn("px-6 pt-6 text-lg font-semibold text-fg", className)}
+      className={cn("px-[calc(var(--harbor-target-panel-padding)+4px)] pt-[calc(var(--harbor-target-panel-padding)+4px)] text-lg font-semibold text-fg", className)}
       {...rest}
     >
       {children}
@@ -171,8 +183,7 @@ export function DialogTitle({
   );
 }
 
-export interface DialogDescriptionProps
-  extends HTMLAttributes<HTMLParagraphElement> {}
+export type DialogDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
 
 export function DialogDescription({
   children,
@@ -183,7 +194,7 @@ export function DialogDescription({
   return (
     <p
       id={descId}
-      className={cn("px-6 pt-1 text-sm text-fg-muted", className)}
+      className={cn("px-[calc(var(--harbor-target-panel-padding)+4px)] pt-1 text-[length:var(--harbor-target-font-size)] text-fg-muted", className)}
       {...rest}
     >
       {children}
@@ -199,7 +210,7 @@ export function DialogBody({
   ...rest
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("px-6 py-4", className)} {...rest}>
+    <div className={cn("px-[calc(var(--harbor-target-panel-padding)+4px)] py-[var(--harbor-target-panel-padding)]", className)} {...rest}>
       {children}
     </div>
   );
@@ -231,7 +242,7 @@ export function DialogButtons({
   return (
     <div
       className={cn(
-        "px-6 py-4 bg-white/[0.02] border-t border-white/5 flex items-center gap-2 mt-auto",
+        "mt-auto flex items-center gap-[var(--harbor-target-gap)] border-t border-white/5 bg-white/[0.02] px-[calc(var(--harbor-target-panel-padding)+4px)] py-[var(--harbor-target-panel-padding)]",
         alignClass[align],
         className,
       )}

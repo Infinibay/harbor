@@ -34,26 +34,62 @@ import { Timestamp } from "../display/Timestamp";
 
 export type AuditSeverity = "info" | "warn" | "critical";
 
+export interface AuditEntry {
+  id: string;
+  at: Date | string | number;
+  actor: { id?: string; name: string; avatarUrl?: string };
+  verb: string;
+  target: ReactNode;
+  severity?: AuditSeverity;
+  kind?: string;
+  detail?: ReactNode;
+  diff?: { from?: ReactNode; to?: ReactNode };
+}
+
 export interface AuditLogProps extends HTMLAttributes<HTMLDivElement> {
   empty?: ReactNode;
+  entries?: AuditEntry[];
+  groupBy?: "day" | string;
+  kinds?: string[];
   children?: ReactNode;
 }
 
 export function AuditLog({
   empty,
+  entries,
+  groupBy: _groupBy,
+  kinds,
   children,
   className,
   ...rest
 }: AuditLogProps) {
+  void _groupBy;
+  const legacyChildren = entries
+    ?.filter((entry) => !kinds?.length || (entry.kind && kinds.includes(entry.kind)))
+    .map((entry) => (
+      <AuditEntry
+        key={entry.id}
+        actor={entry.actor}
+        verb={entry.verb}
+        target={entry.target}
+        at={entry.at}
+        severity={entry.severity}
+        kind={entry.kind}
+      >
+        {entry.diff ? <AuditDiff from={entry.diff.from} to={entry.diff.to} /> : null}
+        {entry.detail ? <p>{entry.detail}</p> : null}
+      </AuditEntry>
+    ));
   // Treat zero rendered children as the empty state.
-  const hasChildren = Array.isArray(children)
-    ? children.some(Boolean)
-    : Boolean(children);
+  const content = legacyChildren ?? children;
+  const hasChildren = Array.isArray(content)
+    ? content.some(Boolean)
+    : Boolean(content);
 
   return (
     <div className={cn("flex flex-col gap-1", className)} {...rest}>
       {hasChildren ? (
-        children
+        content
       ) : (
         <div className="text-sm text-white/40 py-6 text-center border border-dashed border-white/10 rounded-xl">
           {empty ?? "No entries."}

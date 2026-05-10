@@ -107,7 +107,7 @@ export function MentionInput({
         }}
         placeholder={placeholder}
         rows={rows}
-        className="w-full resize-none rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 outline-none focus:border-fuchsia-400/60"
+        className="w-full resize-none rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-control-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
       />
       <Portal>
         <AnimatePresence>
@@ -124,7 +124,7 @@ export function MentionInput({
                 zIndex: Z.POPOVER,
                 width: 260,
               }}
-              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1 max-h-[240px] overflow-auto"
+              className="max-h-[240px] overflow-auto rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
               {filtered.map((u, i) => (
                 <button
@@ -132,15 +132,17 @@ export function MentionInput({
                   onMouseEnter={() => setActive(i)}
                   onClick={() => insertMention(u)}
                   className={cn(
-                    "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm",
-                    i === active ? "bg-white/10 text-white" : "text-white/75",
+                    "flex w-full items-center gap-[var(--harbor-menu-item-gap)] rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-left text-[length:var(--harbor-menu-item-font-size)]",
+                    i === active
+                      ? "bg-[var(--harbor-menu-item-hover-bg)] text-[color:var(--harbor-field-fg)]"
+                      : "text-[color:var(--harbor-menu-item-fg)]",
                   )}
                 >
                   <Avatar name={u.name} size="sm" />
                   <span className="flex-1 truncate">
-                    <span className="text-white">{u.name}</span>
+                    <span className="text-[color:var(--harbor-field-fg)]">{u.name}</span>
                     {u.handle ? (
-                      <span className="text-white/45 ml-1">@{u.handle}</span>
+                      <span className="ml-1 text-[color:var(--harbor-field-muted-fg)]">@{u.handle}</span>
                     ) : null}
                   </span>
                 </button>

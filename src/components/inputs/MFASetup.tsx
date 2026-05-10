@@ -115,7 +115,7 @@ export function MFASetup({
             maxLength={6}
             placeholder="000000"
             autoFocus
-            className="text-2xl tabular-nums font-mono text-center tracking-[0.6em] bg-white/5 border border-white/10 rounded-md px-3 py-3 outline-none focus:border-fuchsia-400/50 text-white"
+            className="rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-panel-padding)] text-center font-mono text-2xl tracking-[0.6em] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
           />
           {verifyError ? (
             <div className="text-xs text-rose-300">{verifyError}</div>
@@ -141,7 +141,7 @@ export function MFASetup({
             {recoveryCodes.map((c) => (
               <code
                 key={c}
-                className="text-xs tabular-nums font-mono bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white text-center"
+                className="rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-center font-mono text-xs text-[color:var(--harbor-field-fg)] tabular-nums"
               >
                 {c}
               </code>

@@ -66,6 +66,8 @@ export interface DataTableProps<T> extends UseDataTableOptions<T> {
   /** Render skeleton rows while data is being fetched. Header + toolbar
    *  stay in place; the body is replaced. */
   loading?: boolean;
+  /** Accessible/visual label for the loading state. */
+  loadingLabel?: ReactNode;
   /** Number of skeleton rows to render when `loading` is on. Defaults
    *  to the current `pageSize`, capped at `10`. */
   skeletonRows?: number;
@@ -199,6 +201,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
     onRowClick,
     emptyState,
     loading,
+    loadingLabel,
     skeletonRows,
     error,
     onRetry,
@@ -725,16 +728,23 @@ export function DataTable<T>(props: DataTableProps<T>) {
           {error != null ? (
             <ErrorPanel error={error} onRetry={onRetry} />
           ) : loading ? (
-            <SkeletonRows
-              columns={layout.orderedColumns}
-              selectable={Boolean(selectable)}
-              count={
-                skeletonRows ??
-                Math.min(10, state.pagination.pageSize)
-              }
-              density={state.density}
-              gridStyle={gridStyle}
-            />
+            <>
+              {loadingLabel ? (
+                <div className="px-4 py-3 text-xs text-white/45">
+                  {loadingLabel}
+                </div>
+              ) : null}
+              <SkeletonRows
+                columns={layout.orderedColumns}
+                selectable={Boolean(selectable)}
+                count={
+                  skeletonRows ??
+                  Math.min(10, state.pagination.pageSize)
+                }
+                density={state.density}
+                gridStyle={gridStyle}
+              />
+            </>
           ) : (
             <div
               role="rowgroup"

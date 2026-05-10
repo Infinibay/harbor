@@ -55,9 +55,9 @@ describe("ButtonGroup", () => {
         <Button>Small</Button>
       </ButtonGroup>,
     );
-    // Button "sm" → h-8 px-3 text-xs (see buttons/Button.tsx sizes record).
+    // Button "sm" derives from adaptive target variables.
     const btn = screen.getByRole("button", { name: "Small" });
-    expect(btn.className).toContain("h-8");
+    expect(btn.className).toContain("h-[calc(var(--harbor-target-control-height)-8px)]");
     expect(btn.className).toContain("text-xs");
   });
 
@@ -68,8 +68,8 @@ describe("ButtonGroup", () => {
       </ButtonGroup>,
     );
     const btn = screen.getByRole("button", { name: "Big" });
-    expect(btn.className).toContain("h-12");
-    expect(btn.className).not.toContain("h-8");
+    expect(btn.className).toContain("h-[calc(var(--harbor-target-control-height)+8px)]");
+    expect(btn.className).not.toContain("h-[calc(var(--harbor-target-control-height)-8px)]");
   });
 
   it("applies custom className to the group wrapper", () => {

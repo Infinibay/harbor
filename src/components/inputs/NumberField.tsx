@@ -46,16 +46,16 @@ export function NumberField({
       {label ? (
         <label className="block text-xs text-white/60 mb-1.5">{label}</label>
       ) : null}
-      <div className="flex items-center rounded-xl bg-white/5 border border-white/10 overflow-hidden focus-within:border-fuchsia-400/60 transition-colors">
+      <div className="flex min-h-[var(--harbor-target-input-height)] items-center overflow-hidden rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] text-[color:var(--harbor-field-fg)] transition-colors focus-within:border-[color:var(--harbor-field-border-focus)] focus-within:bg-[var(--harbor-field-bg-focus)]">
         <button
           type="button"
           data-cursor="button"
           onClick={() => set(current - step)}
-          className="w-10 h-11 grid place-items-center text-white/60 hover:bg-white/5 text-lg"
+          className="grid h-[var(--harbor-target-input-height)] w-[var(--harbor-target-input-height)] place-items-center text-lg text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)]"
         >
           −
         </button>
-        <div className="flex-1 min-w-0 h-11 relative overflow-hidden">
+        <div className="relative h-[var(--harbor-target-input-height)] min-w-0 flex-1 overflow-hidden">
           <AnimatePresence mode="popLayout">
             <motion.span
               key={current}
@@ -69,7 +69,7 @@ export function NumberField({
                 opacity: 0,
               }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="absolute inset-0 flex items-center justify-center font-mono text-white text-sm tabular-nums whitespace-nowrap px-1"
+              className="absolute inset-0 flex items-center justify-center whitespace-nowrap px-1 font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] tabular-nums"
             >
               {current}
               {unit ? (
@@ -82,7 +82,7 @@ export function NumberField({
           type="button"
           data-cursor="button"
           onClick={() => set(current + step)}
-          className="w-10 h-11 grid place-items-center text-white/60 hover:bg-white/5 text-lg"
+          className="grid h-[var(--harbor-target-input-height)] w-[var(--harbor-target-input-height)] place-items-center text-lg text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)]"
         >
           +
         </button>

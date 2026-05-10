@@ -37,6 +37,7 @@ export interface CommentReaction {
 }
 
 export interface CommentThreadProps {
+  comments?: CommentData[];
   currentUser?: { name: string };
   onReply?: (parentId: string | null, text: string) => void;
   onReact?: (commentId: string, emoji: string) => void;
@@ -51,6 +52,17 @@ export interface CommentThreadProps {
   className?: string;
   children?: ReactNode;
 }
+
+export interface CommentData {
+  id: string;
+  author: { name: string; avatar?: string };
+  body: ReactNode;
+  time: string;
+  reactions?: CommentReaction[];
+  replies?: CommentData[];
+}
+
+export type Comment = CommentData;
 
 type Ctx = {
   currentUser?: { name: string };
@@ -70,6 +82,7 @@ function useThreadCtx(component: string): Ctx {
 }
 
 export function CommentThread({
+  comments,
   currentUser,
   onReply,
   onReact,
@@ -78,19 +91,35 @@ export function CommentThread({
   className,
   children,
 }: CommentThreadProps) {
+  const content = comments?.map((comment) => renderCommentData(comment)) ?? children;
   const composerEnabled = canComment ?? Boolean(currentUser);
   const showAutoComposer =
-    composerEnabled && currentUser && !hasComposerChild(children);
+    composerEnabled && currentUser && !hasComposerChild(content);
 
   return (
     <ThreadCtx.Provider
       value={{ currentUser, onReply, onReact, canReply }}
     >
       <div className={cn("flex flex-col gap-4", className)}>
-        {children}
+        {content}
         {showAutoComposer ? <CommentComposer /> : null}
       </div>
     </ThreadCtx.Provider>
+  );
+}
+
+function renderCommentData(comment: CommentData): ReactElement {
+  return (
+    <Comment
+      key={comment.id}
+      id={comment.id}
+      author={comment.author}
+      time={comment.time}
+      reactions={comment.reactions}
+    >
+      {comment.body}
+      {comment.replies?.map((reply) => renderCommentData(reply))}
+    </Comment>
   );
 }
 
@@ -266,4 +295,3 @@ function hasComposerChild(children: ReactNode): boolean {
   });
   return found;
 }
-

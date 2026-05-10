@@ -13,8 +13,12 @@ export { harborDark, harborLight } from "./builtins";
 export { normalizeColor } from "./color";
 export {
   HarborProvider,
+  harborAdaptivePresets,
   type DefaultThemeSpec,
+  type HarborAdaptiveTokens,
+  type HarborDensity,
   type HarborProviderProps,
+  type HarborTarget,
 } from "./HarborProvider";
 export {
   HarborThemeContext,

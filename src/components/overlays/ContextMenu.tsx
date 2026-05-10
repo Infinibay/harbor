@@ -79,7 +79,7 @@ export function ContextMenu({ children, menu, className }: ContextMenuProps) {
                 zIndex: Z.CONTEXT_MENU,
                 transformOrigin: "top left",
               }}
-              className="min-w-[200px] rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1"
+              className="min-w-[200px] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
               {menu}
             </motion.div>

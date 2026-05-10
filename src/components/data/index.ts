@@ -3,6 +3,7 @@ export * from "./BranchTree";
 export * from "./DataTable";
 export * from "./DiffViewer";
 export * from "./PermissionMatrix";
+export * from "./SpreadsheetCell";
 export * from "./HeatmapCalendar";
 export * from "./InfiniteScroll";
 export * from "./JsonViewer";

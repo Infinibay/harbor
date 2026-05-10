@@ -84,7 +84,7 @@ export function MenuBar({ items, className }: MenuBarProps) {
       <div
         ref={barRef}
         className={cn(
-          "flex items-center gap-0.5 px-1 h-7 text-[13px]",
+          "flex items-center h-[var(--harbor-menu-bar-height)] gap-[var(--harbor-menu-bar-gap)] px-[var(--harbor-menu-bar-padding-x)] text-[length:var(--harbor-workbench-font-size,var(--harbor-text-sm))]",
           className,
         )}
       >
@@ -101,10 +101,10 @@ export function MenuBar({ items, className }: MenuBarProps) {
                 if (active) openMenu(it.id);
               }}
               className={cn(
-                "px-2 h-full rounded-md transition-colors",
+                "h-full px-[var(--harbor-menu-trigger-padding-x)] rounded-[var(--harbor-menu-trigger-radius)] transition-colors",
                 isActive
-                  ? "bg-white/10 text-white"
-                  : "text-white/75 hover:bg-white/5 hover:text-white",
+                  ? "bg-[var(--harbor-menu-trigger-active-bg)] text-[color:var(--harbor-menu-trigger-active-fg)]"
+                  : "text-[color:var(--harbor-menu-trigger-fg)] hover:bg-[var(--harbor-menu-trigger-hover-bg)] hover:text-[color:var(--harbor-menu-trigger-active-fg)]",
               )}
             >
               {it.label}
@@ -127,9 +127,9 @@ export function MenuBar({ items, className }: MenuBarProps) {
                 left: pos.x,
                 top: pos.y + 2,
                 zIndex: Z.POPOVER,
-                minWidth: 220,
+                minWidth: "var(--harbor-menu-min-width)",
               }}
-              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1"
+              className="rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
               {activeItem.children.map((c) => (
                 <MenuBarRow
@@ -157,6 +157,7 @@ function MenuBarRow({
   const rowRef = useRef<HTMLButtonElement | null>(null);
   const subRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+  const hasLeading = entry.checked || entry.icon;
 
   useEffect(() => {
     if (!open) return;
@@ -165,7 +166,7 @@ function MenuBarRow({
   }, [open]);
 
   if (entry.separator) {
-    return <div className="h-px bg-white/8 my-1" />;
+    return <div className="my-1 h-px bg-[var(--harbor-menu-separator)]" />;
   }
 
   return (
@@ -181,25 +182,31 @@ function MenuBarRow({
           onClose();
         }}
         className={cn(
-          "w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-left transition-colors",
+          [
+            "flex w-full items-center text-left transition-colors",
+            "gap-[var(--harbor-menu-item-gap)] rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)]",
+            "text-[length:var(--harbor-menu-item-font-size)]",
+          ].join(" "),
           entry.disabled
-            ? "text-white/30 cursor-not-allowed"
+            ? "cursor-not-allowed text-[color:var(--harbor-menu-item-disabled-fg)]"
             : entry.danger
-              ? "text-rose-300 hover:bg-white/5"
-              : "text-white/85 hover:bg-white/5",
+              ? "text-[color:var(--harbor-menu-item-danger-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)]"
+              : "text-[color:var(--harbor-menu-item-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)]",
         )}
       >
-        <span className="w-4 grid place-items-center text-white/50">
-          {entry.checked ? "✓" : entry.icon ?? null}
-        </span>
+        {hasLeading ? (
+          <span className="grid w-[var(--harbor-menu-item-icon-width)] place-items-center text-[color:var(--harbor-menu-item-muted-fg)]">
+            {entry.checked ? "✓" : entry.icon}
+          </span>
+        ) : null}
         <span className="flex-1 truncate">{entry.label}</span>
         {entry.shortcut ? (
-          <span className="text-[11px] text-white/40 font-mono">
+          <span className="font-mono text-[length:var(--harbor-workbench-font-size-xs,var(--harbor-text-xs))] text-[color:var(--harbor-menu-item-muted-fg)]">
             {entry.shortcut}
           </span>
         ) : null}
         {entry.submenu ? (
-          <span className="text-white/40 text-xs">›</span>
+          <span className="text-xs text-[color:var(--harbor-menu-item-muted-fg)]">›</span>
         ) : null}
       </button>
       <Portal>
@@ -217,9 +224,9 @@ function MenuBarRow({
                 left: pos.x,
                 top: pos.y,
                 zIndex: Z.SUBMENU,
-                minWidth: 200,
+                minWidth: "var(--harbor-menu-submenu-min-width)",
               }}
-              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1"
+              className="rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
               {entry.submenu.map((s) => (
                 <MenuBarRow key={s.id} entry={s} onClose={onClose} />

@@ -3,12 +3,14 @@ import {
   useRef,
   useState,
   type ButtonHTMLAttributes,
+  type ComponentPropsWithoutRef,
   type MouseEvent,
   type ReactNode,
 } from "react";
 import {
   motion,
   AnimatePresence,
+  useMotionTemplate,
   useTransform,
 } from "framer-motion";
 import { cn } from "../../lib/cn";
@@ -39,6 +41,8 @@ export interface ButtonProps
   align?: "start" | "center" | "end";
 }
 
+type MotionButtonProps = ComponentPropsWithoutRef<typeof motion.button>;
+
 const variants: Record<Variant, string> = {
   primary:
     "bg-white text-black hover:bg-white/90 shadow-[0_8px_24px_-8px_rgba(255,255,255,0.25)]",
@@ -62,9 +66,9 @@ const glowColors: Record<Variant, string> = {
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-8 px-3 text-xs rounded-lg gap-1.5",
-  md: "h-10 px-4 text-sm rounded-xl gap-2",
-  lg: "h-12 px-6 text-base rounded-xl gap-2.5",
+  sm: "h-[calc(var(--harbor-target-control-height)-8px)] px-[calc(var(--harbor-target-control-padding-x)-2px)] text-xs rounded-[var(--harbor-target-radius)] gap-1.5",
+  md: "h-[var(--harbor-target-control-height)] px-[var(--harbor-target-control-padding-x)] text-[length:var(--harbor-target-font-size)] rounded-[var(--harbor-target-radius)] gap-2",
+  lg: "h-[calc(var(--harbor-target-control-height)+8px)] px-[calc(var(--harbor-target-control-padding-x)+8px)] text-base rounded-[var(--harbor-target-radius)] gap-2.5",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -106,11 +110,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const glowOpacity = useTransform(proximity, (v) =>
       reactive ? v * 0.55 : 0,
     );
-    const glowBg = useTransform(
-      [localX, localY] as any,
-      ([lx, ly]: any) =>
-        `radial-gradient(90px circle at ${lx * 100}% ${ly * 100}%, ${glowColors[variant]}, transparent 60%)`,
-    );
+    const glowX = useTransform(localX, (v) => `${v * 100}%`);
+    const glowY = useTransform(localY, (v) => `${v * 100}%`);
+    const glowBg = useMotionTemplate`radial-gradient(90px circle at ${glowX} ${glowY}, ${glowColors[variant]}, transparent 60%)`;
 
     const [ripples, setRipples] = useState<
       { id: number; x: number; y: number }[]
@@ -155,7 +157,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           variants[variant],
           className,
         )}
-        {...(rest as any)}
+        {...(rest as MotionButtonProps)}
       >
         {/* inner light that follows the cursor */}
         {reactive ? (

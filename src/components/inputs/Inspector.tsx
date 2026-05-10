@@ -22,7 +22,7 @@ export function Inspector({ sections, className }: InspectorProps) {
   return (
     <div
       className={cn(
-        "flex flex-col divide-y divide-white/5 bg-surface-1 border border-white/8 rounded-xl overflow-hidden",
+        "flex flex-col divide-y divide-[color:var(--harbor-field-border)] overflow-hidden rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-workbench-panel-bg)]",
         className,
       )}
     >
@@ -34,7 +34,7 @@ export function Inspector({ sections, className }: InspectorProps) {
               onClick={() =>
                 setState((p) => ({ ...p, [s.id]: !p[s.id] }))
               }
-              className="w-full flex items-center gap-2 px-3 h-8 text-[11px] uppercase tracking-wider font-semibold text-white/55 hover:text-white hover:bg-white/[0.02] transition-colors"
+              className="flex h-[calc(var(--harbor-target-control-height)-8px)] w-full items-center gap-2 px-[var(--harbor-target-control-padding-x)] text-[11px] font-semibold uppercase tracking-wider text-[color:var(--harbor-field-muted-fg)] transition-colors hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]"
             >
               <motion.svg
                 animate={{ rotate: collapsed ? -90 : 0 }}
@@ -61,7 +61,7 @@ export function Inspector({ sections, className }: InspectorProps) {
                   transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
                   className="overflow-hidden"
                 >
-                  <div className="px-3 pb-3 pt-1 space-y-2">{s.children}</div>
+                  <div className="space-y-[var(--harbor-target-gap)] px-[var(--harbor-target-panel-padding)] pb-[var(--harbor-target-panel-padding)] pt-1">{s.children}</div>
                 </motion.div>
               ) : null}
             </AnimatePresence>
@@ -88,7 +88,7 @@ export function PropertyRow({
         className,
       )}
     >
-      <span className="text-white/55 truncate">{label}</span>
+      <span className="truncate text-[color:var(--harbor-field-muted-fg)]">{label}</span>
       <div className="min-w-0">{children}</div>
     </label>
   );
@@ -111,7 +111,7 @@ export function InspectorNumber({
   unit?: string;
 }) {
   return (
-    <div className="relative flex items-center bg-white/5 border border-white/10 rounded-md focus-within:border-fuchsia-400/60 h-7 px-1">
+    <div className="relative flex min-h-[calc(var(--harbor-target-input-height)-8px)] items-center rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-1 focus-within:border-[color:var(--harbor-field-border-focus)]">
       <input
         type="number"
         value={value}
@@ -122,10 +122,10 @@ export function InspectorNumber({
           onChange(v);
         }}
         step={step}
-        className="flex-1 min-w-0 bg-transparent outline-none px-1.5 text-white text-xs font-mono tabular-nums"
+        className="min-w-0 flex-1 bg-transparent px-1.5 font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none"
       />
       {unit ? (
-        <span className="text-[10px] text-white/40 font-mono mr-1">
+        <span className="mr-1 font-mono text-[10px] text-[color:var(--harbor-field-muted-fg)]">
           {unit}
         </span>
       ) : null}

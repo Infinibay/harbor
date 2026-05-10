@@ -179,7 +179,7 @@ function ConditionEditor({
             })
           }
           placeholder={value.op === "in" ? "a, b, c" : "value"}
-          className="h-7 min-w-[140px] bg-white/5 border border-white/10 rounded-md px-2 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
+          className="min-h-[calc(var(--harbor-target-input-height)-8px)] min-w-[140px] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
         />
       )}
       {onRemove ? (
@@ -209,14 +209,14 @@ function BetweenEditor({
         type="number"
         value={pair[0] ?? ""}
         onChange={(e) => onChange({ ...value, value: [e.target.value, pair[1] ?? ""] })}
-        className="h-7 w-20 bg-white/5 border border-white/10 rounded-md px-2 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
+        className="min-h-[calc(var(--harbor-target-input-height)-8px)] w-20 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       />
-      <span className="text-white/40">and</span>
+      <span className="text-[color:var(--harbor-field-muted-fg)]">and</span>
       <input
         type="number"
         value={pair[1] ?? ""}
         onChange={(e) => onChange({ ...value, value: [pair[0] ?? "", e.target.value] })}
-        className="h-7 w-20 bg-white/5 border border-white/10 rounded-md px-2 text-xs text-white outline-none focus:border-fuchsia-400/40 tabular-nums font-mono"
+        className="min-h-[calc(var(--harbor-target-input-height)-8px)] w-20 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       />
     </div>
   );
@@ -243,7 +243,7 @@ function GroupEditor({
   return (
     <div
       className={cn(
-        "relative rounded-lg border pl-2 pr-2 py-1.5",
+        "relative rounded-[var(--harbor-target-radius)] border px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)]",
         ringCls,
         depth > 0 && "ml-2",
       )}
@@ -252,7 +252,7 @@ function GroupEditor({
         <button
           onClick={() => onChange({ ...value, op: value.op === "and" ? "or" : "and" })}
           className={cn(
-            "h-6 px-2 text-[10px] uppercase tracking-widest rounded font-semibold",
+            "min-h-[calc(var(--harbor-target-control-height)-12px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[10px] font-semibold uppercase tracking-widest",
             value.op === "and"
               ? "bg-sky-500/20 text-sky-200"
               : "bg-amber-500/20 text-amber-200",
@@ -267,7 +267,7 @@ function GroupEditor({
               children: [...value.children, newCondition(defaultField)],
             })
           }
-          className="h-6 px-2 text-[10px] rounded text-white/70 hover:bg-white/5"
+          className="min-h-[calc(var(--harbor-target-control-height)-12px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[10px] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]"
         >
           + condition
         </button>
@@ -278,7 +278,7 @@ function GroupEditor({
               children: [...value.children, newGroup()],
             })
           }
-          className="h-6 px-2 text-[10px] rounded text-white/70 hover:bg-white/5"
+          className="min-h-[calc(var(--harbor-target-control-height)-12px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[10px] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]"
         >
           + group
         </button>
@@ -294,7 +294,7 @@ function GroupEditor({
       </div>
       <div className="pl-1 flex flex-col gap-1">
         {value.children.length === 0 ? (
-          <div className="text-xs text-white/30 italic py-2">
+          <div className="py-2 text-[length:var(--harbor-target-font-size)] italic text-[color:var(--harbor-field-placeholder)]">
             Empty group — add a condition.
           </div>
         ) : (

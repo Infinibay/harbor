@@ -74,7 +74,7 @@ export function InlineEdit({
                 }
               }}
               className={cn(
-                "bg-white/5 border border-fuchsia-400/60 rounded-md px-2 py-1 text-white outline-none w-full",
+                "w-full rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)]",
                 size,
               )}
               placeholder={placeholder}

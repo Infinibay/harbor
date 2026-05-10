@@ -80,7 +80,7 @@ export function SearchField({
 
   return (
     <div ref={anchorRef} className={cn("relative w-full", className)}>
-      <div className="relative flex items-center rounded-xl bg-white/5 border border-white/10 focus-within:border-fuchsia-400/60 transition-colors h-11">
+      <div className="relative flex h-[var(--harbor-target-input-height)] items-center rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] text-[color:var(--harbor-field-fg)] transition-colors focus-within:border-[color:var(--harbor-field-border-focus)] focus-within:bg-[var(--harbor-field-bg-focus)]">
         <svg
           width="16"
           height="16"
@@ -88,7 +88,7 @@ export function SearchField({
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          className="absolute left-3 text-white/40"
+          className="absolute left-[var(--harbor-target-control-padding-x)] text-[color:var(--harbor-field-muted-fg)]"
         >
           <circle cx="11" cy="11" r="7" />
           <path d="m20 20-3.5-3.5" strokeLinecap="round" />
@@ -99,7 +99,7 @@ export function SearchField({
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
           data-cursor="text"
-          className="w-full bg-transparent outline-none pl-10 pr-10 text-sm text-white placeholder:text-white/35"
+          className="w-full appearance-none bg-transparent pl-10 pr-10 text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)]"
         />
         <AnimatePresence>
           {loading ? (
@@ -141,7 +141,7 @@ export function SearchField({
               width: rect.w,
               zIndex: Z.POPOVER,
             }}
-            className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden"
+            className="overflow-hidden rounded-[var(--harbor-target-radius)] border border-white/10 bg-surface-2 shadow-[var(--harbor-target-shadow)]"
           >
             <ul className="max-h-72 overflow-auto p-1">
               <AnimatePresence initial={false}>

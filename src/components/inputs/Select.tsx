@@ -36,8 +36,8 @@ export interface SelectProps {
 }
 
 const SIZE_TRIGGER: Record<NonNullable<SelectProps["size"]>, string> = {
-  sm: "h-7 px-2 text-xs rounded-md",
-  md: "h-11 px-4 text-sm rounded-xl",
+  sm: "h-[calc(var(--harbor-target-input-height)-8px)] px-[calc(var(--harbor-target-control-padding-x)-4px)] text-xs rounded-[var(--harbor-target-radius)]",
+  md: "h-[var(--harbor-target-input-height)] px-[var(--harbor-target-control-padding-x)] text-[length:var(--harbor-target-font-size)] rounded-[var(--harbor-target-radius)]",
 };
 const SIZE_LABEL: Record<NonNullable<SelectProps["size"]>, string> = {
   sm: "text-xs",
@@ -148,10 +148,10 @@ export function Select({
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKey}
         className={cn(
-          "relative overflow-hidden w-full border bg-surface-1/80 flex items-center justify-between text-start outline-none",
+          "relative flex w-full items-center justify-between overflow-hidden border bg-[var(--harbor-field-bg)] text-start text-[color:var(--harbor-field-fg)] outline-none",
           SIZE_TRIGGER[size],
-          "border-white/10 hover:bg-surface-2 transition-colors",
-          open && "border-fuchsia-400/60",
+          "border-[color:var(--harbor-field-border)] transition-colors hover:bg-[var(--harbor-field-bg-hover)]",
+          open && "border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg-focus)]",
           "focus-visible:ring-2 focus-visible:ring-fuchsia-400/60 focus-bloom disabled:opacity-50",
         )}
       >
@@ -204,7 +204,7 @@ export function Select({
                     : { width: typeof menuWidth === "number" ? menuWidth : menuWidth, minWidth: rect.w }),
                 zIndex: Z.POPOVER,
               }}
-              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden p-1"
+              className="overflow-hidden rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
               <ul className="max-h-64 overflow-y-auto overflow-x-hidden">
                 {options.map((o, i) => (
@@ -215,7 +215,7 @@ export function Select({
                       onClick={() => pick(o.value)}
                       onMouseEnter={() => setFocusIdx(i)}
                       className={cn(
-                        "relative w-full text-start ps-4 pe-3 py-2 rounded-md text-sm flex items-center gap-2.5 transition-colors",
+                        "relative flex w-full items-center gap-[var(--harbor-menu-item-gap)] rounded-[var(--harbor-menu-item-radius)] py-[var(--harbor-menu-item-padding-y)] ps-[var(--harbor-menu-item-padding-x)] pe-3 text-start text-[length:var(--harbor-menu-item-font-size)] transition-colors",
                         focusIdx === i ? "bg-surface-3/80" : "",
                         o.disabled && "opacity-40 cursor-not-allowed",
                       )}

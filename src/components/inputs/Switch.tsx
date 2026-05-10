@@ -53,7 +53,7 @@ export function Switch({
       htmlFor={inputId}
       data-cursor="button"
       className={cn(
-        "inline-flex items-start gap-3 cursor-pointer select-none",
+        "inline-flex cursor-pointer select-none items-start gap-[var(--harbor-target-gap)]",
         className,
       )}
     >
@@ -99,7 +99,7 @@ export function Switch({
       {label || description ? (
         <span className="flex flex-col gap-0.5">
           {label ? (
-            <span className="text-sm text-white/90 leading-tight">{label}</span>
+            <span className="text-[length:var(--harbor-target-font-size)] leading-tight text-white/90">{label}</span>
           ) : null}
           {description ? (
             <span className="text-xs text-white/50 leading-snug">

@@ -509,9 +509,10 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
     ? (e: React.MouseEvent) => {
         // If the default was already prevented by a CanvasItem's menu
         // handler, don't open the canvas-level menu.
-        if (e.defaultPrevented) return;
-        e.preventDefault();
-        const rect = viewportRef.current?.getBoundingClientRect();
+      if (e.defaultPrevented) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = viewportRef.current?.getBoundingClientRect();
         if (rect) {
           const screenX = e.clientX - rect.left;
           const screenY = e.clientY - rect.top;

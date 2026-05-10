@@ -44,13 +44,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         <label
           htmlFor={inputId}
           className={cn(
-            "relative flex flex-col rounded-xl border transition-all bg-white/5",
-            "border-white/10",
-            focus && "border-fuchsia-400/60 bg-white/[0.07]",
+            "relative flex flex-col rounded-[var(--harbor-target-radius)] border bg-[var(--harbor-field-bg)] text-[color:var(--harbor-field-fg)] transition-all",
+            "border-[color:var(--harbor-field-border)]",
+            focus && "border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg-focus)]",
           )}
         >
           {label ? (
-            <span className="text-xs text-white/50 px-4 pt-3">{label}</span>
+            <span className="px-[var(--harbor-target-control-padding-x)] pt-[var(--harbor-target-control-padding-y)] text-xs text-[color:var(--harbor-field-muted-fg)]">{label}</span>
           ) : null}
           <textarea
             ref={ref}
@@ -71,14 +71,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
               onChange?.(e);
             }}
             className={cn(
-              "bg-transparent outline-none p-4 text-white placeholder:text-white/30 resize-y min-h-[90px]",
+              "min-h-[90px] resize-y appearance-none bg-transparent p-[var(--harbor-target-control-padding-x)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)]",
               label && "pt-1",
               className,
             )}
             {...rest}
           />
           {maxChars ? (
-            <div className="px-4 pb-3 flex items-center gap-2">
+            <div className="flex items-center gap-2 px-[var(--harbor-target-control-padding-x)] pb-[var(--harbor-target-control-padding-y)]">
               <div className="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
                 <motion.div
                   animate={{ width: `${pct * 100}%` }}

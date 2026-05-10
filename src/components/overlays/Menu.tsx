@@ -115,7 +115,7 @@ export function Menu({
                 zIndex: Z.POPOVER,
               }}
               className={cn(
-                "min-w-[200px] rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1",
+                "min-w-[200px] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]",
                 className,
               )}
             >
@@ -199,9 +199,11 @@ export function MenuItem({
         disabled={disabled}
         data-cursor="button"
         className={cn(
-          "w-full text-left flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm outline-none transition-colors",
-          danger ? "text-rose-300" : "text-white/85",
-          !disabled && "hover:bg-white/5",
+          "flex w-full items-center gap-[var(--harbor-menu-item-gap)] rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-left text-[length:var(--harbor-menu-item-font-size)] outline-none transition-colors",
+          danger
+            ? "text-[color:var(--harbor-menu-item-danger-fg)]"
+            : "text-[color:var(--harbor-menu-item-fg)]",
+          !disabled && "hover:bg-[var(--harbor-menu-item-hover-bg)]",
           disabled && "opacity-40 cursor-not-allowed",
           className,
         )}
@@ -209,8 +211,10 @@ export function MenuItem({
         {icon ? (
           <span
             className={cn(
-              "w-4 h-4 grid place-items-center flex-shrink-0",
-              danger ? "text-rose-300" : "text-white/55",
+              "grid h-[var(--harbor-target-icon-size)] w-[var(--harbor-target-icon-size)] flex-shrink-0 place-items-center",
+              danger
+                ? "text-[color:var(--harbor-menu-item-danger-fg)]"
+                : "text-[color:var(--harbor-menu-item-muted-fg)]",
             )}
           >
             {icon}
@@ -218,11 +222,13 @@ export function MenuItem({
         ) : null}
         <span className="flex-1 truncate">{children}</span>
         {shortcut ? (
-          <span className="text-[10px] text-white/40 font-mono">
+          <span className="font-mono text-[10px] text-[color:var(--harbor-menu-item-muted-fg)]">
             {shortcut}
           </span>
         ) : null}
-        {submenu ? <span className="text-white/40 text-xs">›</span> : null}
+        {submenu ? (
+          <span className="text-xs text-[color:var(--harbor-menu-item-muted-fg)]">›</span>
+        ) : null}
       </button>
       <Portal>
         <AnimatePresence>
@@ -241,7 +247,7 @@ export function MenuItem({
                 top: pos.y,
                 zIndex: Z.SUBMENU,
               }}
-              className="min-w-[180px] rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1"
+              className="min-w-[180px] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
               {submenu}
             </motion.div>
@@ -253,12 +259,12 @@ export function MenuItem({
 }
 
 export function MenuSeparator() {
-  return <div className="h-px bg-white/8 my-1" />;
+  return <div className="my-1 h-px bg-[var(--harbor-menu-separator)]" />;
 }
 
 export function MenuLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="px-2.5 py-1.5 text-[10px] uppercase tracking-wider text-white/40 font-semibold">
+    <div className="px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-[10px] font-semibold uppercase tracking-wider text-[color:var(--harbor-menu-item-muted-fg)]">
       {children}
     </div>
   );

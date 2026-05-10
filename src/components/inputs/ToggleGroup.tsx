@@ -48,12 +48,15 @@ export function ToggleGroup({
     onChange?.(next);
   }
 
-  const h = size === "sm" ? "h-8 text-xs" : "h-9 text-sm";
+  const h =
+    size === "sm"
+      ? "h-[calc(var(--harbor-target-control-height)-6px)] text-xs"
+      : "h-[var(--harbor-target-control-height)] text-[length:var(--harbor-target-font-size)]";
 
   return (
     <div
       className={cn(
-        "inline-flex bg-white/5 border border-white/10 rounded-xl p-0.5",
+        "inline-flex rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] p-0.5",
         className,
       )}
     >
@@ -65,7 +68,7 @@ export function ToggleGroup({
             aria-label={it.ariaLabel ?? (typeof it.label === "string" ? it.label : it.value)}
             onClick={() => toggle(it.value)}
             className={cn(
-              "relative px-3 rounded-lg inline-flex items-center justify-center gap-1.5 font-medium transition-colors",
+              "relative inline-flex items-center justify-center gap-1.5 rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-control-padding-x)] font-medium transition-colors",
               h,
               on ? "text-black" : "text-white/65 hover:text-white",
             )}
@@ -73,7 +76,7 @@ export function ToggleGroup({
             {on && !multiple ? (
               <motion.span
                 layoutId={`${layoutId}-tg`}
-                className="absolute inset-0 rounded-lg bg-white shadow"
+                className="absolute inset-0 rounded-[var(--harbor-target-radius)] bg-white shadow-[var(--harbor-target-shadow)]"
                 transition={{ type: "spring", stiffness: 500, damping: 35 }}
               />
             ) : null}
@@ -81,7 +84,7 @@ export function ToggleGroup({
               <motion.span
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="absolute inset-0 rounded-lg bg-white shadow"
+                className="absolute inset-0 rounded-[var(--harbor-target-radius)] bg-white shadow-[var(--harbor-target-shadow)]"
               />
             ) : null}
             <span className="relative inline-flex items-center gap-1.5">

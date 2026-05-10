@@ -61,9 +61,9 @@ export function DatePicker({
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "w-full h-11 rounded-xl border bg-surface-1/80 px-4 flex items-center gap-3 text-left text-sm outline-none transition-colors",
-          "border-white/10 hover:bg-surface-2",
-          open && "border-fuchsia-400/60",
+          "flex h-[var(--harbor-target-input-height)] w-full items-center gap-[var(--harbor-target-gap)] rounded-[var(--harbor-target-radius)] border bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] text-left text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none transition-colors",
+          "border-[color:var(--harbor-field-border)] hover:bg-[var(--harbor-field-bg-hover)]",
+          open && "border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg-focus)]",
         )}
       >
         <svg

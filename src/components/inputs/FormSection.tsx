@@ -37,12 +37,12 @@ export function FormSection({
     return (
       <section
         className={cn(
-          "grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr] gap-5 md:gap-10 py-4",
+          "grid grid-cols-1 gap-[calc(var(--harbor-target-gap)*1.5)] py-[var(--harbor-target-panel-padding)] md:grid-cols-[minmax(0,18rem)_1fr] md:gap-[calc(var(--harbor-target-gap)*3)]",
           className,
         )}
       >
         {header}
-        <div className="flex flex-col gap-4 min-w-0">
+        <div className="flex min-w-0 flex-col gap-[var(--harbor-target-gap)]">
           {children}
           {actions ? <div className="pt-2">{actions}</div> : null}
         </div>
@@ -51,7 +51,7 @@ export function FormSection({
   }
 
   return (
-    <section className={cn("flex flex-col gap-4", className)}>
+    <section className={cn("flex flex-col gap-[var(--harbor-target-gap)]", className)}>
       {header}
       {children}
       {actions ? <div className="pt-2">{actions}</div> : null}
