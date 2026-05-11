@@ -1,9 +1,8 @@
 # IconButton
 
-Square, icon-only button with a built-in cursor-reactive lean and inner
-glow. Prefer it over `<Button>` whenever the affordance is a glyph alone;
-use `<CloseButton>` / `<MoreButton>` for those specific shapes since they
-ship with the correct semantics.
+`IconButton` is a square, icon-only button with Harbor sizing, variants, focus styles, and optional cursor-reactive motion. Use it for compact commands in toolbars, table rows, card headers, inspectors, canvas controls, and dense app chrome.
+
+Use a text `Button` when the action is not obvious from the icon. Use `CloseButton` or `MoreButton` for those specific actions because they already carry the expected shape and semantics.
 
 ## Import
 
@@ -11,36 +10,60 @@ ship with the correct semantics.
 import { IconButton } from "@infinibay/harbor/buttons";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<IconButton
-  icon={<SettingsIcon />}
-  label="Settings"
-  onClick={() => openSettings()}
-/>
+import { IconButton } from "@infinibay/harbor/buttons";
 
-<IconButton variant="ghost" size="sm" icon={<EditIcon />} label="Edit" />
+function SettingsIcon() {
+  return <span aria-hidden>⚙</span>;
+}
+
+export function ToolbarAction() {
+  return (
+    <IconButton
+      icon={<SettingsIcon />}
+      label="Open settings"
+      onClick={() => console.log("open settings")}
+    />
+  );
+}
 ```
 
 ## Props
 
-- **icon** — `ReactNode`. The glyph. Required.
-- **label** — `string`. Used as both `aria-label` and `title` (tooltip).
-  Required.
-- **size** — `"sm" | "md" | "lg"`. Default: `"md"`.
-- **variant** — `"solid" | "ghost" | "glass"`. Default: `"solid"`.
-- **reactive** — `boolean`. Opt out of the cursor-proximity lean + glow.
-  Default: derived (on for `md`/`lg`, off for `sm`).
-- **quiet** — `boolean`. Alias for `reactive={false}` for dense contexts
-  (tables, toolbars). Defaults to `true` when `size="sm"`.
-- Inherits all standard `<button>` HTML attributes (forwarded via ref).
+- **icon** - `ReactNode`. Required visual glyph.
+- **label** - `string`. Required accessible name. Also becomes the native `title`.
+- **size** - `"sm" | "md" | "lg"`. Default `"md"`.
+- **variant** - `"solid" | "ghost" | "glass"`. Default `"solid"`.
+- **reactive** - `boolean`. Enables or disables cursor-proximity lean and glow.
+- **quiet** - `boolean`. Convenience option for dense contexts. Defaults to `true` when `size="sm"`.
+- Inherits standard `<button>` attributes such as `disabled`, `type`, `onClick`, and `aria-*`.
 
-## Notes
+## Variants
 
-- Focus ring uses `focus-visible:ring-fuchsia-400/60`; tap animation is a
-  small spring scale + rotate.
-- `reactive`/`quiet` can be set independently — `quiet` mainly exists for
-  ergonomics in dense layouts where the magnetic effect feels jumpy.
-- The internal radial-gradient glow follows the cursor and uses
-  `mix-blend-soft-light`.
+`solid` gives the button a visible filled surface and border. Use it for standalone icon actions.
+
+`ghost` is quieter and works well in table rows, headers, and toolbars where many actions appear together.
+
+`glass` uses Harbor's glass surface styling and fits floating controls, overlay actions, and media tooling.
+
+## Behavior
+
+Medium and large buttons are reactive by default. They lean slightly toward the cursor, rotate the icon a little, and render an inner radial glow. Small buttons default to quiet behavior to avoid jitter in dense rows. Tap uses a spring scale and rotate animation.
+
+## Accessibility
+
+`label` is required because the visible content is only an icon. Keep the label action-oriented: "Edit project", "Open filters", "Delete row". If the icon itself contains decorative SVG or text, mark that icon content as `aria-hidden`.
+
+## Gotchas
+
+- `quiet` and `reactive={false}` both disable the magnetic feel.
+- Do not rely on `title` as the only explanation for unfamiliar icons. Add adjacent text or a proper tooltip when needed.
+- Always set `type="button"` when placing `IconButton` inside a form unless submit behavior is intended.
+
+## Related
+
+- `Button` for text or icon-plus-text actions.
+- `CloseButton` for dismiss controls.
+- `MoreButton` for overflow menus.

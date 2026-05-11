@@ -1,69 +1,81 @@
 # CodeEditor
 
-A from-scratch monospace editor built on a transparent `<textarea>`
-layered over a syntax-highlighted `<pre>`. Because the textarea is
-real, IME, paste, undo/redo, spellcheck and OS-level selection all
-work without custom logic. Includes auto-indent, bracket matching,
-diagnostics squiggles, virtualised line rendering, and a Find /
-Replace panel (Ctrl+F, Ctrl+H). Use this when you need real code
-editing inline; for a one-line input use `<TextField>`.
+`CodeEditor` is Harbor's lightweight textarea-backed code editor. It layers a
+native textarea over a syntax-highlighted pre, preserving browser editing
+behavior while adding line numbers, diagnostics, bracket matching, find/replace,
+indentation helpers, comments, line movement, duplication, and auto-close pairs.
+
+Use it for config editors, SQL snippets, YAML settings, JSON payloads, markdown,
+small scripts, and product demos. For a full IDE, integrate Monaco or CodeMirror.
 
 ## Import
 
 ```tsx
 import { CodeEditor } from "@infinibay/harbor/inputs";
-import { jsLang, jsonLang } from "@infinibay/harbor/lib/code"; // not yet re-exported
 ```
 
-## Example
+## Basic Usage
+
+Pass a Harbor language definition and an accessible label.
 
 ```tsx
-const [src, setSrc] = useState('{"hello":"world"}');
-
 <CodeEditor
-  ariaLabel="Config JSON"
-  language={jsonLang()}
-  value={src}
-  onChange={setSrc}
-  height={320}
+  ariaLabel="Deployment YAML"
+  language={yamlLanguage}
+  value={yaml}
+  onChange={setYaml}
+  height={360}
+/>
+```
+
+## Diagnostics
+
+Diagnostics appear in the gutter, underline the affected range, and are announced
+through a hidden live region.
+
+```tsx
+<CodeEditor
+  ariaLabel="Policy JSON"
+  language={jsonLanguage}
   diagnostics={[
-    { line: 1, column: 8, severity: "warning", message: "Trailing whitespace" },
+    { severity: "error", line: 4, column: 12, message: "Expected string value" },
   ]}
 />
 ```
 
+## Editing Features
+
+The editor supports Tab indent/dedent, auto-indent on Enter, bracket pair
+insertion, line comments, move/duplicate/delete line shortcuts, select next
+match, and built-in find/replace.
+
 ## Props
 
-Extends `TextareaHTMLAttributes<HTMLTextAreaElement>` (minus `value`,
-`defaultValue`, `onChange`, `readOnly`).
+- `value`, `defaultValue`, `onChange`: controlled or uncontrolled text.
+- `language`: required syntax language.
+- `ariaLabel`: required accessible label.
+- `tabSize`, `insertSpaces`, `autoIndent`, `autoClose`: editing behavior.
+- `readOnly`, `placeholder`, sizing props.
+- `showLineNumbers`: gutter visibility.
+- `diagnostics`: validation messages.
+- Standard textarea props except controlled value props.
 
-- **value** / **defaultValue** — `string`. Controlled or uncontrolled.
-- **onChange** — `(next: string) => void`. Plain string, not an event.
-- **language** — `Language<unknown>`. Returned by `jsLang()`,
-  `jsonLang()`, etc. Required.
-- **ariaLabel** — `string`. Required for screen readers — axe flags
-  unlabelled textareas.
-- **tabSize** — `number`. Default `2`.
-- **insertSpaces** — `boolean`. Default `true`. Tab inserts spaces.
-- **autoIndent** — `boolean`. Default `true`. Newline copies leading
-  indent and adds one level after `{`, `(`, `[`, `:`, `,`.
-- **autoClose** — `boolean`. Default `true`. Auto-pairs brackets and
-  quotes; pressing the closer skips over it.
-- **readOnly** — `boolean`. Disables editing keybindings.
-- **placeholder** — `string`.
-- **height** / **minHeight** / **maxHeight** — `number | string`.
-  Defaults: `minHeight: 180`.
-- **showLineNumbers** — `boolean`. Default `true`.
-- **diagnostics** — `readonly Diagnostic[]`. Each entry renders a
-  squiggle under the affected range and a sr-only list for ARIA.
+## Accessibility
 
-## Notes
+Because it uses a native textarea, IME, paste, undo, selection, and screen reader
+basics remain platform-driven. Always pass `ariaLabel`. Diagnostics are exposed
+as `aria-errormessage` when errors exist.
 
-- Keybindings: Tab / Shift+Tab indent · Ctrl+/ toggle comment · Ctrl+D
-  select next match · Ctrl+L select line · Ctrl+Shift+K delete line ·
-  Alt+Up/Down move line · Alt+Shift+Up/Down duplicate line · Ctrl+F
-  find · Ctrl+H replace.
-- Lines outside the viewport are virtualised with an 8-line overscan,
-  so 10k-line files stay smooth.
-- `latestValueRef` / `latestSelectionRef` exist to compose same-tick
-  keystrokes — don't remove them, you'll re-introduce dropped chars.
+## Gotchas
+
+This is not a virtual IDE. It is best for focused editing surfaces, not huge
+repositories or language-server workflows.
+
+The highlight layer is visual; the textarea remains the source of truth.
+
+## Related
+
+- `YAMLConfigEditor` for YAML-specific config editing.
+- `CodeBlock` for read-only examples.
+- `FindBar` for separate find controls.
+- `Textarea` for plain long-form text.

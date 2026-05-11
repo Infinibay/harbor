@@ -28,8 +28,11 @@ export function ReactionsBar({
     <div className={cn("inline-flex items-center gap-1 flex-wrap", className)}>
       {reactions.map((r) => (
         <button
+          type="button"
           key={r.emoji}
           onClick={() => onToggle(r.emoji)}
+          aria-pressed={r.mine}
+          aria-label={`${r.mine ? "Remove" : "Add"} ${r.emoji} reaction`}
           className={cn(
             "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-sm border transition-colors",
             r.mine
@@ -43,7 +46,9 @@ export function ReactionsBar({
       ))}
       <div className="relative">
         <button
+          type="button"
           onClick={() => setPickerOpen((o) => !o)}
+          aria-expanded={pickerOpen}
           className="w-7 h-7 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/50 hover:text-white/85 text-sm grid place-items-center"
           aria-label="Add reaction"
         >
@@ -58,6 +63,7 @@ export function ReactionsBar({
             <div className="absolute bottom-full left-0 mb-2 rounded-xl bg-surface-2 border border-white/10 p-2 shadow-xl flex gap-1 z-10">
               {quickEmojis.map((em) => (
                 <button
+                  type="button"
                   key={em}
                   onClick={() => {
                     onToggle(em);

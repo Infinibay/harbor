@@ -1,10 +1,11 @@
 # Slider
 
-Single-thumb numeric slider — a primitive for picking one value on a
-continuous scale. Use it directly when you only need the slider
-(e.g. a volume or opacity control); reach for `<SliderField>` when you
-also want a labelled icon tile and an exact-entry NumberField beside
-it. For two-thumb ranges use `<RangeSlider>`.
+`Slider` is a controlled or uncontrolled numeric range control with Harbor styling, animated
+track fill, optional label, value display, drag tooltip, and snap markers.
+
+Use it for tuning values where approximate adjustment is natural: volume, threshold, opacity,
+sampling rate, budget percentage, zoom, quality, and simulation parameters. For exact numeric
+entry, pair it with `NumberField`.
 
 ## Import
 
@@ -12,43 +13,62 @@ it. For two-thumb ranges use `<RangeSlider>`.
 import { Slider } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [volume, setVolume] = useState(50);
+const [threshold, setThreshold] = useState(70);
 
 <Slider
-  label="Volume"
+  label="Alert threshold"
+  value={threshold}
   min={0}
   max={100}
-  step={1}
-  value={volume}
-  onChange={setVolume}
+  step={5}
+  snap={[50, 75, 90]}
+  onChange={setThreshold}
 />
-
-<Slider min={0} max={10} step={1} snap={[0, 2.5, 5, 7.5, 10]} />
 ```
+
+## Value Model
+
+Pass `value` for controlled usage. Omit it and use `defaultValue` for local uncontrolled
+state. Pointer movement is converted to a value between `min` and `max`, rounded to `step`,
+then optionally snapped to the nearest value in `snap` when close enough.
+
+The component calls `onChange` whenever the user drags or clicks the track. If `value` is
+controlled, the parent must update it for the thumb to move.
 
 ## Props
 
-- **value** — `number`. Controlled value.
-- **defaultValue** — `number`. Default `50`. Uncontrolled initial value.
-- **onChange** — `(v: number) => void`.
-- **min** — `number`. Default `0`.
-- **max** — `number`. Default `100`.
-- **step** — `number`. Default `1`. Snap increment.
-- **label** — `string`. Optional caption above the track.
-- **showValue** — `boolean`. Default `true`. Renders the live numeric
-  value to the right of the label.
-- **snap** — `number[]`. Optional list of "magnetic" stops; the thumb
-  jumps to a snap point when within ~3% of it.
-- **className** — extra classes on the wrapper.
+- **value** - controlled value.
+- **defaultValue** - initial uncontrolled value. Default `50`.
+- **min** / **max** - numeric range. Defaults `0` and `100`.
+- **step** - increment. Default `1`.
+- **onChange** - `(value: number) => void`.
+- **label** - optional label above the track.
+- **showValue** - whether to display the current value. Default `true`.
+- **snap** - optional snap points.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Accessibility
 
-- The track click-and-drag works anywhere on the bar (not just the
-  thumb).
-- A floating tooltip with the live value appears above the thumb
-  while dragging.
-- `snap` only nudges values near a stop — it doesn't restrict the
-  slider to discrete values; use `step` for that.
+The current implementation is pointer-first and does not use a native `<input type="range">`.
+Use it for visual tuning surfaces where pointer interaction is expected, and provide a
+`NumberField` or preset controls when keyboard precision is required.
+
+If you use only `Slider`, keep the visible `label` and value display enabled so the meaning
+and current state are clear.
+
+## Gotchas
+
+- `max` must be greater than `min`; the component does not guard invalid ranges.
+- `onChange` can fire frequently while dragging.
+- Snap points use a proximity threshold based on the full range.
+- Displayed values are raw numbers; format units in nearby copy or compose a custom label.
+
+## Related
+
+- `RangeSlider` for two-ended ranges.
+- `NumberField` for exact values.
+- `Knob` for compact rotary controls.
+- `Scrubber` for media timelines.

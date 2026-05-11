@@ -1,50 +1,72 @@
 # SpeedDial
 
-A `<FAB>` that fans out a small set of related actions when toggled. Use
-it when one screen has 2–5 closely related "create" affordances that
-shouldn't each occupy a permanent slot; reach for a plain `<FAB>` if there
-is only one action.
+`SpeedDial` is a floating action button that expands into a small set of related actions. Use it when the screen has one dominant creation affordance with a few variants: new document, upload image, invite teammate, create folder.
+
+If there is only one action, use `FAB`. If there are many actions or they need descriptions, use `Menu` or `CommandPalette`.
 
 ## Import
 
 ```tsx
-import { SpeedDial } from "@infinibay/harbor/buttons";
+import { SpeedDial, type SpeedDialAction } from "@infinibay/harbor/buttons";
 ```
 
-## Example
+## Basic Usage
+
+```tsx
+import { SpeedDial } from "@infinibay/harbor/buttons";
+
+export function CreateDial() {
+  return (
+    <SpeedDial
+      icon={<PlusIcon />}
+      actions={[
+        { id: "doc", label: "New document", icon: <FileIcon />, onSelect: createDocument },
+        { id: "image", label: "Upload image", icon: <ImageIcon />, onSelect: uploadImage },
+        { id: "invite", label: "Invite teammate", icon: <UsersIcon />, onSelect: inviteUser },
+      ]}
+    />
+  );
+}
+```
+
+## Inline Usage
 
 ```tsx
 <SpeedDial
+  position="none"
+  direction="right"
   icon={<PlusIcon />}
-  actions={[
-    { id: "doc", label: "New document", icon: <DocIcon />, onSelect: createDoc },
-    { id: "img", label: "Upload image", icon: <ImgIcon />, onSelect: uploadImg },
-    { id: "team", label: "Invite teammate", icon: <UsersIcon />, onSelect: invite },
-  ]}
+  actions={quickCreateActions}
 />
 ```
 
+Use `position="none"` inside an existing toolbar, panel, or preview. The default positions the dial fixed to the viewport.
+
 ## Props
 
-- **icon** — `ReactNode`. Glyph for the trigger FAB. Rotates 45° when
-  open. Required.
-- **actions** — `SpeedDialAction[]`. Items to fan out. Required.
-  - **id** — `string`. Stable key.
-  - **label** — `string`. Used as `aria-label` and the hover tooltip.
-  - **icon** — `ReactNode`.
-  - **onSelect** — `() => void`. Fires on click; the dial closes
-    automatically afterwards.
-- **direction** — `"up" | "down" | "left" | "right"`. Where the actions
-  fan out from the trigger. Default: `"up"`.
-- **position** — `"bottom-right" | "bottom-left" | "top-right" | "top-left" | "none"`.
-  Viewport anchor for the whole dial; `"none"` keeps it inline.
-  Default: `"bottom-right"`.
-- **className** — extra classes for the wrapper.
+- **icon**: `ReactNode`. Required trigger icon.
+- **actions**: `SpeedDialAction[]`. Required action list.
+- **direction**: `"up" | "down" | "left" | "right"`. Defaults to `"up"`.
+- **position**: `"bottom-right" | "bottom-left" | "top-right" | "top-left" | "none"`. Defaults to `"bottom-right"`.
+- **className**: custom class on the wrapper.
 
-## Notes
+`SpeedDialAction` is `{ id: string; label: string; icon: ReactNode; onSelect?: () => void }`.
 
-- Composes `<FAB>` internally for the trigger and animates each action in
-  with a small staggered framer-motion spring.
-- Selecting an action calls `onSelect` and then closes the dial.
-- The trigger's `aria-label` toggles between `"Open menu"` and
-  `"Close menu"` based on state.
+## Accessibility
+
+The trigger is a `FAB` with a label that changes between `Open menu` and `Close menu`. Each action is a button with `aria-label` from its `label`.
+
+Keep action count low and labels specific. Hover tooltips are helpful visually, but the label must still make sense without hovering.
+
+## Gotchas
+
+- Selecting an action closes the dial after calling `onSelect`.
+- Direction changes both placement and tooltip side.
+- Fixed positions are viewport-based. Use `position="none"` when composing inside scrollable containers.
+- The component does not close on outside click; selecting an action or pressing the trigger toggles it.
+
+## Related
+
+- [`FAB`](./FAB.md) for one primary floating action.
+- [`Menu`](../overlays/Menu.md) for longer action lists.
+- [`CommandPalette`](../overlays/CommandPalette.md) for searchable command sets.

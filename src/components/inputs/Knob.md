@@ -1,10 +1,8 @@
 # Knob
 
-Rotary control driven by vertical drag — pull up to increase, down to
-decrease, hold Shift for fine-grained adjustment, double-click to
-reset. Useful for dense control surfaces (audio mixers, generative-art
-sliders, threshold tuners) where a rotary metaphor reads better than
-a horizontal slider.
+`Knob` is a compact rotary-style numeric control for dense creative and technical interfaces. Use it for gain, mix, pan, opacity, threshold, radius, intensity, speed, and other values where a small vertical drag control is more efficient than a full slider.
+
+It is especially useful in inspectors, audio tools, canvas property panels, color controls, and simulation settings.
 
 ## Import
 
@@ -12,38 +10,63 @@ a horizontal slider.
 import { Knob } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<Knob
-  label="Gain"
-  unit="dB"
-  min={-24}
-  max={24}
-  defaultValue={0}
-  onChange={(v) => console.log(v)}
-/>
+import { useState } from "react";
+import { Knob } from "@infinibay/harbor/inputs";
+
+export function GainControl() {
+  const [gain, setGain] = useState(0);
+
+  return (
+    <Knob
+      label="Gain"
+      unit="dB"
+      value={gain}
+      onChange={setGain}
+      min={-24}
+      max={24}
+      step={1}
+      defaultValue={0}
+    />
+  );
+}
 ```
 
 ## Props
 
-- **value** — `number`. Controlled value.
-- **defaultValue** — `number`. Uncontrolled default. Default `50`.
-- **onChange** — `(v: number) => void`.
-- **min** — `number`. Default `0`.
-- **max** — `number`. Default `100`.
-- **step** — `number`. Default `1`.
-- **size** — `number`. Pixel width/height of the dial. Default `54`.
-- **arc** — `number`. Degrees covered by full range. Default `270`
-  (i.e. -135° to +135°, leaving a gap at the bottom).
-- **label** — `string`. Optional caption rendered below the dial.
-- **unit** — `string`. Suffix shown in the drag tooltip.
-- **className** — extra classes on the wrapper.
+- **value** - `number`. Controlled value.
+- **defaultValue** - `number`. Uncontrolled initial value and double-click reset target. Default `50`.
+- **onChange** - `(value: number) => void`. Called as the user drags or resets.
+- **min** - `number`. Minimum value. Default `0`.
+- **max** - `number`. Maximum value. Default `100`.
+- **step** - `number`. Rounding increment. Default `1`.
+- **size** - `number`. Control size in pixels. Default `54`.
+- **label** - `string`. Optional label under the knob.
+- **unit** - `string`. Optional unit shown in the drag tooltip.
+- **arc** - `number`. Degrees covered by the range. Default `270`.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Behavior
 
-- Drag uses pointer capture, so drags work even when the cursor leaves
-  the dial — typical for knob UIs.
-- Shift slows the speed by 4× for precision.
-- Double-click resets to `defaultValue`.
-- A live numeric tooltip appears above the dial only while dragging.
+Drag upward to increase and downward to decrease. Holding Shift uses finer movement. Double-click resets the value to `defaultValue`. The current value is clamped into `[min, max]`, rounded to `step`, and mapped onto the configured arc.
+
+The SVG track uses a gradient fill for the active arc and a line indicator from the center to the current angle.
+
+## Accessibility
+
+The current implementation is pointer-first and does not expose slider roles, keyboard controls, or ARIA value attributes. For settings that must be keyboard accessible, provide a paired `NumberField`, shortcuts, or an alternate control.
+
+## Gotchas
+
+- `max` must be greater than `min`.
+- `step` should be positive.
+- Controlled usage requires updating `value` from `onChange`.
+- The SVG gradient id is static, so many knobs on the same page share the same gradient definition.
+
+## Related
+
+- `Slider` for a horizontal single-value control.
+- `RangeSlider` for intervals.
+- `NumberField` for precise numeric entry.

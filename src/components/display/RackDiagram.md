@@ -1,72 +1,78 @@
 # RackDiagram
 
-Vertical rack visualization with numbered units (U) and host blocks
-that span 1..N units. Hover highlights the slot, click emits
-`onHostClick`. Pair with `<DatacenterRow>` to lay out an aisle of
-racks side by side. For an aerial host overview use `<ClusterView>`.
+`RackDiagram` renders physical or logical rack units with host blocks, status
+dots, labels, subtitles, and click callbacks. `DatacenterRow` composes multiple
+racks side by side for aisle or region views.
+
+Use it for infrastructure products, hosting dashboards, lab inventory, edge
+device fleets, and internal operations tools where placement matters.
 
 ## Import
 
 ```tsx
-import {
-  RackDiagram,
-  DatacenterRow,
-  type RackHost,
-} from "@infinibay/harbor/display";
+import { RackDiagram, DatacenterRow } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
+
+Rack units are 1-based. By default numbering is bottom-up, matching physical rack
+conventions.
 
 ```tsx
 <RackDiagram
-  name="rack-a1"
-  units={24}
+  name="rack-a7"
+  units={42}
   hosts={[
-    { u: 1,  name: "switch-01",   status: "online", height: 1 },
-    { u: 3,  name: "node-01",     status: "online", height: 2, subtitle: "compute" },
-    { u: 6,  name: "node-02",     status: "degraded", height: 2 },
-    { u: 12, name: "storage-01",  status: "online", height: 4, subtitle: "ceph osd" },
+    { u: 1, height: 2, name: "storage-01", status: "healthy", subtitle: "96 TB" },
+    { u: 8, height: 4, name: "gpu-02", status: "warning", subtitle: "A100" },
   ]}
-  onHostClick={(h) => console.log(h.name)}
+  onHostClick={(host) => openHost(host.name)}
 />
-
-<DatacenterRow racks={[rackA, rackB, rackC]} />
 ```
 
-## RackHost
+## Datacenter Rows
 
-```ts
-{
-  u: number;            // starting rack unit (1-based)
-  height?: number;      // U height. Default 1
-  name: string;
-  status?: Status;      // from StatusDot — online / degraded / offline / ...
-  subtitle?: string;    // shown under name when height >= 2
-  color?: string;       // background CSS override
-}
+Use `DatacenterRow` when the user needs to compare several racks.
+
+```tsx
+<DatacenterRow
+  racks={[
+    { name: "A1", hosts: rackAHosts },
+    { name: "A2", hosts: rackBHosts },
+  ]}
+  onHostClick={(rack, host) => openHost({ rack, host })}
+/>
 ```
 
-## Props (`<RackDiagram>`)
+## Props
 
-- **hosts** — `readonly RackHost[]`. Required.
-- **units** — `number`. Total U in the rack. Default `42`.
-- **name** — `string`. Title rendered above the rack.
-- **unitHeight** — `number`. Pixels per U. Default `14`.
-- **bottomUp** — `boolean`. When `true` (default) U1 is at the
-  bottom; flip to `false` for top-down numbering.
-- **onHostClick** — `(host: RackHost) => void`.
-- **className** — extra classes on the wrapper.
+`RackDiagram` accepts `units`, `hosts`, `name`, `unitHeight`, `onHostClick`,
+`bottomUp`, and `className`.
 
-## Props (`<DatacenterRow>`)
+Host entries include `u`, optional `height`, `name`, optional `status`, optional
+`subtitle`, and optional `color`.
 
-- **racks** — `{ name; units?; hosts }[]`. Required.
-- **unitHeight** — `number`. Forwarded to each rack.
-- **onHostClick** — `(rackName: string, host: RackHost) => void`.
-- **className** — extra classes on the row.
+`DatacenterRow` accepts `racks`, `unitHeight`, `onHostClick`, and `className`.
 
-## Notes
+## Accessibility
 
-- Hosts collide silently — if two hosts overlap U-ranges only the
-  one matched by starting U is rendered.
-- `subtitle` is only shown when the host occupies `>= 2` units;
-  there isn't enough vertical room otherwise.
+The diagram is a spatial visual. Keep selected host details, alerts, and actions
+available in text outside the rack. If host selection is central, provide a
+keyboard-accessible host list or table beside the diagram.
+
+Status dots should be supported by labels or details, not color alone.
+
+## Gotchas
+
+The component maps hosts by starting unit. It does not resolve overlapping host
+blocks for you; validate rack data before rendering.
+
+Short hosts may not have room for subtitles. Put important metadata in a side
+panel or hover/detail view.
+
+## Related
+
+- `StatusDot` for host state.
+- `ClusterView` for service topology.
+- `HostCard` for individual host detail.
+- `DataTable` for inventory lists.

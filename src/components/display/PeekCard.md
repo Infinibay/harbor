@@ -1,9 +1,8 @@
 # PeekCard
 
-Hover-to-expand card. The card grows in place revealing a `more` slot
-while siblings inside `<PeekGrid>` reflow smoothly. Good for quick
-previews of related items, search results, or thumbnails that benefit
-from a peek without a click. For static cards use `<Card>`.
+`PeekCard` is a hover and focus card that expands in place to reveal extra detail. It is useful when a list or grid should stay scannable, but users may want a quick preview before clicking through.
+
+Use it for search results, template galleries, related resources, media thumbnails, marketplace items, and compact documentation cards. For always-visible content, use `Card`.
 
 ## Import
 
@@ -11,38 +10,62 @@ from a peek without a click. For static cards use `<Card>`.
 import { PeekCard, PeekGrid } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<PeekGrid cols={3}>
-  <PeekCard
-    title="Living UI library"
-    description="Hover to peek at the details panel."
-    media={<img src="/picture.png" alt="" />}
-    more={<p>Detail content shown on hover.</p>}
-  />
-</PeekGrid>
+import { PeekCard, PeekGrid } from "@infinibay/harbor/display";
+
+export function TemplateGallery() {
+  return (
+    <PeekGrid cols={3}>
+      <PeekCard
+        title="SaaS dashboard"
+        description="Metrics, filters, charts, and user actions."
+        media={<img src="/picture.png" alt="" />}
+        more={<p>Includes a sidebar, page header, metric cards, and a data table.</p>}
+      />
+      <PeekCard
+        title="Admin console"
+        description="Users, billing, audit trail, and approvals."
+        more={<p>Use this when operators need dense tables and side panels.</p>}
+      />
+    </PeekGrid>
+  );
+}
 ```
 
-## Props (`<PeekCard>`)
+## Props
 
-- **title** — `ReactNode`. Required. Always-visible heading.
-- **description** — `ReactNode`. Subtitle under the title.
-- **media** — `ReactNode`. Optional media slot above the body.
-- **children** — `ReactNode`. Body content rendered above the
-  expandable section.
-- **more** — `ReactNode`. Required. Content revealed on hover/focus.
-- **className** — extra classes on the wrapper.
+- **title** - `ReactNode`. Required visible heading.
+- **description** - `ReactNode`. Optional subtitle under the title.
+- **media** - `ReactNode`. Optional media slot above the body.
+- **children** - `ReactNode`. Always-visible body content above the peek area.
+- **more** - `ReactNode`. Required content revealed while the card is open.
+- **className** - extra classes on the card wrapper.
 
-## Props (`<PeekGrid>`)
+## PeekGrid Props
 
-- **children** — `ReactNode`. Required.
-- **cols** — `2 | 3 | 4`. Default `3`. Grid breakpoint is `md`.
-- **className** — extra classes on the grid.
+- **children** - `ReactNode`. Required list of cards.
+- **cols** - `2 | 3 | 4`. Default `3`. Applies the responsive column count at the `md` breakpoint.
+- **className** - extra classes on the grid.
 
-## Notes
+## Behavior
 
-- Expansion is triggered by both pointer hover and keyboard focus
-  (`onFocusCapture`).
-- `framer-motion` `layout` is used for the in-place growth — wrap a row
-  of cards in `<PeekGrid>` so neighbours reflow together.
+The card opens on pointer hover and on focus capture. It closes when the pointer leaves or focus leaves the card. `framer-motion` layout animation lets the card grow while adjacent cards reflow. `PeekGrid` gives siblings the same layout context, which is why grids feel smoother than isolated cards.
+
+## Accessibility
+
+Focus opens the peek content, so keyboard users can reach hidden detail when the card or an interactive child receives focus. The card itself is a `div`, not a link or button. If the card should navigate, place a visible link or button inside the card instead of relying on the whole surface.
+
+## Gotchas
+
+- Hover-only discovery is easy to miss. Keep essential information visible in `title`, `description`, or `children`.
+- The card uses `cursor-pointer` even though it is not inherently clickable.
+- Large `more` content can cause significant grid reflow.
+- On touch devices, prefer an explicit details action if the peek content matters.
+
+## Related
+
+- `Card` for static framed content.
+- `HoverCard` for floating contextual previews.
+- `MasonryGrid` for uneven content grids.

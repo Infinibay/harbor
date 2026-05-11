@@ -1,9 +1,11 @@
 # Lightbox
 
-Full-screen image viewer with prev/next arrows, a thumbnail strip, an
-optional caption, and keyboard navigation. Pair with `<ImageGallery>`
-or any grid of thumbnails: keep the active index in the parent and
-open the lightbox when a thumbnail is clicked.
+`Lightbox` renders a full-screen image viewer in a portal. It shows one active image, optional
+caption, previous and next controls, close control, and a thumbnail strip.
+
+Use it for galleries, screenshots, media libraries, product-image inspection, design reviews,
+and documentation image previews. It is controlled by the parent so routing, selected index,
+and gallery state stay in your application.
 
 ## Import
 
@@ -11,47 +13,62 @@ open the lightbox when a thumbnail is clicked.
 import { Lightbox } from "@infinibay/harbor/overlays";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 const [open, setOpen] = useState(false);
-const [idx, setIdx] = useState(0);
-
-const images = [
-  { id: "a", src: "/picture.png", alt: "Render A", caption: "Front" },
-  { id: "b", src: "/picture.png", alt: "Render B", caption: "Side" },
-];
+const [index, setIndex] = useState(0);
 
 <Lightbox
-  images={images}
-  index={idx}
-  onIndexChange={setIdx}
+  images={[
+    { id: "front", src: "/shots/front.png", alt: "Front view", caption: "Front" },
+    { id: "side", src: "/shots/side.png", alt: "Side view", caption: "Side" },
+  ]}
+  index={index}
+  onIndexChange={setIndex}
   open={open}
   onClose={() => setOpen(false)}
 />;
 ```
 
+## Control Model
+
+`open` decides whether the overlay is mounted. `index` selects the current image. The
+lightbox never mutates image state internally; it calls `onIndexChange` when the user clicks
+thumbnails, navigation buttons, or presses Arrow Left / Arrow Right.
+
+Clicking the backdrop closes the lightbox. Clicking the image, thumbnails, or navigation
+controls stops propagation so those interactions do not close it.
+
 ## Props
 
-- **images** — `LightboxImage[]`. Required.
-- **index** — `number`. Controlled active image.
-- **onIndexChange** — `(i: number) => void`. Fires from arrows, arrow
-  keys, and thumbnail clicks.
-- **open** — `boolean`. Controlled visibility.
-- **onClose** — `() => void`. Fires from Esc, the close button, and
-  backdrop click.
+- **images** - `{ id, src, alt?, caption? }[]`.
+- **index** - current image index.
+- **onIndexChange** - `(index: number) => void`.
+- **open** - whether the lightbox is visible.
+- **onClose** - close callback.
 
-### `LightboxImage`
+## Accessibility
 
-- **id** — `string`. Stable key for crossfade animation.
-- **src** — `string`.
-- **alt** — `string`. Optional but strongly recommended.
-- **caption** — `ReactNode`. Optional, shown under the image.
+Images use `alt` when provided and an empty alt string otherwise. Provide real alt text for
+content images and captions for context. Navigation buttons have accessible labels:
+"Previous", "Next", and "Close".
 
-## Notes
+The component listens for Escape and arrow keys, but it does not currently trap focus or
+restore focus to the opener. For critical production galleries, manage focus in the parent or
+wrap it in a higher-level dialog pattern.
 
-- Keys: `←` / `→` paginate, `Esc` closes.
-- Portals at `Z.DIALOG` with a heavy backdrop blur.
-- The component is fully controlled — you own `index` and `open`, so
-  deep-linking to a specific image (e.g. from the URL hash) is just a
-  matter of seeding state.
+## Gotchas
+
+- `index` must point to an existing image. If it does not, the overlay renders nothing.
+- Arrow navigation clamps at the first and last image.
+- The lightbox does not lock body scroll. Add page-level scroll locking if background scroll
+  is a problem in your app.
+- Large unoptimized images can still be expensive. Serve responsive image assets when possible.
+
+## Related
+
+- `Carousel` for inline image browsing.
+- `ImageGallery` for grid-style galleries.
+- `Dialog` for focus-managed modal workflows.
+- `CompareSlider` for before/after media.

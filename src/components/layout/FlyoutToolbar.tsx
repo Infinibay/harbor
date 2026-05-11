@@ -129,6 +129,7 @@ export function FlyoutToolbar({
 function ToolbarIconButton({ item }: { item: FlyoutToolbarItem }) {
   return (
     <button
+      type="button"
       onClick={item.onClick}
       disabled={item.disabled}
       title={item.shortcut ? `${item.label ?? item.id} · ${item.shortcut}` : item.label}
@@ -225,6 +226,7 @@ function GroupButton({
   return (
     <>
       <button
+        type="button"
         ref={btnRef}
         onMouseEnter={() => { cancelClose(); setOpen(true); }}
         onMouseLeave={scheduleClose}
@@ -280,6 +282,7 @@ function GroupButton({
               </div>
               {group.items.map((item) => (
                 <button
+                  type="button"
                   key={item.id}
                   onClick={() => { item.onClick?.(); setOpen(false); }}
                   disabled={item.disabled}

@@ -1,9 +1,8 @@
 # FlyoutToolbar
 
-Floating tool rail with collapsing groups. Related tools fold into a
-single group button that displays the active (or first) member; hover
-or right-click opens a perpendicular submenu where any member can be
-chosen. Keeps long tool palettes compact on small viewports.
+`FlyoutToolbar` is the compact tool rail for editors, canvases, diagram builders, image tools, and other dense workspaces. It keeps the primary tools visible while collapsing related actions into flyout groups, so the user can move quickly without turning the canvas into a wall of buttons.
+
+Use it in a `Canvas` `overlay` slot for a floating rail, or set `floating={false}` when the toolbar belongs inside a fixed header or panel.
 
 ## Import
 
@@ -11,59 +10,71 @@ chosen. Keeps long tool palettes compact on small viewports.
 import { FlyoutToolbar } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<FlyoutToolbar
-  position="left"
-  title="Tools"
-  entries={[
-    { kind: "item", item: { id: "select", icon: <CursorIcon />, active: tool === "select", onClick: () => setTool("select") } },
-    { kind: "group", group: {
-      id: "shapes",
-      label: "Shapes",
-      items: [
-        { id: "rect", icon: <RectIcon />, active: tool === "rect", onClick: () => setTool("rect") },
-        { id: "ellipse", icon: <EllipseIcon />, active: tool === "ellipse", onClick: () => setTool("ellipse") },
-      ],
-    } },
-    { kind: "item", item: { id: "draw", icon: <PenIcon />, onClick: () => setTool("draw"), divider: true } },
-  ]}
+<Canvas
+  overlay={
+    <FlyoutToolbar
+      title="Tools"
+      position="left"
+      entries={[
+        {
+          kind: "item",
+          item: {
+            id: "select",
+            label: "Select",
+            icon: <MousePointer2 size={16} />,
+            active: tool === "select",
+            shortcut: "V",
+            onClick: () => setTool("select"),
+          },
+        },
+        {
+          kind: "group",
+          group: {
+            id: "shapes",
+            label: "Shapes",
+            items: [
+              { id: "rect", label: "Rectangle", icon: <Square size={16} />, active: tool === "rect", onClick: () => setTool("rect") },
+              { id: "ellipse", label: "Ellipse", icon: <Circle size={16} />, active: tool === "ellipse", onClick: () => setTool("ellipse") },
+            ],
+          },
+        },
+      ]}
+    />
+  }
 />
 ```
 
+## How It Works
+
+An entry is either a single `item` or a `group`. A group renders as one button using the active item's icon by default. Hover opens the submenu, right-click toggles it, and clicking the group button executes the active item. This gives drawing tools the familiar "last used shape" behavior without extra app code.
+
 ## Props
 
-- **entries** — `FlyoutToolbarEntry[]`. Each is either
-  `{ kind: "item", item }` or `{ kind: "group", group }`.
-- **orientation** — `"vertical" | "horizontal"`. Default `"vertical"`.
-- **floating** — `boolean`. Default `true`. Set `false` to render
-  inline.
-- **position** — `"top" | "bottom" | "left" | "right"`. Default
-  `"left"`. Only used when `floating`.
-- **title** — `ReactNode`. Header label inside the rail.
-- **trailing** — `ReactNode`. Trailing slot — settings gear, "more", etc.
-- **flyoutCloseDelay** — `number`. Delay (ms) before a hovered group
-  closes after the pointer leaves. Default `120`.
-- **className** — extra classes on the rail.
+- `entries`: required list of toolbar entries.
+- `orientation`: `"vertical"` or `"horizontal"`. Default is `"vertical"`.
+- `floating`: when `true`, the toolbar is absolutely positioned.
+- `position`: `"top"`, `"bottom"`, `"left"`, or `"right"`.
+- `title`: optional label rendered inside the rail.
+- `trailing`: optional trailing slot for settings, more tools, or status.
+- `flyoutCloseDelay`: hover-close delay in milliseconds. Default is `120`.
 
-### `FlyoutToolbarItem`
+## Item And Group Shape
 
-`{ id; icon; label?; shortcut?; active?; disabled?; onClick?; divider? }`
+`FlyoutToolbarItem` accepts `id`, `icon`, `label`, `shortcut`, `active`, `disabled`, `onClick`, and `divider`.
 
-### `FlyoutToolbarGroup`
+`FlyoutToolbarGroup` accepts `id`, `label`, `items`, `divider`, `icon`, and `title`. Provide `group.icon` when the group should keep a stable icon instead of reflecting the active item.
 
-`{ id; label; items: FlyoutToolbarItem[]; divider?; icon?; title? }` —
-the group button shows the active item's icon by default, or the
-first item's, or `group.icon` if provided.
+## Accessibility
 
-## Notes
+Each tool button receives an `aria-label` from `label` or `id`. Active tools use `aria-pressed`, disabled items use native `disabled`, and flyout groups expose `aria-haspopup="menu"` plus `aria-expanded`.
 
-- The flyout submenu is portalled with `position: fixed`, so it
-  escapes `overflow: hidden` ancestors (good for use inside a
-  `<Canvas>` overlay or a constrained sidebar).
-- Hover opens the flyout; right-click toggles it; clicking the group
-  button itself fires the active item.
-- A small triangle in the bottom-right corner marks group buttons.
-- Pair with `<Canvas>` by dropping it in the `overlay` slot for a
-  Figma-style left rail.
+## Gotchas
+
+The flyout is portalled with fixed positioning, so it escapes clipped parents. That is good inside canvases, but avoid placing it inside transformed containers if your app relies on custom coordinate math around the submenu.
+
+## Related
+
+Use with `Canvas`, `CanvasToolbar`, `CanvasZoomControls`, `CanvasStatusBar`, `Menu`, and `CommandPalette`.

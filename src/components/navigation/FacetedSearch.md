@@ -1,69 +1,86 @@
 # FacetedSearch
 
-Composite search experience: a query input + active-filter chips +
-a saved-views dropdown + an embedded `<FilterPanel>`. Saved views
-persist to `localStorage` so users can restore named filter combos.
-Reach for `<FilterPanel>` directly when you only need facets, no
-free-text search or saved views.
+`FacetedSearch` combines a search query, active-filter chips, saved views, and a `FilterPanel`. It is designed for operational lists where users repeatedly return to the same filtered states: incidents, hosts, users, invoices, logs, deployments, and support queues.
+
+The query and filters are controlled by the parent. Saved views are stored locally in `localStorage`.
 
 ## Import
 
 ```tsx
-import { FacetedSearch } from "@infinibay/harbor/navigation";
+import { FacetedSearch, type SavedView } from "@infinibay/harbor/navigation";
+import type { FilterGroup } from "@infinibay/harbor/navigation";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [value, setValue] = useState<Record<string, string[]>>({});
-const [query, setQuery] = useState("");
+import { useMemo, useState } from "react";
+import { FacetedSearch } from "@infinibay/harbor/navigation";
 
-<FacetedSearch
-  query={query}
-  onQueryChange={setQuery}
-  value={value}
-  onChange={setValue}
-  groups={[
-    {
-      id: "type",
-      label: "Type",
-      options: [
-        { value: "issue", label: "Issue", count: 102 },
-        { value: "pr", label: "Pull request", count: 48 },
-      ],
-    },
-    {
-      id: "label",
-      label: "Label",
-      options: [
-        { value: "bug", label: "bug", count: 22 },
-        { value: "feature", label: "feature", count: 18 },
-      ],
-    },
-  ]}
-/>
+export function DeploymentFilters({ deployments }) {
+  const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState<Record<string, string[]>>({});
+
+  const visible = useMemo(
+    () => filterDeployments(deployments, query, filters),
+    [deployments, query, filters],
+  );
+
+  return (
+    <>
+      <FacetedSearch
+        title="Deployment filters"
+        query={query}
+        onQueryChange={setQuery}
+        value={filters}
+        onChange={setFilters}
+        groups={[
+          {
+            id: "status",
+            label: "Status",
+            options: [
+              { value: "healthy", label: "Healthy" },
+              { value: "failed", label: "Failed" },
+            ],
+          },
+        ]}
+      />
+      <DeploymentTable rows={visible} />
+    </>
+  );
+}
 ```
+
+## Saved Views
+
+Clicking `Views` opens a small dropdown. `Save current view` prompts for a name and stores `{ value, query }` in `localStorage` under `storageKey`.
+
+Applying a view calls `onChange(view.value)` and restores `query` through `onQueryChange` when provided.
 
 ## Props
 
-- **groups** — `readonly FilterGroup[]`. Required. Same schema as
-  `<FilterPanel>` (see that doc).
-- **value** — `Record<string, string[]>`. Required. Selected option
-  values per group id.
-- **onChange** — `(v: Record<string, string[]>) => void`. Required.
-- **query** — `string`. Optional controlled query; falls back to
-  internal state if omitted.
-- **onQueryChange** — `(q: string) => void`.
-- **storageKey** — `string`. Default `"harbor:faceted-search"`.
-  `localStorage` key for saved views.
-- **title** — `ReactNode`. Title for the embedded `<FilterPanel>`.
-  Default `"Filters"`.
-- **className** — extra classes on the wrapper.
+- **groups**: `readonly FilterGroup[]`. Same schema as `FilterPanel`.
+- **value**: `Record<string, string[]>`. Controlled selected facets.
+- **onChange**: `(v: Record<string, string[]>) => void`.
+- **query**: `string`. Optional controlled query.
+- **onQueryChange**: `(q: string) => void`. Optional controlled query callback.
+- **storageKey**: `string`. Saved-view localStorage key. Defaults to `"harbor:faceted-search"`.
+- **title**: `ReactNode`. Passed to `FilterPanel`.
+- **className**: custom class on the wrapper.
 
-## Notes
+## Accessibility
 
-- "Save current view" prompts via `window.prompt` for a name and
-  stores the current `value` + `query` under `storageKey`.
-- "Clear all" wipes both `value` (to `{}`) and `query` (to `""`).
-- Active filters render as removable fuchsia chips above the
-  embedded panel.
+The search input is labelled, saved-view controls are buttons, and active chips have remove buttons with labels. Keep result counts near the filtered list so users understand the effect of filter changes.
+
+## Gotchas
+
+- Saved views are browser-local. They are not shared across accounts or devices.
+- `window.prompt` is used for naming saved views. Replace the component or wrap the flow if your product needs a custom dialog.
+- The component clears query and filters together through `Clear all`.
+- Filtering the actual data remains your responsibility.
+
+## Related
+
+- [`FilterPanel`](./FilterPanel.md) for the underlying facet controls.
+- [`DataTable`](../data/DataTable.md) for filtered result sets.
+- [`SearchField`](../inputs/SearchField.md) for simpler search-only surfaces.

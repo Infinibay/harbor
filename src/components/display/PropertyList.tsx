@@ -107,7 +107,9 @@ function PropertyValue({ item }: { item: PropertyItem }) {
       )}
       {item.copyable && typeof item.value === "string" ? (
         <button
+          type="button"
           onClick={copy}
+          aria-label={`Copy ${String(item.label)}`}
           className="text-[10px] text-white/40 hover:text-white shrink-0"
         >
           {copied ? "✓" : "copy"}

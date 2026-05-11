@@ -1,21 +1,25 @@
 # SettingsPanel
 
-Two-pane-style left rail for settings/preferences screens. Groups items
-under labeled sections, with each item showing icon + label + optional
-description. Pair with a content pane on the right that reacts to the
-selected `value`. Use this when entries need extra context per row;
-otherwise reach for `<Sidebar>`.
+`SettingsPanel` renders a grouped left navigation panel for preferences and account screens. Use it beside a detail pane where the active item controls which settings form appears on the right.
+
+It is a navigation component, not a complete settings page. Your app owns the active section content.
 
 ## Import
 
 ```tsx
-import { SettingsPanel } from "@infinibay/harbor/navigation";
+import {
+  SettingsPanel,
+  type SettingsPanelSection,
+} from "@infinibay/harbor/navigation";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const sections = [
+import { useState } from "react";
+import { SettingsPanel, type SettingsPanelSection } from "@infinibay/harbor/navigation";
+
+const sections: SettingsPanelSection[] = [
   {
     label: "General",
     items: [
@@ -23,30 +27,44 @@ const sections = [
       { id: "appearance", label: "Appearance", description: "Theme and density" },
     ],
   },
-  {
-    label: "Workspace",
-    items: [
-      { id: "members", label: "Members", description: "Invitations and roles" },
-      { id: "billing", label: "Billing", description: "Plan and invoices" },
-    ],
-  },
 ];
 
-<SettingsPanel sections={sections} value={page} onChange={setPage} />
+export function SettingsLayout() {
+  const [active, setActive] = useState("profile");
+
+  return <SettingsPanel sections={sections} value={active} onChange={setActive} />;
+}
 ```
 
 ## Props
 
-- **sections** — `SettingsPanelSection[]`. Required. Each section is
-  `{ id?, label, items }`. Items are
-  `{ id, label, icon?, description? }`.
-- **value** — `string`. Controlled selected item id.
-- **onChange** — `(id: string) => void`.
-- **header** — `ReactNode`. Optional header rendered above the list.
-- **className** — extra classes on the `<aside>`.
+- **sections** - `SettingsPanelSection[]`. Required grouped item data.
+- **value** - `string`. Controlled active item id.
+- **onChange** - `(id: string) => void`. Called when an item is clicked.
+- **header** - `ReactNode`. Optional header above the grouped list.
+- **className** - extra classes on the root aside.
 
-## Notes
+## Data Model
 
-- Fixed width (`w-64`) and full height — place inside a flex parent.
-- Section labels use the same uppercase tracking style as `<Sidebar>`.
-- Long descriptions truncate to one line; keep them short.
+Sections have `{ id?, label, items }`. Items have `{ id, label, icon?, description? }`. Section `id` is optional because labels are used as fallback keys. Item ids should be stable because they drive selection and content switching.
+
+## Behavior
+
+If `value` is not provided, the first item in the first section becomes active internally. Clicking an item updates internal state and calls `onChange`. Active items get a tinted background; descriptions are truncated to keep the panel compact.
+
+## Accessibility
+
+Items are native buttons. The panel does not set nav roles, `aria-current`, or tab semantics. For settings pages with route-backed navigation, consider wrapping the pattern in router links or adding current-page semantics.
+
+## Gotchas
+
+- This component does not render the right-side settings content.
+- Duplicate item ids will break selection clarity.
+- Long labels and descriptions truncate.
+- Uncontrolled state does not sync with route changes.
+
+## Related
+
+- `Sidebar` for general app navigation.
+- `RailSidebar` for icon-only navigation.
+- `SplitPane` for composing settings nav plus content.

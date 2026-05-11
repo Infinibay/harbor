@@ -92,6 +92,7 @@ export function MenuBar({ items, className }: MenuBarProps) {
           const isActive = active === it.id;
           return (
             <button
+              type="button"
               key={it.id}
               ref={(el) => {
                 itemRefs.current[it.id] = el;
@@ -172,6 +173,7 @@ function MenuBarRow({
   return (
     <>
       <button
+        type="button"
         ref={rowRef}
         disabled={entry.disabled}
         onMouseEnter={() => entry.submenu && setOpen(true)}

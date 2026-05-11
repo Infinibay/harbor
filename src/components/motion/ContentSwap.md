@@ -1,8 +1,12 @@
 # ContentSwap
 
-Generic transition wrapper for content that gets replaced when a
-discriminator changes — route pathnames, tab ids, drawer views,
-wizard steps. Framework-agnostic: the caller decides what `id` means.
+`ContentSwap` animates one piece of content replacing another. It is useful for
+tabs, route bodies, wizard steps, drawers, inspectors, empty-state changes, and
+any UI where a discriminator changes and the user should understand that the
+content changed intentionally.
+
+Use it for state transitions. Do not use it for decorative motion that distracts
+from reading or data entry.
 
 ## Import
 
@@ -10,57 +14,68 @@ wizard steps. Framework-agnostic: the caller decides what `id` means.
 import { ContentSwap } from "@infinibay/harbor/motion";
 ```
 
-## Example
+## Basic Usage
+
+Pass a stable `id` for the currently rendered content. When the id changes,
+Harbor animates the old content out and the new content in.
 
 ```tsx
-<ContentSwap id={pathname} variant="fade-up" duration={160}>
-  {pageContent}
+<ContentSwap id={activeTab} variant="fade-up">
+  {activeTab === "logs" ? <LogTailer entries={logs} /> : <SettingsPanel />}
 </ContentSwap>
+```
 
-<ContentSwap id={tabId} variant="slide-left" mode="crossfade" className="min-h-[320px]">
-  {tabPanel}
+## Modes
+
+`mode="wait"` is the default: old content exits before new content enters.
+`mode="sync"` mounts both briefly in normal flow. `mode="crossfade"` stacks both
+frames absolutely inside a relative wrapper.
+
+```tsx
+<ContentSwap id={route.pathname} mode="crossfade" className="min-h-[24rem]">
+  <RouteBody />
 </ContentSwap>
 ```
 
 ## Variants
 
-`fade` (default), `fade-up`, `fade-down`, `scale`, `blur`,
-`slide-left`, `slide-right`, `none`.
+Use `fade`, `fade-up`, `fade-down`, `scale`, `blur`, `slide-left`,
+`slide-right`, or `none`.
 
-## Modes
-
-- `wait` (default) — old content fully exits before new content
-  mounts. Clean rhythm; leaves a brief blank frame during the gap
-  (good while a code-split chunk loads).
-- `sync` — new content mounts immediately while old is still exiting.
-  Snappier; old and new can visibly stack.
-- `crossfade` — both render simultaneously via `position: absolute`
-  inside the wrapper. No blank-frame flash; **requires the wrapper to
-  have a defined size** (pass `className`/`style` with `min-height`
-  or flex constraints).
+```tsx
+<ContentSwap id={step.id} variant="slide-left" duration={200}>
+  <StepContent step={step} />
+</ContentSwap>
+```
 
 ## Props
 
-- **id** — `string | number`. Required. Discriminator — when it
-  changes, the transition fires.
-- **variant** — `ContentSwapVariant`. Default `"fade"`.
-- **mode** — `"wait" | "sync" | "crossfade"`. Default `"wait"`.
-- **duration** — `number`. Single-side duration in ms. Default `160`.
-- **respectReducedMotion** — `boolean`. Default `true`. Collapses
-  to an instant swap when `prefers-reduced-motion: reduce`.
-- **customVariants** — `Variants` (framer-motion). Escape hatch —
-  overrides `variant`.
-- **animateInitial** — `boolean`. Default `true`. Run the enter
-  animation on the first mount; set `false` for SSR-driven first paints.
-- **className** / **style** — applied to the motion wrapper.
-- **children** — `ReactNode`. The current content.
+- `id`: required discriminator.
+- `variant`: named animation preset.
+- `mode`: `wait`, `sync`, or `crossfade`.
+- `duration`: single-side duration in milliseconds.
+- `respectReducedMotion`: disables motion for reduced-motion users by default.
+- `customVariants`: Framer Motion variants override.
+- `animateInitial`: animate first mount.
+- `className`, `style`, `children`: wrapper content.
 
-## Notes
+## Accessibility
 
-- `wait` is the right default for route swaps where overlap looks
-  jarring; `crossfade` is the right pick for tabs / drawer views
-  where the wrapper has a known size.
-- Reduced-motion users get an instant swap (zero duration, no
-  transform) — no need to special-case CSS yourself.
-- Framer-motion's `AnimatePresence` is what drives the lifecycle, so
-  you can stack a `<ContentSwap>` inside another for nested transitions.
+Reduced motion is respected by default. Keep focus management in the parent
+workflow; `ContentSwap` animates content but does not decide where focus should
+move after a tab, route, or wizard step changes.
+
+## Gotchas
+
+`crossfade` absolutely positions frames. The wrapper needs a stable height or the
+content can collapse.
+
+Changing `id` too often can make a page feel unstable. Use stable route, tab, or
+step ids rather than timestamps.
+
+## Related
+
+- `Tabs` uses content transitions for active panels.
+- `Wizard` uses it for step bodies.
+- `MorphBar` for animated navigation bars.
+- `ReflowList` for animated list layout changes.

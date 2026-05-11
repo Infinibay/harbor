@@ -1,6 +1,12 @@
 # Orbs
 
-Pulsing glow orbs — CSS + Framer Motion. Each orb is a single blurred `motion.div` looping a small position + scale tween. Default `mix-blend-mode: screen` makes overlapping orbs brighten without muddying.
+`Orbs` renders a decorative layer of glowing circles that drift, pulse, and blend together.
+It is cheaper than canvas effects because each orb is a single animated `motion.div` with a
+blurred radial gradient.
+
+Use it for ambient backgrounds behind hero sections, login panels, empty states, and visual
+feature callouts. It works best when the foreground content is simple and the orbs can remain
+soft, slow, and low contrast.
 
 ## Import
 
@@ -8,31 +14,57 @@ Pulsing glow orbs — CSS + Framer Motion. Each orb is a single blurred `motion.
 import { Orbs } from "@infinibay/harbor/backgrounds";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<div className="relative h-96 bg-black">
-  <Orbs count={9} sizeRange={[60, 220]} glow={50} intensity={0.7} />
+<div className="relative h-96 overflow-hidden rounded-2xl">
+  <Orbs count={9} glow={60} blend="screen" intensity={0.45} />
+  <div className="relative z-10 p-8">Launch preview</div>
 </div>
 ```
 
+## Animation Model
+
+Each orb gets deterministic size, position, movement, duration, and opacity from its index.
+The layer is absolute and pointer-events none. By default, overlapping orbs use
+`mix-blend-mode: screen`, so they brighten instead of muddying.
+
+When `paused` is true or reduced motion is preferred and `respectReducedMotion` is enabled,
+orbs render as a still frame.
+
 ## Props
 
-- **count** — `number`. Number of orbs. Default: `7`.
-- **sizeRange** — `[number, number]`. Min/max radius in px. Default: `[40, 180]`.
-- **glow** — `number`. Extra `blur(...)` in px on each orb. Default: `40`.
-- **blend** — `"screen" | "plus-lighter" | "lighten" | "overlay" | "normal"`. Layer blend mode. Default: `"screen"`.
-- **speed** — `number`. Inverse multiplier on per-orb tween duration. Default: `1`.
-- **intensity** — `number`. 0..1, drives orb opacity. Default: `0.5`.
-- **palette** — `readonly string[]`. Default: Harbor accents.
-- **paused** — `boolean`. Freeze in current position.
-- **respectReducedMotion** — `boolean`. Default: `true`.
-- **className**, **style** — applied to the wrapper.
+- **count** - number of orbs. Default `7`.
+- **sizeRange** - `[min, max]` radius in px. Default `[40, 180]`.
+- **glow** - blur amount in px. Default `40`.
+- **blend** - CSS mix-blend-mode. Default `"screen"`.
+- **speed** - animation speed multiplier.
+- **intensity** - opacity multiplier.
+- **palette** - colors for the orbs.
+- **paused** - renders a still frame when true.
+- **respectReducedMotion** - checks `prefers-reduced-motion`. Default `true`.
+- **className** / **style** - wrapper props.
 
-## Notes
+## Accessibility
 
-- Renders `position: absolute inset-0`. Parent must be positioned.
-- `screen` blend looks great on dark backgrounds and washed-out on light ones — switch to `overlay` or `multiply` for light themes.
-- Layout is deterministic per `(count, sizeRange, palette)` (sin-hash seeded).
-- Cheaper than `<MeshGradient>` because there's no per-frame JS — Framer drives CSS transforms on the compositor.
-- Orbs don't merge; for metaballs use `<Bubbles>`.
+`Orbs` is `aria-hidden` and non-interactive. Treat it as decoration only. Keep foreground
+text contrast high enough against the brightest possible overlap, especially when using
+`screen` or `plus-lighter`.
+
+Respect reduced motion for public pages. If motion is purely decorative, users who request
+reduced motion should not have to see it.
+
+## Gotchas
+
+- The wrapper is `absolute inset-0`; the parent needs `relative` and usually `overflow-hidden`.
+- High `count`, large `sizeRange`, and high `glow` can become visually noisy.
+- Blend modes depend on the background underneath. Test on the real surface, not only on black.
+- `pauseWhenHidden` and `pauseWhenOutOfView` are part of common background props but this
+  component currently only checks `paused` and reduced motion directly.
+
+## Related
+
+- `MeshGradient` for soft bouncing blobs.
+- `PlasmaField` for continuous canvas color fields.
+- `Aurora` for sweeping banded backgrounds.
+- `AnimatedBackground` for switching between background styles.

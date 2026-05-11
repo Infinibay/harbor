@@ -81,11 +81,9 @@ describe("SplitButton", () => {
     expect(btn?.className).toContain("bg-white/10");
   });
 
-  it("a11y: skips axe check (caret button has no text — known component issue)", () => {
-    // The SplitButton caret is a button containing only a chevron SVG with no
-    // accessible name, which axe flags as "button-name". This is an existing
-    // a11y gap in the component. We verify it renders instead.
+  it("labels the caret button for assistive technology", () => {
     renderWithHarbor(<SplitButton primary={primary} options={options} />);
     expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open additional actions" })).toBeInTheDocument();
   });
 });

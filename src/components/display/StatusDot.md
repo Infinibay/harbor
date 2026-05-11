@@ -1,9 +1,8 @@
 # StatusDot
 
-A colored dot (with optional pulsing ring + label) indicating the
-state of a service, VM, or job. Shared primitive used by `<HostCard>`,
-status pages, and list rows. Pick `<Badge pulse>` instead when you
-want the label inside a pill rather than next to a glow.
+`StatusDot` displays a compact service, host, job, or connection state with a colored dot, optional pulse ring, and optional label. It is the smallest status primitive in Harbor and works well in dense rows, sidebars, status bars, resource lists, and monitoring cards.
+
+Use it when the status should be visible without taking the space of a full badge. Use `Badge` when the label itself should sit inside a pill.
 
 ## Import
 
@@ -11,30 +10,52 @@ want the label inside a pill rather than next to a glow.
 import { StatusDot } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<StatusDot status="online" />
-<StatusDot status="degraded" labelOverride="Latency high" />
-<StatusDot status="maintenance" pulse={false} size={12} />
+import { StatusDot } from "@infinibay/harbor/display";
+
+export function ServiceStatus() {
+  return (
+    <div className="flex items-center gap-4">
+      <StatusDot status="online" />
+      <StatusDot status="degraded" labelOverride="Latency high" />
+      <StatusDot status="maintenance" pulse={false} size={12} />
+    </div>
+  );
+}
 ```
 
 ## Props
 
-- **status** — `"online" | "degraded" | "offline" | "provisioning" |
-  "maintenance" | "unknown"`. Required.
-- **pulse** — `boolean`. Toggle the ping ring. Defaults to `true`
-  for `online`, `degraded`, `provisioning`; `false` otherwise.
-- **size** — `number`. Dot size in pixels. Default `10`.
-- **label** — `ReactNode`. Custom label node next to the dot. Pass
-  `null` to suppress the default status label entirely.
-- **labelOverride** — `string`. Replace the auto-derived label
-  ("Online", "Degraded", …) without changing color.
-- **className** — extra classes on the wrapper.
+- **status** - `"online" | "degraded" | "offline" | "provisioning" | "maintenance" | "unknown"`. Required.
+- **pulse** - `boolean`. Overrides the default pulse behavior.
+- **size** - `number`. Dot size in pixels. Default `10`.
+- **label** - `ReactNode`. Custom label node. Pass `null` to suppress the default label.
+- **labelOverride** - `string`. Replaces the status-derived label text.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Status Model
 
-- Each status carries its own glow color via Tailwind shadow utility
-  classes — colors are baked in, not theme-driven.
-- The ping uses Tailwind's `animate-ping`; if you render many at
-  once, consider disabling pulse on offline rows to reduce repaint.
+Each status maps to a label, dot color, text color, glow, and default pulse behavior. `online`, `degraded`, and `provisioning` pulse by default. `offline`, `maintenance`, and `unknown` stay static by default.
+
+`labelOverride` keeps the same visual status mapping while changing the text. `label` replaces the rendered label node entirely.
+
+## Accessibility
+
+Color should not be the only source of meaning. The default label helps, so keep it visible unless nearby text already explains the status. If you pass `label={null}`, make sure the row has another accessible status label.
+
+The pulsing ring is decorative and marked `aria-hidden`.
+
+## Gotchas
+
+- The status color palette is built into the component.
+- Rendering many pulsing dots can create unnecessary motion. Disable `pulse` in dense tables.
+- `labelOverride=""` renders no useful text. Use `label={null}` intentionally when you want no label.
+- `size` affects the dot only, not label typography.
+
+## Related
+
+- `HealthPing` for endpoint health checks.
+- `Badge` for pill-style labels.
+- `StatusBar` for application-level status regions.

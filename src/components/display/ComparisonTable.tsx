@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
 export interface ComparisonRow {
@@ -46,8 +46,8 @@ export function ComparisonTable({ plans, groups, className }: ComparisonTablePro
         </thead>
         <tbody>
           {groups.map((g) => (
-            <>
-              <tr key={`g-${g.label}`}>
+            <Fragment key={g.label}>
+              <tr>
                 <td
                   colSpan={plans.length + 1}
                   className="pt-5 pb-1 text-xs uppercase tracking-wider text-fuchsia-300/70"
@@ -81,7 +81,7 @@ export function ComparisonTable({ plans, groups, className }: ComparisonTablePro
                   ))}
                 </tr>
               ))}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>

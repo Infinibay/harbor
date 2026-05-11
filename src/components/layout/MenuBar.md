@@ -1,59 +1,88 @@
 # MenuBar
 
-Application-style horizontal menu (File / Edit / View …) with portalled
-dropdowns, hover handoff, and arrow-key navigation. Use for desktop-app
-shells or canvas tools. For inline button groups use `<Toolbar>`; for
-right-click menus use the context-menu primitives.
+`MenuBar` renders desktop-style application menus such as File, Edit, View, and Help. It supports portalled dropdowns, submenu hover behavior, checked rows, disabled rows, danger rows, shortcuts, icons, and left/right top-level navigation.
+
+Use it in Tauri apps, IDE-like workbenches, canvas tools, and other keyboard-first product surfaces. For inline commands, use `Toolbar`; for right-click menus, use context-menu primitives.
 
 ## Import
 
 ```tsx
-import { MenuBar } from "@infinibay/harbor/layout";
+import { MenuBar, type MenuBarEntry, type MenuBarItemDef } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<MenuBar
-  items={[
-    {
-      id: "file",
-      label: "File",
-      children: [
-        { id: "new",  label: "New",  shortcut: "⌘N", onSelect: create },
-        { id: "open", label: "Open", shortcut: "⌘O", onSelect: open },
-        { id: "sep1", separator: true },
-        { id: "exit", label: "Quit", danger: true, onSelect: quit },
-      ],
-    },
-    { id: "edit", label: "Edit", children: [/* ... */] },
-  ]}
-/>
+import { MenuBar } from "@infinibay/harbor/layout";
+
+export function AppMenu() {
+  return (
+    <MenuBar
+      items={[
+        {
+          id: "file",
+          label: "File",
+          children: [
+            { id: "new", label: "New", shortcut: "Ctrl+N", onSelect: createFile },
+            { id: "open", label: "Open", shortcut: "Ctrl+O", onSelect: openFile },
+            { id: "sep", separator: true },
+            { id: "quit", label: "Quit", danger: true, onSelect: quitApp },
+          ],
+        },
+        {
+          id: "view",
+          label: "View",
+          children: [
+            { id: "sidebar", label: "Sidebar", checked: true, onSelect: toggleSidebar },
+          ],
+        },
+      ]}
+    />
+  );
+}
 ```
 
-## Props (`<MenuBar>`)
+## Entry Model
 
-- **items** — `MenuBarItemDef[]`. Required. Top-level entries:
-  - **id** — `string`. Unique key.
-  - **label** — `string`.
-  - **children** — `MenuBarEntry[]`. Dropdown rows.
-- **className** — extra classes on the bar.
+```ts
+type MenuBarEntry = {
+  id: string;
+  label?: ReactNode;
+  shortcut?: string;
+  icon?: ReactNode;
+  danger?: boolean;
+  disabled?: boolean;
+  checked?: boolean;
+  separator?: boolean;
+  submenu?: MenuBarEntry[];
+  onSelect?: () => void;
+};
+```
 
-## `MenuBarEntry` shape
+Separators render a divider and ignore the other display fields.
 
-- **id** — `string`. Required.
-- **label** — `ReactNode`.
-- **shortcut** — `string`. Right-aligned hint (e.g. `"⌘K"`).
-- **icon** — `ReactNode`. Leading slot.
-- **danger** — `boolean`. Tints the row rose.
-- **disabled** — `boolean`.
-- **checked** — `boolean`. Renders a leading `✓`.
-- **separator** — `boolean`. Renders a divider; other fields ignored.
-- **submenu** — `MenuBarEntry[]`. Nested rows; opens on hover.
-- **onSelect** — `() => void`. Fired on click for non-submenu rows.
+## Props
 
-## Notes
+- **items**: `MenuBarItemDef[]`. Required top-level menus.
+- **className**: custom class on the horizontal bar.
 
-- Dropdowns are portalled and use `Z.POPOVER`; submenus use `Z.SUBMENU`.
-- Once one menu is open, hovering siblings switches to them.
-- Esc closes; Arrow Left/Right cycles top-level menus.
+`MenuBarItemDef` is `{ id: string; label: string; children?: MenuBarEntry[] }`.
+
+## Accessibility
+
+Top-level entries and menu rows are buttons. `Escape` closes the open menu, and left/right arrows switch between top-level menus once a menu is open.
+
+For full desktop semantics, pair menu actions with real keyboard shortcuts in your app logic. The `shortcut` string is visual documentation; it does not register a hotkey.
+
+## Gotchas
+
+- Dropdowns are portalled at `Z.POPOVER`; submenus use `Z.SUBMENU`.
+- Submenus open on hover. Keep submenu depth shallow and avoid hiding critical commands inside nested paths.
+- Menu rows close the menu after `onSelect`. Submenu rows do not call `onSelect` directly.
+- The component does not manage focus trapping inside the dropdown.
+
+## Related
+
+- [`Toolbar`](./Toolbar.md) for visible command rows.
+- [`CanvasShortcuts`](./CanvasShortcuts.md) for registering command hotkeys.
+- [`CommandPalette`](../overlays/CommandPalette.md) for searchable commands.

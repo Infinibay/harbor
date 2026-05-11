@@ -1,90 +1,79 @@
 # Canvas
 
-GPU-accelerated infinite canvas with pan, zoom and a live grid. The
-viewport fills its container, and a world layer inside is transformed
-via `translate3d + scale` so pan/zoom stay on the compositor thread —
-hundreds of children can ride on top without re-rendering each frame.
-Pair with `<CanvasItem>` for absolutely-positioned children, and with
-the rest of the Canvas family (`CanvasToolbar`, `CanvasMinimap`,
-`CanvasZoomControls`, `CanvasStatusBar`, `CanvasRuler`,
-`CanvasShortcuts`, `CanvasVirtualized`, `CanvasMotion`) which all read
-the shared context exposed by `useCanvas()`.
+`Canvas` is Harbor's infinite workspace foundation. It gives you a GPU-accelerated world layer with pan, zoom, grid rendering, overlays, right-click menus, draggable items, snapping, and an imperative API. Use it for diagram editors, workflow builders, whiteboards, topology maps, visual query tools, and design surfaces.
+
+The viewport owns screen-space behavior. `CanvasItem` places content in world-space coordinates. Overlays stay fixed to the viewport, which is where toolbars, minimaps, zoom controls, and status bars belong.
 
 ## Import
 
 ```tsx
-import { Canvas, CanvasItem, useCanvas } from "@infinibay/harbor/layout";
-import type { CanvasHandle } from "@infinibay/harbor/layout";
+import {
+  Canvas,
+  CanvasItem,
+  CanvasSnapGuides,
+  type CanvasHandle,
+} from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const canvas = useRef<CanvasHandle>(null);
+const canvasRef = useRef<CanvasHandle>(null);
 
 <Canvas
-  ref={canvas}
+  ref={canvasRef}
   grid="dots"
   gridSize={32}
   pan="both"
-  overlay={<CanvasZoomControls />}
+  snap
+  overlay={
+    <>
+      <CanvasSnapGuides />
+      <CanvasZoomControls />
+    </>
+  }
 >
-  <CanvasItem x={120} y={200} draggable>
-    <div className="px-3 py-2 rounded-lg bg-fuchsia-500/20">Node A</div>
+  <CanvasItem id="api" x={120} y={160} draggable onDragEnd={savePosition}>
+    <Card>API Gateway</Card>
   </CanvasItem>
-  <CanvasItem x={420} y={320} draggable>
-    <div className="px-3 py-2 rounded-lg bg-sky-500/20">Node B</div>
+  <CanvasItem id="worker" x={420} y={260} draggable>
+    <Card>Worker Pool</Card>
   </CanvasItem>
 </Canvas>
 ```
 
-## Props (`<Canvas>`)
+## Mental Model
 
-- **minZoom** / **maxZoom** — `number`. Default `0.1` / `8`.
-- **defaultTransform** — `Partial<{ x; y; zoom }>`. Uncontrolled start.
-- **transform** — `{ x; y; zoom }`. Controlled transform.
-- **onTransformChange** — `(t) => void`. Fires on every change.
-- **grid** — `"dots" | "lines" | false`. Default `"dots"`.
-- **gridSize** — `number`. World units per cell. Default `32`.
-- **gridColor** / **gridMajorColor** — `string`.
-- **gridMajor** — `number`. Major axis every N cells. `0` disables.
-- **pan** — `"space" | "middle" | "both" | "always"`. Default `"both"`.
-- **wheelZoom** — `boolean`. Default `true`.
-- **wheelSensitivity** — `number`. Default `0.002`.
-- **overlay** — `ReactNode`. Drawn in screen space, on top of world.
-- **menu** — `ReactNode | (ctx) => ReactNode`. Right-click menu for
-  the empty canvas; the function form receives world-space coords.
-- **cursor** — `CSSProperties["cursor"]`. Override for tool modes.
-- **snap** — `SnapOptions | true`. Enables drag snapping; pair with
-  `<CanvasSnapGuides>` in the overlay.
+`Canvas` tracks `{ x, y, zoom }`. Wheel zoom happens around the cursor. Panning can be space+drag, middle-click drag, both, or always-on left drag. `CanvasItem` receives `x` and `y` in world units, not CSS pixels.
 
-## Imperative API (via `ref` or `useCanvas().api`)
+## Props
 
-- **getTransform()** — `{ x, y, zoom }`.
-- **setTransform(partial, opts?)** — animate or snap.
-- **zoomTo(z, { around?, animate? })** — zoom around a screen point.
-- **panTo(x, y, opts?)**.
-- **screenToWorld(p)** / **worldToScreen(p)**.
-- **fit({ padding? })** — frame all `[data-canvas-bounds]` children.
-- **reset()** — `x=0, y=0, zoom=1`.
-- **getViewportElement()** — DOM handle.
+- `minZoom`, `maxZoom`: default `0.1` and `8`.
+- `defaultTransform`: uncontrolled initial transform.
+- `transform`, `onTransformChange`: controlled mode.
+- `grid`, `gridSize`, `gridColor`, `gridMajor`, `gridMajorColor`: grid behavior.
+- `pan`, `wheelZoom`, `wheelSensitivity`: navigation.
+- `overlay`: viewport-space layer.
+- `menu`: canvas-level right-click menu. Function form receives world coordinates.
+- `cursor`: tool-mode cursor override.
+- `snap`: `true` or `SnapOptions` to enable snap guides.
 
-## Props (`<CanvasItem>`)
+## CanvasItem Props
 
-- **id** — `string`. Threaded through as `data-canvas-id`.
-- **x** / **y** — `number`. World-space top-left.
-- **fixedSize** — `boolean`. Stay constant on screen across zoom.
-- **draggable** — `boolean`. Plus `onDrag` / `onDragStart` / `onDragEnd`.
-- **bounds** — `boolean`. Include in `fit()` (default `true`).
-- **menu** — `ReactNode`. Per-item right-click menu.
-- **transition** — `Transition | "spring" | "tween" | false`.
-- **rotate** / **scale** / **opacity** — `number`.
+`CanvasItem` accepts `id`, `x`, `y`, `children`, `fixedSize`, `draggable`, `onDrag`, `onDragStart`, `onDragEnd`, `bounds`, `menu`, `transition`, `rotate`, `scale`, `opacity`, `className`, and `style`.
 
-## Notes
+## Imperative API
 
-- Pan via space + drag (or middle-click); zoom with the wheel around
-  the cursor. `pan="always"` enables left-click panning anywhere.
-- Children of `<Canvas>` consume the shared context — that's how
-  toolbars, minimaps and status bars stay in sync without prop drilling.
-- For huge graphs, wrap items in `<CanvasVirtualized>` so only those
-  intersecting the viewport mount.
+The `CanvasHandle` ref and `useCanvas().api` expose `getTransform`, `setTransform`, `zoomTo`, `panTo`, `screenToWorld`, `worldToScreen`, `fit`, `reset`, and `getViewportElement`.
+
+## Accessibility
+
+Canvas interaction is spatial, so expose core workflows through keyboard-accessible controls outside the world layer: zoom buttons, fit/reset buttons, command palette actions, and editable side panels. Interactive children inside `CanvasItem` keep their own semantics.
+
+## Gotchas
+
+The canvas fills its parent. Give the parent a real height. For very large graphs, combine `Canvas` with `CanvasVirtualized`. Use `bounds={false}` for decorative items that should not affect `fit()`.
+
+## Related
+
+Use with `CanvasToolbar`, `FlyoutToolbar`, `CanvasZoomControls`, `CanvasStatusBar`, `CanvasConnection`, `CanvasSelectionBox`, `CanvasMotion`, and `GraphCanvas`.

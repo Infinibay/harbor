@@ -48,8 +48,10 @@ export function Wizard({ steps, onComplete, className }: WizardProps) {
           {steps.map((s, i) => (
             <div key={s.id} className="flex-1 flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => i < current && setCurrent(i)}
                 disabled={i > current}
+                aria-current={i === current ? "step" : undefined}
                 className={cn(
                   "flex items-center gap-2 text-start min-w-0",
                   i > current && "opacity-60",
@@ -110,6 +112,7 @@ export function Wizard({ steps, onComplete, className }: WizardProps) {
       {/* Footer */}
       <div className="px-5 py-3 border-t border-white/8 flex justify-between bg-white/[0.02]">
         <button
+          type="button"
           onClick={() => setCurrent((c) => Math.max(0, c - 1))}
           disabled={current === 0}
           className="text-sm px-3 py-1.5 rounded-md text-white/70 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -123,6 +126,7 @@ export function Wizard({ steps, onComplete, className }: WizardProps) {
           })}
         </span>
         <button
+          type="button"
           onClick={next}
           className="text-sm px-4 py-1.5 rounded-md bg-fuchsia-500/85 hover:bg-fuchsia-500 text-white"
         >

@@ -112,6 +112,7 @@ export function VMConsole({
         {actions}
         {connected ? (
           <button
+            type="button"
             onClick={() => {
               onDisconnect?.();
               setConnected(false);
@@ -122,6 +123,7 @@ export function VMConsole({
           </button>
         ) : onConnect ? (
           <button
+            type="button"
             onClick={onConnect}
             className="px-1.5 text-[10px] uppercase tracking-widest text-fuchsia-200 hover:text-fg"
           >
@@ -129,7 +131,9 @@ export function VMConsole({
           </button>
         ) : null}
         <button
+          type="button"
           onClick={handleFullscreen}
+          aria-label="Toggle fullscreen"
           title="Fullscreen"
           className="px-1 text-fg-muted hover:text-fg"
         >

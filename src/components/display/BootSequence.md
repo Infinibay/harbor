@@ -1,51 +1,71 @@
 # BootSequence
 
-Vertical timeline of boot stages (BIOS → kernel → init → services).
-Running stages pulse, durations are auto-formatted, failed stages get a
-red accent. For incidents / deployment timelines see `<IncidentTimeline>`
-or `<DeploymentPipeline>`.
+`BootSequence` renders a vertical timeline of system startup stages. It supports
+pending, running, done, failed, and skipped states, optional duration text, and
+detail lines for diagnostics.
+
+Use it for VM boot, service startup, environment provisioning, deploy startup,
+and guided infrastructure checks.
 
 ## Import
 
 ```tsx
-import { BootSequence } from "@infinibay/harbor/display";
+import { BootSequence, type BootStage } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<BootSequence
-  stages={[
-    { id: "bios",    label: "BIOS POST",       status: "done",    duration: 412 },
-    { id: "kernel",  label: "Kernel handoff",  status: "done",    duration: 1_204 },
-    { id: "initrd",  label: "initrd",          status: "running", detail: "Mounting /home" },
-    { id: "systemd", label: "systemd targets", status: "pending" },
-    { id: "ssh",     label: "OpenSSH",         status: "pending" },
-  ]}
-/>
-```
+const stages: BootStage[] = [
+  { id: "bios", label: "BIOS POST", status: "done", duration: 412 },
+  { id: "kernel", label: "Kernel handoff", status: "done", duration: 1204 },
+  { id: "initrd", label: "initrd", status: "running", detail: "Mounting /home" },
+  { id: "ssh", label: "OpenSSH", status: "pending" },
+];
 
-## BootStage
-
-```ts
-{
-  id: string;
-  label: string;
-  status: "pending" | "running" | "done" | "failed" | "skipped";
-  duration?: number;   // milliseconds, only meaningful for done/failed
-  detail?: string;     // sub-line, monospaced
-}
+<BootSequence stages={stages} />;
 ```
 
 ## Props
 
-- **stages** — `readonly BootStage[]`. Required. Render order is the
-  array order — the component does not reorder.
-- **className** — extra classes on the wrapper.
+- **stages** - `readonly BootStage[]`. Required ordered stage list.
+- **className** - extra classes on the root `ol`.
 
-## Notes
+## BootStage
 
-- Durations are formatted with `lib/format.formatDuration` (`includeMs: true`).
-- The status dot animates with a 1s pulse loop only when status is
-  `"running"`.
-- The connector line is omitted on the last stage.
+```ts
+type BootStage = {
+  id: string;
+  label: string;
+  status: "pending" | "running" | "done" | "failed" | "skipped";
+  duration?: number;
+  detail?: string;
+};
+```
+
+`duration` is milliseconds and is formatted with `formatDuration`.
+
+## Behavior
+
+The component renders one ordered-list item per stage. Running stages pulse,
+failed stages use a danger tone, and timeline connectors link stages vertically.
+It does not advance stages on its own; pass updated status from your job state.
+
+## Accessibility
+
+Stages render as text inside an ordered list, so the sequence remains readable
+without animation. Include actionable detail for failures; color alone is not
+enough for operators.
+
+## Gotchas
+
+- No polling or state machine is included.
+- Durations are display-only and should come from measured backend events.
+- Keep labels short; put logs or stack traces in `LogViewer`.
+
+## Related
+
+- `Progress` for single-task progress.
+- `LogViewer` for detailed output.
+- `StatusBar` for compact job state.
+- `Alert` for failed boot summaries.

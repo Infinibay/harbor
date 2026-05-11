@@ -1,8 +1,8 @@
 # PullRequestCard
 
-Pull / merge request summary tile — state chip, title with `#number`,
-author, branches, reviewers, CI counts, and a diff stats line. For
-single-commit tiles use `<CommitCard>`.
+`PullRequestCard` is a compact review surface for source-control dashboards, release workbenches, deployment approval flows, and internal developer portals. It summarizes status, branches, author, reviewers, CI checks, diff size, and row actions in a single scannable card.
+
+Use it when a pull request is one item in a queue. For a full review screen, use the card as the entry point and route to the detail page on click.
 
 ## Import
 
@@ -10,72 +10,55 @@ single-commit tiles use `<CommitCard>`.
 import { PullRequestCard } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <PullRequestCard
-  title="Fix race in token rotation"
-  number={1248}
+  title="Add usage limits to workspace plans"
+  number={1842}
   state="open"
-  authorName="Ana Pérez"
-  createdAt={Date.now() - 3 * 3600 * 1000}
-  fromBranch="fix/token-race"
+  authorName="Ana Ramos"
+  authorAvatarUrl="/avatars/ana.png"
+  createdAt="2026-05-11T14:30:00Z"
+  fromBranch="feature/usage-limits"
   toBranch="main"
   reviewers={[
-    { id: "u1", name: "Bea", state: "approved" },
-    { id: "u2", name: "Carlos", state: "changes-requested" },
-    { id: "u3", name: "Diego", state: "pending" },
+    { id: "mila", name: "Mila Chen", avatarUrl: "/avatars/mila.png", state: "approved" },
+    { id: "leo", name: "Leo Silva", state: "pending" },
   ]}
   checks={[
-    { id: "lint", name: "lint", state: "passing" },
-    { id: "test", name: "unit", state: "passing" },
-    { id: "e2e", name: "e2e", state: "pending" },
+    { id: "unit", name: "Unit tests", state: "passing" },
+    { id: "e2e", name: "E2E", state: "pending" },
   ]}
-  diff={{ additions: 42, deletions: 11, files: 3 }}
-  onClick={() => navigate("/pr/1248")}
+  diff={{ additions: 248, deletions: 39, files: 8 }}
+  onClick={() => navigate("/pulls/1842")}
+  actions={<Button size="sm">Review</Button>}
 />
 ```
 
+## States
+
+`state` can be `open`, `draft`, `merged`, or `closed`. The state controls the leading chip, color, and icon. Reviewers expose their own status through a small indicator strip so a queue can show "approved", "changes requested", and "pending" without opening the PR.
+
 ## Props
 
-- **title** — `string`. Required.
-- **number** — `number`. Required. Rendered as `#number`.
-- **state** — `"open" | "draft" | "merged" | "closed"`. Required.
-  Drives the leading state chip.
-- **authorName** — `string`. Required. Used for the avatar initials.
-- **authorAvatarUrl** — `string`. Currently ignored — the avatar uses
-  initials only.
-- **createdAt** — `Date | string | number`. Required. Rendered via
-  `<Timestamp>`.
-- **fromBranch** / **toBranch** — `string`. Required. Drawn as
-  `from → to`.
-- **reviewers** — `readonly PRReviewer[]`. Optional. Rendered as an
-  `<AvatarStack>` with a status dot strip.
-- **checks** — `readonly PRCheck[]`. Optional. Aggregated into
-  passing / failing / pending counts.
-- **diff** — `{ additions: number; deletions: number; files?: number }`.
-  Optional. Right-aligned in the meta row.
-- **actions** — `ReactNode`. Slot anchored to the top-right.
-- **onClick** — `() => void`. Makes the card focusable as a button-like
-  surface (adds hover styling).
-- **className** — extra classes on the wrapper.
+- `title`, `number`, `state`: required PR identity.
+- `authorName`, `authorAvatarUrl`, `createdAt`: author metadata.
+- `fromBranch`, `toBranch`: branch summary.
+- `reviewers`: array of `{ id, name, avatarUrl?, state }`.
+- `checks`: array of `{ id, name, state }`.
+- `diff`: `{ additions, deletions, files? }`.
+- `actions`: right-side action slot.
+- `onClick`: makes the whole card interactive.
 
-## `PRReviewer`
+## Accessibility
 
-- **id** — `string`. Required.
-- **name** — `string`. Required.
-- **avatarUrl** — `string`. Optional (currently unused — initials only).
-- **state** — `"approved" | "changes-requested" | "pending" | "commented"`.
+When `onClick` is provided, the card behaves as a keyboard-focusable button and responds to Enter and Space. Keep the `actions` slot for true nested controls, such as review or merge buttons.
 
-## `PRCheck`
+## Gotchas
 
-- **id** — `string`. Required.
-- **name** — `string`. Required.
-- **state** — `"passing" | "failing" | "pending" | "skipped"`.
+The component does not fetch repository data or run permission checks. Normalize provider-specific statuses from GitHub, GitLab, or your own system before passing props.
 
-## Notes
+## Related
 
-- Skipped checks don't show in the CI count line; only passing,
-  failing, and pending counts render.
-- The reviewer dot strip mirrors each reviewer's review state via a
-  ring colour (emerald / rose / sky / white).
+Use with `CommitCard`, `BranchTree`, `ActivityFeed`, `AvatarStack`, `Button`, and `DataTable`.

@@ -45,6 +45,7 @@ export function SpeedDial({
             ? actions.map((a, i) => (
                 <motion.button
                   key={a.id}
+                  type="button"
                   initial={{ opacity: 0, [axis]: 0 }}
                   animate={{ opacity: 1, [axis]: sign * (i + 1) * 0 }}
                   exit={{ opacity: 0, [axis]: 0 }}

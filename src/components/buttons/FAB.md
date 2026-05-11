@@ -1,9 +1,12 @@
 # FAB
 
-Floating Action Button — a circular, viewport-anchored trigger for the
-single most important action on a screen (compose, create, upload). Prefer
-`<Button>` for inline calls-to-action and `<SpeedDial>` when you need to
-fan out multiple related actions from one spot.
+`FAB` renders a floating action button for the primary action on a focused
+surface. It can be fixed to a viewport corner or rendered inline with
+`position="none"` for demos and custom layouts.
+
+Use it when one action is clearly primary, such as creating a record, starting a
+capture, opening a composer, or adding an item on mobile or canvas-heavy
+screens.
 
 ## Import
 
@@ -11,34 +14,67 @@ fan out multiple related actions from one spot.
 import { FAB } from "@infinibay/harbor/buttons";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <FAB
+  label="New project"
   icon={<PlusIcon />}
-  label="New item"
-  onClick={() => createItem()}
+  onClick={() => openCreateProject()}
+/>;
+```
+
+Inline placement:
+
+```tsx
+<FAB
+  position="none"
+  variant="secondary"
+  label="Add node"
+  icon={<PlusIcon />}
 />
 ```
 
 ## Props
 
-- **icon** — `ReactNode`. Glyph rendered inside the circle. Required.
-- **label** — `string`. Used as `aria-label`. Required.
-- **onClick** — `() => void`.
-- **position** — `"bottom-right" | "bottom-left" | "top-right" | "top-left" | "none"`.
-  Anchors the button to a viewport corner; `"none"` keeps it inline.
-  Default: `"bottom-right"`.
-- **size** — `"md" | "lg"`. Default: `"md"`.
-- **variant** — `"primary" | "secondary"`. `primary` is a fuchsia→sky
-  gradient; `secondary` a bordered dark chip. Default: `"primary"`.
-- **className** — extra classes for the button.
+- **icon** - `ReactNode`. Required visible icon.
+- **label** - `string`. Required accessible label.
+- **onClick** - `() => void`. Optional click handler.
+- **position** - `"bottom-right" | "bottom-left" | "top-right" | "top-left" |
+  "none"`. Default `"bottom-right"`.
+- **size** - `"md" | "lg"`. Default `"md"`.
+- **variant** - `"primary" | "secondary"`. Default `"primary"`.
+- **className** - extra classes on the button.
 
-## Notes
+## Behavior
 
-- Reacts to cursor proximity via `useCursorProximity` (140px radius), with
-  a small magnetic translate and tap-scale.
-- Anchored variants render with `position: fixed` and `z-50`; pass
-  `position="none"` when embedding inside another positioned container
-  (e.g. `<SpeedDial>` does this internally).
-- `<SpeedDial>` composes `<FAB>` as its trigger.
+The button uses `aria-label={label}` because the visible surface is icon-only.
+It includes hover, tap, and cursor-proximity motion to make it feel like a
+primary floating control.
+
+Fixed positions use `z-50`. `position="none"` removes fixed positioning so the
+button can sit inside a local layout.
+
+## Accessibility
+
+Choose a concrete action label: `Create deployment`, `Add node`, or `New issue`
+is better than `Add`. The action should also be available in a normal command
+surface when possible, especially on complex desktop layouts.
+
+Do not place multiple primary FABs on one screen. Users should not have to guess
+which floating action is primary.
+
+## Gotchas
+
+- The FAB is icon-only visually; `label` is required for assistive technology.
+- Fixed placement can overlap cookie banners, chat widgets, mobile nav, or app
+  status bars. Test the final viewport.
+- FABs are strongest on creation flows. For secondary commands, use `Button` or
+  `Toolbar`.
+
+## Related
+
+- `Button` for standard actions.
+- `Toolbar` for multiple visible commands.
+- `Drawer` or `Dialog` for the creation flow opened by a FAB.
+- `CanvasToolbar` for canvas-specific actions.

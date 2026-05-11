@@ -1,57 +1,72 @@
 # CanvasToolbar
 
-Floating tool rail — the vertical (or horizontal) strip of icons that
-every serious canvas app has. Each item is described as data with an
-icon, optional label, optional shortcut hint, `active` state and
-`divider` flag. Pairs with a Canvas `overlay` slot to pin it to a
-side, or render inline with `floating={false}`.
+`CanvasToolbar` is the floating tool rail for canvas-based apps: design editors,
+node builders, whiteboards, workflow tools, diagramming surfaces, and visual
+automation products. It renders icon buttons, active state, disabled state,
+shortcuts, dividers, and an optional title block.
+
+Use it inside a `Canvas` overlay so tools stay pinned while the world pans and
+zooms.
 
 ## Import
 
 ```tsx
 import { CanvasToolbar } from "@infinibay/harbor/layout";
-import type { CanvasToolbarItem } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
+
+Provide tool items with stable ids, icons, labels, and click handlers.
 
 ```tsx
-const tools: CanvasToolbarItem[] = [
-  { id: "select", icon: <CursorIcon />, label: "Select", shortcut: "V", active: tool === "select", onClick: () => setTool("select") },
-  { id: "pen",    icon: <PenIcon />,    label: "Pen",    shortcut: "P", active: tool === "pen",    onClick: () => setTool("pen"), divider: true },
-  { id: "text",   icon: <TextIcon />,   label: "Text",   shortcut: "T", active: tool === "text",   onClick: () => setTool("text") },
-];
-
-<Canvas
-  overlay={<CanvasToolbar items={tools} position="left" />}
->
-  ...
-</Canvas>
+<CanvasToolbar
+  items={[
+    { id: "select", icon: <MousePointerIcon />, label: "Select", shortcut: "V", active: tool === "select", onClick: () => setTool("select") },
+    { id: "frame", icon: <FrameIcon />, label: "Frame", shortcut: "F", active: tool === "frame", onClick: () => setTool("frame") },
+    { id: "text", icon: <TypeIcon />, label: "Text", shortcut: "T", onClick: () => setTool("text") },
+  ]}
+/>
 ```
 
-## Props (`<CanvasToolbar>`)
+## Placement
 
-- **items** — `CanvasToolbarItem[]`.
-- **orientation** — `"vertical" | "horizontal"`. Default `"vertical"`.
-- **floating** — `boolean`. Default `true`.
-- **position** — `"top" | "bottom" | "left" | "right"`. Default `"left"`.
-- **title** — `ReactNode`. Optional header above/before tools.
-- **className** — extra classes.
+Use `position` when the toolbar floats in an overlay. Set `floating={false}` for
+inline toolbars in inspectors or panels.
 
-## Item shape (`CanvasToolbarItem`)
+```tsx
+<CanvasToolbar orientation="horizontal" position="top" items={items} />
+<CanvasToolbar floating={false} orientation="horizontal" items={items} />
+```
 
-- **id** — `string`.
-- **icon** — `ReactNode`.
-- **label** — `string`. Used for `aria-label` and tooltip.
-- **shortcut** — `string`. Appended to the tooltip.
-- **active** — `boolean`. Renders the fuchsia "selected" pill.
-- **disabled** — `boolean`.
-- **onClick** — `() => void`.
-- **divider** — `boolean`. Render a thin separator after this item.
+## Props
 
-## Notes
+- `items`: required tool item array.
+- `orientation`: `vertical` or `horizontal`; defaults to `vertical`.
+- `floating`: absolute overlay placement; defaults to `true`.
+- `position`: `top`, `bottom`, `left`, or `right`.
+- `title`: optional toolbar title.
+- `className`: wrapper class override.
 
-- The toolbar is purely presentational — it doesn't read the Canvas
-  context. Wire `active` and `onClick` to your own tool state.
-- Pair with `<CanvasShortcuts>` to bind the keyboard shortcuts whose
-  hints are shown in tooltips.
+Each item includes `id`, `icon`, optional `label`, optional `shortcut`, optional
+`active`, optional `disabled`, optional `onClick`, and optional `divider`.
+
+## Accessibility
+
+Tool buttons expose labels and pressed state. Always pass `label`, even when the
+visual UI is icon-only. Keep shortcuts visible through the `title` text or in a
+separate `CanvasShortcuts` panel.
+
+## Gotchas
+
+The toolbar is pointer-enabled by design. Render it in an overlay region above
+the canvas, not inside the transformed world layer.
+
+Use `active` for modes, not one-shot commands. A delete or export button should
+not remain pressed after it runs.
+
+## Related
+
+- `Canvas` for the workspace.
+- `CanvasSelectionBox` for selected objects.
+- `CanvasAlignmentToolbar` for alignment actions.
+- `CanvasShortcuts` for keyboard help.

@@ -1,8 +1,13 @@
 # MetricCard
 
-Stat tile with optional sparkline, percent-delta chip, and threshold
-coloring. Designed for dashboards — pass `threshold` to make the card
-border light up when the metric crosses warning/danger bands.
+`MetricCard` is the dashboard tile for one important number: revenue, latency,
+error rate, cache hit rate, queue depth, deployment count, or any other metric
+that needs to be scanned in a grid. It combines a label, a formatted value, an
+optional unit, a percent delta chip, threshold coloring, and a compact sparkline.
+
+Use it when the card is about monitoring state. If the content is a generic
+summary, use `Card`; if the user needs to compare many rows, use `DataTable` or
+`MetricHeatmap`.
 
 ## Import
 
@@ -10,53 +15,91 @@ border light up when the metric crosses warning/danger bands.
 import { MetricCard } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
+
+Start with a label and an already-formatted value. Harbor does not guess how
+your business numbers should be rounded; format the value before passing it.
 
 ```tsx
 <MetricCard
-  label="Active deploys"
-  value="128"
+  label="Requests"
+  value="24.8k"
   delta={12}
-  series={[4, 6, 5, 8, 7, 9, 8, 11, 10, 13, 12, 15]}
+  series={[18, 21, 20, 24, 27, 26, 31, 35]}
 />
+```
 
+The `delta` prop is a percent change. Positive values render an upward chip;
+negative values render a downward chip.
+
+```tsx
+<MetricCard label="Errors" value="18" delta={-8} />
+```
+
+## Thresholds
+
+Pass `threshold={[warn, danger]}` when a metric needs a visual status. The
+component compares `raw` first, then falls back to `value` if `value` is a
+number. Use `raw` whenever the displayed value is formatted text.
+
+```tsx
 <MetricCard
   label="Error rate"
-  value={4.2}
+  value="4.2"
   unit="%"
   raw={4.2}
-  threshold={[2, 5]}      /* warn ≥ 2, danger ≥ 5 */
+  threshold={[2, 5]}
 />
+```
 
+For metrics where lower is worse, set `inverseThreshold`.
+
+```tsx
 <MetricCard
   label="Cache hit rate"
   value="91"
   unit="%"
   raw={91}
   threshold={[95, 90]}
-  inverseThreshold        /* lower is worse */
+  inverseThreshold
 />
 ```
 
 ## Props
 
-- **label** — `string`. Required.
-- **value** — `ReactNode`. Required. Pre-formatted.
-- **unit** — `string`. Muted label after the value.
-- **delta** — `number`. Percent change (`12` → `↑ 12%`, `-33` → `↓ 33%`).
-- **series** — `number[]`. When length > 1, renders a `<Sparkline>` (96×36).
-- **icon** — `ReactNode`. Small leading icon next to the label.
-- **threshold** — `[warn, danger]`. Drives border tint and sparkline color.
-- **raw** — `number`. Numeric value used for threshold comparison when
-  `value` is a `ReactNode`. Falls back to `value` if `value` is a number.
-- **inverseThreshold** — `boolean`. Reverse the comparison — lower is
-  worse (cache hit rate, uptime %).
-- **onClick** — `() => void`. Renders the card as a `<button>` with hover lift.
-- **className** — extra classes on the wrapper.
+- `label`: required text shown above the value.
+- `value`: required `ReactNode`; pass the exact formatted display.
+- `unit`: small muted unit after the value.
+- `delta`: percent change number; `12` means 12 percent.
+- `series`: number array rendered as a small `Sparkline` when it has multiple values.
+- `icon`: optional leading icon beside the label.
+- `threshold`: `[warn, danger]` numeric bands.
+- `raw`: numeric value used for threshold comparison.
+- `inverseThreshold`: reverses threshold logic so lower values are worse.
+- `onClick`: makes the card interactive for drill-down workflows.
+- `className`: wrapper class override.
 
-## Notes
+## Accessibility
 
-- Threshold tones (normal / warn / danger) drive both the border glow
-  and the sparkline stroke + fill.
-- The delta chip animates in on mount; sign is inferred from the
-  number's sign.
+When `onClick` is present the component renders as an interactive card. Use it
+for a real drill-down action, such as opening a dashboard route, metric drawer,
+or filtered table. The visible label and value should be enough for screen
+reader users to understand what the metric represents.
+
+Do not rely on threshold color alone. If the metric is dangerous, pair the card
+with visible text, a status badge, or an alert elsewhere in the dashboard.
+
+## Gotchas
+
+`value="24.8k"` cannot be compared against thresholds unless you also pass
+`raw={24800}`. The threshold engine only compares numbers.
+
+Keep metric grids stable. Mixing cards with and without sparklines can create
+uneven scanning rhythm; use consistent card density within one dashboard band.
+
+## Related
+
+- `Sparkline` for the inline trend visual used by `MetricCard`.
+- `Gauge` for progress toward a fixed target.
+- `TimeSeriesChart` when the trend needs axes, labels, and interaction.
+- `Card` for non-metric summaries.

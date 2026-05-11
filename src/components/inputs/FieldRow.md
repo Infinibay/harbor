@@ -1,68 +1,74 @@
 # FieldRow
 
-A horizontal row of form fields whose labels, controls, and messages
-snap to the same three baselines across columns. Stacks vertically
-below `md` (768px), then becomes a 3-row CSS subgrid at `md` and
-above. Any `FormField`, `FieldSpacer`, or `FieldRow.Slot` inside
-participates automatically — labels, inputs, and helper/error lines
-all align across siblings without manual placeholders. Use it
-whenever you'd otherwise reach for a `flex` row of inputs and end
-up nudging margins by hand.
+`FieldRow` aligns multiple form fields across shared label, control, and message
+baselines. It solves the common settings-page problem where one row contains
+several related inputs and errors should not make neighboring controls jump.
+
+Use it with `FormField`, `FieldSpacer`, and action slots. Below `md` it stacks;
+at `md` and above it becomes a CSS subgrid.
 
 ## Import
 
 ```tsx
-import { FieldRow } from "@infinibay/harbor/inputs";
+import { FieldRow, FormField } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
+
+Each `FormField` inside the row participates automatically.
 
 ```tsx
 <FieldRow template="1fr 1fr auto">
-  <FormField label="First name"><TextField /></FormField>
-  <FormField label="Last name" error="Required"><TextField /></FormField>
+  <FormField label="First name">
+    <TextField />
+  </FormField>
+  <FormField label="Last name" error={errors.lastName}>
+    <TextField />
+  </FormField>
   <FieldRow.Action>
     <Button>Search</Button>
   </FieldRow.Action>
 </FieldRow>
 ```
 
+## Slots
+
+Use `FieldRow.Slot` for custom content that should occupy one or more subgrid
+rows.
+
+```tsx
+<FieldRow.Slot row="control+message" align="stretch">
+  <InlinePreview />
+</FieldRow.Slot>
+```
+
 ## Props
 
-- **children** — `ReactNode`. Field primitives or `FieldRow.Slot` /
-  `FieldRow.Action` nodes.
-- **template** — `string`. Explicit `grid-template-columns` at the
-  horizontal breakpoint (e.g. `"2fr 1fr auto"`). When omitted, every
-  child gets an equal `1fr` column.
-- **gapX** — `1 | 2 | 3 | 4 | 5 | 6 | 8`. Tailwind spacing units.
-  Default `4` (16px).
-- **reserveMessage** — `boolean`. Reserve the message row even when
-  no child shows an error/helper, so later validation doesn't shift
-  the layout. Default `true`.
-- **controlAlign** — `"start" | "center" | "end"`. Vertical alignment
-  for controls of differing heights (e.g. a `Textarea` next to a
-  `TextField`). Default `"start"`.
-- **className** — extra classes on the row.
+- `children`: row content.
+- `template`: explicit grid-template-columns at desktop widths.
+- `gapX`: horizontal gap scale.
+- `reserveMessage`: reserves validation/helper row height.
+- `controlAlign`: `start`, `center`, or `end`.
+- `className`: wrapper class override.
 
-## Props (`<FieldRow.Slot>`)
+`FieldRow.Slot` accepts `row`, `align`, `span`, `children`, and `className`.
 
-- **children** — `ReactNode`.
-- **row** — `"control" | "label+control" | "control+message" | "full"`.
-  Which subgrid rows to occupy. Default `"control"`.
-- **align** — `"start" | "center" | "end" | "stretch"`. Vertical
-  alignment within the cell. Default `"end"`.
-- **span** — `1 | 2 | 3 | 4`. Column span. Default `1`.
-- **className** — extra classes.
+## Accessibility
 
-## Props (`<FieldRow.Action>`)
+`FieldRow` is layout-only. Accessibility comes from the fields inside it. Use
+`FormField` around each control so labels, helper text, errors, and ARIA wiring
+stay correct.
 
-Shorthand for the common case of a button that should sit on the
-input baseline of labelled siblings. Same props as `FieldRow.Slot`
-minus `row` (which is forced to `"control"`).
+## Gotchas
 
-## Notes
+Subgrid alignment only activates at the desktop breakpoint. Test long labels and
+errors on mobile where the row stacks.
 
-- A `useFieldRow()` hook is exported for custom field primitives that
-  want to opt into subgrid mode.
-- Row alignment relies on CSS subgrid; the layout collapses to a
-  vertical stack on viewports below `md`.
+When `reserveMessage={false}`, validation errors can shift the row height.
+
+## Related
+
+- `FormField` for labels and errors.
+- `FieldSpacer` for intentional empty grid cells.
+- `LabelLane` for shared-label settings layouts.
+- `FormSection` for larger groups.

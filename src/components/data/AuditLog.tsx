@@ -149,6 +149,7 @@ export function AuditEntry({
     <div
       role={onClick || canExpand ? "button" : undefined}
       tabIndex={onClick || canExpand ? 0 : undefined}
+      aria-expanded={canExpand ? open : undefined}
       onClick={handleClick}
       onKeyDown={(e) => {
         if ((onClick || canExpand) && (e.key === "Enter" || e.key === " ")) {

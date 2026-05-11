@@ -1,7 +1,12 @@
 # ChatInput
 
-Auto-growing message composer with Enter-to-send, Shift+Enter for newline,
-and an animated send button that appears only when there is text.
+`ChatInput` is a compact message composer with auto-growing textarea, optional
+leading actions, animated send button, and keyboard submit behavior. It is built
+for chat surfaces, AI assistants, support inboxes, comment threads, and command
+style message panels.
+
+The component owns the draft text locally and emits completed messages through
+`onSend`.
 
 ## Import
 
@@ -9,37 +14,73 @@ and an animated send button that appears only when there is text.
 import { ChatInput } from "@infinibay/harbor/chat";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <ChatInput
-  placeholder="Message #general"
-  onSend={(text) => sendMessage(text)}
-/>
+  placeholder="Ask Harbor about this deployment"
+  onSend={(text) => {
+    sendMessage(text);
+  }}
+/>;
 ```
 
-With leading actions (e.g. an emoji picker trigger):
+With leading actions:
 
 ```tsx
 <ChatInput
-  onSend={handleSend}
-  actions={
-    <button onClick={openEmoji} aria-label="Emoji">😊</button>
-  }
-/>
+  actions={<Button variant="ghost">Attach</Button>}
+  onSend={(text) => addComment(text)}
+/>;
 ```
 
 ## Props
 
-- **onSend** — `(text: string) => void`. Fires on Enter (no Shift) or send-button click. Receives the trimmed text; empty input is ignored.
-- **placeholder** — `string`. Default: `"Type a message…"`.
-- **actions** — `ReactNode`. Slot rendered to the left of the textarea (attach buttons, emoji trigger, file upload, etc.).
-- **className** — extra classes on the outer container.
+- **onSend** - `(text: string) => void`. Called with trimmed text when the user
+  sends.
+- **placeholder** - `string`. Textarea placeholder. Default
+  `"Type a message..."`.
+- **actions** - `ReactNode`. Optional content before the textarea, commonly
+  attachment, mention, or tool buttons.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Interaction
 
-- Input is internally controlled and clears itself after a successful `onSend`.
-- The textarea auto-grows from one row up to `max-h-40` (160px), then scrolls.
-- `Enter` sends; `Shift+Enter` inserts a newline.
-- The send button mounts/unmounts with a spring and only appears when the trimmed text is non-empty; it carries `aria-label="Send"`.
-- Pair the emitted text with `<ChatBubble from="me">` to render the new message.
+The textarea grows with content up to 160 pixels tall. Pressing `Enter` sends the
+message. Pressing `Shift+Enter` inserts a newline. Empty or whitespace-only
+messages are ignored.
+
+The send button appears only when the trimmed draft has content. After sending,
+the draft is cleared.
+
+## State Model
+
+`ChatInput` is intentionally uncontrolled. It is for standard message
+composition, not for externally controlled drafts. If your product needs saved
+drafts, collaborative editing, or server-synced input state, wrap it or build a
+controlled composer from `Textarea` and `Button`.
+
+## Accessibility
+
+The send button has `aria-label="Send"`. Provide a specific placeholder so users
+know what kind of message they are composing. If you pass icon-only `actions`,
+those controls need their own accessible labels.
+
+Keyboard behavior follows chat conventions, but long-form comment editors may
+prefer `Ctrl+Enter` submit instead. Choose the component that matches the
+workflow.
+
+## Gotchas
+
+- `onSend` fires synchronously with the current text; handle async errors in the
+  parent and decide whether to reinsert failed messages.
+- The textarea height is manipulated directly for auto-grow.
+- There is no built-in attachment handling. The `actions` slot only renders your
+  controls.
+
+## Related
+
+- `ChatBubble` for rendered messages.
+- `CommentThread` for threaded discussion.
+- `Textarea` for controlled long-form input.
+- `Button` for custom send and attachment actions.

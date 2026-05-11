@@ -1,9 +1,8 @@
 # ActionRow
 
-Horizontal row for the OK / Cancel pair at the bottom of a form or
-dialog. Handles alignment, gap, and responsive stacking so each form
-doesn't reinvent its own footer. Reach for `<FieldRow>` to lay out
-form *fields* side by side — `<ActionRow>` is for *buttons*.
+`ActionRow` is the standard footer layout for form actions, dialogs, drawers, and setup panels. It handles alignment, spacing, optional top division, wrapping, and responsive stacking so each form does not invent its own button row.
+
+Use it for actions, not fields. If you are arranging inputs, use `FieldRow`, `FormSection`, or your form layout primitives instead.
 
 ## Import
 
@@ -11,16 +10,28 @@ form *fields* side by side — `<ActionRow>` is for *buttons*.
 import { ActionRow } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<ActionRow align="end" stackBelow="sm" divide>
-  <Button variant="ghost">Cancel</Button>
-  <Button>Save changes</Button>
-</ActionRow>
+import { Button } from "@infinibay/harbor/buttons";
+import { ActionRow } from "@infinibay/harbor/inputs";
 
-// Destructive split — delete on the left, primary on the right:
-<ActionRow align="between">
+export function SettingsFooter() {
+  return (
+    <ActionRow align="end" stackBelow="sm" divide>
+      <Button variant="ghost">Cancel</Button>
+      <Button>Save changes</Button>
+    </ActionRow>
+  );
+}
+```
+
+## Destructive Split
+
+Use `align="between"` when a destructive or secondary action belongs on the opposite side of the footer.
+
+```tsx
+<ActionRow align="between" divide>
   <Button variant="danger">Delete workspace</Button>
   <div className="flex gap-3">
     <Button variant="ghost">Cancel</Button>
@@ -31,23 +42,28 @@ import { ActionRow } from "@infinibay/harbor/inputs";
 
 ## Props
 
-- **align** — `"start" | "center" | "end" | "between"`. Default
-  `"end"`. `"between"` pushes the first child far left and groups the
-  rest on the right.
-- **gap** — `1 | 2 | 3 | 4 | 5 | 6`. Tailwind spacing units between
-  buttons. Default `3` (12px).
-- **stackBelow** — `"sm" | "md" | "lg"`. Stack vertically (each child
-  full-width) below this breakpoint. Default `undefined`.
-- **reverseOnStack** — `boolean`. When stacked, reverse children so
-  the primary action lands on top. Default `true`.
-- **divide** — `boolean`. Adds a subtle top border + padding — the
-  standard form-footer treatment. Default `false`.
-- **children** — `ReactNode`. Usually `<Button>` elements.
-- **className** — extra classes on the row.
+- **children**: `ReactNode`. Usually Harbor `Button` elements or one grouped action cluster.
+- **align**: `"start" | "center" | "end" | "between"`. Defaults to `"end"`.
+- **gap**: `1 | 2 | 3 | 4 | 5 | 6`. Tailwind spacing unit between children. Defaults to `3`.
+- **stackBelow**: `"sm" | "md" | "lg"`. Makes children full-width and vertical below the breakpoint.
+- **reverseOnStack**: `boolean`. When stacked, reverses children so the primary action can land first. Defaults to `true`.
+- **divide**: `boolean`. Adds a subtle top border and spacing for footer separation.
+- **className**: custom class on the row.
 
-## Notes
+## Accessibility
 
-- The row is `flex-wrap`, so very narrow viewports won't clip even
-  without `stackBelow`.
-- `align="between"` only makes sense with two children (or a single
-  child + a grouped `<div>`).
+`ActionRow` does not change the semantics of its children. Use accessible buttons, keep destructive labels explicit, and avoid relying only on placement to communicate danger.
+
+When stacking below a breakpoint, confirm the visual order still matches the expected keyboard order. `reverseOnStack` changes visual order with flex direction, not the DOM order.
+
+## Gotchas
+
+- `align="between"` works best with exactly two children: a left action and a grouped right cluster.
+- `stackBelow` makes direct children full width. Wrap related actions in a child `<div>` if they should stay grouped.
+- `ActionRow` is intentionally small. Do not put validation messages or explanations inside it; place those above the footer.
+
+## Related
+
+- [`Form`](./Form.md) for full form structure.
+- [`FieldRow`](./FieldRow.md) for arranging form controls.
+- [`Dialog`](../overlays/Dialog.md) and [`Drawer`](../overlays/Drawer.md) for surfaces that commonly use action footers.

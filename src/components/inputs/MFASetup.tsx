@@ -85,6 +85,7 @@ export function MFASetup({
                 {secret}
               </code>
               <button
+                type="button"
                 onClick={() => {
                   navigator.clipboard?.writeText(secret).catch(() => {});
                   setCopiedSecret(true);
@@ -112,6 +113,7 @@ export function MFASetup({
               setVerifyError(null);
             }}
             inputMode="numeric"
+            aria-label="Authenticator code"
             maxLength={6}
             placeholder="000000"
             autoFocus
@@ -149,6 +151,7 @@ export function MFASetup({
           </div>
           <div className="flex items-center gap-3 text-xs">
             <button
+              type="button"
               onClick={() => {
                 navigator.clipboard
                   ?.writeText(recoveryCodes.join("\n"))

@@ -1,9 +1,12 @@
-# APIKeyCard / SSHKeyCard
+# APIKeyCard
 
-A credentials tile — label, fingerprint, scope, last-used time, and the
-common Reveal / Copy / Rotate / Revoke action row. Two named exports
-share one implementation: `<APIKeyCard>` (kind `"api"`, lock icon) and
-`<SSHKeyCard>` (kind `"ssh"`, key icon).
+`APIKeyCard` and `SSHKeyCard` present credentials as managed account objects:
+label, fingerprint, scope, created date, last-used date, privileged warning, and
+actions for reveal, copy, rotate, and revoke. They are built for developer
+settings, admin security pages, billing portals, and desktop account panels.
+
+Use these cards for non-secret identifiers and management actions. Never render
+raw secret values unless the user has explicitly requested reveal in your app.
 
 ## Import
 
@@ -11,48 +14,76 @@ share one implementation: `<APIKeyCard>` (kind `"api"`, lock icon) and
 import { APIKeyCard, SSHKeyCard } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
+
+The fingerprint is displayed as passed. Use it for masked keys, short ids, or
+public fingerprints.
 
 ```tsx
 <APIKeyCard
-  label="Deploy bot"
-  fingerprint="prod_aB3f…7Q1"
-  scope="read:events, write:deploys"
-  createdAt="2026-02-12"
-  lastUsed={Date.now() - 30 * 60 * 1000}
-  privileged
-  onReveal={() => unmask(id)}
-  onCopy={() => track("copy", id)}
-  onRotate={() => rotate(id)}
-  onRevoke={() => revoke(id)}
+  label="Production deploy key"
+  fingerprint="hbr_live_9f4c...82aa"
+  scope="read:deploys, write:deploys"
+  createdAt="2026-05-01T10:00:00Z"
+  lastUsed="2026-05-10T18:20:00Z"
+  onCopy={() => toast.push({ title: "Key copied" })}
+  onRotate={() => openRotateDialog()}
+  onRevoke={() => openRevokeDialog()}
 />
+```
+
+## Reveal Flow
+
+`revealed` only changes the button label. Your parent owns the actual secret
+fetching, masking, and audit trail.
+
+```tsx
+<APIKeyCard
+  label="CI token"
+  fingerprint={revealed ? secretValue : "hbr_live_••••••82aa"}
+  revealed={revealed}
+  onReveal={() => setRevealed((value) => !value)}
+/>
+```
+
+## Privileged Keys
+
+Set `privileged` for broad scopes, production access, or security-sensitive
+credentials.
+
+```tsx
+<SSHKeyCard label="Release signer" fingerprint={fingerprint} privileged />
 ```
 
 ## Props
 
-- **label** — `string`. Required. Human-readable name.
-- **fingerprint** — `string`. Required. Visible identifier — **not the
-  secret**. Mask secrets server-side.
-- **scope** — `string`. Free-form scope list shown under the label.
-- **createdAt** — `Date | string | number`.
-- **lastUsed** — `Date | string | number`.
-- **privileged** — `boolean`. Renders a red border + "privileged" chip.
-- **revealed** — `boolean`. Toggles the Reveal button label between
-  `"Reveal"` and `"Hide"`. The component never masks the fingerprint
-  itself — swap the value you pass in alongside this flag.
-- **onReveal** / **onRotate** / **onRevoke** — `() => void`. Each
-  button is hidden when its callback is omitted.
-- **onCopy** — `() => void`. Fires alongside the built-in
-  `navigator.clipboard.writeText(fingerprint)` call.
-- **extra** — `ReactNode`. Slot above the action row (e.g. usage stats).
-- **className** — extra classes on the wrapper.
+- `label`: human-readable key name.
+- `fingerprint`: visible identifier or masked value.
+- `scope`: comma-separated or free-form scope text.
+- `lastUsed`: last usage timestamp.
+- `createdAt`: creation timestamp.
+- `privileged`: shows a warning strip.
+- `revealed`: controls reveal button label.
+- `onReveal`, `onCopy`, `onRotate`, `onRevoke`: optional actions.
+- `extra`: extra content slot.
+- `className`: wrapper class override.
 
-## Notes
+## Accessibility
 
-- The Copy button shows a "✓ copied" confirmation for 1.5s after a
-  successful clipboard write.
-- The component never displays the actual secret — only the
-  fingerprint/identifier passed in. Use `onReveal` to drive your own
-  modal that decrypts and displays the secret.
-- `<SSHKeyCard>` accepts the same props as `<APIKeyCard>`; only the
-  leading icon changes.
+Actions render as real buttons. Keep destructive flows, such as revoke, behind a
+confirmation dialog. The privileged label is visible text, not only color.
+
+## Gotchas
+
+Copy uses `navigator.clipboard` when available and still calls `onCopy`. Do not
+assume clipboard success inside the parent callback.
+
+The component does not fetch or mask secrets by itself. Treat reveal as a
+security workflow owned by the application.
+
+## Related
+
+- `BillingCard` for subscription/account status.
+- `Dialog` for revoke confirmation.
+- `Toast` for copy and rotate confirmations.
+- `Timestamp` for credential dates.

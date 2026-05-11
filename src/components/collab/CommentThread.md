@@ -1,9 +1,8 @@
 # CommentThread
 
-A nested discussion list with inline reply composer and per-comment
-reactions. Use it for review threads, design feedback, or any document
-annotation where replies and emoji counts matter. For a flat reaction
-strip without comments, use `<ReactionsBar>`.
+`CommentThread` renders product-grade discussion UI: comments, nested replies, reactions, and composers. It is useful for review tools, dashboards with annotations, support cases, document collaboration, design feedback, and admin notes.
+
+You can pass a `comments` array for data-driven rendering, or compose `Comment` and `CommentComposer` manually when a thread needs custom layout or interleaved content.
 
 ## Import
 
@@ -12,93 +11,61 @@ import {
   CommentThread,
   Comment,
   CommentComposer,
+  type CommentData,
 } from "@infinibay/harbor/collab";
 ```
 
-## Example (recommended composable API)
+## Basic Usage
 
 ```tsx
 <CommentThread
-  currentUser={{ name: "You" }}
-  onReply={(parentId, text) => postReply(parentId, text)}
+  currentUser={{ name: "Ana Ramos" }}
+  onReply={(parentId, text) => saveReply({ parentId, text })}
   onReact={(commentId, emoji) => toggleReaction(commentId, emoji)}
 >
   <Comment
-    id="1"
-    author={{ name: "Ana" }}
-    time="2h ago"
-    reactions={[{ emoji: "👍", count: 3 }]}
+    id="c1"
+    author={{ name: "Mila Chen" }}
+    time="12 min ago"
+    reactions={[{ emoji: "👍", count: 3, mine: true }]}
   >
-    Should we move the CTA above the fold?
-    <Comment id="1a" author={{ name: "Bruno" }} time="1h ago">
-      Yes — A/B test showed +14% click-through.
+    The empty state should explain what the user can do next.
+    <Comment id="c1-r1" author={{ name: "Leo Silva" }} time="8 min ago">
+      Agreed. I added a shorter version in the latest build.
     </Comment>
   </Comment>
-  <Comment id="2" author={{ name: "Cinto" }} time="30m ago">
-    Quick nit: the eyebrow could be larger.
-  </Comment>
-  <CommentComposer />
 </CommentThread>
 ```
 
-Replies are just nested `<Comment>` children — no `replies` arrays. A
-comment's body is everything inside it that isn't another `<Comment>`.
+## Data Driven Usage
 
-## Subcomponents
+```tsx
+<CommentThread
+  comments={comments}
+  currentUser={me}
+  onReply={handleReply}
+  onReact={handleReaction}
+/>
+```
 
-- **`<Comment>`** — one node in the thread. Body content is its
-  children; nested `<Comment>` children become replies.
-- **`<CommentComposer>`** — textarea + submit/cancel. Auto-rendered at
-  the bottom when `currentUser` is set and no explicit composer child
-  is present. Use it explicitly to control placement, or to add a
-  reply composer outside the inline Reply flow.
+When `currentUser` is present, the thread renders a top-level composer unless `canComment={false}` or you provide your own `CommentComposer`.
 
 ## Props
 
-### `<CommentThread>`
+`CommentThread` accepts `comments`, `currentUser`, `onReply`, `onReact`, `canComment`, `canReply`, `className`, and `children`.
 
-- **currentUser** — `{ name: string }`. When present, the auto composer
-  and per-comment Reply buttons render. Omit to render read-only.
-- **onReply** — `(parentId: string | null, text: string) => void`.
-  Fires from the root composer with `parentId = null`, and from a
-  reply composer with the parent comment's `id`. Trimmed text only;
-  empty submissions are blocked.
-- **onReact** — `(commentId: string, emoji: string) => void`. Fires
-  for both existing reaction chips and the inline `+ React` button
-  (which sends `"👍"`).
-- **canComment** — `boolean`. Controls the auto-rendered top-level
-  "Write a comment…" composer. Defaults to `true` when `currentUser`
-  is set. Pass `false` for read-only threads. Note: this only affects
-  the auto composer — explicit `<CommentComposer>` children always
-  render regardless.
-- **canReply** — `boolean`. Show inline "Reply" buttons on each
-  `<Comment>`. Default `true`. Pass `false` for flat threads where
-  users can react but not reply.
-- **className** — extra classes on the root container.
+`Comment` accepts `id`, `author`, `time`, `reactions`, `children`, and `className`.
 
-### `<Comment>`
+`CommentComposer` accepts `parentId`, `placeholder`, `compact`, `onCancel`, `onSubmitted`, and `className`.
 
-- **id** — `string`. Required. Used for `onReply`/`onReact` callbacks.
-- **author** — `{ name: string; avatar?: string }`. Required.
-- **time** — `string`. Pre-formatted timestamp shown next to the name.
-- **reactions** — `{ emoji, count, mine? }[]`. Optional chip row.
-- **children** — body content + optional nested `<Comment>` replies.
+## Accessibility
 
-### `<CommentComposer>`
+Reaction buttons expose pressed state when the current user has reacted. Reply buttons expose expansion state while the inline composer is open. Keep reaction emoji meaningful in your product context and avoid using comments as the only place for critical system status.
 
-- **parentId** — `string | null`. Reply target for `onReply`. Default `null`.
-- **placeholder** — `string`. Default `"Write a comment…"`.
-- **compact** — `boolean`. Smaller textarea (2 rows vs 3).
-- **onCancel** — `() => void`. Renders a Cancel button when provided.
-- **onSubmitted** — `() => void`. Fires after a successful submit.
+## Gotchas
 
-## Notes
+Nested replies are detected by checking for child `Comment` elements. If you wrap replies in another component, use the data-driven `comments` prop instead.
 
-- Replies are rendered recursively; the component does not flatten or
-  limit depth — cap nesting server-side if you need a maximum.
-- The composer keeps text in local state only — wire `onReply` to your
-  backend and re-render with the new entry. There is no optimistic insert.
-- The inline Reply button on each `<Comment>` is hidden when either
-  `onReply` or `currentUser` is missing; reactions remain interactive
-  regardless of `currentUser`.
-- Submit is disabled until `text.trim()` is non-empty.
+## Related
+
+Use with `Presence`, `Avatar`, `NotificationBell`, `ActivityFeed`, `Drawer`, and `Callout`.

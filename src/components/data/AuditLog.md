@@ -1,92 +1,61 @@
 # AuditLog
 
-A vertical stream of audit events. `<AuditLog>` is the styled stack;
-`<AuditEntry>` is one row. Each entry takes a regular `onClick` (and
-any other HTML attribute), so consumers attach navigation, telemetry,
-or context-menu handlers per row.
+`AuditLog` renders a chronological stream of system events with actor, verb, target, timestamp, severity, category, and expandable details. It is built for admin panels, security consoles, compliance views, deployment history, and customer-facing activity trails.
+
+You can use the data-driven `entries` prop for simple lists, or compose `AuditEntry` and `AuditDiff` directly when each row needs custom content.
 
 ## Import
 
 ```tsx
-import {
-  AuditLog,
-  AuditEntry,
-  AuditDiff,
-} from "@infinibay/harbor/data";
+import { AuditLog, AuditEntry, AuditDiff } from "@infinibay/harbor/data";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <AuditLog>
   <AuditEntry
-    actor={{ name: "Ana" }}
-    verb="deleted"
-    target="auth-service"
-    at={Date.now() - 30 * 60 * 1000}
+    actor={{ name: "Mila Chen", avatarUrl: "/avatars/mila.png" }}
+    verb="disabled"
+    target="production deploys"
+    at={Date.now()}
     severity="warn"
-    kind="security"
-    onClick={() => navigate(`/audit/svc-auth`)}
+    kind="policy"
   >
     <AuditDiff from="enabled" to="disabled" />
-    <p>Reason: rotation policy required regenerating credentials.</p>
+    <p>Changed during the quarterly access review.</p>
   </AuditEntry>
-
-  <AuditEntry
-    actor={{ name: "system" }}
-    verb="ran"
-    target="nightly migration"
-    at={Date.now() - 26 * 3600 * 1000}
-    kind="job"
-  />
-</AuditLog>;
+</AuditLog>
 ```
 
-Children inside an `<AuditEntry>` become the expanded detail panel,
-revealed when the row is clicked.
+## Data Driven Usage
 
-## Subcomponents
+```tsx
+<AuditLog
+  entries={events}
+  kinds={["security", "billing"]}
+  empty="No matching audit events."
+/>
+```
 
-- **`<AuditEntry>`** — one row. Accepts the actor / verb / target /
-  timestamp data plus all standard HTML attributes (e.g. `onClick`,
-  `onMouseEnter`, `id`, `data-*`).
-- **`<AuditDiff>`** — standardized red→green from/to chip pair for
-  diff-style entries. Use as a child of `<AuditEntry>`.
+When `entries` is provided, Harbor maps each object into an `AuditEntry` and applies the optional `kinds` filter.
 
-## Props (`<AuditLog>`)
+## Props
 
-- **empty** — `ReactNode`. Rendered when there are no entries. Default
-  `"No entries."`
-- **className**, plus any other `HTMLDivElement` attribute.
+`AuditLog` accepts `entries`, `empty`, `kinds`, `children`, `className`, and standard `div` attributes.
 
-## Props (`<AuditEntry>`)
+`AuditEntry` accepts `actor`, `verb`, `target`, `at`, `severity`, `kind`, `expandable`, `children`, `onClick`, and standard `div` attributes.
 
-- **actor** — `{ id?, name, avatarUrl? }`. Required.
-- **verb** — `string`. Short imperative ("deleted", "rolled back").
-- **target** — `ReactNode`. The object the action was performed on.
-- **at** — `Date | string | number`. Timestamp.
-- **severity** — `"info" | "warn" | "critical"`. Default `"info"`.
-  Drives row tint and verb color.
-- **kind** — `string`. Optional category tag rendered in the header.
-- **expandable** — `boolean`. Force the click-to-expand caret on/off.
-  Defaults to `true` when there are children.
-- **children** — detail content revealed on expand.
-- **onClick** — fires alongside the expand toggle. Use it for
-  navigation, telemetry, or row-level menus.
-- Plus any other `HTMLDivElement` attribute (`onMouseEnter`, `id`,
-  `data-*`, etc.).
+`AuditDiff` accepts `from`, `to`, and `className`.
 
-## Props (`<AuditDiff>`)
+## Accessibility
 
-- **from** — `ReactNode`. Old value (red chip).
-- **to** — `ReactNode`. New value (green chip).
-- **className** — extra classes on the wrapper.
+Expandable rows become focusable buttons, support Enter and Space, and expose `aria-expanded`. Keep `verb` short and specific, because the row reads as "actor verb target" before the detail panel.
 
-## Notes
+## Gotchas
 
-- `<AuditEntry>` is keyboard-accessible: when it has `onClick` or is
-  expandable, it gets `role="button"`, `tabIndex={0}`, and responds to
-  Enter/Space.
-- For grouped views (by day / actor / kind), group at the consumer
-  level and render multiple `<AuditLog>` blocks with headings — the
-  component intentionally stays a flat container.
+`AuditLog` does not group by day yet; `groupBy` is currently accepted for compatibility but not rendered. If compliance requires immutable ordering, sort entries on the server and pass already ordered data.
+
+## Related
+
+Use with `Timeline`, `ActivityFeed`, `Timestamp`, `Avatar`, `QueryBuilder`, and `DataTable`.

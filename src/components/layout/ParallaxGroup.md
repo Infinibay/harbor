@@ -1,11 +1,8 @@
 # ParallaxGroup
 
-Container that exposes cursor proximity to its `ParallaxLayer`
-children. Stack a few layers absolutely with different `depth`
-values and they translate (and optionally tilt) at different
-rates as the cursor approaches — the classic poster / hero
-effect. Coordinated through the global cursor provider, so one
-mousemove listener powers any number of groups.
+`ParallaxGroup` coordinates cursor-proximity motion for layered visual compositions. Child `ParallaxLayer` elements translate, and optionally tilt, at different depths as the pointer approaches the group.
+
+Use it for product visuals, hero media, cover art, showcase cards, or interactive previews. Avoid it for dense work surfaces where motion distracts from repeated tasks.
 
 ## Import
 
@@ -13,45 +10,66 @@ mousemove listener powers any number of groups.
 import { ParallaxGroup, ParallaxLayer } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<ParallaxGroup strength={24} radius={420}>
-  <ParallaxLayer depth={0.2}>
-    <img src="/picture.png" alt="" />
-  </ParallaxLayer>
-  <ParallaxLayer depth={0.6} tilt={0.4}>
-    <h1>Foreground</h1>
-  </ParallaxLayer>
-</ParallaxGroup>
+import { ParallaxGroup, ParallaxLayer } from "@infinibay/harbor/layout";
+
+export function ProductPreview() {
+  return (
+    <ParallaxGroup className="h-[360px] overflow-hidden rounded-xl" strength={24}>
+      <ParallaxLayer depth={0.15} className="absolute inset-0">
+        <img src="/preview/background.png" alt="" />
+      </ParallaxLayer>
+      <ParallaxLayer depth={0.55} tilt={0.35} className="absolute inset-10">
+        <img src="/preview/app-window.png" alt="Harbor app preview" />
+      </ParallaxLayer>
+    </ParallaxGroup>
+  );
+}
 ```
 
-## Props (`<ParallaxGroup>`)
+## Depth Model
 
-- **strength** — `number`. Max pixel offset for a layer at
-  `depth=1` at the rim of the proximity radius. Default `24`.
-- **radius** — `number`. Cursor-proximity radius in pixels.
-  Default `420`.
-- **perspective** — `number`. CSS `perspective` for 3D tilt;
-  set to `0` to disable. Default `800`.
-- **className** — extra classes on the wrapper.
+`depth` controls how far a layer moves relative to `strength`.
 
-## Props (`<ParallaxLayer>`)
+- `0` means static.
+- `1` moves by the full `strength`.
+- Negative values move opposite the cursor and can feel like foreground.
+- `tilt` adds 3D rotation toward the cursor.
 
-- **depth** — `number`. `0` = static, `1` = full `strength`,
-  negative = moves opposite the cursor (foreground feel).
-  Default `0.5`.
-- **tilt** — `number` (`0..1`). Rotates the layer toward the
-  cursor in 3D. Default `0`.
-- **stiffness** — `number`. Spring stiffness. Default `150`.
-- **damping** — `number`. Spring damping. Default `20`.
-- **className** — extra classes on the layer wrapper.
+## Props
 
-## Notes
+### ParallaxGroup
 
-- Stack layers with `position: absolute` and let the group
-  define width / height — `<ParallaxGroup>` is `relative` by
-  default.
-- A layer outside any `ParallaxGroup` is inert (its motion
-  values fall back to zero), so it's safe to use the same
-  component conditionally.
+- **children**: `ReactNode`.
+- **strength**: `number`. Max pixel offset for `depth={1}`. Defaults to `24`.
+- **radius**: `number`. Cursor-proximity radius in pixels. Defaults to `420`.
+- **perspective**: `number`. CSS perspective for 3D tilt. Defaults to `800`; set `0` to disable.
+- **className**: custom class on the relative wrapper.
+
+### ParallaxLayer
+
+- **children**: `ReactNode`.
+- **depth**: `number`. Defaults to `0.5`.
+- **tilt**: `number`. Rotation intensity from `0` to `1`. Defaults to `0`.
+- **stiffness**: `number`. Spring stiffness. Defaults to `150`.
+- **damping**: `number`. Spring damping. Defaults to `20`.
+- **className**: custom class on the layer.
+
+## Accessibility
+
+Parallax should be decorative. Keep meaningful images labelled and decorative layers `alt=""`. If the motion surrounds critical content, provide a reduced-motion experience in the consuming page.
+
+## Gotchas
+
+- The group is `position: relative`; you still need to size it.
+- Layers often need `position: absolute` classes so they stack.
+- A `ParallaxLayer` outside a group is inert because its motion values fall back to zero.
+- High `strength` plus high `tilt` can make UI text hard to read.
+
+## Related
+
+- [`ContentSwap`](./ContentSwap.md) for animated content changes.
+- [`BackgroundScene`](../backgrounds/AnimatedBackground.md) for full visual scenes.
+- [`HeroSection`](../sections/HeroSection.md) for structured hero content.

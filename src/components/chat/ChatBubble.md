@@ -1,8 +1,11 @@
 # ChatBubble
 
-A single message in a chat thread, with author, timestamp, delivery status,
-and reactions. Mirrors itself for outgoing (`from="me"`) vs incoming
-(`from="them"`) messages.
+`ChatBubble` renders one animated chat message. It supports incoming and outgoing alignment,
+optional author, avatar, timestamp, delivery status, and reaction pills.
+
+Use it in chat apps, support inboxes, collaborative comments, AI assistants, incident rooms,
+and activity conversations. It is the visual message primitive; message lists, grouping,
+threading, persistence, and sending state live in the parent.
 
 ## Import
 
@@ -10,7 +13,7 @@ and reactions. Mirrors itself for outgoing (`from="me"`) vs incoming
 import { ChatBubble } from "@infinibay/harbor/chat";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <ChatBubble
@@ -19,28 +22,54 @@ import { ChatBubble } from "@infinibay/harbor/chat";
   time="10:42 AM"
   reactions={[{ emoji: "🔥", count: 2 }]}
 >
-  Hey, did you see the new launch announcement?
-</ChatBubble>
-
-<ChatBubble from="me" time="10:43 AM" status="read">
-  On it now.
+  I pushed the preview build. Can you check the billing flow?
 </ChatBubble>
 ```
 
+## Layout Model
+
+`from="me"` aligns the bubble to the right and reverses avatar placement. `from="them"`
+aligns to the left. The bubble has a maximum width of `80%`, so it works inside flexible chat
+columns without taking the whole row.
+
+Delivery status renders below the bubble. `sending` shows a spinner, `sent` shows one check,
+`delivered` shows two checks, and `read` shows two blue checks. Reactions are absolutely
+positioned at the bottom edge of the bubble.
+
 ## Props
 
-- **from** — `"me" | "them"`. Required. Drives side, color, and tail corner.
-- **children** — `ReactNode`. Required. Message body.
-- **author** — `string`. Name shown above the bubble.
-- **avatar** — `ReactNode`. Rendered next to the bubble (flipped to the other side when `from="me"`).
-- **time** — `string`. Timestamp label under the bubble.
-- **status** — `"sending" | "sent" | "delivered" | "read"`. Renders a spinner or check glyphs after the time. `"read"` checks render in blue.
-- **reactions** — `{ emoji: string; count: number }[]`. Pill row anchored to the bottom corner of the bubble.
-- **className** — extra classes on the outer wrapper.
+- **from** - `"me" | "them"`. Controls alignment and color.
+- **author** - optional author label.
+- **avatar** - optional avatar slot.
+- **time** - timestamp text.
+- **status** - `"sending" | "sent" | "delivered" | "read"`.
+- **reactions** - `{ emoji, count }[]`.
+- **children** - message body.
+- **className** - extra classes.
 
-## Notes
+## Accessibility
 
-- Animates in via `framer-motion` `layout` + spring; place inside an animated list for smooth insertion.
-- `me` bubbles use a fuchsia→indigo gradient; `them` bubbles use a translucent surface.
-- Width is capped at `max-w-[80%]`; the bubble auto-aligns left/right from `from`.
-- Pair with `<TypingIndicator>` for the "is typing…" state and `<ChatInput>` to author new messages.
+The component renders visual message content and status icons. Make sure the surrounding
+message list exposes conversation context, ordering, and live updates when needed. If status
+matters to assistive technology, include readable text in the surrounding UI because the
+checkmark icons are decorative SVGs without labels.
+
+Use real text for author and time rather than putting that information only in an avatar or
+tooltip.
+
+## Gotchas
+
+- Reactions are positioned outside the bubble. Leave vertical space between stacked messages
+  when reactions are common.
+- `children` can be any React node, but long unbroken text or code should be wrapped by the
+  parent to avoid overflow.
+- `ChatBubble` does not group consecutive messages from the same author. Do that in the
+  message-list layer.
+- Timestamps are strings; formatting and locale handling belong to the app.
+
+## Related
+
+- `ChatInput` for message composition.
+- `MentionInput` and `EmojiPicker` for richer composers.
+- `TypingIndicator` for live conversation state.
+- `Avatar` and `Presence` for identity.

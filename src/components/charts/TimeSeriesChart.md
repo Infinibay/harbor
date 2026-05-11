@@ -1,6 +1,8 @@
 # TimeSeriesChart
 
-Multi-series chart over real timestamps with hover crosshair, optional brushing for range selection, stacked areas, and `<TimeSeriesMarker>` annotations. Use for metrics over time. For categorical x prefer `LineChart`; for forecast overlays use `ResourceForecast`.
+`TimeSeriesChart` renders one or more timestamped numeric series with axes, hover readouts, optional filled areas, stacked mode, brush selection, and annotation markers. It is the right Harbor chart for usage graphs, latency, billing, queue depth, revenue, health checks, or any metric that changes over time.
+
+The component owns rendering and pointer interaction. Your application owns the data, domain, formatting, and what to do when a user selects a time range.
 
 ## Import
 
@@ -8,53 +10,67 @@ Multi-series chart over real timestamps with hover crosshair, optional brushing 
 import { TimeSeriesChart, TimeSeriesMarker } from "@infinibay/harbor/charts";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const now = Date.now();
-const points = (offset: number) =>
-  Array.from({ length: 30 }, (_, i) => ({
-    t: now - (30 - i) * 60_000,
-    v: 50 + offset + Math.sin(i / 3) * 12 + Math.random() * 4,
-  }));
+const data = [
+  { t: Date.now() - 60_000 * 4, v: 42 },
+  { t: Date.now() - 60_000 * 3, v: 48 },
+  { t: Date.now() - 60_000 * 2, v: 44 },
+  { t: Date.now() - 60_000, v: 63 },
+  { t: Date.now(), v: 71 },
+];
 
 <TimeSeriesChart
   height={260}
+  formatY={(v) => `${Math.round(v)} ms`}
   series={[
-    { id: "cpu", label: "CPU %",  data: points(0) },
-    { id: "mem", label: "Mem %",  data: points(20) },
+    { id: "p95", label: "P95 latency", color: "#a855f7", data },
   ]}
-  onRangeSelect={(r) => console.log("zoom", r)}
-  formatY={(v) => `${v.toFixed(0)}%`}
 >
-  <TimeSeriesMarker at={now - 10 * 60_000} label="deploy" color="#f43f5e" />
+  <TimeSeriesMarker at={Date.now() - 60_000 * 2} label="Deploy" />
 </TimeSeriesChart>
 ```
 
+## Brush Selection
+
+```tsx
+<TimeSeriesChart
+  series={series}
+  onRangeSelect={(range) => {
+    setTimeWindow(range);
+    refetchMetrics(range);
+  }}
+/>
+```
+
+When `onRangeSelect` is present, brushing is enabled by default. Pass `brushEnabled={false}` if the chart should show hover details only.
+
 ## Props
 
-- **series** — `readonly TimeSeries[]`. Each `{ id, label?, color?, data }` where data is `{ t: Date | number, v: number }[]`.
-- **xDomain** — `{ from: Date, to: Date }`. Default: inferred.
-- **yDomain** — `[min, max]`. Default: inferred with 10 % padding.
-- **area** — fill under each line. Default: `true`.
-- **stacked** — stack series on top of each other (assumes shared timestamps). Default: `false`.
-- **yTicks** — number of horizontal gridlines. Default: `4`.
-- **height** — chart height in px. Default: `240`.
-- **formatY** — y-tick + tooltip formatter. Default: 2-decimal rounding.
-- **onRangeSelect** — `(range) => void`. Fires after a drag of more than ~1 s of x.
-- **brushEnabled** — force-enable brushing (defaults to `true` when `onRangeSelect` is set).
-- **children** — `<TimeSeriesMarker>` elements only; non-markers are ignored.
-- **className** — wrapper class.
+- `series`: required array of `{ id, label?, color?, data }`.
+- `xDomain`: explicit `{ from, to }` date range.
+- `yDomain`: explicit `[min, max]` value range.
+- `area`: fills under each line. Default is `true`.
+- `stacked`: stacks later series over earlier series.
+- `yTicks`: y-axis tick count. Default is `4`.
+- `height`: chart height in pixels. Default is `240`.
+- `formatY`: value formatter for axis and hover readout.
+- `onRangeSelect`: receives the brushed date range.
+- `brushEnabled`: overrides brush behavior.
 
-### `<TimeSeriesMarker>`
+## Markers
 
-- **at** — `Date | number` (ms).
-- **label** — short text drawn at the top of the line.
-- **color** — stroke + label color. Default: pink-ish.
-- **stroke** — `"solid" | "dashed"`. Default: `"dashed"`.
+Render `TimeSeriesMarker` as a child for deploys, incidents, alerts, or billing cutoffs. It accepts `at`, `label`, `color`, and `stroke`.
 
-## Notes
+## Accessibility
 
-- Brushing uses pointer + window listeners; releases shorter than 1 s of x are ignored to avoid accidental zooms.
-- The hover tooltip snaps to the nearest point per series and shows an absolute date-time on the left.
-- Internal SVG viewBox is 720 × `height`, stretched to the container — preserveAspectRatio is `none`, so very wide containers stretch ticks.
+Use surrounding text to name the metric and current range. The chart is visual and pointer-driven, so pair important values with summaries, `MetricCard`, or a `DataTable` when the exact numbers must be accessible.
+
+## Gotchas
+
+Stacked mode assumes aligned timestamps across series. If your backend returns sparse data, normalize it before rendering. For server-side zoom, keep `xDomain` controlled and update it from `onRangeSelect`.
+
+## Related
+
+Use with `MetricCard`, `MetricHeatmap`, `TraceWaterfall`, `DataTable`, and `SnapshotTimeline`.

@@ -1,49 +1,70 @@
 # Carousel
 
-Slide-style content rotator with drag, arrows, and dot pagination.
-Each slide accepts arbitrary `ReactNode` content — images, copy,
-embeds. For an immersive image viewer with zoom + arrow keys see
-`<Lightbox>`.
+`Carousel` displays one slide at a time with animated transitions, optional arrows, optional dots, and horizontal drag gestures. Use it for product screenshots, media previews, onboarding panels, testimonial visuals, and small content sequences.
+
+It accepts any React node as slide content, so slides can be images, video placeholders, cards, diagrams, or custom composed UI.
 
 ## Import
 
 ```tsx
-import { Carousel, type CarouselSlide } from "@infinibay/harbor/media";
+import { Carousel } from "@infinibay/harbor/media";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<Carousel
-  aspect="video"
-  slides={[
-    { id: "1", content: <img src="/cover-1.jpg" className="w-full h-full object-cover" /> },
-    { id: "2", content: <div className="grid place-items-center">Welcome aboard.</div> },
-    { id: "3", content: <video src="/promo.mp4" autoPlay muted loop /> },
-  ]}
-/>
-```
+import { Carousel } from "@infinibay/harbor/media";
 
-## CarouselSlide
+const slides = [
+  { id: "dashboard", content: <img src="/picture.png" alt="Dashboard" /> },
+  { id: "editor", content: <div>Editor preview</div> },
+  { id: "settings", content: <img src="/picture.png" alt="Settings" /> },
+];
 
-```ts
-{ id: string; content: ReactNode }
+export function ProductTour() {
+  return <Carousel slides={slides} aspect="video" />;
+}
 ```
 
 ## Props
 
-- **slides** — `CarouselSlide[]`. Required.
-- **initial** — `number`. Index of the first visible slide. Default `0`.
-- **showArrows** — `boolean`. Default `true`. Left/right round buttons.
-- **showDots** — `boolean`. Default `true`. Pagination dots at the bottom.
-- **aspect** — `"video" | "square" | "wide"`. Default `"video"`. Sets
-  the container aspect-ratio (16/9, 1/1, 21/9).
-- **className** — extra classes on the wrapper.
+- **slides** - `CarouselSlide[]`. Required ordered slide list.
+- **initial** - `number`. Initial slide index. Default `0`.
+- **className** - extra classes on the wrapper.
+- **showDots** - `boolean`. Default `true`.
+- **showArrows** - `boolean`. Default `true`.
+- **aspect** - `"video" | "square" | "wide"`. Default `"video"`.
 
-## Notes
+## Slide Model
 
-- Drag the slide horizontally to advance: a 60px throw triggers
-  next/prev. The animation uses framer-motion's `popLayout` mode.
-- Slides loop — clicking past the last slide wraps to the first.
-- `<Carousel>` doesn't lazy-load; if you have heavy media, render
-  placeholders inside `content` and swap them in on demand.
+```ts
+type CarouselSlide = {
+  id: string;
+  content: ReactNode;
+};
+```
+
+Use stable ids so slide transitions stay predictable. The component does not lazy-load slide content, so handle heavy media outside the carousel when needed.
+
+## Behavior
+
+Arrows loop around the slide list. Dots jump to a specific slide and animate the active indicator width. Dragging left advances to the next slide; dragging right returns to the previous slide when the drag offset crosses roughly 60 pixels.
+
+`initial` is used only for the first render. After mount, the carousel owns its active index.
+
+## Accessibility
+
+Arrow and dot buttons currently do not include `aria-label` values. If this carousel is customer-facing or central to navigation, wrap it with accessible labels or improve the component before release. Slide content should provide its own alt text or accessible copy.
+
+## Gotchas
+
+- Empty `slides` will break because the component reads `slides[idx]`.
+- `initial` is not clamped.
+- The active index is uncontrolled after mount.
+- The carousel does not auto-play.
+
+## Related
+
+- `Lightbox` for focused image viewing.
+- `ImageGallery` for multi-image browsing.
+- `CompareSlider` for before/after media.

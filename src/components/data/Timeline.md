@@ -1,9 +1,8 @@
 # Timeline
 
-Vertical event stream with a left rail and tone-coded markers. Use for
-generic chronological feeds (deployments, lifecycle events). For
-actor / verb / target audit trails with grouping and diffs use
-`<AuditLog>`.
+`Timeline` renders a chronological event stream with a vertical rail, tone-coded markers, titles, descriptions, and time labels. Use it for deployments, lifecycle histories, incident updates, subscription activity, environment changes, and compact audit summaries.
+
+It is a presentational timeline, not a data processor. Format dates, group events, and filter entries before passing them to the component.
 
 ## Import
 
@@ -11,35 +10,73 @@ actor / verb / target audit trails with grouping and diffs use
 import { Timeline } from "@infinibay/harbor/data";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<Timeline
-  events={[
-    { id: "1", title: "Deployed v1.5.0", time: "2m ago", tone: "success" },
-    { id: "2", title: "Migration started", description: "schema_v3",
-      time: "10m ago", tone: "info" },
-    { id: "3", title: "Disk pressure on node-2", time: "1h ago",
-      tone: "warning" },
-    { id: "4", title: "API down",
-      description: "/v1/health returned 503", time: "yesterday",
-      tone: "danger" },
-  ]}
-/>
+import { Timeline } from "@infinibay/harbor/data";
+
+export function DeploymentTimeline() {
+  return (
+    <Timeline
+      events={[
+        { id: "deploy", title: "Deployed v1.5.0", time: "2m ago", tone: "success" },
+        {
+          id: "migration",
+          title: "Migration started",
+          description: "schema_v3 to schema_v4",
+          time: "10m ago",
+          tone: "info",
+        },
+        {
+          id: "disk",
+          title: "Disk pressure on node-2",
+          description: "85% used",
+          time: "1h ago",
+          tone: "warning",
+        },
+      ]}
+    />
+  );
+}
 ```
 
 ## Props
 
-- **events** — `TimelineEvent[]`. Required. Each event:
-  `{ id, title: ReactNode, description?: ReactNode, time: string,
-  icon?: ReactNode, tone?: "neutral" | "success" | "warning" | "danger" | "info" }`.
-- **className** — extra classes on the root `<ol>`.
+- **events** - `TimelineEvent[]`. Required ordered list of events.
+- **className** - extra classes on the root `<ol>`.
 
-## Notes
+## Event Model
 
-- `time` is a pre-formatted string — the component does no date
-  formatting. Use `<Timestamp>` upstream if you want relative time
-  rendering.
-- Without `icon`, a small dot is rendered using the tone color.
-- Each event animates in with a small staggered offset.
-- Renders as `<ol>` with `<li>` items for natural reading order.
+```ts
+type TimelineEvent = {
+  id: string;
+  title: ReactNode;
+  description?: ReactNode;
+  time: string;
+  icon?: ReactNode;
+  tone?: "neutral" | "success" | "warning" | "danger" | "info";
+};
+```
+
+`title` and `description` accept `ReactNode`, so you can include links, badges, or formatted values. `time` is already-rendered text. If you need relative time, use `Timestamp` upstream and pass the rendered result into `time` or title content.
+
+## Behavior
+
+Events render in the order you provide. Each item animates in with a small staggered offset. When `icon` is omitted, Harbor renders a small tone-colored dot inside the marker. The rail continues behind all items and fades at the bottom.
+
+## Accessibility
+
+The component uses an ordered list (`<ol>` and `<li>`), which gives assistive technology the correct reading order. Icons are visual only unless you pass semantic content yourself. Keep important state in the title or description, not only in marker color.
+
+## Gotchas
+
+- `Timeline` does not sort events.
+- `time` is a string and is not parsed or localized.
+- Tone colors are visual hints. Include the actual status text for critical events.
+- For long operational logs, use `AuditLog`, `ActivityFeed`, or a virtualized list.
+
+## Related
+
+- `AuditLog` for actor/action/resource history.
+- `ActivityFeed` for social or collaboration feeds.
+- `Timestamp` for relative and absolute time formatting.

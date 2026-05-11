@@ -1,10 +1,8 @@
 # RangeSlider
 
-Two-thumb numeric range input — pick a minimum and maximum on a
-continuous scale. Use for price brackets, resource bounds, date-like
-ranges already projected to numbers. For a single value reach for
-`<Slider>`; for a labelled value with a number field beside it use
-`<SliderField>`.
+`RangeSlider` captures a numeric interval with two draggable thumbs. Use it for price ranges, duration windows, utilization filters, confidence thresholds, date offsets, zoom limits, and any bounded numeric pair where users adjust both lower and upper values.
+
+It is optimized for pointer interaction and compact filtering UI.
 
 ## Import
 
@@ -12,38 +10,59 @@ ranges already projected to numbers. For a single value reach for
 import { RangeSlider } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [bounds, setBounds] = useState<[number, number]>([20, 80]);
+import { useState } from "react";
+import { RangeSlider } from "@infinibay/harbor/inputs";
 
-<RangeSlider
-  label="Price range"
-  min={0}
-  max={500}
-  step={5}
-  value={bounds}
-  onChange={setBounds}
-/>;
+export function PriceRange() {
+  const [range, setRange] = useState<[number, number]>([25, 75]);
+
+  return (
+    <RangeSlider
+      label="Price range"
+      value={range}
+      onChange={setRange}
+      min={0}
+      max={100}
+      step={5}
+    />
+  );
+}
 ```
 
 ## Props
 
-- **value** — `[number, number]`. Controlled lower/upper pair.
-- **defaultValue** — `[number, number]`. Default `[20, 80]`.
-- **onChange** — `(v: [number, number]) => void`.
-- **min** — `number`. Default `0`.
-- **max** — `number`. Default `100`.
-- **step** — `number`. Default `1`. Snap increment.
-- **label** — `string`. Optional caption above the track.
-- **showValue** — `boolean`. Default `true`. Renders `lo – hi` to the
-  right of the label.
-- **className** — extra classes on the wrapper.
+- **value** - `[number, number]`. Controlled lower and upper values.
+- **defaultValue** - `[number, number]`. Uncontrolled initial value. Default `[20, 80]`.
+- **onChange** - `(value: [number, number]) => void`. Called during pointer updates.
+- **min** - `number`. Minimum value. Default `0`.
+- **max** - `number`. Maximum value. Default `100`.
+- **step** - `number`. Rounding increment. Default `1`.
+- **label** - `string`. Optional label above the slider.
+- **showValue** - `boolean`. Shows current range text. Default `true`.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Behavior
 
-- The thumbs can't cross — the lower thumb is clamped to the upper's
-  current value and vice versa.
-- Pointer-down on the track grabs the thumb closest to the cursor, so
-  users can also click-and-drag from anywhere on the bar.
-- A small tooltip with the live value floats above the dragging thumb.
+Pointer down picks the closest thumb, captures the pointer, and updates that thumb as the user drags. The lower thumb cannot pass the upper value, and the upper thumb cannot pass the lower value. Values are clamped into `[min, max]` and rounded to the nearest `step`.
+
+The selected segment animates between the two percentages. While dragging, the active thumb shows a small value tooltip.
+
+## Accessibility
+
+The current implementation is pointer-first and does not expose native range inputs, `role="slider"`, keyboard controls, or ARIA value attributes. For settings that must be fully keyboard accessible, provide paired numeric fields or extend the component with slider semantics.
+
+## Gotchas
+
+- `max` must be greater than `min`.
+- `step` should be a positive number.
+- Controlled mode requires updating `value` from `onChange`.
+- The display uses raw numbers and does not format currency or units.
+
+## Related
+
+- `Slider` for a single numeric value.
+- `NumberField` for precise keyboard entry.
+- `FilterBar` for range filters inside data-heavy screens.

@@ -192,11 +192,13 @@ export function MenuItem({
   return (
     <>
       <button
+        type="button"
         ref={itemRef}
         onClick={handle}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
         disabled={disabled}
+        aria-expanded={submenu ? open : undefined}
         data-cursor="button"
         className={cn(
           "flex w-full items-center gap-[var(--harbor-menu-item-gap)] rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-left text-[length:var(--harbor-menu-item-font-size)] outline-none transition-colors",

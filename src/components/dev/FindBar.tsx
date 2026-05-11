@@ -147,12 +147,14 @@ export function FindBar({
                   className="flex-1 min-w-0 h-7 px-1 bg-transparent text-white text-sm placeholder:text-white/30 outline-none"
                 />
                 <button
+                  type="button"
                   onClick={() => onReplace(q, r)}
                   className="h-7 px-2 text-xs text-white rounded bg-white/10 hover:bg-white/15"
                 >
                   Replace
                 </button>
                 <button
+                  type="button"
                   onClick={() => onReplace(q, r)}
                   className="h-7 px-2 text-xs text-white rounded bg-white/10 hover:bg-white/15"
                 >
@@ -178,8 +180,10 @@ function FIcon({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       title={title}
+      aria-label={title}
       className="w-7 h-7 grid place-items-center text-white/60 hover:bg-white/5 hover:text-white rounded text-xs"
     >
       {children}
@@ -200,8 +204,11 @@ function FToggle({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       title={title}
+      aria-label={title}
+      aria-pressed={active}
       className={cn(
         "w-7 h-7 grid place-items-center rounded text-[11px] font-mono transition-colors",
         active

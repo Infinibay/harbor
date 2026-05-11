@@ -183,6 +183,7 @@ export function CommandPalette({
                             onMouseEnter={() => setIdx(i)}
                           >
                             <button
+                              type="button"
                               onClick={() => {
                                 c.action();
                                 onOpenChange(false);

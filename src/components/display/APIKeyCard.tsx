@@ -108,21 +108,21 @@ function KeyCard({
       {extra ? <div>{extra}</div> : null}
       <div className="flex items-center gap-2 pt-2 border-t border-white/8">
         {onReveal ? (
-          <button onClick={onReveal} className="text-xs text-white/70 hover:text-white px-2 py-1">
+          <button type="button" onClick={onReveal} className="text-xs text-white/70 hover:text-white px-2 py-1">
             {revealed ? "Hide" : "Reveal"}
           </button>
         ) : null}
-        <button onClick={copy} className="text-xs text-white/70 hover:text-white px-2 py-1">
+        <button type="button" onClick={copy} className="text-xs text-white/70 hover:text-white px-2 py-1">
           {copied ? "✓ copied" : "Copy"}
         </button>
         <span className="flex-1" />
         {onRotate ? (
-          <button onClick={onRotate} className="text-xs text-sky-200 hover:text-white px-2 py-1">
+          <button type="button" onClick={onRotate} className="text-xs text-sky-200 hover:text-white px-2 py-1">
             Rotate
           </button>
         ) : null}
         {onRevoke ? (
-          <button onClick={onRevoke} className="text-xs text-rose-300 hover:text-rose-200 px-2 py-1">
+          <button type="button" onClick={onRevoke} className="text-xs text-rose-300 hover:text-rose-200 px-2 py-1">
             Revoke
           </button>
         ) : null}

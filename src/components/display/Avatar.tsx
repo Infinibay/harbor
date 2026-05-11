@@ -71,6 +71,8 @@ export function Avatar({
   return (
     <motion.span
       ref={ref}
+      role="img"
+      aria-label={name ?? "Avatar"}
       whileHover={interactive ? { y: -3, scale: 1.08 } : undefined}
       transition={{ type: "spring", stiffness: 400, damping: 20 }}
       style={{
@@ -90,7 +92,8 @@ export function Avatar({
       {src ? (
         <img
           src={src}
-          alt={name ?? ""}
+          alt=""
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover"
         />
       ) : (
@@ -144,6 +147,7 @@ export function AvatarStack({
       ))}
       {rest > 0 ? (
         <div
+          aria-label={`${rest} more people`}
           className="grid place-items-center rounded-full bg-white/10 border border-white/10 text-white/80 font-semibold"
           style={{ width: s.w, height: s.w, fontSize: 10 }}
         >

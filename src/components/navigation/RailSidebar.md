@@ -1,41 +1,75 @@
 # RailSidebar
 
-Narrow icon-only navigation rail (think VS Code activity bar or Discord
-server list). Use it as a fixed-width column for top-level navigation
-sections; hover surfaces the label via Tooltip. Pair with `<Sidebar>`
-for a two-column nav, or use it solo for icon-only apps. For a
-collapsible text+icon sidebar, see `<CollapsibleSidebar>`.
+`RailSidebar` is a narrow icon-only navigation rail similar to an editor activity bar or compact workspace switcher. Use it for primary app areas such as files, search, branches, deployments, settings, notifications, and account spaces.
+
+It is best when users recognize the icons through repeated use and can hover for labels.
 
 ## Import
 
 ```tsx
-import { RailSidebar } from "@infinibay/harbor/navigation";
+import { RailSidebar, type RailItem } from "@infinibay/harbor/navigation";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const items = [
-  { id: "files", label: "Files", icon: <FilesIcon /> },
-  { id: "search", label: "Search", icon: <SearchIcon /> },
-  { id: "git", label: "Git", icon: <GitIcon />, badge: <Badge tone="info">3</Badge> },
+import { useState } from "react";
+import { RailSidebar, type RailItem } from "@infinibay/harbor/navigation";
+
+const items: RailItem[] = [
+  { id: "files", label: "Files", icon: <span aria-hidden>F</span> },
+  { id: "search", label: "Search", icon: <span aria-hidden>S</span> },
+  { id: "deploys", label: "Deploys", icon: <span aria-hidden>D</span> },
 ];
 
-<RailSidebar items={items} value={tab} onChange={setTab} />
+export function WorkbenchRail() {
+  const [active, setActive] = useState("files");
+
+  return <RailSidebar items={items} value={active} onChange={setActive} />;
+}
 ```
 
 ## Props
 
-- **items** — `RailItem[]`. Required. Each item is
-  `{ id, label, icon, badge? }`. `label` is shown as a tooltip on hover.
-- **value** — `string`. Controlled selected id.
-- **onChange** — `(id: string) => void`. Fires when an item is clicked.
-- **header** — `ReactNode`. Slot rendered above the items (e.g. logo).
-- **footer** — `ReactNode`. Slot rendered below (e.g. avatar, settings).
-- **className** — extra classes on the `<aside>`.
+- **items** - `RailItem[]`. Required navigation entries.
+- **value** - `string`. Active item id.
+- **onChange** - `(id: string) => void`. Called when an item is clicked.
+- **header** - `ReactNode`. Optional content above the rail items.
+- **footer** - `ReactNode`. Optional content pinned below the rail items.
+- **className** - extra classes on the root `<aside>`.
 
-## Notes
+## Item Model
 
-- Fixed width (`w-14`) and full height — wrap in a flex parent.
-- Active item is marked with a fuchsia left-edge accent stripe.
-- Badges are positioned at the top-right corner of the icon button.
+```ts
+type RailItem = {
+  id: string;
+  label: string;
+  icon: ReactNode;
+  badge?: ReactNode;
+};
+```
+
+`label` is used for both the tooltip content and the button's accessible name. `badge` renders in the top-right corner of the item.
+
+## Behavior
+
+The active item gets a tinted background and a left indicator bar. Inactive items become brighter on hover. Labels are shown through Harbor `Tooltip` on the right side.
+
+`RailSidebar` does not render the target panel. Your app switches the adjacent content based on `value`.
+
+## Accessibility
+
+Each item is a button with `aria-label`. Because the visible UI is icon-only, labels must be clear and stable. If an icon is not widely understood, consider a wider `Sidebar` with visible text.
+
+## Gotchas
+
+- This is a controlled navigation rail; update `value` in `onChange`.
+- Icons should fit inside a 40px square button.
+- Badges can overlap complex icons.
+- Tooltips require pointer hover and should not be the only source of critical context.
+
+## Related
+
+- `Sidebar` for text-first navigation.
+- `CollapsibleSidebar` for expandable app navigation.
+- `AppShell` for composing app chrome.

@@ -80,6 +80,7 @@ export function Sidebar({
                         onSelect?.(it.id);
                       }}
                       whileHover={{ x: 2 }}
+                      aria-current={active ? "page" : undefined}
                       data-cursor="button"
                       className={cn(
                         "relative flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm transition-colors",

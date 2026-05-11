@@ -1,10 +1,8 @@
 # BrowserTabs
 
-Browser-style tab strip with reorderable, closable, pinnable tabs and
-an optional new-tab button. Drag-to-reorder is powered by
-`framer-motion`'s `Reorder.Group`; the active-tab underline animates
-via shared `layoutId`. Pair it with `<WindowFrame>` for a full
-browser mock, or use it standalone for tabbed UIs.
+`BrowserTabs` renders draggable, closable, browser-style tabs for workbench shells. It supports active state, pinned tabs, loading indicators, reorder callbacks, close buttons, and a new-tab action.
+
+Use it for desktop-style apps, Tauri workbenches, code editors, SQL clients, docs workspaces, and multi-document tools.
 
 ## Import
 
@@ -12,44 +10,69 @@ browser mock, or use it standalone for tabbed UIs.
 import { BrowserTabs, type BrowserTab } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [tabs, setTabs] = useState<BrowserTab[]>([
-  { id: "1", title: "harbor", pinned: true },
-  { id: "2", title: "docs" },
-  { id: "3", title: "github", loading: true },
-]);
-const [active, setActive] = useState("2");
+import { useState } from "react";
+import { BrowserTabs, type BrowserTab } from "@infinibay/harbor/layout";
 
-<BrowserTabs
-  tabs={tabs}
-  activeId={active}
-  onActivate={setActive}
-  onClose={(id) => setTabs((t) => t.filter((x) => x.id !== id))}
-  onReorder={setTabs}
-  onNew={() => setTabs((t) => [...t, { id: crypto.randomUUID(), title: "new tab" }])}
-/>
+export function EditorTabs() {
+  const [tabs, setTabs] = useState<BrowserTab[]>([
+    { id: "schema", title: "schema.sql", pinned: true },
+    { id: "query", title: "query.ts", loading: false },
+  ]);
+  const [activeId, setActiveId] = useState("schema");
+
+  return (
+    <BrowserTabs
+      tabs={tabs}
+      activeId={activeId}
+      onActivate={setActiveId}
+      onReorder={setTabs}
+      onClose={(id) => setTabs((current) => current.filter((tab) => tab.id !== id))}
+      onNew={() => createNewTab()}
+    />
+  );
+}
 ```
+
+## Data Model
+
+```ts
+type BrowserTab = {
+  id: string;
+  title: string;
+  icon?: ReactNode;
+  pinned?: boolean;
+  loading?: boolean;
+};
+```
+
+Pinned tabs cannot be dragged or closed. Loading tabs show a spinner in the icon slot.
 
 ## Props
 
-- **tabs** — `BrowserTab[]`. Required. Each tab has `id`, `title`,
-  optional `icon`, `pinned`, `loading`.
-- **activeId** — `string`. Required. The currently active tab id.
-- **onActivate** — `(id: string) => void`. Required. Fires on click.
-- **onClose** — `(id: string) => void`. Optional. Without it, the ×
-  button is hidden. Pinned tabs never show ×.
-- **onReorder** — `(tabs: BrowserTab[]) => void`. Optional. Without it
-  drag-to-reorder is effectively read-only.
-- **onNew** — `() => void`. Optional. Renders a `+` button at the end
-  of the strip when provided.
-- **className** — extra classes on the wrapper.
+- **tabs**: `BrowserTab[]`. Required controlled tab order.
+- **activeId**: `string`. Required selected tab id.
+- **onActivate**: `(id: string) => void`. Required activation callback.
+- **onClose**: `(id: string) => void`. Enables close buttons for unpinned tabs.
+- **onReorder**: `(tabs: BrowserTab[]) => void`. Enables controlled reordering.
+- **onNew**: `() => void`. Enables the new-tab button.
+- **className**: custom class on the tab strip.
 
-## Notes
+## Accessibility
 
-- Pinned tabs are not draggable (`dragListener={!pinned}`).
-- The loading icon is a small spinner; otherwise `icon ?? "🌐"` is
-  used as a fallback.
-- The active tab's bottom edge is animated with `layoutId="tab-bottom"`
-  so it slides between tabs when you switch.
+Tab items are keyboard focusable, expose the active item with `aria-current`, and activate with Enter or Space. The close and new buttons have labels. Pair the strip with a corresponding panel region in the consuming app so the active tab controls visible content.
+
+## Gotchas
+
+- Reordering is powered by Framer Motion `Reorder`, so `tabs` must be stable objects or updated from `onReorder`.
+- Closing the active tab is your responsibility. Choose the next active id before or after removing it.
+- Pinned tabs still call `onActivate`; they only disable drag/close.
+- The component renders the strip, not the tab panels.
+
+## Related
+
+- [`WindowFrame`](./WindowFrame.md) for desktop/browser chrome.
+- [`MenuBar`](./MenuBar.md) for app menus above tabs.
+- [`EditorTabs`](./EditorTabs.md) for editor-specific tabs.

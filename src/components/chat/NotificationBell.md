@@ -1,49 +1,83 @@
 # NotificationBell
 
-A bell icon button with an unread counter badge that opens a portaled
-dropdown listing recent notifications. Use in app headers/toolbars.
+`NotificationBell` is a compact notification trigger with unread count, animated
+bell state, anchored popover, mark-all-read action, and clickable notification
+rows. It belongs in app headers, desktop chrome, admin shells, and customer
+portals where background events need a visible home.
+
+Use it for notifications that can be reviewed later. Use `Toast` for immediate
+feedback after the user's current action.
 
 ## Import
 
 ```tsx
-import { NotificationBell, type Notification } from "@infinibay/harbor/chat";
+import { NotificationBell } from "@infinibay/harbor/chat";
 ```
 
-## Example
+## Basic Usage
+
+Pass notifications and handlers. Harbor owns the popover state; your app owns
+read state.
 
 ```tsx
-const items: Notification[] = [
-  { id: "1", title: "Build finished", description: "main · 2m 14s", time: "now", unread: true },
-  { id: "2", title: "Ana commented on your PR", time: "10m" },
-];
-
 <NotificationBell
-  notifications={items}
-  onRead={(id) => markRead(id)}
+  notifications={[
+    {
+      id: "deploy-ready",
+      title: "Preview deployment ready",
+      description: "docs-preview-42 is available for review.",
+      time: "2m ago",
+      unread: true,
+    },
+  ]}
+  onRead={(id) => markNotificationRead(id)}
   onReadAll={() => markAllRead()}
 />
 ```
 
+## Icons
+
+Use `icon` for source or category context.
+
+```tsx
+{
+  id: "invoice",
+  title: "Invoice paid",
+  time: "1h ago",
+  icon: <CreditCardIcon />,
+}
+```
+
 ## Props
 
-- **notifications** — `Notification[]`. Required. List rendered top-to-bottom.
-- **onRead** — `(id: string) => void`. Fires when a row is clicked.
-- **onReadAll** — `() => void`. Wires the "Mark all read" link in the header. The link only renders when there are unread items AND this prop is provided.
-- **className** — extra classes on the bell button.
+- `notifications`: required notification array.
+- `onRead`: called when a row is selected.
+- `onReadAll`: optional mark-all-read callback.
+- `className`: trigger class override.
 
-### `Notification` shape
+Notifications include `id`, `title`, optional `description`, `time`, optional
+`unread`, and optional `icon`.
 
-- **id** — `string`. Required, used as React key and passed to `onRead`.
-- **title** — `string`. Required.
-- **description** — `string`. Clamped to two lines.
-- **time** — `string`. Required. Free-form label (e.g. `"10m"`, `"now"`).
-- **unread** — `boolean`. Shows a fuchsia dot and contributes to the badge count.
-- **icon** — `ReactNode`. Optional avatar/icon on the left of the row.
+## Accessibility
 
-## Notes
+The trigger is a button with expanded state. Notification rows are keyboard
+activatable. Keep titles descriptive, because they are the fastest way to scan
+the popover.
 
-- The button carries `aria-label="Notifications"`. The bell wiggles on a 4s loop while there are unread items.
-- The badge shows the unread count, capped to `9+`.
-- The dropdown renders into a `<Portal>` at `Z.POPOVER`, fixed-positioned 8px below the button and right-aligned (clamped to 8px from the viewport's left edge). Position recomputes on scroll/resize.
-- Click-outside closes the menu (mousedown on anything outside the trigger or menu). There is no Escape handler today.
-- Empty list renders the placeholder `"You're all caught up"`.
+Do not use the unread badge as the only critical alert. For blocking issues, add
+a `Banner`, `Alert`, or page-level status.
+
+## Gotchas
+
+The popover is positioned from the trigger and listens to scroll and resize. If
+the trigger lives inside aggressively transformed containers, test placement in
+the real shell.
+
+`time` is display text. Format relative or absolute time before passing it.
+
+## Related
+
+- `Toast` for immediate confirmations.
+- `ActivityFeed` for longer event history.
+- `AppHeader` for header composition.
+- `Popover` for custom anchored overlays.

@@ -1,82 +1,81 @@
 # NetworkGraph
 
-Standalone force-directed graph — pure SVG, no Canvas. Wheel zoom,
-drag to pan, drag a node to pin it, Shift+drag to release. For VM /
-host topology overlays drop hosts as nodes and links as edges.
+`NetworkGraph` renders a standalone node-link graph with force, circular, or
+hierarchical layout, pan, wheel zoom, draggable pinned nodes, animated edges,
+edge labels, status chips, and an overlay slot. It is built for service maps,
+infrastructure topology, dependency graphs, workflow previews, and incident
+exploration.
+
+Use it when relationships are the content. Use `Canvas` primitives when users
+are authoring a graph manually.
 
 ## Import
 
 ```tsx
-import {
-  NetworkGraph,
-  type GraphNode,
-  type GraphEdge,
-} from "@infinibay/harbor/display";
+import { NetworkGraph } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
+
+Nodes and edges are plain data. Edges reference node ids.
 
 ```tsx
 <NetworkGraph
   nodes={[
-    { id: "lb",   label: "lb-01",   status: "online" },
-    { id: "api1", label: "api-01",  status: "online" },
-    { id: "api2", label: "api-02",  status: "degraded" },
-    { id: "db",   label: "db-prim", status: "online", fixed: true, x: 0, y: 120 },
+    { id: "api", label: "API", status: "healthy" },
+    { id: "db", label: "Database", status: "warning" },
   ]}
-  edges={[
-    { from: "lb", to: "api1", animated: true },
-    { from: "lb", to: "api2", animated: true },
-    { from: "api1", to: "db", thickness: 2 },
-    { from: "api2", to: "db", thickness: 2 },
-  ]}
-  layout="force"
-  height={480}
-  onNodeClick={(n) => navigate(`/hosts/${n.id}`)}
+  edges={[{ from: "api", to: "db", label: "queries", animated: true }]}
+  onNodeClick={(node) => setSelectedNode(node)}
 />
 ```
 
-## GraphNode / GraphEdge
+## Layouts
 
-```ts
-GraphNode {
-  id: string;
-  label: string;
-  status?: Status;        // small dot overlay (HTML, kept crisp)
-  group?: string;
-  color?: string;         // override node fill/stroke
-  x?: number; y?: number; // initial position hint
-  fixed?: boolean;        // physics never moves this node
-}
+`force` runs a small force simulation. `circular` and `hierarchical` are static.
+Provide `x` and `y` to seed positions, and `fixed` to pin nodes.
 
-GraphEdge {
-  from: string; to: string;
-  thickness?: number;
-  animated?: boolean;     // dashed + flowing animation
-  color?: string;
-  label?: string;
-}
+```tsx
+<NetworkGraph layout="hierarchical" nodes={nodes} edges={edges} />
 ```
+
+## Interaction
+
+Users can drag empty space to pan, use the wheel to zoom, drag nodes to pin them,
+and shift-drag pinned nodes to release them. `onEdgeClick` lets you inspect
+connection details.
 
 ## Props
 
-- **nodes** — `readonly GraphNode[]`. Required.
-- **edges** — `readonly GraphEdge[]`. Required.
-- **layout** — `"force" | "circular" | "hierarchical"`. Default `"force"`.
-  - `force` — physics simulation runs until energy decays.
-  - `circular` — equally-spaced ring around origin.
-  - `hierarchical` — simple grid; pre-position nodes for better results.
-- **height** — `number`. Container height. Default `480`.
-- **onNodeClick** — `(node: GraphNode) => void`.
-- **onEdgeClick** — `(edge: GraphEdge) => void`.
-- **overlay** — `ReactNode`. Absolute layer above the SVG (legends, HUDs).
-- **className** — extra classes on the container.
+- `nodes`: required graph nodes.
+- `edges`: required graph edges.
+- `layout`: `force`, `circular`, or `hierarchical`.
+- `height`: viewport height.
+- `onNodeClick`, `onEdgeClick`: selection callbacks.
+- `overlay`: absolute viewport-space overlay slot.
+- `className`: wrapper class override.
 
-## Notes
+Nodes include `id`, `label`, optional `status`, `group`, `color`, `x`, `y`, and
+`fixed`. Edges include `from`, `to`, optional `thickness`, `animated`, `color`,
+and `label`.
 
-- The simulation tunings (`REPULSION`, `SPRING_K`, `DAMPING`) are
-  baked-in — for very different scales (>~50 nodes) consider a real
-  graph library.
-- Dragging a node sets `pinned = true` on the live sim entry — Shift+drag
-  on a pinned node releases it back to physics.
-- Status chips are rendered as HTML overlays so they stay sharp at any zoom.
+## Accessibility
+
+The graph is a visual exploration surface. Provide a selected-node inspector,
+table, or list for keyboard navigation and exact values. Do not rely on edge
+color or node position as the only state signal.
+
+## Gotchas
+
+The force layout is intentionally lightweight. Large graphs or precise topology
+layouts may need a dedicated layout engine.
+
+The graph manages simulation state internally. When node identity changes, the
+layout re-seeds.
+
+## Related
+
+- `Canvas` and `CanvasConnection` for authoring node editors.
+- `GraphNode` for manual graph UIs.
+- `ClusterView` for service clusters.
+- `StatusDot` for node status.

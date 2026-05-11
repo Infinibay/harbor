@@ -87,10 +87,13 @@ export function Show({
   above,
   below,
   between,
+  device,
+  orientation,
+  touch,
   animate = "fade",
   children,
 }: ShowProps) {
-  const visible = useVisible({ above, below, between });
+  const visible = useVisible({ above, below, between, device, orientation, touch });
   if (animate === false) return visible ? <>{children}</> : null;
 
   return (
@@ -112,10 +115,13 @@ export function Hide({
   above,
   below,
   between,
+  device,
+  orientation,
+  touch,
   animate = "fade",
   children,
 }: ShowProps) {
-  const visible = useVisible({ above, below, between });
+  const visible = useVisible({ above, below, between, device, orientation, touch });
   const shouldRender = !visible;
   if (animate === false) return shouldRender ? <>{children}</> : null;
 

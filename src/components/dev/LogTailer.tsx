@@ -169,7 +169,9 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
             return (
               <button
                 key={lv}
+                type="button"
                 onClick={() => toggleLevel(lv)}
+                aria-pressed={on}
                 className={cn(
                   "text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border transition-colors",
                   on
@@ -185,11 +187,15 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={searchPlaceholder}
+            aria-label="Search logs"
             className="flex-1 rounded border border-white/10 bg-transparent px-2 py-1 text-xs text-fg outline-none focus:border-fuchsia-400/40"
           />
           <button
+            type="button"
             onClick={() => setUseRegex((r) => !r)}
             title="Toggle regex"
+            aria-label="Toggle regex search"
+            aria-pressed={useRegex}
             className={cn(
               "text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border transition-colors",
               useRegex
@@ -204,6 +210,7 @@ export const LogTailer = forwardRef<LogTailerHandle, LogTailerProps>(
           </span>
           {!following ? (
             <button
+              type="button"
               onClick={() => {
                 const el = scrollRef.current;
                 if (!el) return;

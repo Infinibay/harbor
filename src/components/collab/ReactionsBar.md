@@ -1,51 +1,69 @@
 # ReactionsBar
 
-A compact emoji-reaction strip with an inline picker. Use it on any
-single item (post, message, card) where users add or remove reactions.
-For threaded discussions where each comment has its own reactions,
-prefer `<CommentThread>`.
+`ReactionsBar` renders compact emoji reactions with counts, current-user state, and a quick emoji picker. Use it in comments, activity feeds, chat messages, review threads, changelog entries, and collaborative annotations.
+
+The component is controlled. Your app decides how toggling an emoji updates counts and whether the current user owns a reaction.
 
 ## Import
 
 ```tsx
-import { ReactionsBar } from "@infinibay/harbor/collab";
+import { ReactionsBar, type Reaction } from "@infinibay/harbor/collab";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [reactions, setReactions] = useState([
-  { emoji: "👍", count: 4, mine: false },
-  { emoji: "🎉", count: 2, mine: true },
-]);
+import { ReactionsBar, type Reaction } from "@infinibay/harbor/collab";
 
+export function CommentReactions() {
+  const [reactions, setReactions] = useState<Reaction[]>([
+    { emoji: "👍", count: 4, mine: true },
+    { emoji: "🚀", count: 2 },
+  ]);
+
+  return (
+    <ReactionsBar
+      reactions={reactions}
+      onToggle={(emoji) => setReactions((current) => toggleReaction(current, emoji))}
+    />
+  );
+}
+```
+
+## Quick Emoji Picker
+
+```tsx
 <ReactionsBar
   reactions={reactions}
-  onToggle={(emoji) => toggleReaction(emoji)}
-/>;
+  quickEmojis={["👍", "👀", "✅", "❤️"]}
+  onToggle={toggleReaction}
+/>
 ```
+
+The picker is intentionally small. For full emoji search, use `EmojiPicker` in a popover or chat composer.
 
 ## Props
 
-- **reactions** — `Reaction[]`. Required. Shape:
-  `{ emoji: string, count: number, mine?: boolean }`. Chips with
-  `mine: true` render in the highlighted fuchsia state.
-- **onToggle** — `(emoji: string) => void`. Required. Fires both when
-  an existing chip is clicked and when an emoji is picked from the
-  popover. The component does not mutate `reactions` itself — apply
-  the toggle in your own state.
-- **quickEmojis** — `string[]`. Emojis shown in the picker popover.
-  Default: `["👍", "❤️", "🎉", "🚀", "👀", "🤔", "🔥", "😂"]`.
-- **className** — extra classes on the root inline-flex container.
+- **reactions**: `Reaction[]`. Required rendered reactions.
+- **onToggle**: `(emoji: string) => void`. Required toggle callback.
+- **quickEmojis**: `string[]`. Picker options. Defaults to eight common emoji.
+- **className**: custom class on the wrapper.
 
-## Notes
+`Reaction` is `{ emoji: string; count: number; mine?: boolean }`.
 
-- The picker is local UI state; clicking the `+ 😀` button toggles it,
-  and a fixed-position backdrop closes it on outside click. Selecting
-  an emoji fires `onToggle` and closes the picker.
-- The component is fully controlled: removing a reaction (count to 0)
-  or appending a new emoji is the caller's responsibility inside the
-  `onToggle` handler.
-- Empty `reactions` is valid — only the `+ 😀` trigger renders.
-- The trigger has `aria-label="Add reaction"` for screen readers; chip
-  buttons rely on their visible emoji and count.
+## Accessibility
+
+Reaction chips are buttons with pressed state when `mine` is true. The add button exposes expanded state while the picker is open. If reactions affect workflow state, mirror the important outcome in text outside the emoji row.
+
+## Gotchas
+
+- Counts are not mutated internally. `onToggle` must update the `reactions` array.
+- The picker closes after choosing an emoji.
+- The outside click layer is a fixed div; keep the bar inside normal stacking contexts.
+- Emoji labels are limited. For highly regulated or business-critical workflows, use explicit actions instead of emoji-only feedback.
+
+## Related
+
+- [`CommentThread`](./CommentThread.md) for review discussions.
+- [`EmojiPicker`](../chat/EmojiPicker.md) for richer emoji selection.
+- [`ActivityFeed`](../feedback/ActivityFeed.md) for event streams.

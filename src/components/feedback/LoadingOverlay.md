@@ -1,8 +1,8 @@
 # LoadingOverlay
 
-Centered spinner with an optional label and determinate progress bar. Drop
-in as the sole child of a region during a long operation so the underlying
-content doesn't re-render mid-flight.
+`LoadingOverlay` presents a centered loading state with a spinner, optional label, and optional determinate progress bar. Use it when a panel, card, route section, or long-running operation is temporarily unavailable and replacing the content is clearer than showing partially stale UI.
+
+The component is especially useful for batch actions: applying a template, importing records, syncing files, generating previews, deleting many items, or waiting for a slow data fetch.
 
 ## Import
 
@@ -10,27 +10,58 @@ content doesn't re-render mid-flight.
 import { LoadingOverlay } from "@infinibay/harbor/feedback";
 ```
 
-## Example
+## Basic Usage
+
+```tsx
+<Card title="Import customers">
+  {loading ? (
+    <LoadingOverlay label="Importing customers..." fill />
+  ) : (
+    <CustomerImportSummary rows={rows} />
+  )}
+</Card>
+```
+
+Use progress when the app knows the total:
 
 ```tsx
 <LoadingOverlay
+  label="Applying workspace template..."
+  progress={{ done: completedSteps, total: totalSteps }}
   fill
-  label="Applying profile…"
-  progress={{ done: 3, total: 12 }}
 />
 ```
 
 ## Props
 
-- **label** — `ReactNode`. Caption under the spinner.
-- **progress** — `{ done: number; total: number }`. Renders `done / total` and a proportional bar. Clamped to 0–100%.
-- **fill** — stretch to fill the parent (`min-h-[200px] w-full`). Default: `false`.
-- **size** — `number`. Spinner pixel size. Default: `24`.
-- **className** — extra classes on the root.
+- **label** - optional `ReactNode` shown under the spinner.
+- **progress** - optional `{ done: number; total: number }`. Renders a numeric counter and proportional bar.
+- **fill** - optional boolean. Adds a minimum height and full width for card or panel loading states.
+- **size** - optional spinner size in pixels. Defaults to `24`.
+- **className** - optional string merged onto the root element.
 
-## Notes
+## Progress Model
 
-- The root has `role="status"` and `aria-live="polite"` — screen readers
-  announce label changes without interrupting.
-- Progress bar uses a fuchsia → sky gradient (`#a855f7 → #38bdf8`) regardless
-  of theme.
+When `progress.total` is greater than zero, Harbor computes `done / total`, clamps it between `0` and `100`, and uses that percentage for the bar width. The numeric counter remains visible so users can understand the work in concrete terms.
+
+If the total is unknown, omit `progress` and keep the label specific.
+
+## Accessibility
+
+The root element uses `role="status"` and `aria-live="polite"`. Write labels that describe the operation, not just `"Loading"`. For example, `"Loading invoices"` or `"Generating preview"` gives users better context.
+
+Avoid changing the label every few milliseconds. Polite live regions should update only when the message is useful.
+
+## Gotchas
+
+- `LoadingOverlay` does not block interaction outside its own rendered area. If the whole page must be blocked, place it in the correct layout layer or use a modal workflow.
+- Keep `done` and `total` non-negative. Values outside the range are visually clamped, but confusing counters still confuse users.
+- Do not hide existing content for tiny fetches that resolve instantly; skeletons or optimistic UI may feel better.
+- If users can cancel the work, provide a button near the overlay or in the surrounding header.
+
+## Related
+
+- `Spinner` for inline loading.
+- `Skeleton` for initial content placeholders.
+- `Progress` for standalone linear progress.
+- `Alert` for failed loading or recovery instructions.

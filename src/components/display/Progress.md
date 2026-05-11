@@ -1,8 +1,12 @@
 # Progress
 
-Linear progress bar with optional label, value readout, shimmer, and
-indeterminate animation. For circular dials use `<ProgressRing>`; for
-quota meters use `<QuotaBar>`.
+`Progress` displays task completion as a horizontal bar with optional label,
+value text, custom value slot, color tone, shimmer, and indeterminate mode. Use
+it for uploads, imports, migrations, setup steps, quota usage, deployment
+progress, and background jobs.
+
+Use determinate progress when you know the total work. Use indeterminate
+progress when work has started but the system cannot estimate completion yet.
 
 ## Import
 
@@ -10,33 +14,75 @@ quota meters use `<QuotaBar>`.
 import { Progress } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<Progress value={60} label="Uploading" showValue />
-<Progress indeterminate tone="sky" label="Syncing" />
-<Progress value={80} tone="green" shimmer valueSlot={<span>4.8 / 6 GB</span>} />
+<Progress
+  label="Uploading release"
+  value={42}
+  max={100}
+  showValue
+  tone="sky"
+/>;
+```
+
+With a custom value slot:
+
+```tsx
+<Progress
+  label="Storage"
+  value={usedGb}
+  max={limitGb}
+  valueSlot={`${usedGb} GB / ${limitGb} GB`}
+  tone={usedGb > limitGb * 0.8 ? "amber" : "green"}
+/>;
 ```
 
 ## Props
 
-- **value** — `number`. Default `0`. Current progress.
-- **max** — `number`. Default `100`.
-- **label** — `ReactNode`. Heading rendered above the bar.
-- **showValue** — `boolean`. When `true`, renders `Math.round(pct)%`
-  on the right.
-- **valueSlot** — `ReactNode`. Custom right-side content. Takes
-  precedence over `showValue`.
-- **tone** — `"purple" | "green" | "amber" | "rose" | "sky"`.
-  Default `"purple"`.
-- **shimmer** — `boolean`. Animated highlight along the filled section
-  (only when `pct < 100`).
-- **indeterminate** — `boolean`. Renders a sliding chip instead of a
-  fixed fill. Ignores `value`.
-- **className** — extra classes on the wrapper.
+- **value** - `number`. Current value. Default `0`.
+- **max** - `number`. Maximum value. Default `100`.
+- **label** - `ReactNode`. Optional label shown above the bar.
+- **showValue** - `boolean`. Shows the rounded percentage.
+- **valueSlot** - `ReactNode`. Replaces the percentage with custom content.
+- **tone** - `"purple" | "green" | "amber" | "rose" | "sky"`. Default
+  `"purple"`.
+- **shimmer** - `boolean`. Adds a shimmer overlay while progress is below 100%.
+- **indeterminate** - `boolean`. Shows an animated traveling segment instead of
+  determinate width.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Behavior
 
-- The fill uses a `framer-motion` spring (`stiffness: 200, damping: 30`),
-  so jumps in `value` ease in.
-- When both `valueSlot` and `showValue` are set, `valueSlot` wins.
+Determinate progress is calculated as `(value / max) * 100` and clamped between
+0 and 100. The filled bar animates toward the latest percentage with a spring
+transition.
+
+When `indeterminate` is true, `value` and `max` no longer drive the visual bar.
+The component renders a looping segment to indicate ongoing work.
+
+## Accessibility
+
+Always provide nearby text that names the operation. The visual bar itself does
+not currently set ARIA progressbar attributes, so the label and value text are
+the accessible communication. If a workflow requires formal progressbar
+semantics, wrap or extend the component with `role="progressbar"` and
+`aria-valuenow` values in your app.
+
+Do not use color alone to indicate danger or success. Pair warning tones with
+copy such as `Storage almost full`.
+
+## Gotchas
+
+- `max={0}` would produce an invalid percentage. Keep `max` above zero.
+- `valueSlot` wins over `showValue`.
+- Shimmer is decorative and only appears in determinate mode while progress is
+  below 100%.
+- Indeterminate mode should not be used when an accurate percentage is known.
+
+## Related
+
+- `ProgressRing` for radial progress.
+- `LoadingOverlay` for blocking loading states.
+- `MetricCard` for quota and usage summaries.
+- `LiveMigrationIndicator` for source-to-destination progress.

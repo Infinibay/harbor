@@ -25,6 +25,7 @@ export function ProfileCard({
   handle,
   role,
   bio,
+  avatar,
   banner,
   status,
   stats,
@@ -48,7 +49,7 @@ export function ProfileCard({
       <div className="px-5 pb-5 -mt-10">
         <div className="flex items-end justify-between">
           <div className="rounded-full ring-4 ring-surface">
-            <Avatar name={name} size="xl" status={status} />
+            <Avatar name={name} src={avatar} size="xl" status={status} />
           </div>
           {actions ? <div className="flex gap-2">{actions}</div> : null}
         </div>

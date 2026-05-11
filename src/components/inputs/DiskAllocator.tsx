@@ -158,6 +158,8 @@ export function DiskAllocator({
                 </div>
                 {active && onChange ? (
                   <button
+                    type="button"
+                    aria-label={`Remove allocation ${a.label ?? a.id}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       removeAlloc(a.id);

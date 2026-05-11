@@ -16,7 +16,7 @@ export const playground: PlaygroundManifest = {
   controls: {
     tone: {
       type: "select",
-      options: ["info", "success", "warning", "danger", "neutral"],
+      options: ["info", "success", "warning", "danger"],
       default: "info",
     },
     size: { type: "select", options: ["sm", "md"], default: "md" },

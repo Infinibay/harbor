@@ -64,8 +64,10 @@ export function ToggleGroup({
         const on = isOn(it.value);
         return (
           <button
+            type="button"
             key={it.value}
             aria-label={it.ariaLabel ?? (typeof it.label === "string" ? it.label : it.value)}
+            aria-pressed={on}
             onClick={() => toggle(it.value)}
             className={cn(
               "relative inline-flex items-center justify-center gap-1.5 rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-control-padding-x)] font-medium transition-colors",

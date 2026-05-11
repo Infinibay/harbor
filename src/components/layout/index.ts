@@ -2,6 +2,7 @@ export * from "./Accordion";
 export * from "./AppShell";
 export * from "./Bento";
 export * from "./Page";
+export * from "./PageHeader";
 export * from "./ResponsiveGrid";
 export * from "./BrowserTabs";
 export * from "./Canvas";

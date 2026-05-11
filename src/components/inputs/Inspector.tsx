@@ -31,6 +31,8 @@ export function Inspector({ sections, className }: InspectorProps) {
         return (
           <div key={s.id}>
             <button
+              type="button"
+              aria-expanded={!collapsed}
               onClick={() =>
                 setState((p) => ({ ...p, [s.id]: !p[s.id] }))
               }

@@ -69,6 +69,7 @@ export function SplitButton({
   return (
     <div className={cn("inline-flex", className)}>
       <motion.button
+        type="button"
         whileTap={{ scale: 0.95 }}
         onClick={primary.onSelect}
         className={cn(
@@ -80,9 +81,11 @@ export function SplitButton({
         {primary.label}
       </motion.button>
       <motion.button
+        type="button"
         ref={caretRef}
         whileTap={{ scale: 0.92 }}
         onClick={() => setOpen((o) => !o)}
+        aria-label="Open additional actions"
         className={cn(
           "h-10 px-2.5 rounded-r-xl inline-flex items-center justify-center",
           baseStyle,
@@ -123,6 +126,7 @@ export function SplitButton({
             >
               {options.map((o) => (
                 <button
+                  type="button"
                   key={o.id}
                   onClick={() => {
                     o.onSelect();

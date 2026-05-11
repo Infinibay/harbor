@@ -1,43 +1,93 @@
 # BackgroundDistortion
 
-Pure CSS overlay that layers a screen-style distortion (scanlines, CRT, grain, VHS, dither, etc.) on top of any background or content. Doesn't touch the layer below — just draws on top.
+`BackgroundDistortion` adds product-grade visual texture to a positioned area:
+scanlines, CRT flicker, grain, VHS drift, pixel grids, dither, vignette, bloom,
+or interlace effects. It is intentionally decorative and pointer-transparent, so
+it can sit over dashboards, terminal panels, hero previews, canvas surfaces, or
+desktop-style windows without blocking interaction.
+
+Use it to support the mood of a product surface, not as the content itself.
 
 ## Import
 
 ```tsx
-import { BackgroundDistortion, Distorted } from "@infinibay/harbor/backgrounds";
+import { BackgroundDistortion } from "@infinibay/harbor/backgrounds";
 ```
 
-## Example
+## Basic Usage
+
+Place it inside a relatively positioned container. The overlay is absolute, so
+the parent controls its bounds.
 
 ```tsx
-<div className="relative h-80">
-  <MeshGradient />
-  <BackgroundDistortion preset="crt" intensity={0.6} />
-</div>
+<section className="relative overflow-hidden rounded-xl bg-surface-1">
+  <BackgroundDistortion preset="scanlines" intensity={0.35} opacity={0.7} />
+  <Terminal entries={entries} />
+</section>
+```
 
-<Distorted preset="vhs" intensity={0.7}>
-  <Aurora />
-</Distorted>
+## Presets
+
+The `preset` prop chooses the effect:
+
+- `scanlines`: horizontal monitor lines.
+- `crt`: subtle screen curvature and flicker.
+- `grain`: fine noisy texture.
+- `vhs`: color drift and jitter.
+- `pixel-grid`: grid overlay for technical surfaces.
+- `dither`: stippled retro texture.
+- `vignette`: darkened edges.
+- `bloom`: soft highlight wash.
+- `interlace`: alternating line treatment.
+
+## Tuning
+
+`intensity` changes the strength of the effect. `opacity` controls how much of
+the final overlay is visible. `tint` can align the effect with a brand or
+workspace color, and `blend` controls the CSS blend mode.
+
+```tsx
+<BackgroundDistortion
+  preset="vhs"
+  intensity={0.45}
+  tint="rgb(var(--harbor-accent))"
+  blend="screen"
+/>
 ```
 
 ## Props
 
-- **preset** — `"scanlines" | "crt" | "grain" | "vhs" | "pixel-grid" | "dither" | "vignette" | "bloom" | "interlace"`. Required.
-- **intensity** — `number`. 0..1, scales the effect's strength. Default: `0.5`.
-- **animated** — `boolean`. Toggle motion sub-effects (scanline roll, CRT flicker, VHS tracking band, grain shudder). Auto-disabled by `prefers-reduced-motion`. Default: `true`.
-- **tint** — `string`. CSS color override for mono presets (`scanlines`, `pixel-grid`, `dither`, `interlace`). Default depends on preset.
-- **blend** — `CSSProperties["mixBlendMode"]`. Override the default per-preset blend.
-- **opacity** — `number`. Overall overlay opacity. Default: `1`.
-- **className**, **style** — applied to the overlay element.
+- `preset`: required distortion style.
+- `intensity`: strength of the generated effect; defaults to `0.5`.
+- `animated`: enables motion where the preset supports it.
+- `tint`: optional CSS color used by tintable presets.
+- `blend`: CSS `mix-blend-mode` value.
+- `opacity`: final overlay opacity; defaults to `1`.
+- `className`: wrapper class override.
+- `style`: inline style override.
 
-### `<Distorted>` extras
+## Accessibility
 
-`<Distorted>` accepts the same props plus **children** — wraps content in a `position: absolute inset-0` div with the distortion layered on top.
+The component renders with `aria-hidden` and `pointer-events: none`. It does not
+carry information and should never be the only signal for state.
 
-## Notes
+For motion-heavy presets, give users a calmer experience by disabling animation
+in contexts where reduced motion matters:
 
-- Renders `position: absolute inset-0`. Parent must be `position: relative`.
-- `bloom` uses `backdrop-filter` to sample the layers below. Other presets are pure overlays and don't need a backdrop.
-- Animations rely on Harbor's keyframes (`harbor-scanline-roll`, `harbor-crt-flicker`, `harbor-vhs-jitter`, `harbor-vhs-track`); they ship with the package CSS.
-- Each preset has a sensible default `mixBlendMode` (multiply for darkening, screen for VHS, overlay for grain). Override with `blend` when stacking on a very light or very dark base.
+```tsx
+<BackgroundDistortion preset="crt" animated={false} />
+```
+
+## Gotchas
+
+The parent must be positioned, usually with `relative`, and should clip overflow
+when the effect is meant to stay inside a card or window.
+
+Strong blend modes can reduce text contrast. Test the final surface with real
+content, not only an empty mockup.
+
+## Related
+
+- `AnimatedBackground` for full-page motion.
+- `MeshGradient` and `Aurora` for color fields.
+- `Terminal` and `CodeBlock` for surfaces that pair well with scanline effects.

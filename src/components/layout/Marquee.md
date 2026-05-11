@@ -1,9 +1,8 @@
 # Marquee
 
-Infinite-scrolling ribbon. Measures one copy of its children, duplicates
-enough copies to cover the wrapper, then translates with a CSS keyframe.
-Use for logo walls, ticker strips, or auto-rotating testimonials. For
-finite scroll with snap, use `<ScrollArea>`.
+`Marquee` creates an infinite scrolling ribbon by measuring its children, duplicating enough copies to fill the viewport, and translating them with a CSS keyframe. Use it for logo walls, customer strips, technology badges, status tickers, press mentions, and lightweight testimonial loops.
+
+It is decorative movement. If users need to read, select, filter, or control the content, use `ScrollArea`, `Carousel`, or a normal list instead.
 
 ## Import
 
@@ -11,33 +10,54 @@ finite scroll with snap, use `<ScrollArea>`.
 import { Marquee } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<Marquee speed={60} pauseOnHover gap={48}>
-  <img src="/picture.png" alt="" className="h-8" />
-  <img src="/picture.png" alt="" className="h-8" />
-  <img src="/picture.png" alt="" className="h-8" />
-</Marquee>
+import { Marquee } from "@infinibay/harbor/layout";
+
+export function LogoStrip() {
+  return (
+    <Marquee speed={56} gap={48} pauseOnHover>
+      {["React", "TypeScript", "Vite", "Vitest", "Tauri"].map((item) => (
+        <span key={item} className="rounded-full border border-white/10 px-3 py-1 text-xs">
+          {item}
+        </span>
+      ))}
+    </Marquee>
+  );
+}
 ```
 
 ## Props
 
-- **children** — `ReactNode`. Required.
-- **speed** — `number`. Pixels per second. Default `40`.
-- **direction** — `"left" | "right" | "up" | "down"`. Default `"left"`.
-  Vertical directions switch the wrapper to a column layout.
-- **pauseOnHover** — `boolean`. Default `true`.
-- **gap** — `number`. Pixel gap between repeated copies. Default `32`.
-- **fade** — `boolean`. Edge fade-out mask. Default `true`.
-- **className** — extra classes on the outer wrapper.
-- **itemClassName** — extra classes on each child wrapper (e.g.
-  `shrink-0` overrides).
+- **children** - `ReactNode`. Required item sequence to repeat.
+- **speed** - `number`. Pixels per second. Default `40`.
+- **direction** - `"left" | "right" | "up" | "down"`. Default `"left"`.
+- **pauseOnHover** - `boolean`. Default `true`.
+- **gap** - `number`. Pixel gap between repeated copies. Default `32`.
+- **fade** - `boolean`. Adds an edge fade mask. Default `true`.
+- **className** - extra classes on the outer wrapper.
+- **itemClassName** - extra classes on each child wrapper.
 
-## Notes
+## Behavior
 
-- Pause-on-hover is a single CSS state change — cheap.
-- A `ResizeObserver` re-measures when the wrapper or one copy changes
-  size, so dynamic children work.
-- The animation reads a `--harbor-marquee-distance` custom property —
-  the keyframe must be registered in your global stylesheet.
+The component measures the first rendered group with `ResizeObserver`, calculates enough copies to cover the visible area, and sets `--harbor-marquee-distance` for the animation. Horizontal directions use row layout. Vertical directions use column layout.
+
+Duplicate copies after the first are marked `aria-hidden`, so screen readers do not read the repeated content over and over.
+
+## Accessibility
+
+Keep marquee content nonessential or duplicated elsewhere on the page. `pauseOnHover` helps pointer users inspect content, but there is no built-in pause button. For important information, provide a static list, carousel controls, or another accessible representation.
+
+## Gotchas
+
+- The CSS keyframes `harbor-marquee-x` and `harbor-marquee-y` must exist in the global stylesheet.
+- Very slow speeds make duplicated content more noticeable.
+- Vertical marquees need a constrained height from the surrounding layout.
+- Dynamic children are remeasured, but expensive child trees can still cost layout work.
+
+## Related
+
+- `ScrollArea` for user-controlled scrolling.
+- `Carousel` for controlled slide navigation.
+- `TickerTape` for text-heavy ticker content.

@@ -1,54 +1,99 @@
 # Toolbar
 
-Horizontal or vertical container for compact action buttons, with an
-optional floating chrome (rounded card + backdrop blur). Pairs with
-`<ToolbarGroup>` for clustering related actions and
-`<ToolbarSeparator>` for visual breaks. For canvas-attached toolbars
-see the dedicated `<CanvasToolbar>` family.
+`Toolbar` is a compact command container for editor tools, canvas controls,
+formatting actions, filters, and desktop-style app chrome. It provides the
+toolbar role, horizontal or vertical layout, optional floating surface styling,
+and helper primitives for groups and separators.
+
+Use it when commands are visible and repeatedly used. For hidden or contextual
+actions, use menus, command palettes, or context menus.
 
 ## Import
 
 ```tsx
-import { Toolbar, ToolbarGroup, ToolbarSeparator } from "@infinibay/harbor/layout";
+import {
+  Toolbar,
+  ToolbarGroup,
+  ToolbarSeparator,
+} from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <Toolbar variant="floating">
   <ToolbarGroup>
-    <Button size="sm" variant="ghost">Bold</Button>
-    <Button size="sm" variant="ghost">Italic</Button>
+    <ToggleButton pressed={bold} onChange={setBold}>Bold</ToggleButton>
+    <ToggleButton pressed={italic} onChange={setItalic}>Italic</ToggleButton>
   </ToolbarGroup>
+
   <ToolbarSeparator />
+
   <ToolbarGroup>
-    <Button size="sm" variant="ghost">Link</Button>
-    <Button size="sm" variant="ghost">Image</Button>
+    <Button variant="ghost">Undo</Button>
+    <Button variant="ghost">Redo</Button>
   </ToolbarGroup>
 </Toolbar>
 ```
 
-## Props (`<Toolbar>`)
+Vertical toolbars work well for canvas modes:
 
-- **children** — `ReactNode`. Required.
-- **variant** — `"flat" | "floating"`. Default `"flat"`. `floating`
-  adds a rounded card surface, border, shadow, and backdrop blur.
-- **orientation** — `"horizontal" | "vertical"`. Default `"horizontal"`.
-- **className** — extra classes on the wrapper.
+```tsx
+<Toolbar orientation="vertical" variant="floating">
+  <ToolbarGroup>
+    <ToggleButton pressed={tool === "select"} onChange={() => setTool("select")} />
+    <ToggleButton pressed={tool === "draw"} onChange={() => setTool("draw")} />
+  </ToolbarGroup>
+</Toolbar>
+```
 
-## Props (`<ToolbarGroup>`)
+## Props
 
-- **children** — `ReactNode`. Required.
-- **className** — extra classes.
+`Toolbar`:
 
-## Props (`<ToolbarSeparator>`)
+- **children** - `ReactNode`. Required. Usually groups, separators, and buttons.
+- **variant** - `"flat" | "floating"`. Default `"flat"`.
+- **orientation** - `"horizontal" | "vertical"`. Default `"horizontal"`.
+- **className** - extra classes on the wrapper.
 
-- **orientation** — `"vertical" | "horizontal"`. Default `"vertical"`.
-  Match this to the parent toolbar's orientation.
+`ToolbarGroup`:
 
-## Notes
+- **children** - `ReactNode`.
+- **className** - extra classes on the group.
 
-- The toolbar uses `role="toolbar"` for accessibility — descendants
-  should be focusable controls.
-- Default gap between items is `0.5` (2px); group with `<ToolbarGroup>`
-  if you want tighter clusters separated by larger visual gaps.
+`ToolbarSeparator`:
+
+- **orientation** - `"vertical" | "horizontal"`. Default `"vertical"`.
+
+## Layout Model
+
+`Toolbar` only arranges children. It does not enforce which button components you
+use or how command state is stored. Use `ToolbarGroup` to keep related commands
+close together, then separate groups with `ToolbarSeparator`.
+
+Use `variant="floating"` for canvas overlays and detached control bars. Use
+`flat` when the toolbar already sits inside a header, panel, or app chrome.
+
+## Accessibility
+
+The root uses `role="toolbar"`. Toolbar controls still need their own labels,
+pressed states, and disabled states. Prefer icon plus tooltip or visible text for
+commands that are not universally recognizable.
+
+Keep keyboard order the same as visual order. If a toolbar changes modes, make
+the selected mode obvious with `ToggleButton` or `aria-pressed`.
+
+## Gotchas
+
+- Separators are visual only. They do not create semantic groups.
+- `ToolbarGroup` is always inline-flex; for complex responsive wrapping, compose
+  it with `ReflowList`.
+- Vertical toolbars need horizontal separators; pass
+  `orientation="horizontal"` to `ToolbarSeparator`.
+
+## Related
+
+- `ToggleButton` for on/off toolbar modes.
+- `ButtonGroup` for compact grouped buttons.
+- `CanvasToolbar` and `FlyoutToolbar` for canvas-specific controls.
+- `CommandPalette` for searchable commands.

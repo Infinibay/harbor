@@ -1,61 +1,81 @@
 # ClusterView
 
-Aerial cluster view — filter chips (status / region / tag), density
-toggle, and a responsive `<FluidGrid>` of `<HostCard>`s. Pure DOM, no
-canvas. For per-host cards in isolation use `<HostCard>` directly.
+`ClusterView` renders an infrastructure cluster as filter chips plus a responsive grid of `HostCard`s. It is pure DOM, not canvas, so it works well for admin consoles, monitoring pages, fleet dashboards, and deployment tools.
+
+Use it when the user needs to scan many hosts, filter by status/region/tag, and open a host detail panel.
 
 ## Import
 
 ```tsx
-import { ClusterView, type ClusterHost } from "@infinibay/harbor/display";
+import {
+  ClusterView,
+  type ClusterHost,
+} from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<ClusterView
-  hosts={hosts}
-  header={<h1 className="text-xl">Cluster · prod-eu</h1>}
-  onHostClick={(h) => navigate(`/hosts/${h.id}`)}
-/>
-```
+import { ClusterView, type ClusterHost } from "@infinibay/harbor/display";
 
-## ClusterHost
+const hosts: ClusterHost[] = [
+  {
+    id: "api-01",
+    name: "api-01",
+    status: "online",
+    subtitle: "10.0.4.11 · Ubuntu 24.04",
+    region: "us-east-1",
+    tags: ["api", "prod"],
+    cpu: 42,
+    ram: { used: 6, total: 16, unit: "GiB" },
+    disk: { used: 84, total: 256, unit: "GiB" },
+  },
+];
 
-```ts
-{
-  id: string;
-  name: string;
-  status: "online" | "degraded" | "offline" | "provisioning";
-  subtitle?: string;
-  cpu?: number;                                       // 0..1
-  ram?:  { used: number; total: number; unit?: string };
-  disk?: { used: number; total: number; unit?: string };
-  tags?: string[];
-  region?: string;
-  osIcon?: ReactNode;
+export function Fleet() {
+  return (
+    <ClusterView
+      hosts={hosts}
+      header={<h2>Production fleet</h2>}
+      onHostClick={(host) => openHostDrawer(host.id)}
+    />
+  );
 }
 ```
 
+## Filtering Model
+
+`ClusterView` derives filter options from the host list:
+
+- status chips from host status counts
+- region chips from `host.region`
+- tag chips from every value in `host.tags`
+- density toggle between comfortable and compact
+
+Compact density hides CPU/RAM/disk meters and lowers the card minimum width.
+
 ## Props
 
-- **hosts** — `readonly ClusterHost[]`. Required.
-- **header** — `ReactNode`. Slot above the filter row.
-- **onHostClick** — `(host: ClusterHost) => void`. Fires when a card
-  is clicked.
-- **renderHost** — `(host, card) => ReactNode`. Wrap each card with
-  custom chrome — e.g. a `<ContextMenu>` trigger.
-- **minCardWidth** — `number`. FluidGrid minimum card width. Default `280`
-  (drops to `200` automatically in compact density).
-- **className** — extra classes on the wrapper.
+- **hosts**: `readonly ClusterHost[]`. Required fleet data.
+- **header**: `ReactNode`. Optional slot above filters.
+- **onHostClick**: `(host: ClusterHost) => void`. Passed to each `HostCard`.
+- **renderHost**: `(host, card) => ReactNode`. Wraps or replaces each rendered card.
+- **minCardWidth**: `number`. Comfortable grid card minimum. Defaults to `280`.
+- **className**: custom class on the wrapper.
 
-## Notes
+## Accessibility
 
-- Filters are local state — the component is fully uncontrolled. To
-  link filters to URL state, render your own filters above and pass a
-  pre-filtered `hosts` array.
-- The status filter chip shows running counts (`Online · 12`).
-- Compact density hides cpu / ram / disk on each card and tightens the
-  grid; tags + leading icon stay visible.
-- Filter chips are only rendered when there is at least one matching
-  region / tag in the data.
+Filter chips and density controls expose pressed state. Host cards become keyboard-activatable when `onHostClick` is provided. If filtering changes operational risk visibility, keep counts visible in the status labels, as the component does.
+
+## Gotchas
+
+- Filters are internal state. If filters need to sync with URL params, compose your own filter bar and pass a filtered `hosts` array.
+- `renderHost` is the escape hatch for context menus, links, or custom wrappers.
+- Empty results render a dashed empty state, not a reset button.
+- Compact mode intentionally hides resource meters to prioritize density.
+
+## Related
+
+- [`HostCard`](./HostCard.md) for individual hosts.
+- [`FluidGrid`](../layout/FluidGrid.md) for the responsive card layout.
+- [`StatusDot`](./StatusDot.md) for status semantics.

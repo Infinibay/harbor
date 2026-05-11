@@ -73,8 +73,11 @@ export function ExportMenu({
   return (
     <>
       <button
+        type="button"
         ref={anchorRef}
         onClick={toggleOpen}
+        aria-haspopup="dialog"
+        aria-expanded={open}
         className={cn(
           "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/10 bg-white/[0.04] text-sm text-white/80 hover:bg-white/[0.08] hover:text-white",
           className,
@@ -113,6 +116,7 @@ export function ExportMenu({
                 <div className="grid grid-cols-2 gap-1.5">
                   {formats.map((f) => (
                     <button
+                      type="button"
                       key={f}
                       onClick={() => setFormat(f)}
                       className={cn(
@@ -162,12 +166,14 @@ export function ExportMenu({
                 </div>
                 <div className="flex justify-end gap-2 pt-1">
                   <button
+                    type="button"
                     onClick={() => setOpen(false)}
                     className="text-xs text-white/60 hover:text-white px-2 py-1"
                   >
                     Cancel
                   </button>
                   <button
+                    type="button"
                     onClick={submit}
                     className="text-xs font-medium px-3 py-1 rounded-md bg-fuchsia-500/20 text-fuchsia-100 hover:bg-fuchsia-500/30"
                   >

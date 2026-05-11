@@ -1,9 +1,11 @@
 # MaintenanceBanner
 
-A `<Banner>` preset with a live countdown toward a scheduled window. Auto
-promotes to `sticky` when the window is within an hour and switches tone to
-`warning` once the window opens. For free-form announcements, use `<Banner>`
-directly.
+`MaintenanceBanner` is a preset over `Banner` for scheduled maintenance windows. It formats
+start and end times, shows affected scope, updates the countdown every 30 seconds, and
+automatically becomes sticky near or during the maintenance window.
+
+Use it on dashboards, status pages, admin portals, and authenticated apps where users need
+advance warning about service disruption.
 
 ## Import
 
@@ -11,34 +13,60 @@ directly.
 import { MaintenanceBanner } from "@infinibay/harbor/feedback";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <MaintenanceBanner
-  scheduledAt="2026-05-01T02:00:00Z"
-  duration={30 * 60_000}
-  scope="API, console"
-  onClose={() => setHidden(true)}
+  scheduledAt="2026-05-12T03:00:00Z"
+  duration={60 * 60 * 1000}
+  scope="API, webhooks, background jobs"
+  actions={<Button size="sm">View status</Button>}
+  onClose={() => setDismissed(true)}
 >
-  Expect intermittent 502s during the rollout.
+  Webhook delivery may be delayed during database failover.
 </MaintenanceBanner>
 ```
 
+## Timing Model
+
+Before the window starts, the title defaults to "Maintenance starts in ..." using
+`formatDuration`. During the window, it becomes "Maintenance in progress". After the window,
+it becomes "Maintenance window complete".
+
+The banner becomes sticky when `forceSticky` is true, when the current time is within the
+maintenance window, or when start time is less than one hour away.
+
 ## Props
 
-- **scheduledAt** — `Date | string | number`. Required. Window start.
-- **duration** — `number`. Window length in ms. Used to render `start → end` and to know when the window has finished.
-- **scope** — `string`. Affected systems, appended after the time range as `· affects <scope>`.
-- **title** — `string`. Override the auto-generated header ("Maintenance starts in 2 h", "Maintenance in progress", "Maintenance window complete").
-- **children** — `ReactNode`. Extra body copy under the time line.
-- **onClose** — `() => void`. Renders the `×` dismiss button.
-- **forceSticky** — pin to the top regardless of how far away the window is. Default: `false`.
-- **actions** — `ReactNode`. Forwarded to `<Banner actions>`.
-- **className** — extra classes on the root.
+- **scheduledAt** - date-like start time. Required.
+- **duration** - duration in milliseconds.
+- **scope** - affected systems text.
+- **title** - override the generated title.
+- **children** - extra detail below the formatted window.
+- **onClose** - forwarded to `Banner`.
+- **forceSticky** - make the banner sticky immediately.
+- **actions** - action slot.
+- **className** - extra classes on the banner.
 
-## Notes
+## Accessibility
 
-- Re-renders every 30 s via an internal `setInterval`, so the countdown
-  stays accurate without a wider tick provider.
-- Tone is `"info"` before the window and `"warning"` while it's open. After
-  the window ends, tone stays `"info"` and the title shows "complete".
+The component uses `Banner` for the visible notice. If the banner appears dynamically after
+page load and must be announced, wrap it in a live region at the page level. Include concrete
+times and affected systems in text so users do not have to infer urgency from color.
+
+Actions should lead to a status page, maintenance detail, or support contact when disruption
+is significant.
+
+## Gotchas
+
+- Time formatting uses the browser locale and timezone.
+- `onClose` only notifies you; the parent decides whether to hide the banner.
+- The countdown ticks every 30 seconds, not every second.
+- If `duration` is omitted, the component cannot know when the window ends.
+
+## Related
+
+- `Banner` for general page-wide notices.
+- `StatusPage` for public service health.
+- `Alert` for inline maintenance details.
+- `Toast` for transient operational feedback.

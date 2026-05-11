@@ -1,8 +1,8 @@
 # EmojiPicker
 
-A compact emoji palette with category tabs and a search field. Designed to
-be mounted inside a popover or floating panel anchored to a `<ChatInput>`
-action.
+`EmojiPicker` renders a compact emoji palette for chat, reactions, comments, notes, and collaborative workflows. It provides categories, a search input, animated emoji buttons, and an `onPick` callback when the user chooses an emoji.
+
+The picker ships with a small built-in emoji set. It is designed for lightweight product interactions, not as a complete Unicode emoji browser.
 
 ## Import
 
@@ -10,21 +10,53 @@ action.
 import { EmojiPicker } from "@infinibay/harbor/chat";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<EmojiPicker onPick={(emoji) => insertAtCursor(emoji)} />
+<Popover trigger={<Button variant="secondary">React</Button>}>
+  <EmojiPicker onPick={(emoji) => addReaction(message.id, emoji)} />
+</Popover>
+```
+
+Use it with chat input composition:
+
+```tsx
+<EmojiPicker onPick={(emoji) => setDraft((draft) => draft + emoji)} />
 ```
 
 ## Props
 
-- **onPick** — `(emoji: string) => void`. Required. Called with the emoji character when a cell is clicked.
-- **className** — extra classes on the panel.
+- **onPick** - required callback `(emoji: string) => void`.
+- **className** - optional string merged onto the picker root.
 
-## Notes
+## Interaction Model
 
-- Ships with five fixed categories: `Smileys`, `Gestures`, `Hearts`, `Nature`, `Tech`. Categories are baked in; not configurable.
-- Typing into the search field flattens all categories into a single grid (the category tab row hides while searching). Search is currently a passthrough — it does not filter by name, it just switches view.
-- Fixed width (`w-64`); grid is 7 columns; emoji list scrolls inside `max-h-56`.
-- The picker has no built-in floating/positioning behavior — wrap it in your own popover or `<Portal>` and anchor it yourself.
-- Cells animate scale on hover/tap via `framer-motion`.
+The picker starts on the `Smileys` category. Category buttons switch the visible set. Clicking an emoji calls `onPick` with the selected emoji string.
+
+The current search field does not perform text matching. When it contains text, the picker shows all emojis from every category and hides the category bar. Treat it as a lightweight broadening control until search metadata is added.
+
+## Composition Guidance
+
+`EmojiPicker` does not manage its own popover, drawer, or menu placement. Put it inside `Popover`, `Drawer`, `Dialog`, or an app-specific reaction panel.
+
+After `onPick`, decide whether the parent should close the picker, keep it open for multiple reactions, or insert the emoji into a draft.
+
+## Accessibility
+
+Emoji buttons are visible buttons, but the current implementation does not add descriptive labels per emoji. For production accessibility, consider adding labels or using surrounding text when emoji choice affects important meaning.
+
+Do not use emoji as the only indicator for critical state.
+
+## Gotchas
+
+- The emoji set is intentionally small.
+- Search does not filter by name today.
+- No recent/favorites list is built in.
+- The component does not close itself after selection.
+
+## Related
+
+- `ReactionsBar` for displaying selected reactions.
+- `ChatInput` for message composition.
+- `Popover` for compact placement.
+- `CommandPalette` for searchable command-style selection.

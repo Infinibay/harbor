@@ -58,6 +58,14 @@ export function BrowserTabs({
                     : "bg-white/[0.03] text-white/65 hover:bg-white/[0.06] hover:text-white/90",
                 )}
                 onClick={() => onActivate(t.id)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onActivate(t.id);
+                  }
+                }}
+                aria-current={active ? "page" : undefined}
+                tabIndex={0}
               >
                 {active ? (
                   <motion.span
@@ -77,6 +85,7 @@ export function BrowserTabs({
                 </span>
                 {onClose && !t.pinned ? (
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       onClose(t.id);
@@ -97,6 +106,7 @@ export function BrowserTabs({
       </Reorder.Group>
       {onNew ? (
         <button
+          type="button"
           onClick={onNew}
           className="h-7 w-7 ml-0.5 mb-0.5 rounded-md grid place-items-center text-white/50 hover:bg-white/5 hover:text-white text-sm"
           aria-label="New tab"

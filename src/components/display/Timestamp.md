@@ -1,8 +1,11 @@
 # Timestamp
 
-Renders a date as either relative ("2m ago") or absolute, with a
-hover tooltip showing the other form. Auto-ticks on an interval so
-"last seen" lines stay accurate without the caller managing it.
+`Timestamp` renders a date/time value as relative or absolute text, optionally
+refreshing on an interval and showing the alternate format in a tooltip.
+
+Use it for activity feeds, audit logs, "last seen" labels, deployment history,
+messages, billing periods, and any timestamp where users benefit from both human
+relative context and exact time.
 
 ## Import
 
@@ -10,32 +13,56 @@ hover tooltip showing the other form. Auto-ticks on an interval so
 import { Timestamp } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<Timestamp value={new Date(Date.now() - 90 * 60_000)} />
-<Timestamp value={lastSeen} relative={false} />
-<Timestamp value={null} />            {/* renders "—" */}
+<Timestamp value={deployment.createdAt} />
+```
+
+Absolute date:
+
+```tsx
+<Timestamp
+  value={invoice.createdAt}
+  relative={false}
+  absoluteOptions={{ preset: "date" }}
+/>;
 ```
 
 ## Props
 
-- **value** — `Date | string | number | null | undefined`. Required.
-  Nullish values render as `"—"` and skip the tooltip.
-- **relative** — `boolean`. Default `true`. When `false`, renders the
-  absolute form as primary and relative in the tooltip.
-- **refreshMs** — `number`. Re-render cadence in ms for live
-  relative text. Default `15_000`. Set `0` to disable.
-- **noTooltip** — `boolean`. Suppress the hover tooltip with the
-  alternate form.
-- **relativeOptions** / **absoluteOptions** — formatter options
-  passed through to the shared `format` helpers (preset, locale,
-  etc.).
-- **className** — extra classes; plus all standard `HTMLSpanElement`
-  attributes.
+- **value** - `Date | string | number | null | undefined`. Required timestamp.
+- **relative** - `boolean`. Renders relative text when true. Default `true`.
+- **refreshMs** - `number`. Re-render cadence for relative text. Default
+  `15000`; set `0` to disable.
+- **noTooltip** - `boolean`. Hides the alternate-format tooltip.
+- **relativeOptions** - `FormatRelativeOptions`. Passed to `formatRelative`.
+- **absoluteOptions** - `FormatAbsoluteOptions`. Passed to `formatAbsolute`.
+- **className** and other span attributes are forwarded to the rendered span.
 
-## Notes
+## Behavior
 
-- The tooltip uses `<Tooltip>` from `@infinibay/harbor/overlays`.
-- When `refreshMs > 0`, the component re-renders on its own interval
-  — keep many timestamps mounted off-screen at your own peril.
+Relative timestamps tick on an interval so labels such as `2m ago` stay fresh.
+When tooltips are enabled, the tooltip shows the alternate representation:
+absolute for relative primary text, relative for absolute primary text.
+
+Null or invalid values are formatted by Harbor's format helpers.
+
+## Accessibility
+
+The primary timestamp is plain text. Do not rely on hover tooltip content for
+critical information; show exact times inline when precision matters.
+
+## Gotchas
+
+- Many live timestamps can create many intervals. Disable refresh in very large
+  lists or virtualize rows.
+- Tooltip requires the rendered span to be a valid tooltip child.
+- Timezone behavior comes from the formatting helpers and runtime locale.
+
+## Related
+
+- `DurationPill` for elapsed intervals.
+- `ActivityFeed` and `AuditLog` for timestamped records.
+- `Tooltip` for alternate time display.
+- `DatePicker` for date input.

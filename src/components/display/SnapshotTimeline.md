@@ -1,66 +1,88 @@
 # SnapshotTimeline
 
-Horizontal strip of VM/disk snapshots laid out chronologically.
-Each snapshot is a colored marker keyed by `kind`
-(manual / auto / pre-migration); hover surfaces age and size, click
-emits `onSelect`. Restore / Delete actions show inline on hover.
-Above ~50 snapshots the component automatically collapses into a
-density bar to stay readable.
+`SnapshotTimeline` shows backups, restore points, deployment snapshots, or saved
+workspace states over time. It can render as a normal horizontal timeline for a
+small set of snapshots or as a dense strip when history grows.
+
+Use it when the user needs to choose a restore point. Use `Timeline` for
+milestones and `ActivityFeed` for event history.
 
 ## Import
 
 ```tsx
-import {
-  SnapshotTimeline,
-  type Snapshot,
-} from "@infinibay/harbor/display";
+import { SnapshotTimeline } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
+
+Pass snapshots with a stable id, timestamp, size in bytes, and optional label.
 
 ```tsx
 <SnapshotTimeline
   snapshots={[
-    { id: "1", at: "2026-04-20T08:00", size: 2_400_000_000, kind: "auto" },
-    { id: "2", at: "2026-04-22T14:30", size: 2_600_000_000, kind: "manual", label: "before upgrade" },
-    { id: "3", at: "2026-04-28T09:12", size: 2_900_000_000, kind: "pre-migration", locked: true },
+    {
+      id: "snap-001",
+      at: "2026-05-10T12:30:00Z",
+      size: 48_000_000,
+      label: "Before migration",
+      kind: "pre-migration",
+      locked: true,
+    },
   ]}
-  onRestore={(s) => console.log("restore", s.id)}
-  onDelete={(s)  => console.log("delete",  s.id)}
-  onSelect={(s)  => console.log("select",  s.id)}
+  onSelect={(snapshot) => setSelectedSnapshot(snapshot)}
 />
 ```
 
-## Snapshot
+## Restore And Delete
 
-```ts
-{
-  id: string;
-  at: Date | string | number;
-  size: number;          // bytes
-  label?: string;
-  kind?: "manual" | "auto" | "pre-migration";
-  locked?: boolean;      // suppresses the Delete action
-}
+Restore and delete buttons appear on hover when the corresponding callbacks are
+provided. Locked snapshots hide delete.
+
+```tsx
+<SnapshotTimeline
+  snapshots={snapshots}
+  onRestore={(snapshot) => confirmRestore(snapshot)}
+  onDelete={(snapshot) => confirmDelete(snapshot)}
+/>
+```
+
+## Dense Mode
+
+Dense mode turns the timeline into a compact density strip. It activates
+automatically above 50 snapshots, or you can force it.
+
+```tsx
+<SnapshotTimeline snapshots={snapshots} dense />
 ```
 
 ## Props
 
-- **snapshots** — `readonly Snapshot[]`. Required. Sorted internally
-  by `at` ascending.
-- **dense** — `boolean`. Force the density-bar view. Auto-enabled
-  past 50 snapshots.
-- **onSelect** — `(snap: Snapshot) => void`. Click on a marker.
-- **onRestore** — `(snap: Snapshot) => void`. Renders an inline
-  "Restore" button on hover.
-- **onDelete** — `(snap: Snapshot) => void`. Renders an inline
-  "Delete" button on hover. Hidden when `snap.locked === true`.
-- **className** — extra classes on the wrapper.
+- `snapshots`: required snapshot list.
+- `dense`: force compact strip mode.
+- `onRestore`: optional restore action.
+- `onDelete`: optional delete action.
+- `onSelect`: optional snapshot selection callback.
+- `className`: wrapper class override.
 
-## Notes
+Each snapshot includes `id`, `at`, `size`, optional `label`, optional `kind`, and
+optional `locked`.
 
-- Empty arrays render an "No snapshots yet." placeholder.
-- In dense mode the markers position by time, not by index — long
-  gaps between snapshots stay visible.
-- Marker color is fixed per `kind`; for custom palettes wrap the
-  component or restyle via `className`.
+## Accessibility
+
+Snapshot dots are buttons with labels. Restore and delete are explicit buttons,
+but hover-only actions are still harder to discover. For critical workflows,
+mirror the selected snapshot actions in a detail panel or confirmation dialog.
+
+## Gotchas
+
+Sizes are bytes. Pass raw byte counts and let Harbor format them.
+
+Dense mode is a navigation summary, not an exact inspection surface. Show
+selected snapshot details elsewhere when users need confidence before restoring.
+
+## Related
+
+- `Timeline` for milestone sequences.
+- `ActivityFeed` for restore and backup events.
+- `Dialog` for restore/delete confirmation.
+- `StatusBar` for backup job state.

@@ -64,6 +64,8 @@ export function LineChart({
         viewBox={`0 0 ${width} ${height}`}
         className="w-full h-auto"
         preserveAspectRatio="none"
+        role="img"
+        aria-label="Line chart"
         onMouseLeave={() => setHover(null)}
       >
         {/* Y grid */}

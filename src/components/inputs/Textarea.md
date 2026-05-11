@@ -1,10 +1,8 @@
 # Textarea
 
-Multi-line text input with an optional floating label and character
-counter. The counter renders a thin progress bar that flips to red
-once the user crosses 90% of `maxChars`. Use `Textarea` for
-descriptions, comments, and prose; for one-line inputs use
-`<TextField>`, and for code reach for `<CodeEditor>`.
+`Textarea` is Harbor's multi-line text input. Use it for descriptions, notes, comments, support messages, changelog entries, release summaries, prompts, bios, and configuration text where users need more space than a single-line `TextField`.
+
+It supports an optional label and optional character counter with a progress bar. It forwards native textarea attributes, so you can still pass `rows`, `placeholder`, `disabled`, `name`, `required`, and form handlers.
 
 ## Import
 
@@ -12,31 +10,60 @@ descriptions, comments, and prose; for one-line inputs use
 import { Textarea } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <Textarea
   label="Description"
-  placeholder="Tell us what this is about…"
+  placeholder="Tell the team what changed..."
+  value={description}
+  onChange={(event) => setDescription(event.target.value)}
+  rows={5}
+/>
+```
+
+With a character counter:
+
+```tsx
+<Textarea
+  label="Release summary"
   maxChars={280}
-  rows={4}
+  value={summary}
+  onChange={(event) => setSummary(event.target.value)}
 />
 ```
 
 ## Props
 
-- **label** — `string`. Optional label rendered inside the box,
-  above the textarea.
-- **maxChars** — `number`. When set, renders the gradient progress
-  bar + count readout. Does not enforce the limit — wire `maxLength`
-  if you want hard truncation.
-- **value** / **defaultValue** / **onChange** — controlled or
-  uncontrolled `<textarea>` state.
-- Plus all standard `HTMLTextAreaElement` attributes (`rows`,
-  `placeholder`, `disabled`, `maxLength`, etc.).
+`Textarea` extends native `TextareaHTMLAttributes<HTMLTextAreaElement>` and adds:
 
-## Notes
+- **label** - optional string rendered above the editable area inside the field surface.
+- **maxChars** - optional number. Shows a visual count and progress bar.
 
-- Forwards `ref` to the underlying `<textarea>`.
-- The bar is purely visual — counting is done internally; the bar is
-  hidden when `maxChars` is omitted.
+It also accepts native props such as `id`, `value`, `defaultValue`, `onChange`, `rows`, `disabled`, `placeholder`, `name`, and `required`.
+
+## State Model
+
+The component supports controlled and uncontrolled usage. If `value` is provided, the parent owns the value. If only `defaultValue` is provided, Harbor tracks internal text for the counter.
+
+`maxChars` does not enforce a hard limit by itself. It displays `count/maxChars` and turns the progress bar rose after 90 percent. Use native `maxLength` or validation if you need to block longer input.
+
+## Accessibility
+
+When `label` is provided, Harbor connects it with the generated or supplied `id` through `htmlFor`. Prefer visible labels over placeholder-only fields.
+
+For validation, render error text near the field and connect it through your form pattern. The counter is visual, so do not rely on it as the only constraint for assistive technology users.
+
+## Gotchas
+
+- `maxChars` is visual; use `maxLength` to enforce.
+- The field has `resize-y`, so users can make it taller.
+- Long uncontrolled text still updates internal state for the counter.
+- Do not use `Textarea` for code editing; use `CodeEditor` or a specialized editor.
+
+## Related
+
+- `TextField` for single-line input.
+- `ChatInput` for chat composition.
+- `CodeEditor` for code-like editing.
+- `FormField` and `FormSection` for form layout.

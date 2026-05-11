@@ -1,74 +1,80 @@
 # PermissionMatrix
 
-Tri-state grid of principals (rows) × resources (columns). Click a
-cell to cycle `inherit → allow → deny → inherit`. Click a header to
-bulk-toggle the whole row or column.
+`PermissionMatrix` renders principals by resources with tri-state permission
+cells: allow, deny, and inherit. It is built for admin panels, IAM tools, team
+settings, feature access, environment permissions, and role/resource editors.
+
+Use it when users need to compare many permissions at once. Use simpler switches
+or checkboxes for small permission sets.
 
 ## Import
 
 ```tsx
-import { PermissionMatrix, type PermissionCell } from "@infinibay/harbor/data";
+import { PermissionMatrix } from "@infinibay/harbor/data";
 ```
 
-## Example
+## Basic Usage
+
+Values are keyed as `principalId:resourceId`. Missing values behave as inherit.
 
 ```tsx
-const principals = [
-  { id: "u1", label: "Ada", kind: "admin", avatar: "AD" },
-  { id: "u2", label: "Lin", kind: "user" },
-];
-const resources = [
-  { id: "vm.create", label: "create", group: "vm" },
-  { id: "vm.delete", label: "delete", group: "vm" },
-  { id: "billing.view", label: "view", group: "billing" },
-];
-const [value, setValue] = useState<Record<string, PermissionCell>>({
-  "u1:vm.create": "allow",
-  "u1:vm.delete": "deny",
-});
-
 <PermissionMatrix
-  principals={principals}
-  resources={resources}
-  value={value}
-  onChange={(p, r, next) =>
-    setValue((cur) => ({ ...cur, [`${p}:${r}`]: next }))
+  principals={[
+    { id: "admins", label: "Admins", kind: "role" },
+    { id: "maya", label: "Maya Singh", kind: "user" },
+  ]}
+  resources={[
+    { id: "deploy", label: "Deploy", group: "Production" },
+    { id: "billing", label: "Billing", group: "Account" },
+  ]}
+  value={permissions}
+  onChange={(principalId, resourceId, next) =>
+    setPermission(principalId, resourceId, next)
   }
-  onBulkChange={(changes) =>
-    setValue((cur) => {
-      const next = { ...cur };
-      for (const c of changes) next[`${c.principalId}:${c.resourceId}`] = c.value;
-      return next;
-    })
-  }
+/>
+```
+
+## Bulk Changes
+
+Column and row headers call `onBulkChange` with the changes to apply.
+
+```tsx
+<PermissionMatrix
+  {...matrix}
+  onBulkChange={(changes) => applyPermissionChanges(changes)}
 />
 ```
 
 ## Props
 
-- **principals** — `readonly PermissionPrincipal[]`. Required.
-  `{ id, label, kind?, avatar? }`. `avatar` is text (initials);
-  defaults to `label.slice(0, 2)`.
-- **resources** — `readonly PermissionResource[]`. Required.
-  `{ id, label, group? }`. Resources sharing a `group` get a merged
-  group header above their column headers.
-- **value** — `Record<string, PermissionCell>`. Keys are
-  `` `${principalId}:${resourceId}` ``. Missing keys default to
-  `"inherit"`. `PermissionCell = "allow" | "deny" | "inherit"`.
-- **onChange** — `(principalId, resourceId, next: PermissionCell) => void`.
-  Required. Fires on cell click.
-- **onBulkChange** — `(changes: { principalId, resourceId, value }[]) => void`.
-  Fires when a row or column header is clicked. Apply all changes
-  atomically.
-- **density** — `"compact" | "expanded"`. Compact = 22px rows,
-  expanded = 32px. Default `"expanded"`.
-- **className** — extra classes on the root.
+- `principals`: users, teams, roles, or service accounts.
+- `resources`: resources or actions.
+- `value`: permission map keyed by `principalId:resourceId`.
+- `onChange`: called when one cell cycles state.
+- `onBulkChange`: called for row/column bulk toggles.
+- `density`: `compact` or `expanded`.
+- `className`: wrapper class override.
 
-## Notes
+## Accessibility
 
-- Bulk toggle cycles the whole row/column: all-allow → all-deny →
-  all-inherit → all-allow. Missing cells count as `inherit`.
-- Row and column headers stick when the matrix overflows in either
-  axis.
-- Cells use color + symbol (`✓ / ✗ / ·`) so the state is legible
-  without color alone.
+The matrix is a dense visual editor. For high-stakes access control, provide a
+review summary, audit log, or alternative list of changed permissions before
+saving.
+
+Do not rely only on color. The cells include symbols, but surrounding copy should
+explain the allow/deny/inherit meaning.
+
+## Gotchas
+
+Clicking a cell cycles `inherit -> allow -> deny -> inherit`. Make sure your
+backend semantics match that order.
+
+Bulk changes are only emitted through `onBulkChange`; the parent must apply them
+to state.
+
+## Related
+
+- `DataTable` for permission audit rows.
+- `Switch` and `Checkbox` for simple permissions.
+- `AuditLog` for access change history.
+- `RoleBadge` for displaying roles.

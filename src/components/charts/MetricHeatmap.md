@@ -1,6 +1,12 @@
 # MetricHeatmap
 
-Sparse 2-D categorical heatmap over named rows × columns with a cold-mid-hot color scale. Use for hour-of-day × day-of-week density, region × instance-type spend, etc. Distinct from a calendar heatmap (which is shaped like a calendar grid) — this one is a generic matrix view.
+`MetricHeatmap` renders a generic two-dimensional matrix of numeric values. Use
+it for hour-by-day traffic, endpoint latency by region, test failures by suite,
+feature adoption by segment, or any categorical grid where color makes patterns
+visible faster than a table.
+
+It is not a calendar component. For calendar-shaped contribution or uptime
+views, use `HeatmapCalendar`.
 
 ## Import
 
@@ -8,36 +14,82 @@ Sparse 2-D categorical heatmap over named rows × columns with a cold-mid-hot co
 import { MetricHeatmap } from "@infinibay/harbor/charts";
 ```
 
-## Example
+## Basic Usage
+
+Rows and columns define the matrix. `cells` is sparse; missing row/column pairs
+render as empty cells.
 
 ```tsx
 <MetricHeatmap
-  rows={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
-  cols={["00", "04", "08", "12", "16", "20"]}
+  rows={["us-east", "eu-west", "ap-south"]}
+  cols={["00", "06", "12", "18"]}
   cells={[
-    { r: 0, c: 2, v: 0.4 },
-    { r: 0, c: 3, v: 0.9 },
-    { r: 1, c: 3, v: 1.2 },
-    { r: 2, c: 4, v: 0.7 },
-    { r: 4, c: 5, v: 1.5 },
+    { r: 0, c: 1, v: 148 },
+    { r: 1, c: 2, v: 321 },
+    { r: 2, c: 3, v: 87 },
   ]}
-  formatV={(v) => `${v.toFixed(2)} req/s`}
+  formatV={(value) => `${value.toFixed(0)} ms`}
+/>
+```
+
+## Scale
+
+By default the component derives min and max from the visible data. Pass
+`scale` when multiple heatmaps need comparable color meaning.
+
+```tsx
+<MetricHeatmap
+  rows={regions}
+  cols={hours}
+  cells={latencyCells}
+  scale={{ min: 0, mid: 250, max: 1000 }}
+/>
+```
+
+## Interaction
+
+`onCellClick` receives either the cell data or `null` for an empty coordinate,
+plus the row/column index. Use it to open a filtered table, trace list, or
+details drawer.
+
+```tsx
+<MetricHeatmap
+  rows={services}
+  cols={days}
+  cells={errorCells}
+  onCellClick={(cell, rc) => openErrors({ cell, row: rc.r, col: rc.c })}
 />
 ```
 
 ## Props
 
-- **rows** — `string[]`. Row labels, top-to-bottom.
-- **cols** — `string[]`. Column labels, left-to-right.
-- **cells** — `readonly HeatmapCell[]`. Sparse `{ r, c, v }`. Missing pairs render empty.
-- **formatV** — formatter for the value in tooltip + scale legend. Default: `v.toFixed(2)`.
-- **scale** — `{ min?, mid?, max? }` color anchors. Default: data min/max with mid at midpoint.
-- **onCellClick** — `(cell, { r, c }) => void`. `cell` is `null` if there's no data for that cell.
-- **cellSize** — pixel size of each cell. Default: `22`.
-- **className** — wrapper class.
+- `rows`: row labels, top to bottom.
+- `cols`: column labels, left to right.
+- `cells`: sparse `{ r, c, v }` values.
+- `formatV`: value formatter for hover text and min/max display.
+- `scale`: optional `min`, `mid`, and `max` color anchors.
+- `onCellClick`: optional selection callback.
+- `cellSize`: pixel size for each cell; defaults to `22`.
+- `className`: wrapper class override.
 
-## Notes
+## Accessibility
 
-- Color scale is two-leg: cold → mid (sky-blue → fuchsia) below `mid`, mid → hot (fuchsia → rose) above.
-- Out-of-bounds cells (`r` / `c` outside the labels) are silently dropped.
-- A status line under the grid shows the hovered cell's value (or `min` / `max` of the data when nothing is hovered).
+The heatmap is a visual summary. Keep the selected cell details, min/max text,
+and any critical alerts available as readable text near the chart. If cell
+selection drives a workflow, provide a parallel table, list, or summary panel for
+keyboard users.
+
+## Gotchas
+
+Sparse coordinates outside the row or column range are ignored. Validate data at
+the API boundary so the heatmap does not silently hide important values.
+
+Color scale is relative unless `scale` is fixed. Relative scales are useful for
+one panel, but misleading when comparing environments side by side.
+
+## Related
+
+- `HeatmapCalendar` for calendar-shaped grids.
+- `TimeSeriesChart` for values over continuous time.
+- `DataTable` for exact row-level inspection.
+- `MetricCard` for top-line values above the heatmap.

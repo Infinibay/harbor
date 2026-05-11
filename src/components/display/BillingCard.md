@@ -1,8 +1,11 @@
 # BillingCard
 
-The "your plan" tile for billing pages — plan name, price, current
-period, usage `<QuotaBar>`, and the next-invoice line. Pure layout: the
-parent computes segments, period, and totals.
+`BillingCard` is a composed plan summary tile for billing pages. It shows the
+current plan, price, billing period, usage quota bar, next invoice, top-right CTA,
+and optional footer content.
+
+Use it in account settings, workspace billing pages, admin subscription views,
+and commercial-license portals.
 
 ## Import
 
@@ -10,44 +13,56 @@ parent computes segments, period, and totals.
 import { BillingCard } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <BillingCard
   plan="Team"
   price="$49 / mo"
-  period={{
-    start: "2026-04-01",
-    end: "2026-04-30",
-  }}
+  period={{ start: "2026-04-01", end: "2026-04-30" }}
+  nextInvoice="$64.12"
   usage={{
     label: "API calls",
     total: 1_000_000,
-    segments: [
-      { value: 620_000, label: "Used", color: "rgb(168 85 247)" },
-      { value: 80_000,  label: "Reserved", color: "rgba(255,255,255,0.25)" },
-    ],
+    segments: [{ value: 620_000, label: "Used", color: "rgb(168 85 247)" }],
   }}
-  nextInvoice="$64.12"
-  cta={<Button variant="primary" size="sm">Upgrade</Button>}
-/>
+  cta={<Button>Upgrade</Button>}
+/>;
 ```
 
 ## Props
 
-- **plan** — `string`. Required. Plan name shown in the title.
-- **price** — `string`. Pre-formatted price label (e.g. `"$49 / mo"`).
-- **period** — `{ start, end }`. Date-like values; rendered as a
-  `<Timestamp>` range with the `"date"` preset.
-- **usage** — `{ segments: QuotaSegment[]; total: number; label?: string }`.
-  Pass-through to `<QuotaBar>`.
-- **nextInvoice** — `string`. Pre-formatted amount.
-- **cta** — `ReactNode`. Top-right slot — typically an Upgrade button.
-- **footer** — `ReactNode`. Bottom slot for invoices links, payment-method
-  swap, etc.
-- **className** — extra classes on the wrapper.
+- **plan** - `string`. Required plan name.
+- **price** - `string`. Optional formatted price label.
+- **period** - `{ start; end }`. Optional billing cycle dates.
+- **nextInvoice** - `string`. Optional formatted invoice amount.
+- **usage** - `{ segments: QuotaSegment[]; total: number; label?: string }`.
+- **cta** - `ReactNode`. Top-right action slot.
+- **footer** - `ReactNode`. Bottom slot for links or invoice details.
+- **className** - extra classes on the card.
 
-## Notes
+## Behavior
 
-- The component never formats currency — pass already-localized strings.
-- See `<QuotaBar>` for the segment shape.
+The component composes `QuotaBar` for usage and `Timestamp` for period dates.
+Amounts are passed in already formatted; Harbor does not calculate invoices or
+currency.
+
+## Accessibility
+
+All key billing details render as text. Keep CTA copy explicit, such as
+`Upgrade plan` or `Manage billing`, and include billing-period context when
+usage can reset.
+
+## Gotchas
+
+- This is display only. Billing state, checkout, invoices, and entitlement logic
+  belong to your application.
+- `nextInvoice` and `price` are strings, so format them before rendering.
+- Usage segments should be validated to match your product's quota model.
+
+## Related
+
+- `QuotaBar` for usage visualization.
+- `CostBreakdown` for spend composition.
+- `MetricCard` for billing KPIs.
+- `Button` for upgrade and manage-billing actions.

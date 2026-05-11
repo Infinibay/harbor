@@ -1,75 +1,82 @@
 # Presence
 
-A stacked avatar row showing who is currently on a page or document,
-with a tooltip per user and an overflow `+N` chip. Pair it with
-`<CollabCursor>` to render live pointers on a shared canvas.
+`Presence` shows who is currently in a workspace, document, canvas, issue,
+thread, or live session. It renders stacked avatars, a count, optional statuses,
+overflow summary, and companion cursor primitives for collaborative surfaces.
+
+Use it when collaboration is active context. Use `Avatar` for one person and
+`ActivityFeed` for historical collaboration.
 
 ## Import
 
 ```tsx
-import {
-  Presence,
-  PresenceUser,
-  CollabCursor,
-} from "@infinibay/harbor/collab";
+import { Presence, PresenceUser, CollabCursor } from "@infinibay/harbor/collab";
 ```
 
-## Example (recommended composable API)
+## Basic Usage
+
+The legacy `users` prop is compact and convenient.
 
 ```tsx
-<Presence max={4} size="sm">
-  <PresenceUser name="Ana" status="editing" />
-  <PresenceUser name="Bruno" status="viewing" />
-  <PresenceUser name="Cinto" status="idle" />
-  <PresenceUser name="Diego" />
-  <PresenceUser name="Elena" />
-</Presence>
-
-// Live cursor overlay (absolute-positioned inside a relative parent):
-<CollabCursor x={120} y={48} name="Ana" color="#a855f7" />;
+<Presence
+  users={[
+    { id: "maya", name: "Maya", status: "editing" },
+    { id: "leo", name: "Leo", status: "viewing" },
+  ]}
+  max={4}
+/>
 ```
 
-## Subcomponents
+## Composable Usage
 
-- **`<PresenceUser>`** — one user pip. Reads `size` from the parent
-  `<Presence>` via context.
+Use subcomponents when you want explicit React composition.
+
+```tsx
+<Presence size="md">
+  <PresenceUser name="Maya" status="editing" />
+  <PresenceUser name="Leo" status="viewing" />
+  <PresenceUser name="Ana" status="idle" />
+</Presence>
+```
+
+## Cursors
+
+`CollabCursor` renders a named pointer at absolute coordinates. Use it inside a
+positioned canvas or document surface.
+
+```tsx
+<CollabCursor x={cursor.x} y={cursor.y} name="Maya" color="#a855f7" />
+```
 
 ## Props
 
-### `<Presence>`
+`Presence` accepts `users`, `max`, `size`, `className`, and `children`.
 
-- **max** — `number`. Maximum avatars rendered before the `+N` chip
-  appears. Default: `4`.
-- **size** — `"sm" | "md" | "lg"`. Avatar size, applied to all
-  `<PresenceUser>` children. Default: `"sm"`.
-- **className** — extra classes on the root flex container.
+`PresenceUser` accepts `name`, optional `color`, and optional status:
+`viewing`, `editing`, or `idle`.
 
-### `<PresenceUser>`
+`CollabCursor` accepts `x`, `y`, `name`, and optional `color`.
 
-- **name** — `string`. Required. Used for the avatar fallback and
-  tooltip.
-- **status** — `"viewing" | "editing" | "idle"`. Optional. Drives
-  tooltip suffix and the dot indicator (see Notes).
-- **color** — `string`. Optional. Reserved for future per-user color;
-  not currently consumed by `<Presence>` (pass to `<CollabCursor>` to
-  keep colors consistent).
+## Accessibility
 
-### `<CollabCursor>`
+Presence avatars have tooltips with names and statuses. Keep meaningful
+collaboration state available in text elsewhere, especially in audit logs,
+comments, or active-user panels.
 
-- **x**, **y** — `number`. Pixel offsets applied via `translate`.
-  Position the cursor's owner with `position: relative`.
-- **name** — `string`. Label rendered next to the arrow.
-- **color** — `string`. CSS color for the arrow fill and label
-  background. Default: `"#a855f7"`.
+Animated editing status should not be the only signal that someone is modifying
+content.
 
-## Notes
+## Gotchas
 
-- Tooltip content is `"<name> · <status>"` when `status` is set, else
-  just the name. `status: "idle"` maps to the avatar's `away` dot;
-  everything else maps to `online`.
-- `status: "editing"` adds a pulsing fuchsia dot in the top-right of
-  the avatar to flag active typing.
-- The trailing label uses singular/plural correctly: `1 person` vs
-  `N people`. It reflects total count, not `max`.
-- `<CollabCursor>` is `pointer-events: none` and uses `z-index: 1000`;
-  it must sit inside an element with non-static positioning.
+`PresenceUser` must be rendered inside `Presence` because it reads size from
+context.
+
+`CollabCursor` is absolutely positioned and pointer-transparent. Its coordinates
+must already be translated into the containing surface.
+
+## Related
+
+- `Avatar` for individual users.
+- `CommentThread` for collaboration history.
+- `ActivityFeed` for recent events.
+- `CanvasPresenceCursor` for canvas-specific presence.

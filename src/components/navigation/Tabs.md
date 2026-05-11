@@ -1,10 +1,12 @@
 # Tabs
 
-Composable tabs with three visual variants (`pill`, `underline`,
-`card`) and animated active indicators. Use for switching between
-panels of related content within the same view. For a compact, flat
-option picker without panels, use `<SegmentedControl>`. The active
-panel fades up on mount via `<ContentSwap>`.
+`Tabs` switches between related panels without leaving the current page. Harbor
+tabs are designed for product surfaces: settings pages, inspectors, dashboards,
+playgrounds, account screens, and split workflows where each panel represents a
+clear mode or category.
+
+Use tabs for peer views. Use `Sidebar` for major app sections and `SegmentedControl`
+for compact value selection.
 
 ## Import
 
@@ -12,55 +14,76 @@ panel fades up on mount via `<ContentSwap>`.
 import { Tabs, TabList, Tab, TabPanel } from "@infinibay/harbor/navigation";
 ```
 
-## Example
+## Basic Usage
+
+Use `defaultValue` for local state.
 
 ```tsx
-<Tabs defaultValue="overview" variant="pill">
+<Tabs defaultValue="overview">
   <TabList>
-    <Tab value="overview" icon={<ChartIcon />}>Overview</Tab>
-    <Tab value="activity">Activity</Tab>
-    <Tab value="settings" disabled>Settings</Tab>
+    <Tab value="overview">Overview</Tab>
+    <Tab value="usage">Usage</Tab>
+    <Tab value="settings">Settings</Tab>
   </TabList>
-  <TabPanel value="overview">…</TabPanel>
-  <TabPanel value="activity">…</TabPanel>
-  <TabPanel value="settings">…</TabPanel>
+
+  <TabPanel value="overview">Overview content</TabPanel>
+  <TabPanel value="usage">Usage content</TabPanel>
+  <TabPanel value="settings">Settings content</TabPanel>
 </Tabs>
 ```
 
-## Props (`<Tabs>`)
+## Controlled Tabs
 
-- **value** — `string`. Controlled active tab value.
-- **defaultValue** — `string`. Uncontrolled initial value.
-- **onValueChange** — `(v: string) => void`.
-- **variant** — `"pill" | "underline" | "card"`. Default `"pill"`.
-- **children** — `<TabList>` and `<TabPanel>`s.
-- **className** — extra classes on the wrapper.
+Pass `value` and `onValueChange` when the active tab should sync with route
+state, URL search params, or a parent layout.
 
-## Props (`<TabList>`)
+```tsx
+<Tabs value={tab} onValueChange={setTab} variant="underline">
+  <TabList>
+    <Tab value="code">Code</Tab>
+    <Tab value="preview">Preview</Tab>
+  </TabList>
+  <TabPanel value="code"><CodeEditor /></TabPanel>
+  <TabPanel value="preview"><Preview /></TabPanel>
+</Tabs>
+```
 
-- **children** — `<Tab>`s.
-- **className** — extra classes. The component picks the layout
-  (rounded pill bar, underline border, or stacked card tabs) based on
-  the parent `<Tabs variant>`.
+## Variants
 
-## Props (`<Tab>`)
+`variant` can be `pill`, `underline`, or `card`.
 
-- **value** — `string`. Required. Matches a `<TabPanel value>`.
-- **children** — `ReactNode`. Tab label.
-- **icon** — `ReactNode`. Leading icon.
-- **disabled** — `boolean`. Greys the tab and blocks selection.
+- `pill`: default, good inside dense tools.
+- `underline`: good for pages and docs.
+- `card`: good when panels sit on a framed surface.
 
-## Props (`<TabPanel>`)
+## Props
 
-- **value** — `string`. Required. Renders only when active.
-- **children** — `ReactNode`. Panel content.
-- **className** — extra classes (a `mt-4` is added by default).
+`Tabs` accepts `value`, `defaultValue`, `onValueChange`, `variant`, `children`,
+and `className`.
 
-## Notes
+`Tab` accepts `value`, `children`, optional `icon`, and optional `disabled`.
 
-- `<Tab>` and `<TabPanel>` must be descendants of `<Tabs>` — they read
-  selection from context and will throw if used standalone.
-- The active indicator (pill background or underline) animates between
-  tabs via `framer-motion` `layoutId`.
-- Only the active panel is mounted; switching unmounts the previous
-  panel synchronously, then `<ContentSwap>` fades the new one in.
+`TabPanel` accepts `value`, `children`, and `className`.
+
+## Accessibility
+
+Tabs are buttons that expose selected state and disabled state. Keep labels short
+and stable; changing tab names after selection makes orientation harder.
+
+If tabs represent routes, keep the URL in sync with the selected value so users
+can share and reload the same view.
+
+## Gotchas
+
+`TabPanel` unmounts when inactive. Store important form state above the panel if
+users can switch tabs mid-edit.
+
+The initial internal value defaults to `defaultValue` or an empty string. Always
+provide a default unless you are controlling the value.
+
+## Related
+
+- `SegmentedControl` for compact option switching.
+- `BrowserTabs` for document-style tab strips.
+- `ContentSwap` for animated panel transitions.
+- `Sidebar` for persistent app navigation.

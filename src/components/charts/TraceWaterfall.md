@@ -1,6 +1,13 @@
 # TraceWaterfall
 
-Jaeger / Lightstep-style nested span waterfall. Each row is a `<SpanBar>` placed against a shared time axis; child spans indent under their parent and fold/unfold via the chevron. Use for distributed traces or any timeline of parent/child operations; for self-inclusive call stacks (no overlap) use `FlameGraph`.
+`TraceWaterfall` visualizes distributed traces as nested spans across a shared
+time axis. It is the Harbor component for "where did the request spend time?"
+views: API gateways, database calls, queue waits, background jobs, RPC calls, and
+third-party integrations.
+
+Use it when span timing and parent-child structure matter. Use `Timeline` for
+human-readable milestones and `FlameGraph` when aggregate stack cost matters
+more than one request.
 
 ## Import
 
@@ -8,34 +15,82 @@ Jaeger / Lightstep-style nested span waterfall. Each row is a `<SpanBar>` placed
 import { TraceWaterfall } from "@infinibay/harbor/charts";
 ```
 
-## Example
+## Basic Usage
+
+Pass spans with `start` and `duration` in milliseconds. Root spans omit
+`parent`; child spans reference a parent span id.
 
 ```tsx
 <TraceWaterfall
   spans={[
-    { id: "req",  name: "POST /orders",       start:   0, duration: 480, status: "ok" },
-    { id: "auth", name: "auth.verify",        start:  10, duration:  35, parent: "req" },
-    { id: "db",   name: "db.query orders",    start:  60, duration: 180, parent: "req" },
-    { id: "ext",  name: "stripe.charge",      start: 260, duration: 200, parent: "req", status: "error" },
-    { id: "log",  name: "kafka.publish",      start: 470, duration:  10, parent: "req" },
+    { id: "root", name: "POST /checkout", start: 0, duration: 840 },
+    { id: "auth", parent: "root", name: "Auth service", start: 28, duration: 120 },
+    { id: "db", parent: "root", name: "Create order", start: 180, duration: 390 },
+    { id: "stripe", parent: "root", name: "Payment provider", start: 600, duration: 210 },
   ]}
-  onSpanClick={(s) => console.log(s.id)}
+/>
+```
+
+## Interaction
+
+Children are expanded by default. Parent rows include a collapse button. Use
+`onSpanClick` to open a details drawer, inspector, log panel, or related metric.
+
+```tsx
+<TraceWaterfall
+  spans={trace.spans}
+  header={<TraceSummary trace={trace} />}
+  onSpanClick={(span) => setSelectedSpan(span)}
+/>
+```
+
+## SpanBar
+
+`SpanBar` is exported for custom trace rows. It paints one duration bar against a
+known `totalMs` value.
+
+```tsx
+<SpanBar
+  name="Database query"
+  start={120}
+  duration={86}
+  totalMs={900}
+  status="pending"
 />
 ```
 
 ## Props
 
-- **spans** — `readonly Span[]`. Each `{ id, name, start, duration, status?, parent?, tags?, color? }`. Times in ms, relative to the trace start. `parent` omitted = root.
-- **totalMs** — override the time axis. Default: `max(start + duration)` across spans.
-- **onSpanClick** — `(span) => void`. Fires on bar click.
-- **header** — slot above the axis (title, summary, filters).
-- **className** — wrapper class.
+- `spans`: required trace spans.
+- `totalMs`: optional time window override; defaults to the latest span end.
+- `onSpanClick`: called with the clicked span.
+- `header`: optional content above the axis.
+- `className`: wrapper class override.
 
-The `<SpanBar>` row component is also exported for ad-hoc waterfalls.
+Each span includes `id`, `name`, `start`, `duration`, optional `status`, optional
+`parent`, optional `tags`, and optional `color`.
 
-## Notes
+## Accessibility
 
-- Status drives the default bar color: `ok` green, `error` red, `pending` amber. Per-span `color` overrides.
-- All rows start expanded; the chevron toggles each subtree.
-- The bar width is clamped to a minimum of 0.3 % so 0 ms spans remain clickable.
-- Tooltip (`title=`) shows the full duration plus a JSON dump of `tags`.
+Collapse controls are buttons with expanded state. Clickable span bars expose
+button semantics and keyboard activation. The row label remains visible outside
+the bar so short spans are still readable.
+
+Do not rely on bar color alone for status. Pair `status="error"` with detail in
+the selected span drawer, header summary, or adjacent alert.
+
+## Gotchas
+
+The component does not sort the original root list beyond start time inside each
+tree level. Send spans with stable ids and parent relationships.
+
+Very tiny spans are clamped to a minimum visible width. The visual width helps
+selection but should not be interpreted as exact timing for sub-millisecond
+events.
+
+## Related
+
+- `FlameGraph` for aggregate stack time.
+- `TimeSeriesChart` for latency over time.
+- `LogTailer` for logs tied to selected spans.
+- `Drawer` or `Inspector` for span details.

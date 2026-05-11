@@ -1,11 +1,8 @@
 # ResponsiveSwap
 
-Renders one of two subtrees depending on viewport breakpoint and
-cross-fades between them when the viewport crosses the
-threshold. Use it when the mobile and desktop versions of a
-region diverge enough that hiding one with CSS would mean
-mounting heavy components you don't need. For simple show/hide,
-use `Show` / `Hide`.
+`ResponsiveSwap` mounts one of two React subtrees based on a viewport breakpoint. Use it when mobile and desktop versions are structurally different: a drawer versus sidebar, compact card versus table, stacked form versus split form, or simplified mobile editor versus full desktop workbench.
+
+Unlike CSS-only hiding, the inactive subtree is not mounted. This prevents duplicate effects, duplicate form fields, duplicated ids, and hidden expensive components.
 
 ## Import
 
@@ -13,29 +10,61 @@ use `Show` / `Hide`.
 import { ResponsiveSwap } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <ResponsiveSwap
   above="md"
-  mobile={<MobileNav />}
-  desktop={<DesktopNav />}
+  mobile={<MobileProjectCards projects={projects} />}
+  desktop={<ProjectDataTable projects={projects} />}
+/>
+```
+
+Use slide animation for view changes that should feel directional:
+
+```tsx
+<ResponsiveSwap
+  above="lg"
+  animate="slide"
+  mobile={<CompactInspector />}
+  desktop={<SplitInspector />}
 />
 ```
 
 ## Props
 
-- **above** — `"sm" | "md" | "lg" | "xl" | "2xl"`. Breakpoint at
-  which `desktop` takes over. Default `"md"`.
-- **mobile** — `ReactNode`. Rendered below the breakpoint.
-- **desktop** — `ReactNode`. Rendered at and above.
-- **animate** — `"fade" | "slide" | false`. Transition style.
-  Default `"fade"`.
-- **className** — extra classes on the wrapper.
+- **above** - optional breakpoint where `desktop` takes over. Defaults to `"md"`.
+- **mobile** - required `ReactNode` rendered below the breakpoint.
+- **desktop** - required `ReactNode` rendered at or above the breakpoint.
+- **animate** - optional `"fade"`, `"slide"`, or `false`. Defaults to `"fade"`.
+- **className** - optional string applied to the wrapper.
 
-## Notes
+## Mounting Model
 
-- Only the active subtree mounts — switching swaps unmounts the
-  other side, which is the point.
-- Built on `AnimatePresence` with `mode="wait"` so the outgoing
-  variant finishes its exit before the incoming one mounts.
+`ResponsiveSwap` uses Harbor's `useIsAbove` breakpoint hook. It chooses a key of `"mobile"` or `"desktop"`, then renders that child through `AnimatePresence`. With animation disabled, it renders the active child directly inside the wrapper.
+
+Because only one subtree mounts, local state inside the inactive variant is lost when switching breakpoints.
+
+## Usage Guidance
+
+Use `ResponsiveSwap` when two variants are truly different. If the same content only needs different columns, spacing, or order, use CSS, `ResponsiveGrid`, or responsive utility classes instead.
+
+Avoid putting long-running requests independently inside both variants. Fetch data above the swap and pass it down.
+
+## Accessibility
+
+Only the active variant is present in the accessibility tree, which is usually better than hiding duplicate content with CSS. Make sure both variants expose equivalent controls and labels so resizing does not remove functionality.
+
+## Gotchas
+
+- Breakpoints are viewport-based.
+- Switching breakpoints remounts the active child.
+- Animated swaps can be distracting for frequently resizing containers; use `animate={false}` there.
+- Do not use it to hide security-sensitive content; unmounted UI is not an authorization boundary.
+
+## Related
+
+- `ResponsiveGrid` for responsive columns.
+- `ResponsiveStack` for stack direction changes.
+- `ResponsiveSwap` pairs well with `DataTable` plus mobile card lists.
+- `Drawer` and `Sidebar` for mobile/desktop navigation variants.

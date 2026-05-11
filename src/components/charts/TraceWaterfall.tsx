@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { formatDuration } from "../../lib/format";
 
@@ -56,13 +56,25 @@ export function SpanBar({
   const leftPct = (start / totalMs) * 100;
   const widthPct = Math.max(0.3, (duration / totalMs) * 100);
   const fill = color ?? STATUS_COLOR[status];
+  const activateFromKeyboard = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <div
       className={cn(
-        "relative h-5 rounded cursor-pointer group",
+        "relative h-5 rounded group",
+        onClick && "cursor-pointer",
         className,
       )}
       onClick={onClick}
+      onKeyDown={activateFromKeyboard}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
       title={`${name} · ${formatDuration(duration, { includeMs: true })}${
         tags ? "\n" + JSON.stringify(tags, null, 2) : ""
       }`}
@@ -196,7 +208,10 @@ export function TraceWaterfall({
               >
                 {hasChildren ? (
                   <button
+                    type="button"
                     onClick={() => toggle(row.span.id)}
+                    aria-expanded={open}
+                    aria-label={`${open ? "Collapse" : "Expand"} ${row.span.name}`}
                     className="w-3 text-[10px] text-white/50 hover:text-white text-left"
                   >
                     {open ? "▾" : "▸"}

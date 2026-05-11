@@ -328,7 +328,11 @@ function KanbanCard({
       {moveTo?.length ? (
         <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
+            type="button"
             onClick={() => setMenu((m) => !m)}
+            aria-label={`Move card ${card.id} to another column`}
+            aria-haspopup="menu"
+            aria-expanded={menu}
             className="w-6 h-6 grid place-items-center rounded-md text-white/50 hover:text-white hover:bg-white/5"
           >
             ⋯
@@ -343,6 +347,7 @@ function KanbanCard({
               >
                 {moveTo.map((t) => (
                   <button
+                    type="button"
                     key={t.id}
                     onClick={() => {
                       ctx.emit({

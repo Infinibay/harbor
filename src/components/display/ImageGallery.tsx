@@ -94,6 +94,8 @@ export function ImageGallery({
           return (
             <motion.button
               key={img.id}
+              type="button"
+              aria-pressed={selected}
               onClick={() => onSelect?.(img)}
               whileHover={{ y: -2 }}
               transition={{ type: "spring", stiffness: 360, damping: 28 }}
@@ -159,8 +161,10 @@ function SortChips({ value, onChange }: { value: ImageSort; onChange: (v: ImageS
     <div className="inline-flex gap-0.5 p-0.5 rounded-md bg-white/[0.03] border border-white/10 text-[11px]">
       {opts.map((o) => (
         <button
+          type="button"
           key={o.v}
           onClick={() => onChange(o.v)}
+          aria-pressed={value === o.v}
           className={cn(
             "px-2 py-0.5 rounded",
             value === o.v ? "bg-white/10 text-white" : "text-white/55 hover:text-white",

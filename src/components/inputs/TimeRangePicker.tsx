@@ -110,9 +110,11 @@ export function TimeRangePicker({
         const active = isPreset && value.preset === p;
         return (
           <button
+            type="button"
             key={p}
             onClick={(e) => pickPreset(p, e.shiftKey)}
             title={`Last ${PRESET_LABEL[p]} (shift-click to compare)`}
+            aria-pressed={active}
             className={cn(
               "h-[calc(var(--harbor-target-control-height)-10px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[length:var(--harbor-target-font-size)] font-medium transition-colors",
               active
@@ -126,7 +128,9 @@ export function TimeRangePicker({
       })}
       <span className="mx-1 h-4 w-px bg-[color:var(--harbor-field-border)]" />
       <button
+        type="button"
         onClick={openCustom}
+        aria-expanded={open}
         className={cn(
           "h-[calc(var(--harbor-target-control-height)-10px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[length:var(--harbor-target-font-size)] font-medium transition-colors",
           !isPreset
@@ -209,12 +213,14 @@ function CustomRangeEditor({
       </label>
       <div className="flex justify-end gap-2 pt-1">
         <button
+          type="button"
           onClick={onCancel}
           className="h-[calc(var(--harbor-target-control-height)-8px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]"
         >
           Cancel
         </button>
         <button
+          type="button"
           onClick={() => {
             const f = new Date(from);
             const t = new Date(to);

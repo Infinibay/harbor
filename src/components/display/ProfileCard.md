@@ -1,8 +1,11 @@
 # ProfileCard
 
-User profile tile — banner, avatar with status dot, name/handle/role
-line, bio, and a row of stats. For compact in-list rows use
-`<Avatar>` directly with a `<Stat>` cluster.
+`ProfileCard` presents a person or account summary with banner, avatar, name, handle, role,
+bio, stats, presence status, and action slot.
+
+Use it for team directories, account sidebars, collaborator previews, user detail drawers,
+customer contacts, and community profiles. It is a compact identity surface, not a full user
+management form.
 
 ## Import
 
@@ -10,46 +13,69 @@ line, bio, and a row of stats. For compact in-list rows use
 import { ProfileCard } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <ProfileCard
-  name="Ana Pérez"
+  name="Ana Torres"
   handle="ana"
-  role="Engineer · Infrastructure"
-  bio="Builds the things that build the things."
+  role="Infrastructure"
+  bio="Builds the deployment paths that keep production boring."
+  avatar="/team/ana.png"
   status="online"
   stats={[
-    { label: "Repos", value: 24 },
-    { label: "Followers", value: "1.2k" },
-    { label: "Following", value: 89 },
+    { label: "Deploys", value: 42 },
+    { label: "Reviews", value: 18 },
+    { label: "Uptime", value: "99.9%" },
   ]}
-  actions={<Button size="sm">Follow</Button>}
+  actions={<Button size="sm">Message</Button>}
 />
 ```
 
+## Composition Model
+
+The top banner is either an image URL or a Harbor gradient fallback. The avatar overlaps the
+banner and uses `Avatar`, so it can show an image, initials fallback, and presence status.
+The action slot is aligned opposite the avatar and is intended for short commands such as
+"Message", "Invite", "Follow", or "View profile".
+
+Stats render in a three-column grid. Keep them short and comparable, because the component
+does not virtualize or wrap complex stat content.
+
 ## Props
 
-- **name** — `string`. Required. Drives both the heading and the
-  avatar's initials.
-- **handle** — `string`. Rendered as `@handle` in the meta line.
-- **role** — `ReactNode`. Rendered alongside the handle.
-- **bio** — `ReactNode`. Free-form description block.
-- **banner** — `string`. Background image URL for the header strip.
-  Falls back to a fuchsia/sky/pink gradient.
-- **status** — `"online" | "away" | "busy" | "offline"`. Forwarded to
-  the avatar's status dot.
-- **stats** — `ProfileStat[]`. Three-column grid below the bio.
-- **actions** — `ReactNode`. Slot anchored to the right of the avatar.
-- **className** — extra classes on the wrapper.
+- **name** - display name.
+- **handle** - shown with `@`.
+- **role** - role, title, or plan.
+- **bio** - short biography.
+- **avatar** - avatar image URL.
+- **banner** - banner image URL. Falls back to gradient.
+- **status** - `"online" | "away" | "busy" | "offline"`.
+- **stats** - `{ label, value }[]`.
+- **actions** - action slot.
+- **className** - extra classes.
 
-## `ProfileStat`
+## Accessibility
 
-- **label** — `string`. Required. Uppercase caption.
-- **value** — `ReactNode`. Required. Rendered with tabular-nums.
+The avatar image receives the profile name as alt text through `Avatar`. Keep action labels
+explicit, especially if you use icon-only buttons. A profile card should usually appear
+inside a list, drawer, or section with a clear heading so users know why the person is being
+shown.
 
-## Notes
+Do not rely only on the presence dot. If presence affects workflow, add text nearby or expose
+it in the profile details.
 
-- The avatar uses initials from `name` — there is no `avatar` URL prop.
-- Stats overflow gracefully but are best kept to three for the
-  even-grid layout.
+## Gotchas
+
+- Stats are laid out as three columns. More than three stats can make the card dense.
+- Long bios are not clamped by the component. Trim or clamp in the parent for grid layouts.
+- `actions` is just a slot; permissions, loading, and disabled states belong to the controls
+  you render there.
+- Banner images use CSS background cover, so important image details may be cropped.
+
+## Related
+
+- `Avatar` and `AvatarStack` for identity primitives.
+- `Presence` for richer online state.
+- `Card` for custom profile layouts.
+- `Drawer` for expandable profile details.

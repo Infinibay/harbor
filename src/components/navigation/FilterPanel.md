@@ -1,9 +1,12 @@
 # FilterPanel
 
-Faceted filter sidebar — a stack of collapsible groups with checkbox
-or radio options, counts, and a "Clear all" affordance. Typical for
-search results and catalog pages. Compose into `<FacetedSearch>`
-when you also need a query input, chips, and saved views.
+`FilterPanel` is a faceted sidebar for search results, catalog pages, admin
+lists, audit logs, and documentation indexes. It groups filter options, supports
+checkbox and radio behavior, shows selected counts, and exposes a clear-all
+action.
+
+Use it when filters are persistent and visible. Use `FacetedSearch` when search
+input, chips, and filters need to live in one compact control.
 
 ## Import
 
@@ -11,64 +14,78 @@ when you also need a query input, chips, and saved views.
 import { FilterPanel } from "@infinibay/harbor/navigation";
 ```
 
-## Example
+## Basic Usage
+
+The component is controlled. Keep selected values in state and pass the full
+record back through `onChange`.
 
 ```tsx
-const [value, setValue] = useState<Record<string, string[]>>({});
+const [filters, setFilters] = useState<Record<string, string[]>>({});
 
 <FilterPanel
-  value={value}
-  onChange={setValue}
-  onClear={() => setValue({})}
   groups={[
     {
       id: "status",
       label: "Status",
       options: [
-        { value: "open", label: "Open", count: 14 },
-        { value: "closed", label: "Closed", count: 38 },
-        { value: "draft", label: "Draft", count: 3 },
-      ],
-    },
-    {
-      id: "owner",
-      label: "Owner",
-      type: "radio",
-      options: [
-        { value: "ana", label: "Ana", count: 7 },
-        { value: "bruno", label: "Bruno", count: 4 },
+        { value: "active", label: "Active", count: 18 },
+        { value: "paused", label: "Paused", count: 4 },
       ],
     },
   ]}
+  value={filters}
+  onChange={setFilters}
+  onClear={() => setFilters({})}
 />
+```
+
+## Radio Groups
+
+Set `type="radio"` when one option should be active at a time.
+
+```tsx
+{
+  id: "sort",
+  label: "Sort",
+  type: "radio",
+  options: [
+    { value: "recent", label: "Most recent" },
+    { value: "errors", label: "Most errors" },
+  ],
+}
 ```
 
 ## Props
 
-- **groups** — `FilterGroup[]`. Required. See shape below.
-- **value** — `Record<string, string[]>`. Required. Selected option
-  values keyed by `group.id`.
-- **onChange** — `(v: Record<string, string[]>) => void`. Required.
-- **onClear** — `() => void`. Renders the "Clear (n)" button when
-  filters are applied.
-- **title** — `ReactNode`. Default `"Filters"`.
-- **className** — extra classes on the `<aside>`.
+- `groups`: required filter groups.
+- `value`: controlled selected values by group id.
+- `onChange`: called with the next value record.
+- `onClear`: optional clear-all action.
+- `title`: panel heading; defaults to `"Filters"`.
+- `className`: wrapper class override.
 
-### `FilterGroup`
+Each group includes `id`, `label`, optional `type`, `options`, and optional
+`defaultExpanded`. Each option includes `value`, `label`, and optional `count`.
 
-- **id** — `string`. Required.
-- **label** — `string`. Required.
-- **type** — `"checkbox" | "radio"`. Default `"checkbox"`.
-- **options** — `FilterOption[]`. Each is
-  `{ value: string; label: string; count?: number }`.
-- **defaultExpanded** — `boolean`. Default `true`. Pass `false` to
-  start collapsed.
+## Accessibility
 
-## Notes
+Group headers are buttons with expanded state. Options are native checkboxes or
+radio buttons, so keyboard and screen reader behavior comes from the platform.
 
-- Group expand/collapse state is internal — there is no controlled
-  prop for it.
-- Selected counts render as a small fuchsia pill next to the group
-  label.
-- A `radio` group toggles off when its active option is clicked
-  again (returns to empty).
+Keep option labels concrete. Counts help scanning, but they should not be the
+only explanation of what an option means.
+
+## Gotchas
+
+`onChange` receives the whole filter record, not only the changed group. Replace
+your state with the value passed by the component.
+
+For radio groups, clicking the active option clears that group. This is useful
+for filter panels where every filter is optional.
+
+## Related
+
+- `FacetedSearch` for search plus chips.
+- `DataTable` for filterable admin rows.
+- `SearchField` for standalone query input.
+- `Sidebar` for navigation rather than filtering.

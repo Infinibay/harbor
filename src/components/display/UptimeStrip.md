@@ -1,52 +1,69 @@
 # UptimeStrip
 
-Status-page-style horizontal strip of colored squares — one per day
-— summarizing service uptime over a window. Hover reveals a day's
-incident summary; click delegates to `onDayClick`. Use it on status
-dashboards alongside `<HealthPing>` or `<MetricCard>`.
+`UptimeStrip` renders a horizontal run of colored day cells that summarize service health over
+time. It calculates a simple uptime percentage from known operational days and shows details
+for the hovered day.
+
+Use it in status pages, service cards, region health dashboards, SLA views, and component
+rows where users need a fast historical read.
 
 ## Import
 
 ```tsx
 import { UptimeStrip } from "@infinibay/harbor/display";
+import type { UptimeDay } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <UptimeStrip
-  label="api.infinibay.com"
-  length={90}
+  label="API"
   days={[
-    { date: "2026-04-25", status: "operational" },
-    { date: "2026-04-26", status: "degraded", label: "p95 spike" },
-    { date: "2026-04-27", status: "down", label: "DB failover" },
+    { date: "2026-05-09", status: "operational" },
+    { date: "2026-05-10", status: "degraded", label: "Elevated latency" },
+    { date: "2026-05-11", status: "operational" },
   ]}
-  onDayClick={(d) => openIncident(d)}
+  length={30}
+  onDayClick={(day) => openIncident(day)}
 />
 ```
 
+## Data Model
+
+Pass days oldest first. If the array is shorter than `length`, Harbor pads the beginning with
+`no-data` cells. If it is longer than `length`, the current implementation renders all passed
+days despite the prop description, so trim input yourself when you need a strict count.
+
+The uptime percentage is `operational / knownDays`, where known days exclude `no-data`.
+
 ## Props
 
-- **days** — `readonly UptimeDay[]`. Required. Oldest first. Each
-  day:
-  - **date** — `Date | string | number`. Time-of-day ignored.
-  - **status** — `"operational" | "degraded" | "down" |
-    "maintenance" | "no-data"`.
-  - **label** — `string`. Short summary for the hover line.
-  - **detail** — `ReactNode`. Extra detail (currently used in the
-    hover row alongside `label`).
-- **length** — `number`. Target square count. Default `90`. Shorter
-  arrays are left-padded with `no-data` entries.
-- **size** — `number`. Square width in px (height is `size * 2`).
-  Default `8`.
-- **onDayClick** — `(day: UptimeDay) => void`. Click handler.
-- **label** — `ReactNode`. Title above the strip.
-- **className** — extra classes on the wrapper.
+- **days** - readonly `UptimeDay[]`, oldest first.
+- **length** - target count of cells. Default `90`.
+- **size** - square width in px. Default `8`.
+- **onDayClick** - `(day: UptimeDay) => void`.
+- **label** - compact label above the strip.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Accessibility
 
-- Uptime percent in the header counts only known days
-  (operational / known) — `no-data` is excluded from the denominator.
-- Each square is a `<button>` with a native `title` attribute, so
-  the tooltip works even on touch devices via long-press.
+Each day cell is a button with an accessible label containing date, status, and optional
+summary. The hover detail is visual support; do not make it the only way to discover incident
+details. If day clicks open incidents, ensure the destination has a clear heading.
+
+Do not rely on color alone. Pair strips with visible status labels or summaries.
+
+## Gotchas
+
+- Extra days are not currently clamped. Slice the array before passing it if needed.
+- `detail` exists on `UptimeDay` but is not rendered by the current component.
+- The uptime calculation treats degraded, down, and maintenance as non-operational.
+- Cells become narrow in constrained containers; adjust `length` or layout on mobile.
+
+## Related
+
+- `StatusPage` for full service-health layouts.
+- `IncidentTimeline` for incident details.
+- `StatusDot` for current state.
+- `MaintenanceBanner` for upcoming maintenance windows.

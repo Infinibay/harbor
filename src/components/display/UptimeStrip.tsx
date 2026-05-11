@@ -85,9 +85,11 @@ export function UptimeStrip({
       >
         {padded.map((d, i) => (
           <button
+            type="button"
             key={i}
             onClick={() => onDayClick?.(d)}
             onMouseEnter={() => setHover(i)}
+            aria-label={`${formatAbsolute(d.date, { preset: "date" })}: ${d.status}${d.label ? `, ${d.label}` : ""}`}
             className={cn(
               "flex-1 rounded-[2px] hover:opacity-70 transition",
               STATUS_COLOR[d.status],

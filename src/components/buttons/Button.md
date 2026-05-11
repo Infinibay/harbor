@@ -1,7 +1,14 @@
 # Button
 
-The primary interactive primitive in Harbor. Reacts to cursor proximity,
-coordinates with `<ButtonGroup>`, and respects the global theme tokens.
+Primary command primitive for Harbor interfaces. Use `Button` for actions that
+change state, submit forms, open workflows, confirm decisions, or trigger app
+commands. It is theme-aware, target-aware, cursor-reactive, and built on a
+native button so it keeps standard keyboard behavior.
+
+Use one primary button per region. Pair it with secondary, ghost, or link
+buttons when the user needs alternatives. For icon-only commands, use
+`IconButton`; for a primary action with adjacent alternatives, use
+`SplitButton`.
 
 ## Import
 
@@ -9,36 +16,84 @@ coordinates with `<ButtonGroup>`, and respects the global theme tokens.
 import { Button } from "@infinibay/harbor/buttons";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<Button onClick={() => console.log("clicked")}>
-  Save changes
+<Button onClick={saveChanges}>Save changes</Button>
+
+<Button variant="secondary" size="sm" onClick={preview}>
+  Preview
 </Button>
 
-<Button variant="ghost" size="sm">
-  Cancel
-</Button>
-
-<Button variant="primary" loading>
-  Deploying…
+<Button variant="destructive" onClick={deleteProject}>
+  Delete project
 </Button>
 ```
 
 ## Props
 
-- **variant** — `"primary" | "secondary" | "ghost" | "danger"`. Default: `"primary"`.
-- **size** — `"sm" | "md" | "lg"`. Default: `"md"`.
-- **loading** — show a spinner and disable interaction.
-- **icon** — optional left-side icon node.
-- **reactive** — opt-in cursor-proximity glow. Default: inherited from `<CursorProvider>`.
-- All standard `<button>` attributes are forwarded.
+- **variant** - `"primary" | "secondary" | "ghost" | "destructive" | "glass" | "link"`.
+  Default `"primary"`.
+- **size** - `"sm" | "md" | "lg"`. Sizes read target and density tokens.
+- **loading** - shows a spinner, hides the label visually, and disables the
+  button while the operation is pending.
+- **disabled** - uses the native disabled state and disables motion feedback.
+- **icon** / **iconRight** - render leading or trailing visual affordances.
+- **fullWidth** - stretches the button to the width of its container.
+- **align** - aligns content inside a full-width button: `"start"`,
+  `"center"`, or `"end"`.
+- **reactive** - enables the cursor-following inner glow and subtle lean.
+  Default `true`.
+- **magnetic** - increases the cursor pull distance and motion strength.
+- **ripple** - emits a click ripple from the pointer position. Default `true`.
 
-## Notes
+All normal button attributes such as `type`, `name`, `value`, `aria-*`, and
+event handlers are forwarded.
 
-- For icon-only buttons, prefer `<IconButton>` — it ships with the right
-  square geometry and a built-in tooltip slot.
-- Inside `<ButtonGroup>`, the first and last buttons get rounded ends and
-  shared borders automatically.
-- The hover glow is driven by `--harbor-accent`. Override on a parent to
-  re-skin a button cluster without forking.
+## Interaction Model
+
+`Button` renders a native `button` wrapped with Framer Motion. Pointer press
+uses a small scale animation. When `reactive` is enabled, the button reads
+cursor proximity and paints a soft inner glow. When `ripple` is enabled,
+clicking adds a temporary radial ripple from the pointer position. `loading`
+and `disabled` both block interaction.
+
+For forms, pass `type="submit"` explicitly when the button should submit. Use
+`type="button"` for incidental commands inside forms so they do not submit
+accidentally.
+
+## Composition Notes
+
+Use `Button` at the command level, not as generic decoration. Common patterns:
+
+- page action in `PageHeader`;
+- confirmation action in `DialogButtons`;
+- toolbar command inside `ToolbarGroup`;
+- row or drawer action where the target object is clear;
+- CTA inside onboarding or setup flows.
+
+Choose variants semantically. `primary` means the main next action, `secondary`
+means a safe alternative, `ghost` means low emphasis, `destructive` means a
+dangerous mutation, `glass` is for glassy surfaces, and `link` is for text-like
+commands.
+
+## Accessibility
+
+Because it is a native button, keyboard activation and disabled state work as
+expected. Use clear visible text. If the visible label is only an icon, switch
+to `IconButton` or provide an accessible name with `aria-label`. Do not use
+`Button` for navigation; use your router link or Harbor navigation components.
+
+## Gotchas
+
+- The docs and source use `destructive`, not `danger`.
+- `loading` disables the button, so keep pending state in your app code.
+- `fullWidth` controls layout width, but `align` controls inner content
+  alignment.
+- Cursor-reactive motion is intentionally decorative; do not use it as the only
+  state indicator.
+
+## Related Components
+
+`IconButton`, `CopyButton`, `SplitButton`, `ButtonGroup`, `ToggleButton`,
+`FAB`, `SpeedDial`, `DialogButtons`, `Toolbar`.

@@ -1,52 +1,82 @@
 # Radio
 
-Single-select option card. Use `<Radio>` inside a `<RadioGroup>` for
-exclusive choices where each option deserves a label and short
-description (instance sizes, plan tiers, region picks). For terse
-inline choices prefer `<ToggleGroup>`; for many options prefer
-`<Select>`.
+`RadioGroup` and `Radio` render a controlled single-choice field. The group owns the shared
+value, name, orientation, and change handler. Each `Radio` describes one option with a label,
+optional description, and disabled state.
+
+Use radio groups when all choices should be visible and the user must choose exactly one:
+billing interval, deploy strategy, notification level, privacy mode, export format, or role
+template. For long lists or search-heavy choices, use `Select` or `Combobox`.
 
 ## Import
 
 ```tsx
-import { Radio, RadioGroup } from "@infinibay/harbor/inputs";
+import { RadioGroup, Radio } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [size, setSize] = useState("medium");
+const [strategy, setStrategy] = useState("rolling");
 
-<RadioGroup value={size} onChange={setSize}>
-  <Radio value="small" label="Small (1 vCPU, 2GB)" description="Free tier" />
-  <Radio value="medium" label="Medium (2 vCPU, 4GB)" description="Standard" />
-  <Radio value="large" label="Large (4 vCPU, 8GB)" description="Memory-bound" />
+<RadioGroup value={strategy} onChange={setStrategy} name="deploy-strategy">
+  <Radio value="rolling" label="Rolling" description="Replace instances gradually." />
+  <Radio value="blue-green" label="Blue-green" description="Cut traffic after verification." />
+  <Radio value="manual" label="Manual approval" description="Wait for an operator." />
 </RadioGroup>
 ```
 
-## Props (`<RadioGroup>`)
+## Selection Model
 
-- **value** — `string`. Required. Currently selected option value.
-- **onChange** — `(v: string) => void`. Required.
-- **name** — `string`. Form field name; auto-generated via `useId` if
-  omitted.
-- **orientation** — `"vertical" | "horizontal"`. Default `"vertical"`.
-  Horizontal wraps with `flex-wrap`.
-- **className** — extra classes on the wrapper.
-- **children** — `<Radio>` nodes.
+`RadioGroup` provides context to every child `Radio`. A `Radio` must be rendered inside a
+group; otherwise the component throws to catch incorrect composition early. The checked state
+is derived from `group.value === radio.value`, and selecting a radio calls `onChange` with its
+value.
 
-## Props (`<Radio>`)
+Pass `name` when multiple groups appear in the same form and you want a predictable native
+radio name. When omitted, Harbor creates a stable React id for the group.
 
-- **value** — `string`. Required. Identifier this option commits when picked.
-- **label** — `string`. Required.
-- **description** — `string`. Optional secondary line.
-- **disabled** — `boolean`.
-- **className** — extra classes on the option card.
+## Props
 
-## Notes
+### RadioGroup
 
-- `<Radio>` throws if rendered outside `<RadioGroup>` — the group
-  owns the selected value and the shared `name`.
-- The selected card animates a gradient dot in via `framer-motion`
-  spring; non-interactive content is fully accessible (uses a real
-  `<input type="radio">` under the hood).
+- **value** - selected value.
+- **onChange** - `(value: string) => void`.
+- **name** - optional native radio group name. Auto-generated when omitted.
+- **orientation** - `"vertical" | "horizontal"`. Default `"vertical"`.
+- **children** - `Radio` items.
+- **className** - extra classes on the group wrapper.
+
+### Radio
+
+- **value** - option value.
+- **label** - option label.
+- **description** - optional secondary text.
+- **disabled** - disables the native radio input and dims the option.
+- **className** - extra classes on the option label.
+
+## Accessibility
+
+The group renders `role="radiogroup"` and each option contains a native radio input. The input
+is visually hidden but still focusable through its label. Focus-visible styling appears on the
+custom control.
+
+Add an external field label or legend when the group appears in a form. The component does
+not render a group label by itself, so the surrounding `FieldSet`, `FormField`, or page copy
+should explain the question being answered.
+
+## Gotchas
+
+- `Radio` cannot be used outside `RadioGroup`.
+- Radio groups should represent mutually exclusive options. For independent toggles, use
+  `Checkbox` or `Switch`.
+- Horizontal orientation wraps, but long descriptions can make rows uneven.
+- Disabled radios are still visible so users understand unavailable choices; explain why in
+  the description when the reason is not obvious.
+
+## Related
+
+- `Checkbox` for independent multi-choice.
+- `Switch` for binary settings.
+- `Select` and `Combobox` for longer option sets.
+- `FieldSet` and `FormField` for labeled form structure.

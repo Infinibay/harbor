@@ -110,7 +110,9 @@ export function SnapshotTimeline({
                 className="flex flex-col items-center gap-1.5 shrink-0"
               >
                 <button
+                  type="button"
                   onClick={() => onSelect?.(s)}
+                  aria-label={`Select snapshot ${s.label ?? s.id}`}
                   className={cn(
                     "w-3 h-3 rounded-full border-2 border-black hover:scale-125 transition-transform",
                     KIND_TONE[s.kind ?? "manual"],
@@ -127,6 +129,7 @@ export function SnapshotTimeline({
                   <div className="flex gap-1 mt-1">
                     {onRestore ? (
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           onRestore(s);
@@ -138,6 +141,7 @@ export function SnapshotTimeline({
                     ) : null}
                     {onDelete && !s.locked ? (
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           onDelete(s);

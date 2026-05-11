@@ -1,9 +1,8 @@
 # CanvasMarquee
 
-Click-and-drag rubber-band selector for `<Canvas>`. Activates when the
-user starts a left-drag on empty canvas (not on a `<CanvasItem>`) and
-emits a world-space rect on every frame plus on release. If you pass
-`items`, it also hit-tests them and streams the matching IDs.
+`CanvasMarquee` adds rubber-band selection to a Harbor `Canvas`. It listens for a left-button drag on empty canvas space, draws the marquee rectangle in screen space, converts that rectangle into world coordinates, and optionally hit-tests items for you.
+
+Use it in diagram editors, whiteboards, layout builders, topology maps, and workflow canvases where users expect drag-to-select.
 
 ## Import
 
@@ -11,49 +10,73 @@ emits a world-space rect on every frame plus on release. If you pass
 import { CanvasMarquee, rectContains } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [selected, setSelected] = useState<string[]>([]);
+import { Canvas, CanvasItem, CanvasMarquee } from "@infinibay/harbor/layout";
 
-<Canvas>
-  {nodes.map((n) => (
-    <CanvasItem key={n.id} id={n.id} x={n.x} y={n.y}>
-      <NodeCard selected={selected.includes(n.id)} />
-    </CanvasItem>
-  ))}
-  <CanvasMarquee
-    items={nodes}
-    onSelectionDrag={setSelected}
-    onSelection={setSelected}
-  />
-</Canvas>
+export function WorkflowCanvas({ nodes }) {
+  const [selected, setSelected] = useState<string[]>([]);
+
+  return (
+    <Canvas>
+      {nodes.map((node) => (
+        <CanvasItem key={node.id} id={node.id} x={node.x} y={node.y}>
+          <NodeCard selected={selected.includes(node.id)} />
+        </CanvasItem>
+      ))}
+
+      <CanvasMarquee
+        items={nodes}
+        onSelectionDrag={setSelected}
+        onSelection={setSelected}
+      />
+    </Canvas>
+  );
+}
 ```
+
+## How It Works
+
+The visual rectangle is portalled into the canvas viewport so it remains aligned to the screen while the canvas world may be panned or zoomed. Emitted rectangles are normalized world-space rectangles:
+
+```ts
+type CanvasMarqueeRect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+```
+
+When `items` are provided, each item is tested by rectangle intersection and the matching ids are emitted during drag and on release.
 
 ## Props
 
-- **onDrag** — `(rect: CanvasMarqueeRect) => void`. Live world-space
-  rect while dragging.
-- **onSelect** — `(rect: CanvasMarqueeRect) => void`. Final rect on
-  release (always normalized).
-- **items** — `ReadonlyArray<{ id; x; y; width?; height? }>`. When
-  provided, hit-tests against the marquee.
-- **onSelectionDrag** — `(ids: string[]) => void`. Live IDs (requires
-  `items`).
-- **onSelection** — `(ids: string[]) => void`. Final IDs (requires
-  `items`).
-- **modifier** — `"none" | "shift" | "alt" | "ctrl"`. Default `"none"`.
-  Modifier required to activate.
-- **enabled** — `boolean`. Default `true`. Mute while another tool is
-  active.
-- **className** — extra classes on the visual rect.
+- **onDrag**: `(rect: CanvasMarqueeRect) => void`. Live world-space rect.
+- **onSelect**: `(rect: CanvasMarqueeRect) => void`. Final world-space rect.
+- **items**: `ReadonlyArray<{ id: string; x: number; y: number; width?: number; height?: number }>` for built-in hit testing.
+- **onSelectionDrag**: `(ids: string[]) => void`. Live selected ids. Requires `items`.
+- **onSelection**: `(ids: string[]) => void`. Final selected ids. Requires `items`.
+- **modifier**: `"none" | "shift" | "alt" | "ctrl"`. Defaults to `"none"`.
+- **enabled**: `boolean`. Defaults to `true`.
+- **className**: custom class on the marquee rectangle.
 
-## Notes
+## Accessibility
 
-- The visual rect is portalled into the viewport so it sits in screen
-  space regardless of where you placed the component in the tree.
-- Mark elements with `data-canvas-no-marquee` to opt out (resize
-  handles, panel headers, etc.).
-- `rectContains()` is exported — handy if you want to reuse the same
-  hit-test elsewhere.
-- See [Canvas.md](./Canvas.md) for the surrounding context.
+Marquee selection is mouse-driven. Provide equivalent keyboard selection actions with `CanvasShortcuts`, tree/list sidebars, or toolbar buttons for select all, clear selection, and movement.
+
+Interactive canvas children should opt out of marquee start behavior by using normal `CanvasItem` bounds or `data-canvas-no-marquee` on handles and panel chrome.
+
+## Gotchas
+
+- `CanvasMarquee` requires `Canvas` context. Outside a `Canvas`, it renders nothing.
+- It uses mouse events, not pointer events, so touch selection needs a separate tool.
+- Drag starts only on empty viewport space. Elements marked `data-canvas-bounds` or `data-canvas-no-marquee` are ignored.
+- Item dimensions default to `0`, which only works for point-like hit targets. Provide `width` and `height` for real cards.
+
+## Related
+
+- [`Canvas`](./Canvas.md) for the viewport and world transform.
+- [`CanvasShortcuts`](./CanvasShortcuts.md) for keyboard selection actions.
+- [`CanvasSelectionBox`](./CanvasSelectionBox.md) for selected-object affordances.

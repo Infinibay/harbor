@@ -1,5 +1,8 @@
 import {
+  Children,
+  cloneElement,
   createContext,
+  isValidElement,
   useContext,
   useId,
   useMemo,
@@ -61,6 +64,14 @@ export function MorphBar({
     end: "items-end",
     stretch: "items-stretch",
   }[align];
+  const keyedChildren = useMemo(
+    () =>
+      Children.map(children, (child, index) => {
+        if (!isValidElement(child)) return child;
+        return cloneElement(child, { key: child.key ?? index });
+      }),
+    [children],
+  );
 
   return (
     <Ctx.Provider value={ctx}>
@@ -70,7 +81,7 @@ export function MorphBar({
         style={{ gap }}
       >
         <AnimatePresence initial={false} mode="popLayout">
-          {children}
+          {keyedChildren}
         </AnimatePresence>
       </motion.div>
     </Ctx.Provider>
@@ -129,6 +140,18 @@ export function MorphItem({
       }}
       transition={transition}
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       style={{
         flexGrow: grow,
         flexShrink: shrink,

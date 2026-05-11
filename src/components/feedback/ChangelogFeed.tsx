@@ -81,7 +81,9 @@ export function ChangelogFeed({
       {showFilter && kindsPresent.length > 0 ? (
         <div className="flex flex-wrap gap-1.5">
           <button
+            type="button"
             onClick={() => setKindFilter("all")}
+            aria-pressed={kindFilter === "all"}
             className={cn(
               "px-2 py-0.5 rounded-md text-xs",
               kindFilter === "all"
@@ -96,7 +98,9 @@ export function ChangelogFeed({
             return (
               <button
                 key={k}
+                type="button"
                 onClick={() => setKindFilter(k)}
+                aria-pressed={kindFilter === k}
                 className={cn(
                   "px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1.5",
                   kindFilter === k ? meta.bg : "bg-transparent hover:bg-white/5",
@@ -119,7 +123,9 @@ export function ChangelogFeed({
               className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden"
             >
               <button
+                type="button"
                 onClick={() => toggle(e.version)}
+                aria-expanded={open}
                 className="w-full flex items-center gap-3 p-3 text-left hover:bg-white/[0.03]"
               >
                 <span className="text-white/40 text-xs w-3 shrink-0">

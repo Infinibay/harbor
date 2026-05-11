@@ -1,8 +1,8 @@
 # JsonViewer
 
-Collapsible tree view of a JSON-shaped value with type-tinted
-primitives. For comparing two JSON blobs use `<DiffViewer>` on
-`JSON.stringify(value, null, 2)` of each side.
+`JsonViewer` renders structured data as an expandable, syntax-colored tree. Use it for API responses, webhook payloads, audit metadata, feature flags, configuration previews, debug panels, event details, and admin tools where raw JSON should be inspectable without leaving the app.
+
+It accepts any JavaScript value and renders arrays, objects, strings, numbers, booleans, and null values with Harbor styling.
 
 ## Import
 
@@ -10,37 +10,57 @@ primitives. For comparing two JSON blobs use `<DiffViewer>` on
 import { JsonViewer } from "@infinibay/harbor/data";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <JsonViewer
-  data={{
-    user: { id: 7, name: "Ada", admin: true },
-    tags: ["alpha", "beta"],
-    deletedAt: null,
-  }}
-  rootLabel="$"
-  defaultExpanded={2}
+  rootLabel="response"
+  data={apiResponse}
+/>
+```
+
+Start collapsed for large payloads:
+
+```tsx
+<JsonViewer
+  data={webhookPayload}
+  defaultExpanded={0}
 />
 ```
 
 ## Props
 
-- **data** — `unknown`. Required. Any JSON-shaped value (object,
-  array, string, number, boolean, null).
-- **rootLabel** — `string`. Label rendered next to the root node.
-  Default `"$"`.
-- **defaultExpanded** — `number`. Depth automatically expanded on
-  first render. Default `2`.
-- **className** — extra classes on the root.
+- **data** - required `unknown`. The value to inspect.
+- **rootLabel** - optional string. Defaults to `"$"`.
+- **defaultExpanded** - optional number. Defaults to `2`. Nodes with depth lower than this value start open.
+- **className** - optional string merged onto the root.
 
-## Notes
+## Expansion Model
 
-- Type colors: strings green, numbers amber, booleans fuchsia,
-  null rose, keys sky.
-- Collapsed objects/arrays show their element count inline
-  (`{ 3 keys }`, `[ 5 items ]`).
-- Each collapsible node toggles independently — no global
-  expand/collapse control.
-- Renders the entire tree up front; not virtualized. For very large
-  blobs (>10k nodes) consider trimming or paginating client-side.
+Objects and arrays render as collapsible nodes. Closed nodes show the opening bracket, child count, and closing bracket. Open nodes animate their children with Framer Motion. Each nested object or array owns its own open state.
+
+Primitive values render inline. Object keys are quoted; array items omit labels and keep their order.
+
+## Data Guidance
+
+Pass already-sanitized data. `JsonViewer` is a display component, not a security filter. Avoid rendering secrets, access tokens, payment details, or private customer data in admin screens unless the user has explicit permission.
+
+For very large payloads, start collapsed or provide a filtered subset.
+
+## Accessibility
+
+Expandable nodes are buttons, so they can be reached with keyboard navigation. The current tree does not implement full ARIA tree semantics. For developer/admin tools that require deep keyboard inspection, consider adding tree roles or providing a downloadable JSON option.
+
+## Gotchas
+
+- Very large objects can create many React nodes.
+- Functions and unsupported values fall back to `String(value)`.
+- Circular data structures are not supported.
+- `defaultExpanded` only affects initial node state.
+
+## Related
+
+- `DiffViewer` for comparing structured text versions.
+- `CodeBlock` for static JSON snippets.
+- `YAMLConfigEditor` for editable configuration.
+- `DataTable` for tabular records extracted from JSON.

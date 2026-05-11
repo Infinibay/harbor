@@ -1,11 +1,12 @@
 # CommandPalette
 
-A keyboard-first action launcher (⌘K). Fuzzy-matches a flat list of
-`Command` objects against the user's query, groups them by section,
-and runs the selected command's `action`. Use it as the global "go
-anywhere, do anything" shortcut. For a click-anchored dropdown of
-actions on a specific element use `<Menu>`; for a right-click region
-use `<ContextMenu>`.
+`CommandPalette` gives product apps a keyboard-first action layer. It filters
+commands by label and keywords, groups results by section, supports arrow-key
+navigation, runs the highlighted command with Enter, and closes through the
+controlled `open` state.
+
+Use it for global actions, navigation, editor commands, admin workflows, and
+power-user shortcuts.
 
 ## Import
 
@@ -13,51 +14,64 @@ use `<ContextMenu>`.
 import { CommandPalette } from "@infinibay/harbor/overlays";
 ```
 
-## Example
+## Basic Usage
+
+Control `open` from parent state. Most apps bind it to `Cmd+K` or `Ctrl+K`.
 
 ```tsx
-const [open, setOpen] = useState(false);
-
-const commands = [
-  { id: "new-doc", label: "New document", section: "Workspace",
-    shortcut: "⌘N", action: () => createDoc() },
-  { id: "go-home", label: "Go to home", section: "Navigate",
-    keywords: ["dashboard"], action: () => navigate("/") },
-];
+const [paletteOpen, setPaletteOpen] = useState(false);
 
 <CommandPalette
-  open={open}
-  onOpenChange={setOpen}
-  commands={commands}
-/>;
+  open={paletteOpen}
+  onOpenChange={setPaletteOpen}
+  commands={[
+    { id: "new-project", label: "Create project", section: "Projects", shortcut: "N", action: openNewProject },
+    { id: "billing", label: "Open billing", section: "Account", keywords: ["plan", "invoice"], action: openBilling },
+  ]}
+/>
+```
+
+## Filtering
+
+Matching is fuzzy and lightweight. `keywords` let commands match terms that do
+not appear in the visible label.
+
+```tsx
+{
+  id: "deployments",
+  label: "View deployments",
+  keywords: ["releases", "preview", "production"],
+  action: () => navigate("/deployments"),
+}
 ```
 
 ## Props
 
-- **open** — `boolean`. Controlled visibility.
-- **onOpenChange** — `(open: boolean) => void`. Fires on open and on
-  every close path (Esc, backdrop click, or running a command).
-- **commands** — `Command[]`. Flat list. Each command groups under its
-  `section` (default `"Actions"`). Order is preserved within a section.
-- **placeholder** — `string`. Defaults to the i18n string
-  `harbor.commandPalette.placeholder`.
+- `open`: controlled visibility.
+- `onOpenChange`: visibility callback.
+- `commands`: command definitions.
+- `placeholder`: optional search placeholder.
 
-### `Command`
+Each command includes `id`, `label`, optional `section`, optional `icon`,
+optional `shortcut`, optional `keywords`, and required `action`.
 
-- **id** — `string`. Stable identity for animation.
-- **label** — `string`. Visible name used for matching.
-- **section** — `string`. Optional group header.
-- **icon** — `ReactNode`. Optional leading glyph.
-- **shortcut** — `string`. Optional trailing hint (e.g. `"⌘N"`).
-- **keywords** — `string[]`. Extra match terms not shown in the UI.
-- **action** — `() => void`. Runs on Enter or click; the palette closes
-  and clears the query afterwards.
+## Accessibility
 
-## Notes
+The palette opens as a modal dialog, focuses the search input, supports keyboard
+navigation, and exposes command rows as buttons. Keep command labels verb-first:
+"Create project", "Open billing", "Retry deploy".
 
-- Filtering is a simple subsequence-fuzzy score across `label` and
-  `keywords`. Results are capped at 12.
-- `↑` `↓` move the active row, `Enter` runs it, `Esc` closes. Bind
-  `⌘K` / `Ctrl+K` yourself in the parent.
-- Portals to `document.body` at `Z.COMMAND_PALETTE`, above tooltips,
-  popovers, and dialogs.
+## Gotchas
+
+The component does not register global hotkeys. Bind `Cmd+K` in your app shell
+and pass `open`.
+
+Actions run synchronously from the selected command. If an action starts async
+work, handle loading, errors, and confirmations in your application.
+
+## Related
+
+- `Dialog` for focused decisions.
+- `Menu` for local command groups.
+- `ShortcutSheet` for documenting shortcuts.
+- `SearchField` for ordinary page search.

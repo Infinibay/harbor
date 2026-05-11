@@ -72,6 +72,7 @@ export function FilterPanel({
         <div className="text-sm font-semibold text-white">{title}</div>
         {totalApplied > 0 && onClear ? (
           <button
+            type="button"
             onClick={onClear}
             className="text-xs text-fuchsia-300 hover:text-fuchsia-200"
           >
@@ -86,7 +87,9 @@ export function FilterPanel({
           return (
             <div key={g.id} className="border-t border-white/5 pt-2 first:border-t-0 first:pt-0">
               <button
+                type="button"
                 onClick={() => toggleGroup(g.id)}
+                aria-expanded={open}
                 className="w-full flex items-center justify-between text-sm text-white/80 hover:text-white py-1"
               >
                 <span className="inline-flex items-center gap-2">

@@ -1,9 +1,8 @@
 # SplitPane
 
-Two-pane resizable layout with a draggable separator. Use it for
-sidebar + content, editor + preview, or any "drag the gutter"
-arrangement. Supports horizontal or vertical orientations and an
-optional double-click-to-collapse on the first pane.
+`SplitPane` creates a resizable two-pane layout with a draggable gutter. Use it for file explorer plus editor, list plus detail, canvas plus inspector, settings navigation plus content, console plus output, and desktop-style workbenches.
+
+The first pane has a controlled pixel size internally. The second pane fills the remaining space and scrolls independently.
 
 ## Import
 
@@ -11,40 +10,55 @@ optional double-click-to-collapse on the first pane.
 import { SplitPane } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<SplitPane
-  orientation="horizontal"
-  initialSize={280}
-  min={160}
-  max={600}
-  collapsible
-  first={<Sidebar />}
-  second={<Editor />}
-/>
+import { SplitPane } from "@infinibay/harbor/layout";
+
+export function Workbench() {
+  return (
+    <SplitPane
+      initialSize={280}
+      min={180}
+      max={520}
+      collapsible
+      first={<aside>Project files</aside>}
+      second={<main>Editor surface</main>}
+    />
+  );
+}
 ```
 
 ## Props
 
-- **orientation** — `"horizontal" | "vertical"`. Default `"horizontal"`.
-- **initialSize** — `number`. Pixel size of the first pane on
-  mount. Default `280`.
-- **min** — `number`. Lower bound while dragging. Default `160`.
-- **max** — `number`. Upper bound while dragging. Default `600`.
-- **collapsible** — `boolean`. Double-click the gutter to
-  collapse / restore the first pane.
-- **first** — `ReactNode`. Pane that owns the resizable size.
-- **second** — `ReactNode`. Fills the remaining space.
-- **className** — extra classes on the outer flex container.
+- **orientation** - `"horizontal" | "vertical"`. Default `"horizontal"`.
+- **initialSize** - `number`. Initial first-pane size in pixels. Default `280`.
+- **min** - `number`. Minimum first-pane size. Default `160`.
+- **max** - `number`. Maximum first-pane size. Default `600`.
+- **first** - `ReactNode`. Required first pane.
+- **second** - `ReactNode`. Required second pane.
+- **collapsible** - `boolean`. Allows double-clicking the gutter to collapse the first pane.
+- **className** - extra classes on the root container.
 
-## Notes
+## Behavior
 
-- The first pane animates with a spring on release; while
-  dragging it tracks the cursor with zero duration so the gutter
-  never feels laggy.
-- The container uses `min-h-0 min-w-0` so the second pane can
-  scroll independently — make sure the parent has a constrained
-  height for vertical splits.
-- Pointer capture is taken on `pointerdown`, so dragging keeps
-  working even if the cursor leaves the gutter.
+Horizontal mode resizes width. Vertical mode resizes height. Pointer drag captures the gutter and updates size until pointer up. While dragging, animation duration is disabled. When not dragging, size changes use a spring transition.
+
+If `collapsible` is true, double-clicking the separator toggles the first pane between its current size and `0`.
+
+## Accessibility
+
+The gutter uses `role="separator"` and sets `aria-orientation`. It does not implement keyboard resizing or `aria-valuenow`. If pane resizing is an important workflow, add keyboard shortcuts or explicit resize controls around it.
+
+## Gotchas
+
+- `min` and `max` are treated as pixels by the current implementation.
+- Collapsing does not remember a separate restored size; it restores the current internal `size`.
+- The component is uncontrolled after mount.
+- The parent must provide a bounded height for vertical layouts and full-height workbenches.
+
+## Related
+
+- `AppShell` for full application frames.
+- `MovablePanelLayout` for floating/resizable panels.
+- `Sidebar` for fixed navigation panes.

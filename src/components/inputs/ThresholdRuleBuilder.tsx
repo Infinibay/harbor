@@ -130,6 +130,7 @@ function ConditionEditor({
       <select
         value={value.metric}
         onChange={(e) => onChange({ ...value, metric: e.target.value })}
+        aria-label="Metric"
         className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       >
         <option value="">metric…</option>
@@ -142,6 +143,7 @@ function ConditionEditor({
       <select
         value={value.op}
         onChange={(e) => onChange({ ...value, op: e.target.value as ConditionOp })}
+        aria-label="Operator"
         className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       >
         {([">", ">=", "<", "<=", "==", "!="] as ConditionOp[]).map((op) => (
@@ -154,6 +156,7 @@ function ConditionEditor({
         type="number"
         value={value.value}
         onChange={(e) => onChange({ ...value, value: Number(e.target.value) })}
+        aria-label="Threshold value"
         className="min-h-[calc(var(--harbor-target-input-height)-8px)] w-24 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       />
       {unit ? <span className="text-[color:var(--harbor-field-muted-fg)]">{unit}</span> : null}
@@ -163,12 +166,15 @@ function ConditionEditor({
         min={0}
         value={value.forSeconds ?? 0}
         onChange={(e) => onChange({ ...value, forSeconds: Number(e.target.value) })}
+        aria-label="Duration in seconds"
         className="min-h-[calc(var(--harbor-target-input-height)-8px)] w-16 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none focus:border-[color:var(--harbor-field-border-focus)]"
       />
       <span className="text-[11px] text-[color:var(--harbor-field-muted-fg)]">seconds</span>
       {onRemove ? (
         <button
+          type="button"
           onClick={onRemove}
+          aria-label="Remove condition"
           className="text-white/30 hover:text-rose-300 ml-1"
           title="Remove"
         >
@@ -211,6 +217,7 @@ function GroupEditor({
     >
       <div className="flex items-center gap-2 pb-1">
         <button
+          type="button"
           onClick={() =>
             onChange({ ...value, op: value.op === "and" ? "or" : "and" })
           }
@@ -224,6 +231,7 @@ function GroupEditor({
           {value.op}
         </button>
         <button
+          type="button"
           onClick={() =>
             onChange({ ...value, children: [...value.children, emptyCondition()] })
           }
@@ -232,6 +240,7 @@ function GroupEditor({
           + condition
         </button>
         <button
+          type="button"
           onClick={() =>
             onChange({ ...value, children: [...value.children, emptyGroup()] })
           }
@@ -241,7 +250,9 @@ function GroupEditor({
         </button>
         {onRemove ? (
           <button
+            type="button"
             onClick={onRemove}
+            aria-label="Remove group"
             className="ml-auto text-white/30 hover:text-rose-300"
             title="Remove group"
           >

@@ -190,6 +190,7 @@ export function Callout({
               <div className="flex gap-2">
                 {onPrev ? (
                   <button
+                    type="button"
                     onClick={onPrev}
                     className="text-xs px-3 py-1.5 rounded-md text-white/70 hover:bg-white/5"
                   >
@@ -197,6 +198,7 @@ export function Callout({
                   </button>
                 ) : null}
                 <button
+                  type="button"
                   onClick={onNext ?? onClose}
                   className="text-xs px-3 py-1.5 rounded-md bg-fuchsia-500/80 hover:bg-fuchsia-500 text-white"
                 >

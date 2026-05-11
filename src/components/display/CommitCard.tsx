@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type KeyboardEvent, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { Avatar } from "./Avatar";
 import { Timestamp } from "./Timestamp";
@@ -49,19 +49,28 @@ export function CommitCard({
   const title = lines[0];
   const body = lines.slice(1).join("\n").trim();
   const short = shortSha ?? sha.slice(0, 7);
-  void avatarUrl; void authorEmail;
+  const activateFromKeyboard = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <div
       onClick={onClick}
+      onKeyDown={activateFromKeyboard}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
+      title={authorEmail}
       className={cn(
         "group rounded-xl border border-white/10 bg-white/[0.03] p-3 flex gap-3 transition-colors",
         onClick && "cursor-pointer hover:bg-white/[0.05] hover:border-white/15",
         className,
       )}
     >
-      <Avatar name={authorName} size="sm" />
+      <Avatar name={authorName} src={avatarUrl} size="sm" />
       <div className="flex-1 min-w-0 flex flex-col gap-0.5">
         <div className="flex items-baseline gap-2 flex-wrap">
           <span className="text-sm text-white truncate">{title}</span>

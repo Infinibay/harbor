@@ -1,66 +1,87 @@
 # Select
 
-Single-choice dropdown with portal-rendered menu, keyboard navigation,
-optional per-option icon + description, and a cursor-proximity
-highlight on the trigger. Reach for it whenever a native `<select>`
-would clip context (icons, descriptions) or visually clash with the
-rest of the surface. For free-text + filtering use `<Combobox>`; for
-multi-select use `<MultiSelect>`.
+`Select` is Harbor's dropdown for choosing one value from a known option list.
+It supports controlled and uncontrolled state, compact and standard sizes, option
+descriptions, icons, disabled options, keyboard navigation, and portal-based
+menus.
+
+Use it for bounded choices. Use `Combobox` when the user needs search or custom
+input.
 
 ## Import
 
 ```tsx
-import { Select, type SelectOption } from "@infinibay/harbor/inputs";
+import { Select } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
+
+Use `defaultValue` for local forms or demos.
 
 ```tsx
-const regions: SelectOption[] = [
-  { value: "us-east", label: "US East (N. Virginia)" },
-  { value: "eu-west", label: "EU West (Ireland)", description: "Lowest latency in EU" },
-  { value: "ap-south", label: "Asia Pacific (Mumbai)" },
-];
-
 <Select
-  label="Region"
-  options={regions}
+  label="Environment"
+  defaultValue="production"
+  options={[
+    { value: "preview", label: "Preview", description: "Ephemeral review apps" },
+    { value: "production", label: "Production", description: "Customer traffic" },
+  ]}
+/>
+```
+
+## Controlled Usage
+
+Use `value` and `onChange` when selection drives application state.
+
+```tsx
+<Select
   value={region}
   onChange={setRegion}
-  placeholder="Pick a region"
-/>;
+  placeholder="Choose region"
+  options={regions.map((region) => ({ value: region.id, label: region.name }))}
+/>
+```
+
+## Menu Width And Size
+
+Use `size="sm"` for toolbars. `menuWidth` controls dropdown width.
+
+```tsx
+<Select size="sm" menuWidth="auto" options={branchOptions} />
 ```
 
 ## Props
 
-- **options** — `SelectOption[]`. Required.
-- **value** — `string`. Controlled selected value.
-- **defaultValue** — `string`. Uncontrolled initial selection.
-- **onChange** — `(v: string) => void`.
-- **placeholder** — `string`. Defaults to the i18n key
-  `harbor.select.placeholder`.
-- **label** — `string`. Optional label above the trigger.
-- **size** — `"sm" | "md"`. Default `"md"` (44px). Use `"sm"` (28px)
-  in toolbars / pagination bars where a full-size input would
-  overwhelm chrome.
-- **menuWidth** — `"trigger" | "auto" | number | string`. Default `"trigger"`.
-  - `"trigger"` — dropdown matches the trigger width exactly.
-  - `"auto"` — at least the trigger width, grows with the longest
-    option (capped at `min(90vw, 480px)`).
-  - number or CSS length — fixed width, never narrower than the trigger.
-- **disabled** — `boolean`.
-- **className** — extra classes on the wrapper.
+- `options`: required option array.
+- `value`: controlled selected value.
+- `defaultValue`: initial uncontrolled value.
+- `onChange`: called with selected value.
+- `placeholder`: trigger placeholder.
+- `label`: optional visible label.
+- `size`: `sm` or `md`.
+- `menuWidth`: `trigger`, `auto`, number, or CSS length.
+- `className`: wrapper class override.
+- `disabled`: disables the trigger.
 
-## Types
+Options include `value`, `label`, optional `description`, optional `icon`, and
+optional `disabled`.
 
-- **SelectOption** — `{ value; label; description?; icon?; disabled? }`.
+## Accessibility
 
-## Notes
+The trigger is keyboard operable. Arrow keys move focus, Enter selects, and
+Escape closes. Use a visible `label` or wrap the control in `FormField` when the
+meaning is not obvious from context.
 
-- Keyboard: `↑/↓` move focus, `Enter` opens (or commits when open),
-  `Esc` closes.
-- The menu is rendered through `<Portal>` and pinned via
-  `position: fixed` — it escapes overflow-clipping ancestors. Position
-  recalculates on scroll/resize.
-- The selected row gets a layout-animated fuchsia indicator bar (uses
-  `motion.span` with `layoutId`).
+## Gotchas
+
+`Select` is single-value. For multiple values, use `MultiSelect`.
+
+The menu is rendered in a portal and positioned against the trigger. Test inside
+scroll containers and modals where stacking context matters.
+
+## Related
+
+- `Combobox` for searchable options.
+- `MultiSelect` for multiple selected values.
+- `FormField` for labels and validation.
+- `SegmentedControl` for very small option sets.

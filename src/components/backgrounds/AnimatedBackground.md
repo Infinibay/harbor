@@ -1,43 +1,80 @@
 # AnimatedBackground
 
-Single dispatcher that renders any of Harbor's animated background variants by name. Use it when the variant is configurable (e.g. theme picker); otherwise import a specific variant for tighter typing and smaller bundles. Ships with `<BackgroundScene>` for the common "background + overlay + content" composition.
+`AnimatedBackground` is a dispatcher for Harbor's animated background variants. It is useful when a product lets the user choose a background style, when a showcase needs to swap variants, or when a page receives background configuration from content data.
+
+For fixed product screens, import the specific background variant directly. That gives tighter props and smaller bundles.
 
 ## Import
 
 ```tsx
-import { AnimatedBackground, BackgroundScene } from "@infinibay/harbor/backgrounds";
+import {
+  AnimatedBackground,
+  BackgroundScene,
+} from "@infinibay/harbor/backgrounds";
 ```
 
-## Example
+## Basic Usage
+
+```tsx
+import { BackgroundScene } from "@infinibay/harbor/backgrounds";
+
+export function HeroScene() {
+  return (
+    <BackgroundScene
+      className="min-h-screen overflow-hidden"
+      bgProps={{ variant: "mesh", blobs: 5, speed: 0.8 }}
+      overlay="linear-gradient(180deg, rgba(8,9,16,0.2), rgba(8,9,16,0.78))"
+      distortion="grain"
+    >
+      <main className="relative p-8">Content</main>
+    </BackgroundScene>
+  );
+}
+```
+
+## Variants
 
 ```tsx
 <AnimatedBackground variant="mesh" blobs={5} speed={0.8} />
-
-<BackgroundScene
-  bgProps={{ variant: "bubbles", count: 12, gooeyness: 20 }}
-  overlay="rgba(10,10,15,0.4)"
-  distortion="crt"
-  className="h-screen"
->
-  <YourPage />
-</BackgroundScene>
+<AnimatedBackground variant="aurora" />
+<AnimatedBackground variant="waves" />
+<AnimatedBackground variant="constellations" />
+<AnimatedBackground variant="orbs" />
+<AnimatedBackground variant="plasma" />
+<AnimatedBackground variant="bubbles" />
+<AnimatedBackground variant="macscape" />
 ```
 
-## Props (AnimatedBackground)
+The `variant` prop discriminates the TypeScript union, so each variant accepts only its own props.
 
-- **variant** — `"mesh" | "aurora" | "waves" | "constellations" | "orbs" | "plasma" | "bubbles" | "macscape"`. Required.
-- All remaining props are forwarded to the chosen variant. The union is discriminated by `variant`, so TS only allows the right per-variant props.
+## Props
 
-## Props (BackgroundScene)
+### AnimatedBackground
 
-- **bgProps** — `AnimatedBackgroundProps`. The variant + variant-specific config.
-- **overlay** — optional CSS color/gradient pane drawn above the background, below content.
-- **distortion** — `BackgroundDistortionProps | DistortionPreset`. Layer a CRT/grain/VHS/etc. overlay. String shorthand expands to `{ preset: ... }`.
-- **className** — extra classes on the outer wrapper. Wrapper is `position: relative` and sized by its parent (or `className`).
-- **children** — content rendered above background, overlay, and distortion.
+- **variant**: `"mesh" | "aurora" | "waves" | "constellations" | "orbs" | "plasma" | "bubbles" | "macscape"`.
+- All remaining props are forwarded to the selected variant.
 
-## Notes
+### BackgroundScene
 
-- All variants render `position: absolute inset-0` and require a positioned parent. `<BackgroundScene>` provides one.
-- Importing a single variant (`MeshGradient`, `Bubbles`, ...) avoids pulling all variants into the bundle.
-- For full-screen backgrounds wrap with `<BackgroundScene className="fixed inset-0 -z-10">` or similar; the components themselves don't take z-index.
+- **bgProps**: `AnimatedBackgroundProps`. Variant plus variant-specific configuration.
+- **overlay**: optional CSS color or gradient drawn above the background and below content.
+- **distortion**: `BackgroundDistortionProps | BackgroundDistortionProps["preset"]`. Adds CRT, grain, VHS, or other distortion layers.
+- **className**: custom class on the positioned wrapper.
+- **children**: content rendered above the background stack.
+
+## Accessibility
+
+Animated backgrounds are decorative. Keep meaningful text, controls, and images in the foreground content. Use overlays to preserve text contrast, and provide a reduced-motion strategy at the page or app level when motion could distract from the task.
+
+## Gotchas
+
+- The individual background variants are absolutely positioned. `BackgroundScene` provides the relative wrapper and content stacking for you.
+- Importing `AnimatedBackground` can pull every variant into the bundle. Import `MeshGradient`, `Bubbles`, or another direct variant when the choice is static.
+- Backgrounds do not set `z-index`; the wrapper decides where the scene sits in the page.
+- Avoid placing forms or dense operational UI directly over high-motion variants without a strong overlay.
+
+## Related
+
+- [`MeshGradient`](./MeshGradient.md), [`Bubbles`](./Bubbles.md), and [`MacScape`](./MacScape.md) for direct variant use.
+- [`BackgroundDistortion`](./BackgroundDistortion.md) for grain, CRT, and VHS layers.
+- [`HeroSection`](../sections/HeroSection.md) for content composition above media.

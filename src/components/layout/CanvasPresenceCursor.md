@@ -1,10 +1,12 @@
 # CanvasPresenceCursor
 
-Renders one remote user's cursor at their world-space position inside
-a `<Canvas>`. The position follows pan/zoom; the cursor *glyph* stays
-pixel-accurate via inverse zoom scaling. Movement is smoothed with a
-per-cursor spring so remote pointers feel silky-laggy rather than
-jittery.
+`CanvasPresenceCursor` renders one remote collaborator cursor inside a Harbor
+`Canvas`. It smooths world-space cursor movement with springs, fades away users
+without a cursor, and inverse-scales the cursor glyph so it stays pixel-accurate
+while the canvas zooms.
+
+Use it for collaborative editors, whiteboards, diagram tools, and canvas-based
+workspaces.
 
 ## Import
 
@@ -12,36 +14,50 @@ jittery.
 import { CanvasPresenceCursor } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const presence = useCanvasPresence({ users });
-
-<Canvas>
-  {/* world content */}
-  {presence.users.map((u) => (
-    <CanvasPresenceCursor key={u.id} user={u} />
+<Canvas grid="dots">
+  {presence.users.map((user) => (
+    <CanvasPresenceCursor key={user.id} user={user} />
   ))}
 </Canvas>
 ```
 
 ## Props
 
-- **user** — `PresenceUser`. `{ id, name?, color, cursor?, selection?, meta? }`.
-  Omit `cursor` to mark the user as away.
-- **stiffness** — `number`. Spring stiffness for smoothing. Default `260`.
-- **damping** — `number`. Spring damping. Default `28`.
-- **showLabel** — `boolean`. Render `user.name` next to the cursor.
-  Default `true`.
-- **awayOpacity** — `number`. Opacity when `cursor` is undefined.
-  Default `0.35`.
+- **user** - `PresenceUser`. Required user object with id, color, optional name,
+  and optional cursor position.
+- **stiffness** - `number`. Spring stiffness. Default `260`.
+- **damping** - `number`. Spring damping. Default `28`.
+- **showLabel** - `boolean`. Shows the user's name label. Default `true`.
+- **awayOpacity** - `number`. Opacity when `user.cursor` is missing. Default
+  `0.35`.
 
-## Notes
+## Behavior
 
-- Place as a child of `<Canvas>` (not in `overlay`) so it lives inside
-  the world transform.
-- Pair with `useCanvasPresence(...)` from `@infinibay/harbor` to fan
-  out a `users[]` stream from your realtime backend.
-- The cursor opts into `data-canvas-bounds` so `Canvas.fit()` can keep
-  remote users in frame if you choose.
-- See [Canvas.md](./Canvas.md) for the host's transform model.
+The cursor position is animated toward `user.cursor.x/y`. If the cursor is
+missing, the marker fades but keeps its last position. The glyph scale is
+derived from the canvas zoom so the cursor does not become huge or tiny while
+zooming.
+
+## Accessibility
+
+Presence cursors are visual collaboration cues. Important collaboration state,
+such as who is editing or locking an object, should also appear in a list,
+presence bar, or inspector.
+
+## Gotchas
+
+- Render inside `Canvas` to get correct inverse zoom. Outside a canvas, it uses a
+  fallback zoom of `1`.
+- Pointer events are disabled; cursors cannot be clicked.
+- Network presence updates, throttling, and identity color assignment belong to
+  your app.
+
+## Related
+
+- `Canvas` for the workspace context.
+- `Presence` for non-canvas user presence.
+- `CanvasSelectionBox` and `CanvasItem` for local selection state.
+- `useCanvasPresence` for presence data modeling.

@@ -1,9 +1,8 @@
 # SplitSection
 
-Alternating media + text section — the workhorse of feature pages.
-Renders a two-column grid (text on one side, media on the other) and
-flips sides with `reverse`. Stack multiple `<SplitSection>`s with
-alternating `reverse` to build a zigzag layout.
+`SplitSection` creates a two-column content section with copy on one side and media on the other. Use it for feature pages, product walkthroughs, docs landing pages, changelog announcements, case-study highlights, and progressive explanation pages.
+
+It gives marketing or educational pages a consistent structure without forcing a specific media type.
 
 ## Import
 
@@ -11,38 +10,55 @@ alternating `reverse` to build a zigzag layout.
 import { SplitSection } from "@infinibay/harbor/sections";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<SplitSection
-  kicker="Theming"
-  title="Re-skin everything by overriding one variable."
-  description="Every Harbor component reads its colors through CSS custom properties."
-  media={<img src="/picture.png" alt="" />}
->
-  <div className="flex gap-2">
-    <Button variant="primary">Try the playground</Button>
-    <Button variant="ghost">Read the docs</Button>
-  </div>
-</SplitSection>
+import { Button } from "@infinibay/harbor/buttons";
+import { SplitSection } from "@infinibay/harbor/sections";
+
+export function ThemingSection() {
+  return (
+    <SplitSection
+      kicker="Theming"
+      title="Re-skin everything by overriding one variable."
+      description="Every Harbor component reads visual decisions through CSS custom properties."
+      media={<img src="/picture.png" alt="Theme editor preview" />}
+    >
+      <Button>Try the playground</Button>
+    </SplitSection>
+  );
+}
 ```
 
 ## Props
 
-- **title** — `ReactNode`. Required. Column heading (rendered as `<h2>`).
-- **kicker** — `ReactNode`. Tiny uppercase label above the title.
-- **description** — `ReactNode`. Muted paragraph below the title.
-- **children** — `ReactNode`. Extra content under the description —
-  buttons, lists, callouts, etc.
-- **media** — `ReactNode`. Required. Image, illustration, or component
-  shown in the opposite column.
-- **reverse** — `boolean`. When true, swaps the columns at `md+`
-  breakpoints (media on the left).
-- **className** — extra classes on the `<section>`.
+- **kicker** - `ReactNode`. Small uppercase intro label.
+- **title** - `ReactNode`. Required heading.
+- **description** - `ReactNode`. Supporting paragraph.
+- **children** - `ReactNode`. Optional action row or extra content below the description.
+- **media** - `ReactNode`. Required visual or interactive media block.
+- **reverse** - `boolean`. Flips the content and media order from the `md` breakpoint up.
+- **className** - extra classes on the root section.
 
-## Notes
+## Layout
 
-- On viewports below `md` the grid collapses to a single column and
-  text renders above media regardless of `reverse`.
-- `media` is wrapped in a `relative`-positioned div, making it easy to
-  layer overlays or absolutely-positioned decorations.
+The section uses a single-column mobile layout and switches to two equal columns at `md`. Vertical spacing is built in with `py-12 md:py-16`; use `className` to adjust spacing when composing several sections.
+
+`reverse` changes only desktop order. Mobile order remains copy first, media second, which keeps the reading flow predictable.
+
+## Accessibility
+
+`SplitSection` renders a semantic `<section>` and an `h2`. Media accessibility is your responsibility. Images need useful alt text when meaningful. Decorative media should use `alt=""` or `aria-hidden`.
+
+## Gotchas
+
+- Avoid putting huge interactive applications inside `media`; use a dedicated app surface for that.
+- The component does not constrain media aspect ratio.
+- Multiple adjacent split sections can feel repetitive unless copy and media are genuinely distinct.
+- `reverse` depends on child ordering CSS and applies only from `md`.
+
+## Related
+
+- `HeroSection` for page introductions.
+- `Section` for simpler text-first blocks.
+- `FeatureCard` for repeated feature grids.

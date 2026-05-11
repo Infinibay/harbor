@@ -1,21 +1,24 @@
 # CanvasRuler
 
-Pixel ruler that scrolls with pan and rescales with zoom. Shows major
-labeled ticks at "nice" world-unit intervals (1, 2 or 5 × 10ⁿ) plus
-finer minor ticks in between. Render two — one horizontal, one
-vertical — inside a Canvas `overlay` to get the classic top + left
-rulers from design tools.
+`CanvasRuler` draws a horizontal or vertical pixel ruler that follows Harbor
+`Canvas` pan and zoom. It is designed for visual editors, diagramming tools,
+layout builders, whiteboards, and canvas workspaces where users need spatial
+orientation.
+
+Render one horizontal ruler and one vertical ruler in the canvas overlay for the
+classic design-tool frame.
 
 ## Import
 
 ```tsx
-import { CanvasRuler } from "@infinibay/harbor/layout";
+import { Canvas, CanvasItem, CanvasRuler } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <Canvas
+  grid="dots"
   overlay={
     <>
       <CanvasRuler orientation="horizontal" />
@@ -23,25 +26,52 @@ import { CanvasRuler } from "@infinibay/harbor/layout";
     </>
   }
 >
-  ...
+  <CanvasItem x={120} y={160} draggable>
+    <NodeCard title="API Gateway" />
+  </CanvasItem>
 </Canvas>
 ```
 
+The ruler subscribes to the canvas context, so ticks update when users pan or
+zoom the workspace.
+
 ## Props
 
-- **orientation** — `"horizontal" | "vertical"`.
-- **thickness** — `number`. Px height (horizontal) / width (vertical).
-  Default `22`.
-- **targetTickSpacing** — `number`. Approx px between labeled ticks.
-  Default `100`.
-- **className** — extra classes on the ruler shell.
+- **orientation** - `"horizontal" | "vertical"`. Required. Chooses ruler axis.
+- **thickness** - `number`. Height for horizontal rulers, width for vertical
+  rulers. Default `22`.
+- **targetTickSpacing** - `number`. Approximate screen-pixel distance between
+  labeled major ticks. Default `100`.
+- **className** - extra classes on the ruler wrapper.
 
-## Notes
+## Tick Model
 
-- Reads pan/zoom from `useCanvas()`. Outside a Canvas it renders an
-  empty placeholder bar.
-- Tick interval is recalculated on every transform — at very high
-  zoom you'll see tens of world units between labels, at low zoom
-  you'll see thousands.
-- Pair with `CanvasStatusBar` to show the cursor's world coords in
-  the same units as the ruler labels.
+`CanvasRuler` converts screen position into world units using the canvas pan and
+zoom motion values. It then chooses a "nice" major interval using 1, 2, or 5
+times a power of ten, and renders minor ticks at one-fifth of that interval.
+
+This keeps labels readable across zoom levels without hardcoding one scale.
+
+## Accessibility
+
+The ruler is marked `aria-hidden` because it is visual orientation chrome, not
+primary content. Do not rely on ruler ticks as the only way to edit exact
+position. Provide numeric x/y fields in an inspector when precision matters.
+
+For keyboard users, pair the canvas with selection controls and editable
+properties outside the drawing surface.
+
+## Gotchas
+
+- `CanvasRuler` must be rendered inside a `Canvas` context. Outside of it, it
+  falls back to a plain rail.
+- The ruler uses absolute positioning at the top or left edge. Leave room for it
+  in your canvas content or offset initial items by the ruler thickness.
+- Labels are rounded world units. Use inspector fields for exact values.
+
+## Related
+
+- `Canvas` for pan and zoom context.
+- `CanvasStatusBar` for live coordinates and zoom.
+- `CanvasZoomControls` for zoom commands.
+- `Inspector` for precise object properties.

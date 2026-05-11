@@ -78,13 +78,21 @@ export function PullRequestCard({
     skipped: 0,
   } as Record<PRCheckState, number>;
   for (const c of checks ?? []) checkCounts[c.state] += 1;
-  void authorAvatarUrl;
   return (
     <div
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (!onClick) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
       className={cn(
-        "rounded-xl border border-white/10 bg-white/[0.03] p-4 flex flex-col gap-3",
-        onClick && "cursor-pointer hover:bg-white/[0.05]",
+        "rounded-xl border border-white/10 bg-white/[0.03] p-4 flex flex-col gap-3 outline-none",
+        onClick && "cursor-pointer hover:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-fuchsia-400/50",
         className,
       )}
     >
@@ -105,7 +113,7 @@ export function PullRequestCard({
             <span className="text-white/40 font-mono ml-2">#{number}</span>
           </div>
           <div className="text-xs text-white/55 flex items-center gap-2 flex-wrap">
-            <Avatar name={authorName} size="sm" />
+            <Avatar name={authorName} src={authorAvatarUrl} size="sm" />
             <span>{authorName}</span>
             <span className="text-white/30">·</span>
             <Timestamp value={createdAt} />
@@ -127,10 +135,11 @@ export function PullRequestCard({
             <AvatarStack
               max={6}
               size="sm"
-              people={reviewers.map((r) => ({
-                name: r.name,
-                status: r.state === "approved" ? "online" : r.state === "changes-requested" ? "busy" : undefined,
-              }))}
+                people={reviewers.map((r) => ({
+                  name: r.name,
+                  src: r.avatarUrl,
+                  status: r.state === "approved" ? "online" : r.state === "changes-requested" ? "busy" : undefined,
+                }))}
             />
             {/* Review state indicator strip */}
             <span className="flex items-center gap-1">

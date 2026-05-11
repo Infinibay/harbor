@@ -161,8 +161,10 @@ export function Comment({
         <div className="mt-1.5 flex items-center gap-1 flex-wrap">
           {reactions?.map((r) => (
             <button
+              type="button"
               key={r.emoji}
               onClick={() => onReact?.(id, r.emoji)}
+              aria-pressed={r.mine}
               className={cn(
                 "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs border",
                 r.mine
@@ -175,6 +177,7 @@ export function Comment({
             </button>
           ))}
           <button
+            type="button"
             onClick={() => onReact?.(id, "👍")}
             className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs text-white/40 hover:text-white/70 hover:bg-white/5"
           >
@@ -182,7 +185,9 @@ export function Comment({
           </button>
           {canReply && onReply && currentUser ? (
             <button
+              type="button"
               onClick={() => setReplying((r) => !r)}
+              aria-expanded={replying}
               className="text-xs text-white/45 hover:text-white/80 px-1.5 py-0.5 rounded hover:bg-white/5"
             >
               Reply
@@ -244,6 +249,7 @@ export function CommentComposer({
       <div className="flex gap-2 justify-end">
         {onCancel ? (
           <button
+            type="button"
             onClick={onCancel}
             className="text-xs px-3 py-1.5 rounded text-white/60 hover:text-white hover:bg-white/5"
           >
@@ -251,6 +257,7 @@ export function CommentComposer({
           </button>
         ) : null}
         <button
+          type="button"
           onClick={() => {
             const t = text.trim();
             if (!t) return;

@@ -184,7 +184,9 @@ function ConditionEditor({
       )}
       {onRemove ? (
         <button
+          type="button"
           onClick={onRemove}
+          aria-label="Remove condition"
           className="text-white/30 hover:text-rose-300 ml-1"
           title="Remove condition"
         >
@@ -250,7 +252,9 @@ function GroupEditor({
     >
       <div className="flex items-center gap-2 pb-1">
         <button
+          type="button"
           onClick={() => onChange({ ...value, op: value.op === "and" ? "or" : "and" })}
+          aria-label={`Switch group to ${value.op === "and" ? "or" : "and"}`}
           className={cn(
             "min-h-[calc(var(--harbor-target-control-height)-12px)] rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-menu-item-padding-x)] text-[10px] font-semibold uppercase tracking-widest",
             value.op === "and"
@@ -261,6 +265,7 @@ function GroupEditor({
           {value.op}
         </button>
         <button
+          type="button"
           onClick={() =>
             onChange({
               ...value,
@@ -272,6 +277,7 @@ function GroupEditor({
           + condition
         </button>
         <button
+          type="button"
           onClick={() =>
             onChange({
               ...value,
@@ -284,7 +290,9 @@ function GroupEditor({
         </button>
         {onRemove ? (
           <button
+            type="button"
             onClick={onRemove}
+            aria-label="Remove group"
             className="ml-auto text-white/30 hover:text-rose-300"
             title="Remove group"
           >

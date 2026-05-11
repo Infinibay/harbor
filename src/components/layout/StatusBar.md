@@ -1,9 +1,13 @@
 # StatusBar
 
-Thin monospace strip for ambient state — branch, sync state, line/col,
-queue depth. Compose with `<StatusItem>` and `<StatusSeparator>`. Use at
-the bottom of editors, canvases, or app shells. For page-level alerts
-use `<Banner>` instead.
+`StatusBar` is a compact composition primitive for editor, desktop, console, and
+workspace status lines. It provides the container, while `StatusItem` and
+`StatusSeparator` provide small readable units for branch, sync state, selected
+count, cursor position, warnings, encoding, environment, or connection state.
+
+Use it when the information is persistent and lightweight. For important errors
+or actions that require attention, use a more prominent `Alert`, `Banner`, or
+toast.
 
 ## Import
 
@@ -11,35 +15,74 @@ use `<Banner>` instead.
 import { StatusBar, StatusItem, StatusSeparator } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <StatusBar>
-  <StatusItem tone="success" icon={<DotIcon />}>main</StatusItem>
+  <StatusItem tone="success">main</StatusItem>
   <StatusSeparator />
-  <StatusItem onClick={openLog}>3 changes</StatusItem>
+  <StatusItem onClick={() => openChanges()}>3 changes</StatusItem>
   <StatusSeparator />
-  <StatusItem tone="warning">Ln 42, Col 18</StatusItem>
+  <StatusItem tone="info">Ln 42, Col 18</StatusItem>
+  <StatusSeparator />
+  <StatusItem tone="warning">2 warnings</StatusItem>
 </StatusBar>
 ```
 
-## Props (`<StatusBar>`)
+Place it at the bottom of an app shell, editor pane, or desktop window:
 
-- **children** — `ReactNode`. Required.
-- **className** — extra classes on the wrapper.
+```tsx
+<AppShell footer={<StatusBar>{items}</StatusBar>}>{workspace}</AppShell>
+```
 
-## Props (`<StatusItem>`)
+## Props
 
-- **children** — `ReactNode`. Required label.
-- **icon** — `ReactNode`. Optional leading icon.
-- **tone** — `"success" | "warning" | "danger" | "info"`. Tints the text.
-- **onClick** — `() => void`. When provided, the item becomes a button
-  with hover background; otherwise it renders as a static label.
-- **className** — extra classes.
+`StatusBar`:
 
-## Notes
+- **children** - `ReactNode`. Required. Usually `StatusItem` and
+  `StatusSeparator`.
+- **className** - extra classes on the wrapper.
 
-- The bar sets `role="status"` so assistive tech announces updates.
-- `<StatusItem>` always renders a `<button>` — without `onClick` it's
-  `disabled` so it doesn't appear interactive.
-- Default text size is `11px` monospace — keep glyphs short.
+`StatusItem`:
+
+- **icon** - `ReactNode`. Optional leading icon.
+- **children** - `ReactNode`. Required label.
+- **tone** - `"success" | "warning" | "danger" | "info"`. Optional text tone.
+- **onClick** - `() => void`. Makes the item interactive.
+- **className** - extra classes on the item.
+
+## Composition Model
+
+`StatusBar` renders with `role="status"` and does not inspect its children.
+`StatusItem` is always a button element, but it is disabled when `onClick` is not
+provided. Use clickable items for drill-down actions such as opening diagnostics,
+showing changes, or switching environments.
+
+`StatusSeparator` renders a small visual dot between groups. It is intentionally
+simple so dense status lines stay quiet.
+
+## Accessibility
+
+Use short, descriptive labels. A status item like `2 warnings` is useful because
+it communicates state without depending on the amber tone. When a status item is
+clickable, make the text describe the action target clearly enough for keyboard
+users.
+
+Because the whole bar has `role="status"`, avoid constantly changing noisy text
+every few milliseconds. Reserve rapid live values for canvas-specific status or
+visual-only readouts.
+
+## Gotchas
+
+- `StatusItem` without `onClick` is rendered as a disabled button. That preserves
+  layout but means it is not focusable.
+- The bar is intentionally compact. Do not put long prose, forms, or primary
+  actions in it.
+- Use `CanvasStatusBar` inside `Canvas` when you need live x/y/zoom values.
+
+## Related
+
+- `CanvasStatusBar` for canvas coordinates and zoom.
+- `AppShell` for footer placement.
+- `Toolbar` and `MenuBar` for command-heavy app chrome.
+- `Alert` and `Banner` for important status messages.

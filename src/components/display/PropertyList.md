@@ -1,60 +1,80 @@
 # PropertyList
 
-AWS / GCP-style "key: value" details pane. Two-column or card layout,
-sticky section headers, copyable values, optional inline editing per
-row. Pair with `<Card>` as the surrounding shell.
+`PropertyList` renders key/value details in the style of cloud consoles and admin detail panes. It supports a two-column definition-list layout, a card layout, section headers, copyable string values, and inline editing for string values.
+
+Use it for resource metadata, billing details, deployment facts, audit records, account settings, and read-heavy admin panels.
 
 ## Import
 
 ```tsx
-import { PropertyList } from "@infinibay/harbor/display";
+import { PropertyList, type PropertyItem } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
+
+```tsx
+import { PropertyList } from "@infinibay/harbor/display";
+
+export function HostProperties({ host, renameHost }) {
+  return (
+    <PropertyList
+      items={[
+        { key: "id", label: "ID", value: host.id, copyable: true, section: "Identity" },
+        {
+          key: "name",
+          label: "Name",
+          value: host.name,
+          editable: true,
+          onChange: renameHost,
+          section: "Identity",
+        },
+        { key: "region", label: "Region", value: "us-east-1", section: "Placement" },
+        { key: "type", label: "Type", value: "c6g.xlarge · 4 vCPU · 8 GB", section: "Placement" },
+      ]}
+    />
+  );
+}
+```
+
+## Card Variant
 
 ```tsx
 <PropertyList
+  variant="cards"
   items={[
-    { key: "id", label: "ID", value: "vm_84a23bf1c0e8", copyable: true },
-    { key: "region", label: "Region", value: "us-east-1" },
-    { key: "type", label: "Type", value: "c6g.xlarge · 4 vCPU · 8 GB" },
-    {
-      key: "name",
-      label: "Name",
-      value: "frontend-1",
-      editable: true,
-      onChange: (next) => save(next),
-      section: "Identity",
-    },
+    { key: "plan", label: "Plan", value: "Team" },
+    { key: "renewal", label: "Renewal", value: "June 12, 2026" },
   ]}
-  variant="two-col"
 />
 ```
 
 ## Props
 
-- **items** — `readonly PropertyItem[]`. Required.
-- **variant** — `"two-col" | "cards"`. Default `"two-col"`.
-  - `two-col` — `<dl>` with a 10rem label column.
-  - `cards` — single column with each row in its own bordered card.
-- **className** — extra classes on the wrapper.
+- **items**: `readonly PropertyItem[]`. Required rows.
+- **variant**: `"two-col" | "cards"`. Defaults to `"two-col"`.
+- **className**: custom class on the wrapper.
 
-## `PropertyItem`
+`PropertyItem` is `{ key, label, value, editable?, onChange?, copyable?, section? }`.
 
-- **key** — `string`. Required. React key.
-- **label** — `ReactNode`. Required.
-- **value** — `ReactNode`. Required. Strings get tabular-nums + mono.
-- **editable** — `boolean`. Renders the value via `<InlineEdit>`. Only
-  effective when `value` is a string and `onChange` is provided.
-- **onChange** — `(next: string) => void`. Called with the new value
-  on commit.
-- **copyable** — `boolean`. Adds a "copy" button. String values only.
-- **section** — `string`. Groups consecutive items under a sticky
-  uppercase header.
+## Editing And Copying
 
-## Notes
+`editable` uses `InlineEdit`, but only when `value` is a string and `onChange` exists. `copyable` uses `navigator.clipboard` and only renders for string values.
 
-- Items with the same `section` are grouped in document order; items
-  with no `section` form an unlabelled group.
-- The copy button uses `navigator.clipboard` and falls back silently
-  when unavailable.
+Rows are grouped by their `section` value. Empty section values render as an unlabelled group.
+
+## Accessibility
+
+The two-column variant uses a semantic `dl` with `dt` and `dd`. Copy controls are real buttons with labels. Keep editable values short and obvious; if editing needs validation, confirmations, or multiline input, use a form or drawer instead.
+
+## Gotchas
+
+- Section grouping is by section name, not by consecutive array runs. Items with the same section are collected together.
+- Non-string values cannot be copied or inline-edited by this component.
+- Copy failure is swallowed silently because clipboard availability varies by browser and security context.
+- Sticky section headers assume the surrounding surface background matches `bg-surface-2`.
+
+## Related
+
+- [`InlineEdit`](../inputs/InlineEdit.md) for the editable value behavior.
+- [`Card`](./Card.md) for a surrounding details surface.
+- [`KeyValueEditor`](../inputs/KeyValueEditor.md) for editable key/value collections.

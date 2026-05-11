@@ -16,5 +16,5 @@ export const playground: PlaygroundManifest = {
     { label: "Percent", props: { value: 99.4, suffix: "%" } },
     { label: "Slow", props: { value: 5000, duration: 3000 } },
   ],
-  notes: "Animates from 0 to `value` once on mount. Re-renders restart the animation only when `value` changes.",
+  notes: "Initial render shows `value`; later value changes animate from the currently displayed number to the new target.",
 };

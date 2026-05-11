@@ -1,10 +1,11 @@
 # SliderField
 
-Composite control: leading icon tile + `<Slider>` + trailing
-`<NumberField>`. Use for any labelled resource picker where the user
-benefits from both drag-to-adjust and exact-entry — vCPU count, RAM,
-disk size, concurrency limits. For a bare slider primitive use
-`<Slider>`; for a two-thumb range use `<RangeSlider>`.
+`SliderField` combines a draggable `Slider` with an exact `NumberField`. It is
+for settings where users need both speed and precision: CPU cores, memory size,
+budget caps, opacity, retry count, timeout, volume, or model temperature.
+
+Use it inside a labelled `FormField` or settings section. The component itself
+focuses on the control pair, not the field label.
 
 ## Import
 
@@ -12,52 +13,91 @@ disk size, concurrency limits. For a bare slider primitive use
 import { SliderField } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
+
+Control the value from state and pass the same bounds you would give a slider.
 
 ```tsx
-const [cores, setCores] = useState(4);
+const [cores, setCores] = useState(8);
 
+<FormField label="CPU allocation">
+  <SliderField
+    value={cores}
+    min={1}
+    max={64}
+    unit="cores"
+    onChange={setCores}
+  />
+</FormField>
+```
+
+## Limits
+
+`limit` clamps the effective maximum without losing the configured maximum. Use
+it when availability changes by plan, region, account quota, or runtime state.
+
+```tsx
 <SliderField
-  value={cores}
-  onChange={setCores}
+  value={memory}
   min={1}
-  max={64}
-  unit="cores"
-  icon={<CpuIcon />}
-  tone="sky"
+  max={128}
   limit={32}
   limitLabel="Max available"
-/>;
+  unit="GB"
+  onChange={setMemory}
+/>
+```
+
+## Icons And Width
+
+Pass `icon` and `tone` to add a leading `IconTile`. Adjust
+`numberFieldWidth` when values or units are long.
+
+```tsx
+<SliderField
+  value={timeout}
+  max={300}
+  unit="seconds"
+  icon={<ClockIcon />}
+  tone="sky"
+  numberFieldWidth={180}
+  onChange={setTimeout}
+/>
 ```
 
 ## Props
 
-- **value** — `number`. Required. Controlled value.
-- **onChange** — `(v: number) => void`. Required.
-- **min** — `number`. Default `0`.
-- **max** — `number`. Required. Upper bound of the slider.
-- **step** — `number`. Default `1`.
-- **unit** — `string`. Suffix shown inside the NumberField (e.g.
-  `"GB"`, `"cores"`).
-- **tone** — `"sky" | "green" | "purple" | "amber" | "rose" | "neutral"`.
-  Default `"purple"`. Colors the leading IconTile.
-- **icon** — `ReactNode`. Optional leading icon (rendered inside an
-  `<IconTile>`).
-- **limit** — `number`. Optional cap that clamps the effective max
-  below `max` and surfaces a hint line under the slider.
-- **limitLabel** — `string`. Label for the limit hint
-  (e.g. `"Max available"`). Only shown when `limit` is set.
-- **numberFieldWidth** — `number | string`. Width of the trailing
-  NumberField. Default `144` (no unit) / `160` (with unit). Bump this
-  for longer values or unit strings.
-- **className** — extra classes on the row.
+- `value`: controlled numeric value.
+- `min`: minimum; defaults to `0`.
+- `max`: required maximum.
+- `step`: numeric step; defaults to `1`.
+- `onChange`: controlled value callback.
+- `unit`: displayed in the number field and limit hint.
+- `tone`: icon tile tone.
+- `icon`: optional leading icon.
+- `limit`: effective maximum clamp.
+- `limitLabel`: label for the limit hint.
+- `numberFieldWidth`: width of the numeric input area.
+- `className`: wrapper class override.
 
-## Notes
+## Accessibility
 
-- Drag and number entry stay in sync — both edit the same `value` via
-  `onChange`.
-- When `limit < max` the slider becomes shorter visually (its `max`
-  is clamped to `limit`); use `limit` for soft caps like quota
-  remaining.
-- `tone` only affects the IconTile color — the slider track gradient
-  is fixed.
+Use `SliderField` inside `FormField` so the pair has a visible and accessible
+label. The slider and number input give users two input methods for the same
+value.
+
+When limit changes dynamically, explain why in surrounding text or helper copy.
+
+## Gotchas
+
+`limit` clamps the slider and number field max. If the current value is above the
+new effective max, clamp it in parent state to avoid a confusing display.
+
+Keep units short. Very long unit strings need a larger `numberFieldWidth`.
+
+## Related
+
+- `Slider` for slider-only controls.
+- `NumberField` for exact numeric input.
+- `FormField` for labels, helper text, and errors.
+- `IconTile` for the leading icon treatment.

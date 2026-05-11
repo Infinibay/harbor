@@ -1,11 +1,8 @@
 # HotkeyRecorder
 
-A click-to-record control for capturing keyboard shortcuts. Click
-to enter recording mode, press a combo (modifiers + a primary
-key), and the result is rendered as `<kbd>` chips with platform
-glyphs (`⌘`, `⌃`, `⌥`, `⇧`, `↵`, …). Press `Escape` to abort
-recording. Use it for command palette shortcuts, custom keymaps,
-or any "set a shortcut" flow.
+`HotkeyRecorder` lets users record a keyboard shortcut by clicking a field and pressing a key combination. It is designed for command palettes, editor settings, desktop-style preferences, canvas tools, and power-user workflows where shortcuts are configurable.
+
+The component records the combo. Your app is responsible for validating conflicts, persisting the shortcut, and binding it to an action.
 
 ## Import
 
@@ -13,35 +10,51 @@ or any "set a shortcut" flow.
 import { HotkeyRecorder } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [combo, setCombo] = useState<string[]>(["Meta", "k"]);
+import { useState } from "react";
+import { HotkeyRecorder } from "@infinibay/harbor/inputs";
 
-<HotkeyRecorder
-  label="Open palette"
-  value={combo}
-  onChange={setCombo}
-/>
+export function ShortcutSetting() {
+  const [combo, setCombo] = useState(["Meta", "k"]);
+
+  return (
+    <HotkeyRecorder
+      label="Open command palette"
+      value={combo}
+      onChange={setCombo}
+    />
+  );
+}
 ```
 
 ## Props
 
-- **value** — `string[]`. Controlled key combo (e.g.
-  `["Meta", "Shift", "p"]`). Modifiers are `"Meta" | "Control" | "Alt" | "Shift"`,
-  in that order; the last entry is the primary key.
-- **onChange** — `(combo: string[]) => void`. Fired when a new combo
-  is captured or cleared.
-- **label** — `string`. Caption above the control. Default
-  `"Shortcut"`.
-- **className** — extra classes on the wrapper.
+- **value** - `string[]`. Controlled shortcut keys.
+- **onChange** - `(combo: string[]) => void`. Called when a new shortcut is recorded or cleared.
+- **label** - `string`. Small label above the recorder. Default `"Shortcut"`.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Behavior
 
-- Recording exits as soon as a non-modifier key is pressed.
-- Pressing `Escape` cancels without modifying `value`.
-- The "clear" button (visible when a combo is set) emits
-  `onChange([])`.
-- Modifier glyphs are rendered with the standard mac symbols even
-  on non-mac platforms — translate at the consumer if you need OS-
-  aware labels.
+Clicking the recorder enters recording mode and focuses the button. Pressing Escape cancels recording. Pressing a primary key records all active modifiers plus that key, calls `onChange`, and exits recording mode.
+
+Modifiers are ordered as Meta, Control, Alt, Shift. Common keys are rendered as symbols such as `⌘`, `⌃`, `⌥`, `⇧`, `↵`, and arrow glyphs. The clear button calls `onChange([])`.
+
+## Accessibility
+
+The recorder is a button and can receive focus. Recording mode intercepts keydown events and prevents default behavior so browser shortcuts do not accidentally fire while recording. Provide nearby help text when shortcut conflicts or platform differences matter.
+
+## Gotchas
+
+- Recording requires a non-modifier primary key.
+- Space is currently not recorded as a primary key because of the primary-key guard.
+- The component does not detect duplicate shortcuts.
+- Persist combos as arrays, then normalize them in your shortcut registry.
+
+## Related
+
+- `ShortcutSheet` for showing available shortcuts.
+- `CommandPalette` for keyboard-first commands.
+- `KeyValueEditor` for editable settings maps.

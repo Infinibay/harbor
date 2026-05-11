@@ -1,10 +1,12 @@
 # Popover
 
-A click-anchored panel for arbitrary rich content next to a trigger —
-small forms, color pickers, info cards. Compared to `<Tooltip>` it can
-hold interactive children; compared to `<HoverCard>` it's
-click-triggered, so it's safe for elements that need keyboard input.
-For a list of actions use `<Menu>`.
+`Popover` opens interactive floating content from a trigger element. It renders
+content in a portal, positions it relative to the trigger, closes on outside
+click, and supports preferred side and alignment.
+
+Use it for compact menus, quick actions, small forms, date/calendar surfaces,
+inline settings, and contextual details that need controls. For non-interactive
+hover text, use `Tooltip`.
 
 ## Import
 
@@ -12,39 +14,65 @@ For a list of actions use `<Menu>`.
 import { Popover } from "@infinibay/harbor/overlays";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <Popover
   side="bottom"
   align="end"
   content={
-    <div className="w-64">
-      <Input label="Email" />
-      <Button onClick={invite}>Invite</Button>
+    <div className="grid gap-2">
+      <Button variant="ghost">Rename</Button>
+      <Button variant="ghost">Duplicate</Button>
+      <Button variant="destructive">Delete</Button>
     </div>
   }
 >
-  <Button>Invite teammate</Button>
+  <Button variant="secondary">Actions</Button>
 </Popover>
 ```
 
 ## Props
 
-- **children** — `ReactElement`. The trigger. Must accept a forwarded
-  `ref` and `onClick`.
-- **content** — `ReactNode`. Panel body.
-- **side** — `"top" | "bottom" | "left" | "right"`. Default
+- **children** - `ReactElement`. Required trigger element. It must accept a ref
+  and click handler.
+- **content** - `ReactNode`. Required popover body.
+- **side** - `"top" | "bottom" | "left" | "right"`. Preferred side. Default
   `"bottom"`.
-- **align** — `"start" | "center" | "end"`. Default `"center"`. Only
-  applies to top/bottom; left/right are always centered on the
-  trigger.
-- **className** — extra classes on the panel.
+- **align** - `"start" | "center" | "end"`. Horizontal alignment for top/bottom
+  placement. Default `"center"`.
+- **className** - extra classes on the floating surface.
 
-## Notes
+## Behavior
 
-- Toggles on trigger click and closes on outside click. There is no
-  built-in Escape handler — wrap with your own keydown if needed.
-- Repositions on scroll and resize. Portals at `Z.POPOVER`.
-- The popover does not trap focus; for a true modal experience use
-  `<Dialog>`.
+`Popover` clones its child and toggles open state from the child's click. While
+open, it measures the trigger and popover rectangles, then positions the portal
+with fixed coordinates. It recomputes on scroll and resize.
+
+Clicking outside the trigger and popover closes it. The component does not own
+the state externally; open state is internal.
+
+## Accessibility
+
+Use a real button as the trigger and give it a descriptive label. Content can be
+interactive, so keep focus order logical and make sure important actions have
+visible labels.
+
+This component does not currently implement full ARIA menu/dialog semantics or
+focus trapping. For complex forms, destructive confirmations, or modal workflows,
+use `Dialog` or `Drawer`.
+
+## Gotchas
+
+- The trigger must be a single element that can receive a ref.
+- Placement does not auto-flip at viewport edges.
+- Open state is not controlled from the outside.
+- Because the trigger is cloned, be careful with custom components that do not
+  forward refs or merge event handlers.
+
+## Related
+
+- `Tooltip` for non-interactive hints.
+- `HoverCard` for hover previews.
+- `Menu` for command lists.
+- `Dialog` and `Drawer` for larger interactive surfaces.

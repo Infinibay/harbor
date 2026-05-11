@@ -1,8 +1,11 @@
 # Dialog
 
-A modal surface that traps focus, blocks the page, and animates in. Uses
-the global Z layer system (`Z.DIALOG`) so it always stacks above
-tooltips, popovers, and toasts.
+`Dialog` renders a modal panel in a portal with backdrop, Escape close, backdrop click close,
+ARIA dialog attributes, and composable title/body/action subcomponents.
+
+Use it for focused decisions and short workflows: confirmations, destructive actions, invite
+forms, API key reveal flows, upgrade prompts, and small editors. For non-modal side panels,
+use `Drawer`.
 
 ## Import
 
@@ -16,47 +19,63 @@ import {
 } from "@infinibay/harbor/overlays";
 ```
 
-## Example (recommended composable API)
+## Basic Usage
 
 ```tsx
-const [open, setOpen] = useState(false);
-
 <Dialog open={open} onClose={() => setOpen(false)} size="sm">
   <DialogTitle>Delete project?</DialogTitle>
-  <DialogDescription>
-    This action cannot be undone.
-  </DialogDescription>
+  <DialogDescription>This action cannot be undone.</DialogDescription>
   <DialogBody>
-    <p>All members will lose access immediately.</p>
+    <p>All deploy keys, environments, and logs will be removed.</p>
   </DialogBody>
   <DialogButtons align="end">
     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-    <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+    <Button variant="destructive" onClick={deleteProject}>Delete</Button>
   </DialogButtons>
-</Dialog>;
+</Dialog>
 ```
 
-## Subcomponents
+## Composition Model
 
-- **`<DialogTitle>`** — heading. Wires `aria-labelledby` automatically.
-- **`<DialogDescription>`** — supporting copy under the title. Wires
-  `aria-describedby`.
-- **`<DialogBody>`** — main content slot with consistent padding.
-- **`<DialogButtons>`** — action row with divider, gap, and alignment.
-  Pass `align="start" | "center" | "end" | "between"`. Use `"between"`
-  when a destructive action should sit to the far left, separated from
-  safe actions on the right.
+The recommended API is subcomponent-based. `DialogTitle` and `DialogDescription` connect to
+the dialog's `aria-labelledby` and `aria-describedby` ids through context. `DialogBody`
+provides standard padding. `DialogButtons` creates the action row and supports
+`start`, `center`, `end`, and `between` alignment.
 
-## Props (Dialog)
+The legacy prop API (`title`, `description`, `footer`, `footerAlign`) still works and forwards
+to the same internals, but new examples should prefer subcomponents.
 
-- **open** — controlled visibility.
-- **onClose** — `() => void`. Fires on backdrop click and Escape.
-- **size** — `"sm" | "md" | "lg"`. Default: `"md"`.
-- **className** — extra classes on the dialog panel.
+## Props
 
-## Notes
+- **open** - controlled visibility.
+- **onClose** - closes from backdrop click, close button, and Escape.
+- **children** - dialog content or subcomponents.
+- **size** - `"sm" | "md" | "lg"`. Default `"md"`.
+- **title** / **description** / **footer** - legacy slots.
+- **footerAlign** - `"start" | "center" | "end" | "between"`.
+- **className** - extra classes on the panel.
 
-- `<Dialog>` portals into `document.body` — its position in the React
-  tree doesn't matter. Mount it where it's logically owned.
-- For a non-modal slide-in (settings, filters), use `<Drawer>`.
-- For a one-line "are you sure?" confirmation, use `<AlertDialog>`.
+## Accessibility
+
+The panel renders `role="dialog"` and `aria-modal="true"`, and title/description ids are
+wired automatically when the matching subcomponents are used. The close button is labeled via
+Harbor i18n.
+
+The current implementation does not trap focus or restore focus to the opener. For
+high-stakes production workflows, manage initial focus and restoration in the parent or add a
+focus-management wrapper.
+
+## Gotchas
+
+- `onClose` is called for backdrop clicks. If backdrop close is not allowed, guard it in your
+  own wrapper.
+- Keep dialogs short. Multi-step or inspect-heavy workflows usually belong in `Drawer`.
+- Do not render `DialogTitle` or `DialogDescription` outside `Dialog`; they require context.
+- The component portals to `document.body`, so local stacking context does not affect it.
+
+## Related
+
+- `Drawer` for non-modal side workflows.
+- `Alert` for inline confirmation or warning copy.
+- `CommandPalette` for keyboard command workflows.
+- `Lightbox` for image-focused modal viewing.

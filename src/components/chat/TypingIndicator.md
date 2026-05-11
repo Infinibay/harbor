@@ -1,7 +1,8 @@
 # TypingIndicator
 
-The three-dot "is typing…" pill, styled to match an incoming `<ChatBubble>`.
-Mount it at the bottom of a thread while a remote participant is composing.
+`TypingIndicator` shows that a person, assistant, or agent is composing a message. Use it in chat, support inboxes, collaboration comments, AI assistants, and activity streams where realtime feedback prevents the conversation from feeling stalled.
+
+The component renders a compact chat bubble with optional name and three animated dots. It is visual state; your app decides when someone is typing and when to remove the indicator.
 
 ## Import
 
@@ -9,20 +10,47 @@ Mount it at the bottom of a thread while a remote participant is composing.
 import { TypingIndicator } from "@infinibay/harbor/chat";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-{peerTyping ? <TypingIndicator name="Ana" /> : null}
+<AnimatePresence>
+  {isTyping ? (
+    <TypingIndicator name="Ana" />
+  ) : null}
+</AnimatePresence>
+```
+
+Use it without a name when the surrounding thread already identifies the participant:
+
+```tsx
+<TypingIndicator />
 ```
 
 ## Props
 
-- **name** — `string`. Optional label rendered before the dots (e.g. `"Ana"`). Omit for an anonymous indicator.
-- **className** — extra classes on the pill.
+- **name** - optional string rendered before the animated dots.
+- **className** - optional string merged onto the root element.
 
-## Notes
+## State Model
 
-- Visual shape matches a `them`-side `<ChatBubble>` (same surface, border, and bottom-left tail) so it slots naturally into a thread.
-- Dots animate forever via `framer-motion` with staggered delays.
-- The component does not set `aria-live`; if you need screen readers to announce typing, wrap it in your own `aria-live="polite"` region and toggle the message there.
-- Mount/unmount it conditionally — `framer-motion` `layout` plus `initial`/`exit` give it a smooth enter and exit when wrapped in `<AnimatePresence>`.
+`TypingIndicator` does not subscribe to presence, debounce keystrokes, or time itself out. The parent should derive `isTyping` from websocket events, local draft state, or assistant generation state. For human typing events, clear the indicator after a short idle timeout so it does not remain visible forever.
+
+For assistant responses, show the indicator while the request is pending or while streamed tokens have not started yet. Once content begins streaming, replace it with the actual message.
+
+## Accessibility
+
+Avoid announcing every typing pulse. If the indicator appears in a chat log, the surrounding message list should already have an appropriate live region strategy. The visible name helps sighted users understand who is typing; screen reader users may need a higher-level announcement such as `"Ana is typing"` when the state first appears.
+
+## Gotchas
+
+- Do not leave the indicator mounted after a send failure. Show an error or retry action instead.
+- Avoid showing many typing indicators at once; combine names if multiple people are typing.
+- The dots animate indefinitely, so only render the component while the state is true.
+- The component does not reserve message space. Wrap it in the same list layout as chat bubbles.
+
+## Related
+
+- `ChatBubble` for rendered messages.
+- `ChatInput` for composing messages.
+- `Presence` for user online state.
+- `ActivityFeed` for non-chat realtime updates.

@@ -1,11 +1,11 @@
 # FluidGrid
 
-Auto-fit grid that picks its column count from the container's
-measured width and a `minItemWidth`. Use when every child has the
-same shape and you want columns to materialize as space allows —
-classic for card decks, photo grids, dashboards. For non-uniform
-spans use `Bento`; for media-query columns without runtime
-measurement use `ResponsiveGrid`.
+`FluidGrid` computes the number of columns from available container width and a
+minimum item width. It can animate children between cells when the column count
+changes, making responsive dashboards and card grids feel intentional during
+resize.
+
+Use it for cards, tiles, shortcuts, gallery items, and dashboard widgets.
 
 ## Import
 
@@ -13,33 +13,47 @@ measurement use `ResponsiveGrid`.
 import { FluidGrid } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<FluidGrid minItemWidth={220} gap={16}>
-  <Card />
-  <Card />
-  <Card />
-  <Card />
+<FluidGrid minItemWidth={240} maxColumns={4} gap={16}>
+  {projects.map((project) => (
+    <ProjectCard key={project.id} project={project} />
+  ))}
 </FluidGrid>
 ```
 
 ## Props
 
-- **minItemWidth** — `number`. Pixel floor for a child before
-  wrapping to a new column. Default `220`.
-- **maxColumns** — `number`. Cap on resolved columns; `0` means
-  unlimited. Default `0`.
-- **gap** — `number`. Pixel gap between children. Default `16`.
-- **animate** — `boolean`. Animate position changes when columns
-  reflow. Default `true`.
-- **className** — extra classes on the grid wrapper.
+- **children** - `ReactNode`. Required grid items.
+- **minItemWidth** - `number`. Minimum width before wrapping to another column.
+  Default `220`.
+- **maxColumns** - `number`. Maximum columns; `0` means unlimited. Default `0`.
+- **gap** - `number`. Pixel gap between cells. Default `16`.
+- **animate** - `boolean`. Enables FLIP position animation. Default `true`.
+- **className** - extra classes on the grid.
 
-## Notes
+## Behavior
 
-- Column count is recomputed from the container, not the viewport —
-  safe inside drawers, split panes, or animated tabs.
-- When `animate` is on, children FLIP between cells on every
-  column-count change, so slow window drags stay smooth.
-- Internally uses `repeat(N, minmax(0, 1fr))`, so children fill
-  evenly rather than stair-stepping like `auto-fit`.
+The component measures its container width, computes `cols`, and sets
+`grid-template-columns: repeat(cols, minmax(0, 1fr))`. Children are wrapped in
+`div` elements with stable FLIP keys.
+
+## Accessibility
+
+Fluid layout does not change DOM order. Keep rendered order meaningful for
+screen readers and keyboard users, even when visual columns change.
+
+## Gotchas
+
+- Stable child keys are important for clean animation.
+- Every child is wrapped in a `div`.
+- `minItemWidth` and `gap` are pixel values.
+- Very large grids should use virtualization or pagination.
+
+## Related
+
+- `ResponsiveGrid` for breakpoint-driven grids.
+- `ReflowList` for wrapping rows.
+- `ContainerBox` for CSS container queries.
+- `MasonryGrid` for variable-height cards.

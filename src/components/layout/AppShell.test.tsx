@@ -24,6 +24,20 @@ describe("AppShell", () => {
     expect(screen.getByText("Header")).toBeInTheDocument();
   });
 
+  it("renders aside when provided", () => {
+    renderWithHarbor(
+      <AppShell aside={<aside>Aside</aside>}>Main</AppShell>,
+    );
+    expect(screen.getByText("Aside")).toBeInTheDocument();
+  });
+
+  it("renders footer when provided", () => {
+    renderWithHarbor(
+      <AppShell footer={<footer>Footer</footer>}>Main</AppShell>,
+    );
+    expect(screen.getByText("Footer")).toBeInTheDocument();
+  });
+
   it("wraps main content in <main> element", () => {
     const { container } = renderWithHarbor(<AppShell>Main</AppShell>);
     expect(container.querySelector("main")).toBeTruthy();
@@ -51,6 +65,13 @@ describe("AppShell", () => {
     expect(container.querySelector(".px-3.py-3")).toBeTruthy();
   });
 
+  it("applies roomier md content padding", () => {
+    const { container } = renderWithHarbor(
+      <AppShell contentPadding="md">X</AppShell>,
+    );
+    expect(container.querySelector(".px-5.py-5")).toBeTruthy();
+  });
+
   it("applies custom className", () => {
     const { container } = renderWithHarbor(
       <AppShell className="my-shell">X</AppShell>,
@@ -71,6 +92,8 @@ describe("AppShell", () => {
       <AppShell
         sidebar={<nav>Nav</nav>}
         header={<header>Top</header>}
+        aside={<aside>Aside</aside>}
+        footer={<footer>Bottom</footer>}
       >
         Main content
       </AppShell>,

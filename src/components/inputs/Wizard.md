@@ -1,69 +1,85 @@
 # Wizard
 
-Multi-step form container with a progress rail, animated content
-swap, and async per-step validation. Each step declares its own
-content and an optional `validate()` that can return `true` (proceed),
-`false` (block with the default error message), or a `string` (block
-with a custom message). Use this for setup flows that have a clear
-linear order; for non-linear navigation use a `<Tabs>`-driven layout
-instead.
+`Wizard` guides users through a short, ordered flow with a step rail, animated
+step body, validation, Back/Next controls, and completion callback. It is useful
+for setup flows, account security, deployment creation, imports, checkout, and
+configuration tasks that should not be shown as one overwhelming form.
+
+Use it for linear flows. Use `Tabs` when steps can be visited in any order.
 
 ## Import
 
 ```tsx
 import { Wizard } from "@infinibay/harbor/inputs";
-import type { WizardStep } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
+
+Each step owns its content and optional validation.
 
 ```tsx
-const steps: WizardStep[] = [
-  {
-    id: "name",
-    label: "Name",
-    description: "Pick a name for your project.",
-    content: <TextField label="Project name" value={name} onChange={(e) => setName(e.target.value)} />,
-    validate: () => name.trim().length > 0 || "Name is required.",
-  },
-  {
-    id: "region",
-    label: "Region",
-    content: <RegionPicker value={region} onChange={setRegion} />,
-  },
-  {
-    id: "review",
-    label: "Review",
-    content: <ReviewSummary name={name} region={region} />,
-  },
-];
-
-<Wizard steps={steps} onComplete={() => createProject({ name, region })} />;
+<Wizard
+  steps={[
+    {
+      id: "project",
+      label: "Project",
+      description: "Choose where this deployment belongs.",
+      content: <ProjectPicker />,
+    },
+    {
+      id: "review",
+      label: "Review",
+      content: <DeploymentSummary />,
+      validate: () => isValid || "Fix the highlighted fields before continuing.",
+    },
+  ]}
+  onComplete={() => createDeployment()}
+/>
 ```
+
+## Validation
+
+`validate` can be synchronous or async. Return `true` to continue, `false` for
+the default error, or a string for a custom error.
+
+```tsx
+validate={async () => {
+  const result = await api.validateConfig(config);
+  return result.ok || result.message;
+}}
+```
+
+## Step Navigation
+
+Completed steps can be clicked to go back. Future steps are disabled until the
+user progresses.
 
 ## Props
 
-- **steps** — `WizardStep[]`. Required. Each step:
-  - **id** — `string`. Stable key, also drives the content-swap
-    animation.
-  - **label** — `string`. Title shown in the rail and step body.
-  - **description** — `string`. Optional sub-caption above the content.
-  - **content** — `ReactNode`. Body for the step.
-  - **validate** — `() => true | false | string | Promise<…>`. Async
-    is supported.
-- **onComplete** — `() => void`. Fires when the user clicks Finish on
-  the last step and validation passes.
-- **className** — extra classes on the outer container.
+- `steps`: required ordered step definitions.
+- `onComplete`: called after the last step validates.
+- `className`: wrapper class override.
 
-## Notes
+Each step includes `id`, `label`, optional `description`, `content`, and optional
+`validate`.
 
-- Steps are gated forward — users can click a previous step in the
-  rail to jump back, but cannot skip ahead.
-- Validation can be async (e.g. server-side uniqueness check); the
-  Next button awaits the promise before advancing.
-- Labels are pulled from `useT()`: `harbor.action.back`,
-  `harbor.action.next`, `harbor.action.finish`,
-  `harbor.wizard.stepOfN`, `harbor.wizard.defaultError`.
-- The component is fully uncontrolled — there is no `currentStep`
-  prop. If you need external control, drive it by remounting the
-  wizard with a different `key`.
+## Accessibility
+
+The current step is marked with `aria-current="step"`. Navigation controls are
+real buttons and validation errors are visible text. Keep each step title clear
+and avoid hiding required context in previous steps.
+
+## Gotchas
+
+Step content unmounts as the user advances. Store important form state in the
+parent, not inside ephemeral step components.
+
+The wizard does not persist progress. Save progress in your app if the flow can
+be interrupted.
+
+## Related
+
+- `MFASetup` uses Wizard for security setup.
+- `Form` and `FormField` for fields inside steps.
+- `ContentSwap` for the animated step body.
+- `Stepper` for status-only step displays.

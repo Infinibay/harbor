@@ -1,8 +1,12 @@
 # MarkdownRenderer
 
-Tiny defensive Markdown renderer — no HTML pass-through, everything is
-escaped through React. For richer Markdown (tables, GFM, footnotes) use
-a real parser; this one keeps the bundle dep-free.
+`MarkdownRenderer` is a small, defensive renderer for trusted product markdown
+strings. It supports common block and inline formatting while relying on React
+escaping instead of passing raw HTML through.
+
+Use it for release notes, changelog entries, short help text, preview panels, and
+internal documentation snippets. For full documentation sites with tables,
+plugins, MDX, or syntax highlighting, use a full markdown pipeline instead.
 
 ## Import
 
@@ -10,45 +14,72 @@ a real parser; this one keeps the bundle dep-free.
 import { MarkdownRenderer } from "@infinibay/harbor/dev";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 <MarkdownRenderer
-  source={`# Hello
+  source={`# Release notes
 
-This is **bold**, *italic*, and \`inline code\`.
+This build fixes **billing sync** and adds \`harbor release\`.
 
-- One bullet
-- Another with a [link](https://infinibay.com)
+- Faster checkout webhooks
+- Better audit messages
 
-\`\`\`tsx
-const x = 1;
+\`\`\`bash
+npm run release:pack-commercial
 \`\`\`
-
-> Block quote — for important asides.
 `}
-/>
+/>;
 ```
-
-## Supported syntax
-
-- `# … ######` headings
-- `**bold**`, `*italic*`, `` `inline code` ``
-- ` ``` ` fenced code blocks (with optional language tag)
-- `> ` blockquotes
-- `- ` / `* ` unordered lists
-- `1. ` ordered lists
-- `[text](url)` links — open in new tab
-- `---` horizontal rule
-- Paragraphs (anything that isn't one of the above)
 
 ## Props
 
-- **source** — `string`. Required. Raw Markdown.
-- **className** — extra classes on the wrapper.
+- **source** - `string`. Required markdown source.
+- **className** - extra classes on the rendered wrapper.
 
-## Notes
+## Supported Markdown
 
-- HTML inside `source` is **not** rendered as HTML — React escapes it.
-- Nested lists, tables, images, task lists, footnotes, and HTML are
-  intentionally not supported.
+The renderer supports:
+
+- `#` through `######` headings.
+- paragraphs and horizontal rules.
+- fenced code blocks with an optional language label.
+- block quotes.
+- unordered and ordered lists.
+- inline code, bold, italic, and links.
+
+HTML is not parsed or injected. Text is rendered through React nodes, so raw HTML
+appears as text rather than executable markup.
+
+## Rendering Model
+
+The source is parsed into blocks with a small local parser, memoized by `source`.
+Inline formatting is parsed after block detection. Links are rendered with
+`target="_blank"` and `rel="noopener noreferrer"`.
+
+This renderer is intentionally conservative. It favors predictable product UI
+over broad Markdown compatibility.
+
+## Accessibility
+
+Headings render as real heading elements and lists render as real list elements.
+Keep the markdown source semantically ordered, especially when it is displayed in
+drawers or documentation panels.
+
+Links should use descriptive text. Avoid source like `[click here](...)` when the
+reader needs to understand the destination.
+
+## Gotchas
+
+- Nested lists are not fully parsed as nested structures.
+- Tables, images, task lists, footnotes, and MDX are not supported.
+- Code blocks show the language label but do not syntax-highlight.
+- Use a sanitizer and mature markdown library if you need user-generated rich
+  content with broader syntax support.
+
+## Related
+
+- `CodeBlock` for richer code presentation.
+- `Prose` for long-form typography.
+- `ChangelogFeed` for release-note timelines.
+- `CopyCommand` for copyable command snippets.

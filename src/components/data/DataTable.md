@@ -1,121 +1,103 @@
 # DataTable
 
-Harbor's enterprise table: drop-in chrome over the `useDataTable` hook.
-Handles sort, filter, pagination, selection, column visibility / order
-/ resize / pin, grouping, expanded rows, virtualization, keyboard
-navigation, density, and CSV/TSV/JSON export. For an unstyled headless
-version, call `useDataTable` directly.
+`DataTable` is Harbor's full table surface for real application data. It wraps the headless `useDataTable` engine with production chrome: sorting, filtering, pagination, selection, column visibility, column order, resizing, pinning, grouping, expanded rows, virtualization, density controls, export, row actions, global search, editable cells, loading, empty, and error states.
+
+Use `DataTable` when the table is the workflow. Use `useDataTable` directly when you want to build custom chrome but keep Harbor's state engine.
 
 ## Import
 
 ```tsx
-import { DataTable, type ColumnDef } from "@infinibay/harbor/data";
+import {
+  DataTable,
+  useDataTable,
+  type ColumnDef,
+} from "@infinibay/harbor/data";
 ```
 
-You can also import `useDataTable`, `getCellValue`, and the related
-state types (`SortState`, `FilterState`, `PaginationState`,
-`TableInstance`, …) from the same entry.
-
-## Example
+## Basic Usage
 
 ```tsx
-type Vm = { id: string; name: string; cpu: number; status: "up" | "down" };
+type Customer = {
+  id: string;
+  name: string;
+  plan: "Free" | "Pro" | "Enterprise";
+  seats: number;
+  status: "active" | "paused";
+};
 
-const columns: ColumnDef<Vm>[] = [
-  { id: "name", header: "Name", accessor: (r) => r.name, sortable: true,
-    filterable: { type: "text" } },
-  { id: "cpu", header: "CPU", accessor: (r) => r.cpu, sortable: true,
-    align: "end" },
-  { id: "status", header: "Status", accessor: (r) => r.status,
-    filterable: { type: "select",
-      options: [{ value: "up", label: "Up" }, { value: "down", label: "Down" }] } },
+const columns: ColumnDef<Customer>[] = [
+  { id: "name", header: "Customer", accessor: (row) => row.name, sortable: true, filterable: { type: "text" } },
+  { id: "plan", header: "Plan", accessor: (row) => row.plan, filterable: { type: "select", options: [
+    { value: "Free", label: "Free" },
+    { value: "Pro", label: "Pro" },
+    { value: "Enterprise", label: "Enterprise" },
+  ] } },
+  { id: "seats", header: "Seats", accessor: (row) => row.seats, align: "end", sortable: true },
 ];
 
 <DataTable
-  rows={rows}
+  rows={customers}
   columns={columns}
-  rowId={(r) => r.id}
+  rowId={(row) => row.id}
   selectable
   showGlobalSearch
+  showColumnPicker
   showDensityToggle
   showExport
+  maxHeight={520}
   rowActions={(row) => [
-    { label: "Edit", onClick: () => editVm(row) },
-    { label: "Delete", danger: true, onClick: () => deleteVm(row) },
+    { label: "Open", onClick: () => openCustomer(row.id) },
+    { label: "Suspend", danger: true, onClick: () => suspend(row.id) },
   ]}
 />
 ```
 
-## Required props
+## Server Mode
 
-- **rows** — `readonly T[]`.
-- **columns** — `readonly ColumnDef<T>[]`. See below.
-- **rowId** — `(row: T) => string`.
+```tsx
+<DataTable
+  mode="server"
+  rows={page.rows}
+  totalCount={page.total}
+  columns={columns}
+  rowId={(row) => row.id}
+  state={{ sort, filters, pagination }}
+  onSortChange={setSort}
+  onFiltersChange={setFilters}
+  onPaginationChange={setPagination}
+/>
+```
 
-## Column definition (`ColumnDef<T>`)
+In server mode, Harbor does not sort, filter, or paginate locally. It emits state changes; your data layer fetches the next page.
 
-- **id** — stable identifier; used as React key and field name in state.
-- **header** — `ReactNode | (ctx: HeaderContext<T>) => ReactNode`.
-- **accessor** — `(row) => unknown`. Defaults to `row[id]`.
-- **cell** — `(ctx: CellContext<T>) => ReactNode`. Custom renderer.
-- **align** — `"start" | "center" | "end"`. Default `"start"`. RTL-aware.
-- **sortable** — `boolean`. Default `false`.
-- **filterable** — `{ type: "text" | "number" | "select" | "boolean" | "date", options?, predicate? }`.
-- **width / minWidth / maxWidth** — px sizing. `minWidth` default `64`.
-- **resizable / hideable** — default `true`.
-- **pinned** — `"start" | "end"`.
-- **hidden** — initial visibility.
-- **compare** — custom sort comparator.
-- **aggregate** — `"count" | "sum" | "avg" | "min" | "max" | "first" | "last" | (rows) => ReactNode`.
-- **editable** — `{ type: "text" | "number" | "select", options?, onCommit, validate? }`.
+## Column Definitions
 
-## Presentational props
+`ColumnDef<T>` supports `id`, `header`, `accessor`, `cell`, `align`, `sortable`, `filterable`, `width`, `minWidth`, `maxWidth`, `resizable`, `hideable`, `pinned`, `hidden`, `compare`, `aggregate`, and `editable`.
 
-- **selectable** — show the checkbox column. Default `false`.
-- **isRowSelectable** — `(row) => boolean` per-row gate.
-- **onRowClick** — `(row) => void`.
-- **emptyState** — replaces the "No data" placeholder.
-- **loading** — render skeleton rows in the body.
-- **skeletonRows** — count of skeletons. Default `min(pageSize, 10)`.
-- **error** — string/number title or full ReactNode panel.
-- **onRetry** — `() => void`. Retry button in the built-in error panel.
-- **hidePagination** — Default `false`.
-- **pageSizeOptions** — Default `[10, 25, 50, 100]`.
-- **maxHeight** — px viewport cap; enables row virtualization.
-- **rowHeight** — px override (defaults from density: 32 / 44 / 56).
-- **overscan** — Default `8`.
-- **renderExpanded** — `(row) => ReactNode`. Enables row expand caret.
-- **expandedRowHeight** — Default `120` (only used when virtualizing).
-- **showDensityToggle** — Default `false`.
-- **showExport** — Default `false`.
-- **exportFilename** — Default `"table"`.
-- **rowActions** — `(row) => RowActionItem[]`. Adds a pinned-end menu column.
-- **columnMenu** — per-header `⋯` menu. Default `true`.
-- **showColumnPicker** — Default `false`.
-- **showGlobalSearch** — Default `false`.
-- **globalSearchDebounce** — ms. Default `300`.
-- **globalSearchPlaceholder** — falls back to i18n string.
-- **keyboardNavigation** — Default `true`.
+Use `cell` for display components, `accessor` for raw values, and `editable` when double-click editing should commit back to your app.
 
-## Hook options (forwarded)
+## Props
 
-`UseDataTableOptions<T>` provides controlled / uncontrolled state pairs
-for every slice (`sort`, `filters`, `globalFilter`, `pagination`,
-`selected`, `columnVisibility`, `columnOrder`, `columnWidths`,
-`columnPinning`, `grouping`, `expanded`, `density`) — each as
-`<slice>` (controlled), `default<Slice>`, and `on<Slice>Change`.
+- `rows`, `columns`, `rowId`: required data contract.
+- `selectable`, `isRowSelectable`, `onRowClick`: row interaction.
+- `emptyState`, `loading`, `loadingLabel`, `skeletonRows`, `error`, `onRetry`: lifecycle states.
+- `hidePagination`, `pageSizeOptions`: paging chrome.
+- `maxHeight`, `rowHeight`, `overscan`: virtualization.
+- `renderExpanded`, `expandedRowHeight`: detail rows.
+- `showDensityToggle`, `showExport`, `exportFilename`, `rowActions`, `columnMenu`, `showColumnPicker`, `showGlobalSearch`, `globalSearchDebounce`, `keyboardNavigation`: workflow controls.
 
-- **mode** — `"client" | "server"`. Default `"client"`. Server mode
-  skips local sort/filter/paginate; supply `totalCount` and react to
-  the change callbacks.
+## Keyboard Model
 
-## Notes
+Arrow keys move the active grid cell. Space toggles selection when `selectable` is enabled. Shift selection is supported through row checkboxes. Enter opens editable cells or triggers `onRowClick`. Escape clears the active cell and selection. Cmd/Ctrl+A selects the current page.
 
-- Setting `maxHeight` enables row virtualization — only rows in / near
-  the viewport render, so 50k-row tables stay smooth.
-- Multi-sort: hold Shift while clicking a header.
-- Range-selection: hold Shift while clicking a row checkbox.
-- Editable cells: double-click to enter; Enter/blur commits;
-  Escape cancels; Tab moves to the next editable cell.
-- Renders as `role="grid"` with `aria-rowindex` / `aria-colindex` /
-  `aria-sort` / `aria-selected` wired up.
+## Accessibility
+
+The table renders as an ARIA grid with `aria-rowcount`, `aria-colcount`, `aria-sort`, `aria-rowindex`, `aria-colindex`, and `aria-selected`. Loading and error states stay inside the same table frame so users do not lose context.
+
+## Gotchas
+
+Virtualization assumes uniform leaf row heights. When grouping or expanded rows are active, Harbor disables virtualization and lets the browser render the full visible list. In server mode, always pass `totalCount` so pagination and screen-reader counts remain correct.
+
+## Related
+
+Use with `FilterPanel`, `QueryBuilder`, `AuditLog`, `MetricCard`, `Badge`, `Menu`, and `Drawer`.

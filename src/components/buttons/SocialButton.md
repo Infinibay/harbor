@@ -1,8 +1,8 @@
 # SocialButton
 
-Branded "Continue with …" button for OAuth / SSO providers. Use it on
-sign-in and sign-up surfaces; reach for `<Button>` for any non-provider
-action.
+`SocialButton` renders a branded authentication or connection button for common providers. Use it on sign-in pages, account linking flows, integration setup, workspace invitations, and onboarding screens where users authenticate through an external service.
+
+It is a UI trigger only. Harbor provides the brand styling, icon, default label, and button shape; your app owns OAuth, redirects, popup handling, loading state, errors, and security checks.
 
 ## Import
 
@@ -10,28 +10,59 @@ action.
 import { SocialButton } from "@infinibay/harbor/buttons";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<SocialButton provider="github" onClick={() => signIn("github")} />
+<SocialButton
+  provider="github"
+  onClick={() => startOAuth("github")}
+/>
+```
 
-<SocialButton provider="google" fullWidth onClick={() => signIn("google")} />
+Use `fullWidth` for stacked auth forms:
+
+```tsx
+<div className="grid gap-3">
+  <SocialButton provider="google" fullWidth onClick={() => startOAuth("google")} />
+  <SocialButton provider="github" fullWidth onClick={() => startOAuth("github")} />
+</div>
 ```
 
 ## Props
 
-- **provider** — `"github" | "google" | "apple" | "microsoft" | "x" | "gitlab" | "discord" | "slack"`.
-  Selects the brand colors, glyph, and default label. Required.
-- **label** — `ReactNode`. Custom label; falls back to
-  `"Continue with <Provider>"`.
-- **onClick** — `() => void`.
-- **fullWidth** — `boolean`. Stretches to fill the parent.
-- **className** — extra classes for the button.
+- **provider** - required provider: `"github"`, `"google"`, `"apple"`, `"microsoft"`, `"x"`, `"gitlab"`, `"discord"`, or `"slack"`.
+- **label** - optional `ReactNode`. Defaults to `"Continue with {Provider}"`.
+- **onClick** - optional callback.
+- **fullWidth** - optional boolean. Adds `w-full`.
+- **className** - optional string merged onto the button.
 
-## Notes
+## Auth Model
 
-- Each provider ships its own background, hover, text color, and inline
-  SVG glyph — do not restyle via `className` unless you really need to.
-- Provider names match the `SocialProvider` type exported from this file
-  (also re-exported from `@infinibay/harbor/buttons`).
-- Carries `data-cursor="button"` for the global Harbor cursor.
+`SocialButton` does not know whether the action is login, signup, connect, or invite acceptance. Choose label copy that matches the flow:
+
+```tsx
+<SocialButton provider="slack" label="Connect Slack workspace" />
+<SocialButton provider="github" label="Import from GitHub" />
+```
+
+Put loading and disabled behavior in the parent until the component supports those states directly.
+
+## Accessibility
+
+The visible label is the accessible text. Avoid icon-only social buttons for auth flows; users should not need to recognize a provider logo to understand the action.
+
+Because the current component does not set `type="button"`, be careful when placing it inside forms. If needed, wrap the flow so pressing it does not accidentally submit another form action.
+
+## Gotchas
+
+- No OAuth is implemented by the component.
+- Provider icons are inline SVGs and brand colors are built in.
+- There is no `disabled` prop today.
+- Use explicit labels for non-auth flows such as `"Connect Discord"` or `"Import from GitLab"`.
+
+## Related
+
+- `Button` for regular app actions.
+- `Alert` for OAuth failures.
+- `Form` and `TextField` for email/password fallback.
+- `Card` for auth panels.

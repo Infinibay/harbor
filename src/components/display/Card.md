@@ -1,8 +1,12 @@
 # Card
 
-The workhorse container — header / leading icon / title / description /
-body / footer slots, three variants, and optional cursor effects (tilt,
-spotlight, glow). Pair with `<CardGrid>` for responsive grids.
+`Card` is Harbor's general framed surface for repeated items, settings modules,
+summary panels, inspectors, and compact product sections. It supports variants,
+interactive lift, optional tilt, cursor spotlight, glow, selected and disabled
+states, header/footer slots, and leading icons.
+
+Use it for actual content containers. Avoid stacking cards inside cards unless a
+repeated item genuinely needs its own frame.
 
 ## Import
 
@@ -10,58 +14,76 @@ spotlight, glow). Pair with `<CardGrid>` for responsive grids.
 import { Card, CardGrid } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
+
+Use title and description for compact summaries.
 
 ```tsx
 <Card
-  variant="default"
-  interactive
-  spotlight
+  title="Production"
+  description="Current deploy target"
   leadingIcon={<RocketIcon />}
-  leadingIconTone="purple"
-  title="harbor-site"
-  description="Marketing site + showcase for the Harbor component library."
   footer={<Button size="sm">Open</Button>}
-  onClick={() => navigate("/projects/harbor-site")}
 >
-  Last deploy 2h ago — production v0.4.2.
+  <MetricCard label="Requests" value="24.8k" />
 </Card>
+```
 
+## Variants And States
+
+Choose `default`, `glass`, or `solid`. Add `interactive` for clickable cards and
+`selected` for active cards.
+
+```tsx
+<Card variant="solid" interactive selected={project.id === activeId} onClick={() => setActiveId(project.id)}>
+  {project.name}
+</Card>
+```
+
+## CardGrid
+
+`CardGrid` gives repeated cards a consistent responsive layout.
+
+```tsx
 <CardGrid cols={3}>
-  <Card title="A" />
-  <Card title="B" />
-  <Card title="C" />
+  {projects.map((project) => (
+    <Card key={project.id} title={project.name} />
+  ))}
 </CardGrid>
 ```
 
-## Props (`<Card>`)
+## Props
 
-- **variant** — `"default" | "glass" | "solid"`. Default `"default"`.
-- **interactive** — `boolean`. Adds hover lift and cursor styling.
-- **tilt** — `boolean`. 3D tilt that follows the cursor (uses
-  `transform-style: preserve-3d` and a `perspective` wrapper).
-- **spotlight** — `boolean`. Cursor-following radial highlight. Default `true`.
-- **spotlightStrength** — `"quiet" | "soft" | "strong"`. Default `"strong"`.
-  - `quiet` — barely there, for prose / article cards.
-  - `soft` — dialed back, for text-heavy interactive surfaces (forms, tables, chat).
-  - `strong` — full intensity, for buttons / charts / decorative cards.
-- **glow** — `boolean`. Accent border glow. Default `true`.
-- **selected** — `boolean`. Renders the accent border + ring + tint.
-- **disabled** — `boolean`. Lowers opacity and disables hover/click.
-- **fullHeight** — `boolean`. Stretches to the parent's height (useful
-  inside `<CardGrid>`).
-- **title** / **description** / **header** / **footer** — `ReactNode` slots.
-- **leadingIcon** / **leadingIconTone** — passed through to `<IconTile>`.
-- **children** — body content.
-- Plus all standard `HTMLDivElement` attributes (`onClick`, `id`, etc.).
+- `variant`: `default`, `glass`, or `solid`.
+- `interactive`: hover lift and pointer cursor.
+- `tilt`: pointer-based 3D tilt.
+- `spotlight`: cursor-following highlight.
+- `spotlightStrength`: `quiet`, `soft`, or `strong`.
+- `glow`, `selected`, `disabled`, `fullHeight`: visual states.
+- `title`, `description`, `header`, `footer`, `leadingIcon`: content slots.
+- `leadingIconTone`: icon tile tone.
+- Standard `div` attributes, including `onClick` and `className`.
 
-## Props (`<CardGrid>`)
+## Accessibility
 
-- **cols** — `1 | 2 | 3 | 4`. Default `2`. Grid breakpoint is `md`.
-- **className** — extra classes on the grid.
+Cards are containers by default. If the whole card is clickable, make the action
+obvious and avoid placing conflicting buttons inside the same click target. For
+critical actions, prefer an explicit `Button` in the footer.
 
-## Notes
+Do not rely on glow, tilt, or spotlight to communicate state. Use visible text,
+badges, or selected details.
 
-- The spotlight uses two CSS variables (`--mx`, `--my`) updated on
-  `mousemove` — keep heavy backdrop filters off if you nest many.
-- Disabled cards are non-interactive (`pointer-events: none`).
+## Gotchas
+
+`tilt` wraps the card in a perspective container. Test layout when using it in
+tight grids.
+
+`disabled` suppresses pointer interaction and reduces opacity, but parent state
+still owns the actual business rule.
+
+## Related
+
+- `CardGrid` for repeated cards.
+- `IconTile` for leading icon visuals.
+- `MetricCard` for metric-specific cards.
+- `Section` for page-level grouping without card framing.

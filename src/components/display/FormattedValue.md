@@ -1,9 +1,11 @@
-# FormattedValue (FormattedBytes / FormattedRate / FormattedNumber / FormattedPercent)
+# FormattedValue
 
-Tabular-nums monospaced spans that wrap the `lib/format` helpers as
-visual atoms. All four share the same `<span>`-with-tooltip output —
-swap the import to switch the format. For dynamic counters use
-`<CountUp>`.
+Formatted value components turn raw numbers into consistent, tabular text atoms. They wrap
+Harbor's pure formatting helpers for bytes, rates, generic numbers, and percentages, and add
+the same `tabular-nums font-mono` styling everywhere.
+
+Use them in dashboards, tables, quota cards, network panels, billing surfaces, and logs where
+numbers need to align and remain readable. They are display primitives, not inputs.
 
 ## Import
 
@@ -16,38 +18,65 @@ import {
 } from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<FormattedBytes value={12_400_000} />              {/* 12.4 MB */}
-<FormattedBytes value={2 ** 30} binary />          {/* 1 GiB */}
-<FormattedRate value={1_250_000} />                {/* 1.25 MB/s */}
-<FormattedNumber value={1_240_000} compact />      {/* 1.2M */}
-<FormattedPercent value={0.424} />                 {/* 42.4% */}
+<FormattedBytes value={12_400_000} />
+<FormattedRate value={85_000_000} />
+<FormattedNumber value={1_240_000} compact />
+<FormattedPercent value={0.424} decimals={1} />
 ```
 
-Each component renders a `<span class="tabular-nums font-mono">` and
-sets the raw numeric value on the native `title` tooltip by default.
+## Formatting Model
 
-## Props (shared)
+All components accept `number | null | undefined`. Invalid or missing values format as `—`
+instead of throwing. By default, numeric spans expose the raw value in the native `title`
+tooltip; set `showTitle={false}` when the raw value would be noisy or redundant.
 
-- **value** — `number | null | undefined`. `null`/`undefined` → `"—"`
-  (delegated to the underlying formatter).
-- **showTitle** — `boolean`. Default `true`. Set the tooltip to the raw
-  numeric value.
-- **className** — extra classes on the span.
-- Plus all standard `HTMLSpanElement` attributes except `children`.
+`FormattedBytes` and `FormattedRate` support SI or binary units. `FormattedNumber` supports
+compact notation and locale overrides. `FormattedPercent` expects a fraction, so `0.42`
+renders as `42.0%`.
 
-## Per-component options
+## Props
 
-- `<FormattedBytes>` / `<FormattedRate>` — `decimals`, `binary`, `unit`.
-- `<FormattedNumber>` — `compact`, `decimals`, `locale`.
-- `<FormattedPercent>` — `decimals` (default `1`), `locale`. `value` is
-  expected as a fraction (`0.424` → `"42.4%"`).
+### Shared
 
-## Notes
+- **value** - `number | null | undefined`.
+- **className** - extra classes.
+- **showTitle** - boolean. Default `true`, shows raw value in native tooltip.
+- Other span attributes are forwarded.
 
-- All four components are pure styling shells — pass identical options
-  to the underlying `formatBytes` / `formatRate` / `formatNumber` /
-  `formatPercent` helpers from `@infinibay/harbor/lib/format`.
-- `font-mono tabular-nums` keeps numbers vertically aligned in tables.
+### Bytes / Rate
+
+- **decimals** - fractional digits. Default `1`.
+- **binary** - use IEC suffixes (`KiB`, `MiB`) instead of SI (`kB`, `MB`).
+- **unit** - suffix unit. Default `"B"`.
+
+### Number / Percent
+
+- **compact** - compact notation for `FormattedNumber`.
+- **decimals** - fraction digits.
+- **locale** - Intl locale override.
+
+## Accessibility
+
+Formatted values render as plain text spans. Make sure the surrounding label, column header,
+or card title explains the unit. A screen reader can read `12.4 MB`, but it still needs to
+know whether that means storage used, transfer remaining, or upload speed.
+
+Native `title` tooltips are supplemental only. Do not put required information exclusively in
+the tooltip.
+
+## Gotchas
+
+- `FormattedPercent` takes a fraction, not a whole percent. Use `0.25`, not `25`.
+- `FormattedRate` always appends `/s` to the formatted bytes output.
+- `binary` changes the base and suffixes; be consistent within a product surface.
+- Compact number formatting is locale-aware and can vary by browser locale.
+
+## Related
+
+- `Stat` and `MetricCard` for headline numbers.
+- `UsageRing`, `QuotaBar`, and `ResourceMeter` for resource usage.
+- `DataTable` for aligned numeric columns.
+- `@infinibay/harbor/lib/format` for non-React formatting helpers.

@@ -161,6 +161,7 @@ export function FlameGraph({
     <div className={cn("w-full", className)}>
       <div className="flex items-center gap-1 text-xs text-white/60 mb-2">
         <button
+          type="button"
           onClick={() => setRootId(null)}
           disabled={rootId === null}
           className="px-1.5 py-0.5 rounded hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
@@ -171,6 +172,7 @@ export function FlameGraph({
           <span key={b.id} className="inline-flex items-center gap-1">
             <span className="text-white/30">›</span>
             <button
+              type="button"
               onClick={() => setRootId(i === breadcrumbs.length - 1 ? null : b.id)}
               className={cn(
                 "px-1.5 py-0.5 rounded hover:bg-white/5",
@@ -193,7 +195,8 @@ export function FlameGraph({
           const skip = false; // percentage-based; browser handles
           void skip;
           return (
-            <div
+            <button
+              type="button"
               key={n.frame.id}
               onMouseEnter={() => setHoverId(n.frame.id)}
               onMouseLeave={() => setHoverId(null)}
@@ -214,11 +217,12 @@ export function FlameGraph({
                   hoverId === null ? 0.85 : ancestorSet.has(n.frame.id) ? 1 : 0.3,
                 minWidth: minPixelWidth,
               }}
-              className="text-[10px] text-white/95 font-mono truncate px-1 cursor-pointer border-r border-black/20 hover:brightness-110 transition-opacity"
+              className="text-left text-[10px] text-white/95 font-mono truncate px-1 cursor-pointer border-r border-black/20 hover:brightness-110 transition-opacity"
               title={`${n.frame.label} · ${formatValue(n.frame.value)}`}
+              aria-label={`${n.frame.label}, ${formatValue(n.frame.value)}`}
             >
               {n.frame.label}
-            </div>
+            </button>
           );
         })}
       </div>

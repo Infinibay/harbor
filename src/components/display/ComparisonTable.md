@@ -1,69 +1,80 @@
 # ComparisonTable
 
-Pricing / feature comparison grid — multiple plans across the columns,
-groups + feature rows down. Booleans render as ✓ / —, anything else
-as-is.
+`ComparisonTable` renders plan, product, or feature comparisons grouped into sections. It is built for pricing pages, entitlement matrices, customer-facing product pages, and internal package comparisons.
+
+Use it when each row has the same set of columns and the user needs to compare options side by side.
 
 ## Import
 
 ```tsx
-import { ComparisonTable } from "@infinibay/harbor/display";
+import {
+  ComparisonTable,
+  type ComparisonGroup,
+} from "@infinibay/harbor/display";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<ComparisonTable
-  plans={[
-    { id: "free", name: "Free" },
-    { id: "team", name: "Team", highlighted: true },
-    { id: "ent",  name: "Enterprise" },
-  ]}
-  groups={[
-    {
-      label: "Core",
-      rows: [
-        { label: "Projects",       values: [3, "Unlimited", "Unlimited"] },
-        { label: "Members",        values: [1, 10, "Unlimited"] },
-        { label: "API access",     values: [false, true, true] },
-        { label: "SSO",            values: [false, false, true], hint: "SAML / OIDC" },
-      ],
-    },
-    {
-      label: "Support",
-      rows: [
-        { label: "Community",      values: [true, true, true] },
-        { label: "Priority queue", values: [false, true, true] },
-        { label: "Dedicated CSM",  values: [false, false, true] },
-      ],
-    },
-  ]}
-/>
+import { ComparisonTable } from "@infinibay/harbor/display";
+
+export function PlanComparison() {
+  return (
+    <ComparisonTable
+      plans={[
+        { id: "starter", name: "Starter" },
+        { id: "team", name: "Team", highlighted: true },
+        { id: "enterprise", name: "Enterprise" },
+      ]}
+      groups={[
+        {
+          label: "Core",
+          rows: [
+            { label: "Projects", values: ["3", "Unlimited", "Unlimited"] },
+            { label: "Team seats", values: ["2", "25", "Custom"] },
+            { label: "Audit log", values: [false, true, true] },
+          ],
+        },
+      ]}
+    />
+  );
+}
 ```
 
-## ComparisonRow / ComparisonGroup
+## Data Model
 
 ```ts
-ComparisonRow {
-  label: ReactNode;
-  values: (boolean | string | ReactNode)[];   // length === plans.length
-  hint?: string;                              // small subtitle line
-}
-
-ComparisonGroup { label: string; rows: ComparisonRow[] }
+type ComparisonGroup = {
+  label: string;
+  rows: {
+    label: ReactNode;
+    values: (boolean | string | ReactNode)[];
+    hint?: string;
+  }[];
+};
 ```
+
+Boolean values render as check and dash symbols. Strings and React nodes render as text content.
 
 ## Props
 
-- **plans** — `{ id, name, highlighted? }[]`. Required. `highlighted`
-  tints the column header in fuchsia and shades each cell faintly.
-- **groups** — `ComparisonGroup[]`. Required.
-- **className** — extra classes on the wrapper.
+- **plans**: `{ id: string; name: string; highlighted?: boolean }[]`. Required columns.
+- **groups**: `ComparisonGroup[]`. Required row groups.
+- **className**: custom class on the horizontal scroll wrapper.
 
-## Notes
+## Accessibility
 
-- Cell rendering: `true` → ✓, `false` → —, `string`/`ReactNode` → printed.
-- Each row's `values` array length should match `plans.length`; missing
-  entries render as empty cells.
-- The header is `position: sticky; top: 0` — works inside any scroll
-  container without extra props.
+The component renders a semantic table with column headers. Keep row labels short and use `hint` for supporting text. Do not rely only on the highlighted column color to communicate the recommended plan; say that in surrounding copy or a badge.
+
+## Gotchas
+
+- Every row's `values` array should match the `plans` length.
+- Boolean symbols are compact. Use explicit strings such as `"Included"` or `"Add-on"` when a feature has nuance.
+- The table scrolls horizontally on narrow containers. Keep important plans near the left.
+- Section labels are rendered as full-width rows, not table header groups.
+
+## Related
+
+- [`PricingCard`](./BillingCard.md) for plan cards.
+- [`Badge`](./Badge.md) for plan labels.
+- [`DataTable`](../data/DataTable.md) for sortable data grids.

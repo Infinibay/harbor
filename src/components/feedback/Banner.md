@@ -1,9 +1,8 @@
 # Banner
 
-Full-width announcement strip pinned across the top of a page or layout. Use
-for system-wide messages (incidents, promos, account state). For an in-flow
-status block use `<Alert>`; for scheduled downtime with a countdown use
-`<MaintenanceBanner>`.
+`Banner` is a full-width notice bar for information that should sit above or inside a page region. Use it for maintenance notices, release announcements, trial status, saved-view prompts, read-only mode, billing warnings, and product-wide updates.
+
+Use `Alert` for inline content messages. Use `Toast` for transient feedback after an action.
 
 ## Import
 
@@ -11,35 +10,58 @@ status block use `<Alert>`; for scheduled downtime with a countdown use
 import { Banner } from "@infinibay/harbor/feedback";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<Banner
-  tone="warning"
-  title="Read-only mode"
-  sticky
-  onClose={() => setOpen(false)}
-  actions={<Button size="sm" variant="ghost">Status page</Button>}
->
-  We're investigating elevated latency on the API.
-</Banner>
+import { useState } from "react";
+import { Banner } from "@infinibay/harbor/feedback";
+
+export function ReadOnlyBanner() {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <Banner
+      open={open}
+      tone="warning"
+      title="Read-only mode"
+      actions={<button>Learn more</button>}
+      onClose={() => setOpen(false)}
+    >
+      Deployments are paused while maintenance is running.
+    </Banner>
+  );
+}
 ```
 
 ## Props
 
-- **open** — controlled visibility. Wrapped in `<AnimatePresence>` for height collapse on close. Default: `true`.
-- **tone** — `"info" | "success" | "warning" | "danger" | "promo"`. `promo` uses a fuchsia/sky/emerald gradient. Default: `"info"`.
-- **icon** — `ReactNode`. Leading glyph.
-- **title** — `ReactNode`. Bold lead text. Joined to `children` with a `·` separator.
-- **children** — `ReactNode`. Trailing description.
-- **actions** — `ReactNode`. Right-aligned action row.
-- **onClose** — `() => void`. Renders a `×` dismiss button with `aria-label="Dismiss"`.
-- **sticky** — pins the banner to the top of its scroll container with `z-20`. Default: `false`.
-- **className** — extra classes on the root.
+- **open** - `boolean`. Controls visibility. Default `true`.
+- **tone** - `"info" | "success" | "warning" | "danger" | "promo"`. Default `"info"`.
+- **icon** - `ReactNode`. Optional leading icon.
+- **title** - `ReactNode`. Optional emphasized message.
+- **children** - `ReactNode`. Body text.
+- **actions** - `ReactNode`. Optional action area on the right.
+- **onClose** - `() => void`. Shows a dismiss button and calls this callback.
+- **sticky** - `boolean`. Makes the banner sticky at the top.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Behavior
 
-- The collapse-on-close animation uses framer-motion's height-auto trick, so
-  the banner doesn't leave a layout gap when dismissed.
-- `sticky` only works if the banner is mounted inside a scrolling ancestor
-  with no transformed parents (sticky's usual caveats).
+`Banner` animates open and closed with `AnimatePresence`. When `title` and `children` are both present, it separates them with a dot. `actions` stay right-aligned and do not collapse into a menu. `sticky` adds `position: sticky`, `top: 0`, and a local z-index.
+
+## Accessibility
+
+The component is visual and does not set `role="status"` or `role="alert"`. For critical warnings, add an accessible role in `className` wrappers or mirror the message in page content. The close button has `aria-label="Dismiss"`.
+
+## Gotchas
+
+- `onClose` does not update `open`; your parent must do that.
+- Long body text can compete with actions on small screens.
+- Sticky banners are affected by ancestor overflow.
+- `promo` uses a gradient tone and should be reserved for announcements.
+
+## Related
+
+- `Alert` for inline notices.
+- `Toast` for short-lived feedback.
+- `MaintenanceBanner` for maintenance-specific status.

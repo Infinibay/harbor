@@ -3,7 +3,9 @@ import { cn } from "../../lib/cn";
 
 export interface AppShellProps {
   sidebar?: ReactNode;
+  aside?: ReactNode;
   header?: ReactNode;
+  footer?: ReactNode;
   children?: ReactNode;
   /** Horizontal padding around the main content. Tailwind spacing scale. */
   contentPadding?: "none" | "sm" | "md" | "lg";
@@ -19,8 +21,8 @@ export interface AppShellProps {
 const paddings: Record<NonNullable<AppShellProps["contentPadding"]>, string> = {
   none: "",
   sm: "px-3 py-3",
-  md: "px-4 py-4 md:px-6 md:py-5",
-  lg: "px-6 py-6 md:px-8 md:py-6",
+  md: "px-5 py-5 md:px-7 md:py-6",
+  lg: "px-6 py-6 md:px-10 md:py-8",
 };
 
 const gutters: Record<NonNullable<AppShellProps["gutter"]>, string> = {
@@ -35,7 +37,9 @@ const gutters: Record<NonNullable<AppShellProps["gutter"]>, string> = {
  *  the viewport so fixed chrome sits at the correct edges. */
 export function AppShell({
   sidebar,
+  aside,
   header,
+  footer,
   children,
   contentPadding = "lg",
   gutter = "none",
@@ -58,7 +62,7 @@ export function AppShell({
         className={cn(
           "flex-1 min-w-0 flex flex-col",
           hasGutter &&
-            "hbr-card rounded-2xl bg-[rgb(var(--harbor-bg-elev-1)/0.82)] backdrop-blur-md border border-white/8 overflow-hidden",
+            "hbr-card rounded-2xl bg-[rgb(var(--harbor-bg-elev-1)/0.82)] backdrop-blur-md border border-white/[0.045] overflow-hidden",
         )}
       >
         {header}
@@ -71,7 +75,9 @@ export function AppShell({
         >
           {children}
         </div>
+        {footer}
       </main>
+      {aside}
     </div>
   );
 }

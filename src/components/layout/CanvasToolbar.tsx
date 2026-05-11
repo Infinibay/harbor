@@ -66,6 +66,7 @@ export function CanvasToolbar({
       {items.map((it) => (
         <Fragment key={it.id}>
           <button
+            type="button"
             onClick={it.onClick}
             disabled={it.disabled}
             title={

@@ -106,6 +106,7 @@ export function FacetedSearch({
     <div className={cn("w-full flex flex-col gap-3", className)}>
       <div className="flex items-center gap-2 flex-wrap">
         <input
+          aria-label="Search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search…"
@@ -113,7 +114,9 @@ export function FacetedSearch({
         />
         <div className="relative">
           <button
+            type="button"
             onClick={() => setViewsOpen((v) => !v)}
+            aria-expanded={viewsOpen}
             className="text-xs px-2 py-1.5 rounded-md border border-white/10 bg-white/[0.03] text-white/70 hover:bg-white/5"
           >
             Views ▾
@@ -128,6 +131,7 @@ export function FacetedSearch({
                 className="absolute right-0 mt-1 w-56 rounded-md border border-white/10 bg-surface-2 shadow-2xl z-10 p-1"
               >
                 <button
+                  type="button"
                   onClick={() => {
                     saveCurrent();
                     setViewsOpen(false);
@@ -145,12 +149,14 @@ export function FacetedSearch({
                     className="flex items-center gap-1 px-2 py-1 hover:bg-white/5 rounded"
                   >
                     <button
+                      type="button"
                       onClick={() => applyView(v)}
                       className="flex-1 text-left text-xs text-white/85"
                     >
                       {v.name}
                     </button>
                     <button
+                      type="button"
                       onClick={() =>
                         persistViews(views.filter((x) => x.id !== v.id))
                       }
@@ -166,6 +172,7 @@ export function FacetedSearch({
         </div>
         {activeChips.length > 0 || q ? (
           <button
+            type="button"
             onClick={clearAll}
             className="text-xs px-2 py-1.5 rounded-md text-rose-300 hover:text-rose-200"
           >
@@ -186,7 +193,9 @@ export function FacetedSearch({
               </span>
               {c.label}
               <button
+                type="button"
                 onClick={() => removeChip(c.groupId, c.value)}
+                aria-label={`Remove ${c.label}`}
                 className="text-fuchsia-200/60 hover:text-fuchsia-100 ml-0.5"
               >
                 ×

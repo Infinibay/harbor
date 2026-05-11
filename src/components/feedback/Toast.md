@@ -1,58 +1,93 @@
 # Toast
 
-Transient feedback that animates in from the corner of the viewport.
-Toasts are imperative — call `toast(...)` from anywhere instead of
-mounting a component.
+`ToastProvider` and `useToast` provide imperative, stacked notifications for short-lived feedback. Use toasts for confirmations and background updates: saved settings, copied commands, queued deploys, failed API calls with retry, completed exports, and undoable actions.
+
+Toasts should not replace form validation, modal errors, or persistent status regions. They are transient by design.
 
 ## Import
 
 ```tsx
-import { ToastProvider, toast } from "@infinibay/harbor/feedback";
+import { ToastProvider, useToast } from "@infinibay/harbor/feedback";
 ```
 
-## Setup
-
-Mount the provider once near the root of your app so toasts have a
-portal target and shared queue.
+## Basic Usage
 
 ```tsx
-<ToastProvider position="bottom-right">
-  <App />
-</ToastProvider>
-```
+import { ToastProvider, useToast } from "@infinibay/harbor/feedback";
+import { Button } from "@infinibay/harbor/buttons";
 
-## Example
+function SaveButton() {
+  const toast = useToast();
 
-```tsx
-toast("Saved");
+  return (
+    <Button
+      onClick={() =>
+        toast.push({
+          tone: "success",
+          title: "Saved",
+          description: "Your changes are live.",
+          action: { label: "Undo", onClick: () => console.log("undo") },
+        })
+      }
+    >
+      Save
+    </Button>
+  );
+}
 
-toast.success("Deployment complete", {
-  description: "v0.4.2 is live on staging",
-  duration: 4000,
-});
-
-toast.error("Couldn't reach the API", {
-  action: { label: "Retry", onClick: retry },
-});
+export function App() {
+  return (
+    <ToastProvider>
+      <SaveButton />
+    </ToastProvider>
+  );
+}
 ```
 
 ## API
 
-- **toast(message, options?)** — neutral toast.
-- **toast.success / .info / .warning / .error** — semantic variants.
-- **toast.promise(p, { loading, success, error })** — auto-resolves a
-  promise with three messages.
-- **toast.dismiss(id?)** — close a specific toast or all of them.
+`useToast()` returns:
 
-### Options
+- **push** - `(toast) => number`. Adds a toast and returns its generated id.
+- **dismiss** - `(id: number) => void`. Removes a toast by id.
 
-- **description** — secondary text below the title.
-- **duration** — ms before auto-dismiss. `Infinity` keeps it sticky.
-- **action** — `{ label, onClick }` shown on the right.
+`push` accepts `title`, optional `description`, optional `tone`, optional `duration`, and optional `action`.
 
-## Notes
+## Props
 
-- Toasts share one queue per `ToastProvider`, so duplicates are
-  collapsed automatically — calling `toast("Saved")` ten times shows
-  one toast with a counter.
-- The corner position is set on the provider, not per toast.
+`ToastProvider` accepts only **children** - `ReactNode`. It provides the toast context and renders the portal container.
+
+Toast objects passed to `push` accept:
+
+- **title** - `string`. Required short message.
+- **description** - `string`. Optional supporting copy.
+- **tone** - `"default" | "success" | "warning" | "danger" | "info"`.
+- **duration** - `number`. Milliseconds before auto-dismiss.
+- **action** - `{ label: string; onClick: () => void }`. Optional inline action.
+
+## Toast Model
+
+`tone` can be `"default"`, `"success"`, `"warning"`, `"danger"`, or `"info"`. `duration` is milliseconds and defaults to `4000`. Pass `duration: 0` to keep the toast visible until the user dismisses it.
+
+An `action` has `{ label, onClick }`. Clicking it runs the callback and dismisses the toast.
+
+## Behavior
+
+Toasts render in a portal at the bottom-right of the viewport with `Z.TOAST`. Each toast animates in, stacks above the previous one, shows a tone bar, and displays a progress strip while auto-dismiss is active.
+
+## Accessibility
+
+The current implementation is visual and does not set `role="status"` or `aria-live`. For critical notifications, mirror the message in an accessible live region or persistent UI. Always keep dangerous failures recoverable outside the toast.
+
+## Gotchas
+
+- `useToast` throws if called outside `ToastProvider`.
+- Timers are started when `push` runs and are not paused on hover.
+- Toast ids are local to one provider instance.
+- The provider should usually live near the app root.
+
+## Related
+
+- `Alert` for inline messages.
+- `Banner` for persistent page-level notices.
+- `ErrorState` for blocking failures.

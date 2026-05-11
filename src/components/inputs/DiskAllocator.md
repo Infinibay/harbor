@@ -1,10 +1,12 @@
 # DiskAllocator
 
-Horizontal slab bar for laying out disk allocations across a fixed
-total. Each slab is colored by tone (used / reserved / backup /
-warn / custom), drag-across-free-space reserves a new chunk, and
-hovering a slab reveals an inline delete affordance. Used for
-storage planners, partition layouts, quota distributions.
+`DiskAllocator` visualizes capacity as horizontal slabs and lets users reserve
+free space by dragging. It is useful for infrastructure consoles, database
+storage settings, backup planning, VM provisioning, and desktop tools where
+capacity needs to feel tangible.
+
+Use it when allocation size matters visually. Use `SliderField` for a single
+numeric capacity value.
 
 ## Import
 
@@ -12,48 +14,68 @@ storage planners, partition layouts, quota distributions.
 import { DiskAllocator } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
+
+Pass total capacity and existing allocations in bytes.
 
 ```tsx
-const TB = 1024 ** 4;
-const GB = 1024 ** 3;
-const [allocs, setAllocs] = useState<DiskAllocation[]>([
-  { id: "os",   label: "OS",     size: 64 * GB,  tone: "used" },
-  { id: "data", label: "Data",   size: 800 * GB, tone: "reserved" },
-  { id: "snap", label: "Backup", size: 128 * GB, tone: "backup" },
-]);
-
 <DiskAllocator
-  total={2 * TB}
-  allocations={allocs}
-  onChange={setAllocs}
-  header={<span className="text-sm font-medium">Volume layout</span>}
+  total={512 * 1024 ** 3}
+  allocations={[
+    { id: "data", label: "Data", size: 240 * 1024 ** 3, tone: "used" },
+    { id: "backup", label: "Backup", size: 120 * 1024 ** 3, tone: "backup" },
+  ]}
+  onChange={setAllocations}
+/>
+```
+
+## Creating Allocations
+
+Dragging on free space creates a new allocation. Use `onCreate` to shape the new
+record.
+
+```tsx
+<DiskAllocator
+  total={total}
+  allocations={allocations}
+  minSize={10 * 1024 ** 3}
+  onCreate={(size) => ({ id: crypto.randomUUID(), label: "Reserved", size, tone: "reserved" })}
+  onChange={setAllocations}
 />
 ```
 
 ## Props
 
-- **total** — `number`. Total capacity in bytes. Required.
-- **allocations** — `readonly DiskAllocation[]`. Each:
-  `{ id, label?, size, tone?, color? }`. `tone` ∈ `"used" |
-  "reserved" | "backup" | "warn" | "custom"`. `color` overrides the
-  tone palette.
-- **onChange** — `(allocations: DiskAllocation[]) => void`. Fires
-  when the user reserves a new chunk or removes one.
-- **onCreate** — `(size: number) => DiskAllocation`. Customise how
-  drag-created slabs are constructed (id, label, tone).
-- **minSize** — `number`. Minimum chunk size in bytes. Default
-  `1 GB`. Drags shorter than this are discarded.
-- **height** — `number`. Bar height in px. Default `32`.
-- **header** — `ReactNode`. Optional title slot above the bar; when
-  set, the right side shows `consumed / total · free`.
-- **className** — extra classes on the wrapper.
+- `total`: total capacity in bytes.
+- `allocations`: required allocation slabs.
+- `onChange`: called when allocations change.
+- `onCreate`: custom record factory for drag-created slabs.
+- `minSize`: minimum created chunk; defaults to 1 GB.
+- `height`: bar height in pixels.
+- `header`: optional title/status slot.
+- `className`: wrapper class override.
 
-## Notes
+Allocations include `id`, optional `label`, `size`, optional `tone`, and optional
+`color`.
 
-- Drag starts on free space — clicks on existing slabs are caught by
-  `data-slab` and ignored.
-- Slab labels render only when the slab is wider than 6% of the bar
-  to avoid overflowing tiny chunks.
-- Free-space label flips to the danger color when remaining capacity
-  is below `minSize`.
+## Accessibility
+
+The allocator is pointer-first. Mirror important capacity changes in numeric
+fields, summary text, or a details panel so keyboard users can understand and
+adjust the allocation.
+
+Removal buttons include accessible labels when visible.
+
+## Gotchas
+
+`total`, `size`, and `minSize` are bytes. Keep units consistent.
+
+The component clamps new drag-created chunks to available free space, but parent
+state should still validate quotas and server constraints.
+
+## Related
+
+- `SliderField` for simple capacity values.
+- `QuotaBar` for read-only quota status.
+- `ResourceMeter` for utilization summaries.
+- `NumberField` for exact capacity entry.

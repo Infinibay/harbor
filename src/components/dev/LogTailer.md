@@ -1,13 +1,12 @@
 # LogTailer
 
-Streaming log pane with level filters, regex search, follow mode, and a
-ring buffer. Two ways to drive it:
+`LogTailer` is a streaming log panel for developer tools, admin consoles, build
+systems, deployment pages, and desktop workbenches. It keeps a rolling buffer,
+filters by level, searches by text or regex, and follows the bottom until the
+user scrolls up.
 
-1. **Controlled** — pass `entries` as a growing array.
-2. **Imperative** — attach a ref and call `append()` / `clear()` /
-   `scrollToBottom()` from outside (best for SSE / WebSocket).
-
-For a simpler, controlled-only viewer use `<LogViewer>`.
+Use it when logs are actively arriving. Use `LogViewer` for static logs and
+`Terminal` when the user is typing commands.
 
 ## Import
 
@@ -15,61 +14,79 @@ For a simpler, controlled-only viewer use `<LogViewer>`.
 import { LogTailer, type LogTailerHandle } from "@infinibay/harbor/dev";
 ```
 
-## Example (imperative)
+## Basic Usage
+
+For controlled data, pass a growing `entries` array from your app state.
 
 ```tsx
-const ref = useRef<LogTailerHandle>(null);
+<LogTailer
+  entries={deploymentLogs}
+  height={420}
+  onFollowChange={(following) => analytics.track("log_follow", { following })}
+/>
+```
+
+Each entry uses the `LogViewer` shape: `id`, `time`, `level`, optional `source`,
+and `message`.
+
+## Imperative Streaming
+
+For SSE, WebSocket, or process output, attach a ref and call `append`.
+
+```tsx
+const tailer = useRef<LogTailerHandle>(null);
 
 useEffect(() => {
-  const es = new EventSource("/logs");
-  es.onmessage = (e) => {
-    const entry = JSON.parse(e.data);
-    ref.current?.append(entry);
+  const stream = new EventSource("/api/builds/42/logs");
+  stream.onmessage = (event) => {
+    tailer.current?.append(JSON.parse(event.data));
   };
-  return () => es.close();
+  return () => stream.close();
 }, []);
 
-<LogTailer ref={ref} bufferSize={5_000} height={420} />;
+return <LogTailer ref={tailer} bufferSize={5000} />;
 ```
 
-## LogEntry
+Call `clear()` when a build restarts and `scrollToBottom()` when the user clicks
+an external "jump to latest" command.
 
-```ts
-{
-  id: string | number;
-  time: string | Date;
-  level: "debug" | "info" | "warn" | "error";
-  source?: string;
-  message: string;
-}
-```
+## Filtering
+
+Level chips toggle `debug`, `info`, `warn`, and `error`. The search field uses
+case-insensitive substring matching by default. Enable the `.*` chip to treat
+the search as a regex; invalid regex input falls back to substring matching.
 
 ## Props
 
-- **entries** — `readonly LogEntry[]`. Optional. When provided, the
-  component is controlled and `append`/`clear` no-op.
-- **bufferSize** — `number`. Imperative-mode ring buffer cap. Default `10000`.
-- **height** — `number`. Pixel height of the scroll viewport. Default `360`.
-- **levels** — `LogLevel[]`. Initially-enabled level chips.
-  Default `["debug","info","warn","error"]`.
-- **searchPlaceholder** — `string`. Default `"Search (regex supported)…"`.
-- **onFollowChange** — `(following: boolean) => void`.
-- **className** — extra classes on the root.
+- `entries`: optional controlled log array.
+- `bufferSize`: retained entry count for imperative mode; defaults to `10000`.
+- `height`: scroll viewport height in pixels.
+- `levels`: initially visible levels.
+- `searchPlaceholder`: custom search placeholder.
+- `onFollowChange`: called when follow mode pauses or resumes.
+- `className`: wrapper class override.
 
-## Imperative handle
+## Accessibility
 
-```ts
-{
-  append(entry: LogEntry | LogEntry[]): void;  // no-op when controlled
-  clear(): void;                               // no-op when controlled
-  scrollToBottom(): void;
-  readonly following: boolean;
-}
-```
+Level filters and regex mode are real toggle buttons with pressed state. The
+search field has an accessible label. When follow mode is paused, the Resume
+button returns to the latest log line.
 
-## Notes
+For critical errors, do not rely on the log panel alone. Surface important state
+in a `Banner`, `Alert`, or page status summary.
 
-- Follow auto-pauses when the user scrolls up; a "Resume ↓" button
-  brings it back. `onFollowChange` fires on every flip.
-- The `.* ` button toggles regex search; invalid regex falls back to
-  substring matching silently.
+## Gotchas
+
+If `entries` is provided, the component is controlled and `append()` does
+nothing. In that mode your state owner is responsible for adding and trimming
+entries.
+
+Follow mode pauses when the user scrolls away from the bottom. New logs still
+arrive; the panel simply stops forcing scroll position.
+
+## Related
+
+- `LogViewer` for static logs.
+- `Terminal` for command-oriented sessions.
+- `FindBar` for external find controls.
+- `StatusBar` for compact process state.

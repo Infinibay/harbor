@@ -1,10 +1,8 @@
 # Kanban
 
-Drag-and-drop board with **cross-column drag** and a unified
-`onCardMove` event. `<KanbanBoard>` is the horizontal container;
-`<KanbanColumn>` is one column with reorderable cards. The board does
-not own state — the parent maintains the per-column card arrays and
-applies the move on each event.
+`Kanban` provides a controlled drag-and-drop board for operational queues: roadmap planning, support triage, deployment reviews, hiring pipelines, bug workflows, and any process that moves cards across stages.
+
+Harbor renders the board, columns, cards, hover states, move menu, and enter/exit animation. Your app owns the arrays for each column and applies each `onCardMove` event to state.
 
 ## Import
 
@@ -17,86 +15,54 @@ import {
 } from "@infinibay/harbor/data";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [board, setBoard] = useState({
-  todo:  [{ id: "a", title: "Wire login" }],
-  doing: [{ id: "b", title: "Refactor auth" }],
-  done:  [],
+const [board, setBoard] = useState<Record<string, KanbanCardData[]>>({
+  todo: [{ id: "api", title: "Define billing API", meta: "Platform" }],
+  doing: [{ id: "ui", title: "Polish checkout", meta: "Growth" }],
+  done: [],
 });
 
-const handleMove = (e: KanbanCardMoveEvent) => {
+function moveCard(e: KanbanCardMoveEvent) {
   setBoard((prev) => {
     const from = prev[e.from].slice();
-    const idx = from.findIndex((c) => c.id === e.cardId);
-    const [card] = from.splice(idx, 1);
+    const cardIndex = from.findIndex((card) => card.id === e.cardId);
+    if (cardIndex < 0) return prev;
+    const [card] = from.splice(cardIndex, 1);
     const to = prev[e.to].slice();
     to.splice(Math.min(e.toIndex, to.length), 0, card);
     return { ...prev, [e.from]: from, [e.to]: to };
   });
-};
+}
 
-<KanbanBoard onCardMove={handleMove}>
-  <KanbanColumn id="todo"  title="To do" cards={board.todo}  accent="sky" />
+<KanbanBoard onCardMove={moveCard}>
+  <KanbanColumn id="todo" title="To do" cards={board.todo} accent="sky" />
   <KanbanColumn id="doing" title="Doing" cards={board.doing} accent="amber" />
-  <KanbanColumn id="done"  title="Done"  cards={board.done}  accent="green" />
-</KanbanBoard>;
+  <KanbanColumn id="done" title="Done" cards={board.done} accent="green" />
+</KanbanBoard>
 ```
 
-## KanbanCardData
+## How Moves Work
 
-```ts
-{
-  id: string;
-  title: ReactNode;
-  meta?: ReactNode;       // small subtitle line under the title
-  tags?: ReactNode[];     // chips rendered as a wrap row
-  assignee?: ReactNode;   // bottom-right slot (e.g. <Avatar>)
-}
-```
+`onCardMove` fires once per drop. The event includes `cardId`, source column `from`, destination column `to`, and destination `toIndex`. For same-column moves, `toIndex` is already adjusted as if the card had first been removed from its original position.
 
-## KanbanCardMoveEvent
+## Props
 
-```ts
-{
-  cardId: string;
-  from: string;             // source column id
-  to: string;               // destination column id
-  toIndex: number;          // insert index in the destination, after
-                            // the card has been removed from `from`
-}
-```
+`KanbanBoard` accepts `children`, `onCardMove`, and `className`.
 
-## Props (`<KanbanBoard>`)
+`KanbanColumn` accepts `id`, `title`, `count`, `cards`, `accent`, `moveTo`, and `className`.
 
-- **children** — `<KanbanColumn>` instances.
-- **onCardMove** — `(e: KanbanCardMoveEvent) => void`. Fires once per
-  drop. Covers BOTH same-column reorders (`from === to`) and
-  cross-column moves. The parent reconciles the new state.
-- **className** — extra classes on the row.
+`KanbanCardData` accepts `id`, `title`, `meta`, `tags`, and `assignee`.
 
-## Props (`<KanbanColumn>`)
+## Accessibility
 
-- **id** — `string`. Required. Stable column key.
-- **title** — `string`. Required.
-- **cards** — `KanbanCardData[]`. Required.
-- **count** — `number`. Override the count badge. Default `cards.length`.
-- **accent** — `"neutral" | "sky" | "amber" | "green" | "rose"`. Default `"neutral"`.
-- **moveTo** — `{ id, label }[]`. Per-card "Move to…" menu (no-drag
-  fallback). When omitted, the menu lists all sibling columns
-  registered on the same board.
-- **className** — extra classes on the column.
+Drag uses native HTML drag-and-drop. Each card also exposes a "Move to" menu when destinations are available, giving pointer users a precise non-drag fallback. Keep card titles concise and pass accessible components for tags and assignees.
 
-## Notes
+## Gotchas
 
-- Drag uses native HTML5 DnD — no extra dependencies, works with
-  keyboard-only-no scenarios via the `⋯` per-card menu.
-- Drop targets: hovering over a card inserts before/after based on the
-  cursor's vertical position; hovering empty column space appends.
-- The destination column highlights while a card is dragged over it
-  from another column.
-- Cards animate with `<AnimatePresence>` on enter/exit — the parent
-  must derive new arrays from a single source of truth so the diff
-  stays consistent.
-- The board scrolls horizontally when columns overflow.
+The component does not mutate your state. If cards appear to snap back after a drop, check that `onCardMove` removes the card from `from` and inserts it into `to`.
+
+## Related
+
+Use with `Card`, `Avatar`, `Badge`, `DataTable`, `FilterPanel`, and `ActivityFeed`.

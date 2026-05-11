@@ -1,9 +1,8 @@
 # VirtualList
 
-Windowed scroll container for huge fixed-height lists — only the rows
-in / near the viewport are mounted. Use when the dataset is known and
-items are uniformly tall. For incremental fetch on scroll, use
-`<InfiniteScroll>` (which mounts everything but defers loading).
+`VirtualList` renders a large fixed-height list by mounting only the rows visible in the scroll viewport plus overscan. Use it for logs, queues, server lists, command results, event streams, search results, and large admin lists when every row has the same height.
+
+For tables with sorting, columns, selection, and richer state, use `DataTable`.
 
 ## Import
 
@@ -11,41 +10,59 @@ items are uniformly tall. For incremental fetch on scroll, use
 import { VirtualList } from "@infinibay/harbor/data";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const items = Array.from({ length: 10_000 }, (_, i) => ({
-  id: i,
-  name: `Item ${i}`,
-}));
+import { VirtualList } from "@infinibay/harbor/data";
 
-<VirtualList
-  items={items}
-  itemHeight={36}
-  height={400}
-  keyFor={(it) => it.id}
-  renderItem={(it) => (
-    <div style={{ padding: "8px 12px" }}>{it.name}</div>
-  )}
-/>
+type Host = { id: string; name: string; cpu: number };
+
+export function HostList({ hosts }: { hosts: Host[] }) {
+  return (
+    <VirtualList
+      items={hosts}
+      itemHeight={36}
+      height={400}
+      keyFor={(host) => host.id}
+      renderItem={(host) => (
+        <div className="flex h-full items-center px-3">
+          {host.name} - {host.cpu}% CPU
+        </div>
+      )}
+    />
+  );
+}
 ```
 
 ## Props
 
-- **items** — `T[]`. Required.
-- **itemHeight** — `number`. px per row. Required. All rows must be
-  the same height — measurement is not done.
-- **height** — `number`. px viewport height. Required.
-- **renderItem** — `(item: T, index: number) => ReactNode`. Required.
-- **overscan** — `number`. Rows rendered above + below the viewport
-  to mask scroll pop-in. Default `6`.
-- **keyFor** — `(item: T, index: number) => string | number`. Default
-  uses the index. Provide a stable key when items can reorder.
-- **className** — extra classes on the scroll container.
+- **items** - `T[]`. Required list data.
+- **itemHeight** - `number`. Required fixed row height in pixels.
+- **height** - `number`. Required viewport height in pixels.
+- **overscan** - `number`. Extra rows rendered above and below. Default `6`.
+- **renderItem** - `(item: T, index: number) => ReactNode`. Required row renderer.
+- **keyFor** - `(item: T, index: number) => string | number`. Defaults to index.
+- **className** - extra classes on the scroll container.
 
-## Notes
+## Behavior
 
-- Rows render absolutely-positioned inside a sized spacer — total
-  height is `items.length * itemHeight`.
-- Variable-height rows aren't supported. For those, use
-  `<InfiniteScroll>` and accept the cost of mounting everything.
+The component listens to scroll on its own container, calculates the start index from `scrollTop / itemHeight`, slices the visible window, and absolutely positions each mounted row inside a spacer with the full list height.
+
+`overscan` reduces visible pop-in during fast scroll at the cost of rendering more rows.
+
+## Accessibility
+
+Only mounted rows exist in the DOM. For simple operational tools this is acceptable, but for searchable or screen-reader-heavy experiences, provide filtering, count summaries, and keyboard navigation that accounts for virtualization.
+
+## Gotchas
+
+- Every row must have the same height.
+- Dynamic row heights are not supported.
+- Default index keys can cause state reuse problems when items reorder. Prefer `keyFor`.
+- Browser find cannot search unmounted rows.
+
+## Related
+
+- `DataTable` for structured tabular data.
+- `InfiniteScroll` for loading more records.
+- `CanvasVirtualized` for canvas item virtualization.

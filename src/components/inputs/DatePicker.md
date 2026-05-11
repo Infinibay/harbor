@@ -1,9 +1,8 @@
 # DatePicker
 
-Anchor button + portal-popover wrapping a `<Calendar>`. Use when the
-date input lives inside a form row; reach for `<Calendar>` directly
-when you want the grid permanently inline. For ranges or
-preset-relative pickers use `<TimeRangePicker>`.
+`DatePicker` lets users choose a single date from a Harbor calendar popover. Use it for billing dates, renewal dates, scheduling, due dates, maintenance windows, reports, filters, and settings where typing a date manually would be slower or more error-prone.
+
+The picker is controlled: your app passes the selected `Date` through `value` and updates it in `onChange`.
 
 ## Import
 
@@ -11,32 +10,63 @@ preset-relative pickers use `<TimeRangePicker>`.
 import { DatePicker } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [date, setDate] = useState<Date>();
+const [renewalDate, setRenewalDate] = useState<Date>();
 
 <DatePicker
   label="Renewal date"
-  value={date}
-  onChange={setDate}
-  placeholder="Pick a date"
+  value={renewalDate}
+  onChange={setRenewalDate}
+/>
+```
+
+With placeholder copy:
+
+```tsx
+<DatePicker
+  label="Maintenance window"
+  placeholder="Select start date"
+  value={startsAt}
+  onChange={setStartsAt}
 />
 ```
 
 ## Props
 
-- **value** — `Date | undefined`. Currently selected date.
-- **onChange** — `(d: Date) => void`. Fires when the user picks a
-  day. The popover auto-closes on selection.
-- **label** — `string`. Optional label above the anchor.
-- **placeholder** — `string`. Default `"Pick a date"`.
-- **className** — extra classes on the wrapper.
+- **value** - optional `Date`. The currently selected date.
+- **onChange** - optional callback `(date: Date) => void`.
+- **label** - optional string rendered above the trigger.
+- **placeholder** - optional string. Defaults to `"Pick a date"`.
+- **className** - optional string merged onto the root container.
 
-## Notes
+## Interaction Model
 
-- The anchor formats with the user's locale via
-  `toLocaleDateString`.
-- Popover position re-syncs on `scroll` (capture) and `resize`.
-- `min` / `max` are not exposed on the anchor — wrap `<Calendar>`
-  yourself if you need them.
+Clicking the trigger opens a calendar in a portal positioned under the button. Selecting a date calls `onChange` and closes the popover. Clicking outside also closes the popover. While open, the component listens for scroll and resize events to keep the popover aligned with the trigger.
+
+The displayed value uses `toLocaleDateString` with year, long month, and day.
+
+## State And Data
+
+Store `Date` values deliberately. If the backend uses ISO strings, convert at the API boundary and be clear about timezone expectations. For date-only fields, avoid accidentally shifting days when serializing through UTC.
+
+The current component does not expose min date, max date, disabled dates, ranges, or manual text entry. Build those constraints at the form level or extend the picker when the workflow requires them.
+
+## Accessibility
+
+Always provide a visible label or an equivalent surrounding form label. The trigger is a button, and the calendar handles date selection. For production scheduling flows, verify keyboard behavior in the full form and provide validation messages for unavailable dates.
+
+## Gotchas
+
+- The component does not validate business rules like "must be after today."
+- `onChange` is optional, but without it selection will not persist in controlled usage.
+- Locale formatting comes from the user's environment.
+- Use a dedicated date range picker for start/end workflows rather than two ambiguous standalone pickers without labels.
+
+## Related
+
+- `Calendar` for inline date selection.
+- `TimeRangePicker` for time window filters.
+- `FormField` and `FieldRow` for labelled form layout.
+- `Select` for fixed date presets.

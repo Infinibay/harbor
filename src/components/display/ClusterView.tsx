@@ -119,7 +119,9 @@ export function ClusterView({
         <span className="flex-1" />
         <div className="inline-flex gap-0.5 p-0.5 rounded-md bg-surface-1 border border-white/10 text-[11px]">
           <button
+            type="button"
             onClick={() => setDensity("comfortable")}
+            aria-pressed={density === "comfortable"}
             className={cn(
               "px-2 py-0.5 rounded",
               density === "comfortable" ? "bg-surface-3 text-white" : "text-white/60 hover:text-white",
@@ -128,7 +130,9 @@ export function ClusterView({
             Comfortable
           </button>
           <button
+            type="button"
             onClick={() => setDensity("compact")}
+            aria-pressed={density === "compact"}
             className={cn(
               "px-2 py-0.5 rounded",
               density === "compact" ? "bg-surface-3 text-white" : "text-white/60 hover:text-white",
@@ -185,8 +189,10 @@ function FilterGroup({
       </span>
       {options.map((o) => (
         <button
+          type="button"
           key={o.value}
           onClick={() => onChange(o.value)}
+          aria-pressed={value === o.value}
           className={cn(
             "px-2 py-0.5 rounded transition-colors",
             value === o.value

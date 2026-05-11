@@ -116,6 +116,7 @@ export function KeyValueEditor({
                 )}
               >
                 <button
+                  type="button"
                   aria-label="Drag to reorder"
                   onPointerDown={onHandleDown(p.id)}
                   className="grid h-[var(--harbor-target-input-height)] w-5 cursor-grab place-items-center text-xs text-[color:var(--harbor-field-placeholder)] hover:text-[color:var(--harbor-field-muted-fg)] active:cursor-grabbing"
@@ -123,6 +124,7 @@ export function KeyValueEditor({
                   ⋮⋮
                 </button>
                 <input
+                  aria-label="Key"
                   value={p.key}
                   onChange={(e) => update(p.id, { key: e.target.value })}
                   placeholder={keyPlaceholder}
@@ -138,6 +140,7 @@ export function KeyValueEditor({
                   </div>
                 ) : (
                   <input
+                    aria-label="Value"
                     value={p.value}
                     onChange={(e) => update(p.id, { value: e.target.value })}
                     placeholder={valuePlaceholder}
@@ -145,7 +148,9 @@ export function KeyValueEditor({
                   />
                 )}
                 <button
+                  type="button"
                   onClick={() => remove(p.id)}
+                  aria-label="Remove pair"
                   className="grid h-[var(--harbor-target-input-height)] w-8 place-items-center text-[color:var(--harbor-field-placeholder)] hover:text-rose-300"
                   title="Remove"
                 >
@@ -163,6 +168,7 @@ export function KeyValueEditor({
       </div>
       {!hideAddButton ? (
         <button
+          type="button"
           onClick={add}
           className="inline-flex min-h-[calc(var(--harbor-target-control-height)-8px)] items-center gap-1.5 self-start rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-field-bg-hover)] hover:text-[color:var(--harbor-field-fg)]"
         >

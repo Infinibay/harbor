@@ -1,10 +1,8 @@
 # CanvasPanel
 
-Floating, draggable, collapsible panel for property inspectors,
-layers, history, color pickers — anything you'd find floating over a
-canvas app. Drag the header to move; click the chevron to collapse.
-Positions itself in absolute viewport coordinates (drop it inside the
-`<Canvas overlay={...}>` slot) so pan/zoom don't move it.
+`CanvasPanel` is a floating, draggable, collapsible panel for canvas-style applications. Use it for inspectors, layers, history, properties, color controls, minimaps, and tool settings that should hover above a pan or zoom surface.
+
+The panel is designed for the `Canvas` overlay slot, where it stays fixed to the viewport instead of moving with world coordinates.
 
 ## Import
 
@@ -12,44 +10,56 @@ Positions itself in absolute viewport coordinates (drop it inside the
 import { CanvasPanel } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<Canvas
-  overlay={
-    <CanvasPanel
-      title="Inspector"
-      defaultPosition={{ x: 16, y: 16 }}
-      width={260}
-      closable
+import { Canvas, CanvasItem, CanvasPanel } from "@infinibay/harbor/layout";
+
+export function DiagramInspector() {
+  return (
+    <Canvas
+      overlay={
+        <CanvasPanel title="Inspector" width={260} closable>
+          <div>Selected node properties</div>
+        </CanvasPanel>
+      }
     >
-      <div className="space-y-2 text-sm text-white/70">
-        <div>Width: 320</div>
-        <div>Height: 200</div>
-      </div>
-    </CanvasPanel>
-  }
->
-  ...
-</Canvas>
+      <CanvasItem x={200} y={200}>Selected node</CanvasItem>
+    </Canvas>
+  );
+}
 ```
 
 ## Props
 
-- **title** — `ReactNode`. Header label.
-- **children** — `ReactNode`. Body content.
-- **defaultPosition** — `{ x; y }`. Uncontrolled start. Default `{ 16, 16 }`.
-- **position** / **onPositionChange** — controlled coords.
-- **width** — `number`. Default `240`. Height fits content.
-- **defaultCollapsed** — `boolean`.
-- **closable** — `boolean`. Shows the × button.
-- **onClose** — `() => void`.
-- **className** — extra classes on the panel.
+- **title** - `ReactNode`. Required header label.
+- **children** - `ReactNode`. Required panel body.
+- **defaultPosition** - `{ x: number; y: number }`. Uncontrolled starting position. Default `{ x: 16, y: 16 }`.
+- **position** - `{ x: number; y: number }`. Controlled position.
+- **onPositionChange** - `(position) => void`. Called when dragging updates position.
+- **width** - `number`. Panel width. Default `240`.
+- **defaultCollapsed** - `boolean`. Starts with the body hidden.
+- **closable** - `boolean`. Shows the close button.
+- **onClose** - `() => void`. Called from the close button.
+- **className** - extra classes on the panel.
 
-## Notes
+## Behavior
 
-- The panel doesn't read the Canvas context — it just lives in screen
-  space. Use it inside `<Canvas overlay>` so it stays pinned during
-  pan/zoom.
-- Header drag is suppressed when the click target is a `<button>`,
-  so the collapse / close controls work without hijacking.
+Drag the header to move the panel. Buttons inside the header do not start a drag. The chevron toggles collapsed state with an animated body height. If `position` is provided, movement is controlled and only `onPositionChange` reports updates. Otherwise the panel stores its own position.
+
+## Accessibility
+
+Collapse and close controls have `aria-label` values. Dragging is mouse-based; there is no keyboard repositioning. If exact placement matters, expose position fields or reset controls elsewhere in your canvas UI.
+
+## Gotchas
+
+- The panel uses absolute positioning and expects an overlay or positioned parent.
+- It does not clamp position to the viewport.
+- Collapsed state is internal after mount.
+- `onClose` does not hide the panel unless your parent removes it.
+
+## Related
+
+- `Canvas` for pan and zoom workspaces.
+- `CanvasToolbar` for canvas command chrome.
+- `MovablePanelLayout` for multi-panel application shells.

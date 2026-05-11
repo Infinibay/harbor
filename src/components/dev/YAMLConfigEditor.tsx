@@ -162,6 +162,7 @@ export function YAMLConfigEditor({
           </div>
           <textarea
             ref={taRef}
+            aria-label="YAML configuration"
             value={value}
             onChange={(e) => onChange?.(e.target.value)}
             onFocus={() => setFocus(true)}

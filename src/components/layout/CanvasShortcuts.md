@@ -1,10 +1,8 @@
 # CanvasShortcuts
 
-Declarative keyboard layer for a canvas. Every prop is a callback;
-only the ones you pass get bound. Renders nothing — drop it as a
-sibling (or descendant) of your `<Canvas>` and the standard editor
-keymap (`Cmd/Ctrl+Z`, `Cmd/Ctrl+D`, `Delete`, arrow nudges, bracket
-z-order, etc.) lights up.
+`CanvasShortcuts` is a renderless keyboard layer for design tools, diagram editors, workflow builders, and any Harbor canvas surface. Drop it near your canvas and pass callbacks for the shortcuts your app supports.
+
+It deliberately does not read canvas state. Selection, undo history, clipboard state, and z-order live in your product model; `CanvasShortcuts` only binds the common keymap to those product actions.
 
 ## Import
 
@@ -12,43 +10,77 @@ z-order, etc.) lights up.
 import { CanvasShortcuts } from "@infinibay/harbor/layout";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<>
-  <CanvasShortcuts
-    onDelete={deleteSelection}
-    onDuplicate={duplicateSelection}
-    onSelectAll={selectAll}
-    onEscape={() => setSelection([])}
-    onUndo={undo}
-    onRedo={redo}
-    onNudge={({ dx, dy, big }) => nudge(dx, dy, big ? 10 : 1)}
-  />
-  <Canvas>...</Canvas>
-</>
+import { Canvas, CanvasItem, CanvasShortcuts } from "@infinibay/harbor/layout";
+
+export function DiagramEditor() {
+  return (
+    <>
+      <CanvasShortcuts
+        onDelete={deleteSelection}
+        onDuplicate={duplicateSelection}
+        onSelectAll={selectAllNodes}
+        onEscape={clearSelection}
+        onUndo={undo}
+        onRedo={redo}
+        onCopy={copySelection}
+        onPaste={pasteSelection}
+        onCut={cutSelection}
+        onNudge={({ dx, dy, big }) => moveSelection(dx, dy, big)}
+      />
+
+      <Canvas>
+        {nodes.map((node) => (
+          <CanvasItem key={node.id} id={node.id} x={node.x} y={node.y}>
+            <NodeCard node={node} />
+          </CanvasItem>
+        ))}
+      </Canvas>
+    </>
+  );
+}
 ```
+
+## Keymap
+
+- **Delete / Backspace**: `onDelete`.
+- **Cmd/Ctrl+D**: `onDuplicate`.
+- **Cmd/Ctrl+A**: `onSelectAll`.
+- **Escape**: `onEscape`.
+- **Arrow keys**: `onNudge({ dx, dy, big: false })`.
+- **Shift+Arrow keys**: `onNudge({ dx, dy, big: true })` with 10-unit deltas.
+- **Cmd/Ctrl+Z**: `onUndo`.
+- **Cmd/Ctrl+Shift+Z** and **Cmd/Ctrl+Y**: `onRedo`.
+- **Cmd/Ctrl+C / V / X**: `onCopy`, `onPaste`, `onCut`.
+- **]** and **Cmd/Ctrl+]**: `onBringForward`.
+- **[** and **Cmd/Ctrl+[**: `onSendBackward`.
 
 ## Props
 
-- **onDelete** — `() => void`. `Delete` and `Backspace`.
-- **onDuplicate** — `() => void`. `Cmd/Ctrl+D`.
-- **onSelectAll** — `() => void`. `Cmd/Ctrl+A`.
-- **onEscape** — `() => void`. `Escape`.
-- **onNudge** — `({ dx, dy, big }) => void`. Arrow keys nudge by 1
-  world unit; `Shift+arrow` nudges by 10 (and sets `big: true`).
-- **onUndo** — `() => void`. `Cmd/Ctrl+Z`.
-- **onRedo** — `() => void`. `Cmd/Ctrl+Shift+Z` and `Cmd/Ctrl+Y`.
-- **onCopy** / **onPaste** / **onCut** — `Cmd/Ctrl+C / V / X`.
-- **onBringForward** — `]` and `Cmd/Ctrl+]`.
-- **onSendBackward** — `[` and `Cmd/Ctrl+[`.
-- **options** — `HotkeyOptions`. Forwarded to `useHotkey` (scope,
-  enabled, etc.).
+- **onDelete**, **onDuplicate**, **onSelectAll**, **onEscape**: selection lifecycle callbacks.
+- **onNudge**: `({ dx, dy, big }) => void`. Plain arrows send 1-unit deltas; shifted arrows send 10-unit deltas.
+- **onUndo** / **onRedo**: history callbacks.
+- **onCopy** / **onPaste** / **onCut**: clipboard callbacks.
+- **onBringForward** / **onSendBackward**: z-order callbacks.
+- **options**: `HotkeyOptions`. Forwarded to `useHotkey` for enabling, disabling, and scoping.
 
-## Notes
+## Accessibility
 
-- `mod` resolves to `Cmd` on macOS and `Ctrl` elsewhere.
-- The component itself doesn't read the Canvas context — wire your
-  selection / clipboard / undo state in the parent and pass the
-  callbacks here. Keeps the keymap a one-line addition to any canvas
-  you build.
+Keyboard shortcuts should be discoverable. Pair this component with visible toolbar actions, menu items, or a shortcut sheet so the same operations are available without memorizing keys.
+
+Do not trap keyboard focus in the canvas unless the surrounding app also provides a clear way to leave the workspace. Use `options` to disable shortcuts while dialogs, text fields, command palettes, or popovers are active.
+
+## Gotchas
+
+- `mod` means `Cmd` on macOS and `Ctrl` on Windows/Linux.
+- The component renders `null`. If nothing happens, inspect the callbacks and `options.enabled`; there is no visible DOM node to debug.
+- Text inputs and editors may need scoped hotkey handling so typing does not trigger canvas actions.
+- `big` already tells you whether the user held Shift. Do not multiply the delta twice unless your app intentionally wants larger jumps.
+
+## Related
+
+- [`Canvas`](./Canvas.md) for the main interactive surface.
+- [`CanvasMarquee`](./CanvasMarquee.md) for rubber-band selection.
+- [`ShortcutSheet`](../dev/ShortcutSheet.md) for documenting available shortcuts.

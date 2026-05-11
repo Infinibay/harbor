@@ -1,12 +1,8 @@
 # QueryBuilder
 
-Structured AND/OR predicate builder for filter UIs. The caller declares
-the available `fields` (with kind: `string` / `number` / `enum` /
-`date`) and the component emits a nested `QueryNode` tree of groups and
-conditions you can serialize to whatever your backend speaks
-(Elasticsearch DSL, SQL `WHERE`, GraphQL filter input, etc.). Reach for
-this when a single text query box isn't expressive enough but a
-hand-rolled "advanced filters" form would explode in scope.
+`QueryBuilder` lets users compose nested `and` / `or` filters without typing a query language. It is useful for audit search, billing filters, log explorers, customer segmentation, feature flag targeting, and admin screens where free-text search is not precise enough.
+
+The component is fully controlled: you provide the query tree, field definitions, and an `onChange` handler. Harbor handles the editing UI; your app serializes the tree to SQL, Elasticsearch, Prisma, a REST payload, or any backend format.
 
 ## Import
 
@@ -14,26 +10,21 @@ hand-rolled "advanced filters" form would explode in scope.
 import {
   QueryBuilder,
   emptyQueryGroup,
-  type QueryNode,
   type QueryField,
+  type QueryNode,
 } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
 const fields: QueryField[] = [
-  { id: "name", label: "Name", kind: "string" },
-  { id: "cpu", label: "vCPUs", kind: "number" },
-  {
-    id: "status",
-    label: "Status",
-    kind: "enum",
-    options: [
-      { value: "running", label: "Running" },
-      { value: "stopped", label: "Stopped" },
-    ],
-  },
+  { id: "status", label: "Status", kind: "enum", options: [
+    { value: "open", label: "Open" },
+    { value: "closed", label: "Closed" },
+  ] },
+  { id: "amount", label: "Amount", kind: "number" },
+  { id: "owner", label: "Owner", kind: "string" },
 ];
 
 const [query, setQuery] = useState<QueryNode>(emptyQueryGroup("and"));
@@ -41,34 +32,35 @@ const [query, setQuery] = useState<QueryNode>(emptyQueryGroup("and"));
 <QueryBuilder value={query} onChange={setQuery} fields={fields} />;
 ```
 
+## Query Shape
+
+```ts
+type QueryNode =
+  | { kind: "condition"; id: string; field: string; op: QueryOp; value: string | number | string[] }
+  | { kind: "group"; id: string; op: "and" | "or"; children: QueryNode[] };
+```
+
+Groups can contain conditions or other groups. Conditions select a field, an operator, and a value editor derived from the field kind.
+
 ## Props
 
-- **value** — `QueryNode`. Required. The root node — typically a
-  `QueryGroup` produced by `emptyQueryGroup()`.
-- **onChange** — `(next: QueryNode) => void`. Required. Fired on every
-  edit; the consumer is responsible for persisting the tree.
-- **fields** — `readonly QueryField[]`. Required. Available fields the
-  user can build conditions over.
-- **className** — extra classes on the root wrapper.
+- `value`: current `QueryNode`.
+- `onChange`: receives the next query tree.
+- `fields`: field definitions users can filter by.
+- `className`: optional wrapper class.
 
-## Types
+## Field Definitions
 
-- **QueryNode** — `QueryCondition | QueryGroup`.
-- **QueryGroup** — `{ kind: "group"; id; op: "and" | "or"; children: QueryNode[] }`.
-- **QueryCondition** — `{ kind: "condition"; id; field; op: QueryOp; value }`.
-- **QueryOp** — `"==" | "!=" | ">" | ">=" | "<" | "<=" | "contains" | "starts-with" | "in" | "between"`.
-- **QueryField** — `{ id; label; kind: "string" | "number" | "enum" | "date"; options?; ops? }`.
+Field `kind` can be `string`, `number`, `enum`, or `date`. Harbor chooses valid default operators per kind. Use `ops` to restrict a field to a smaller set, and `options` for enum values.
 
-## Notes
+## Accessibility
 
-- The set of operators offered per field defaults to the kind (e.g.
-  `number` shows comparisons + `between`, `enum` shows equality + `in`).
-  Override with `field.ops` to constrain.
-- `op: "in"` value is a comma-split `string[]`; `op: "between"` value is
-  a `[a, b]` numeric pair. Everything else is a scalar string or
-  number.
-- `emptyQueryGroup(op?)` is a helper for seeding state — defaults to
-  an empty `and` group.
-- The builder doesn't validate semantics (e.g. `name >= 5` is allowed
-  if `name` is a string field with `>=` in `ops`). Pre-filter `ops`
-  per field if that matters.
+Each remove button has an accessible label, group operator buttons announce the target operator, and value editors use native inputs or Harbor `Select`. Add a visible page title and a live result count near the builder so screen-reader users understand the effect of changes.
+
+## Gotchas
+
+`emptyQueryGroup()` generates random ids for UI editing. If you persist filters, store the resulting tree after user changes, or replace ids with stable server ids during serialization.
+
+## Related
+
+Use with `FilterPanel`, `Select`, `DataTable`, `AuditLog`, `LogTailer`, and `CommandPalette`.

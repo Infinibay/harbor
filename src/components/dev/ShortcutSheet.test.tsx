@@ -84,21 +84,11 @@ describe("ShortcutSheet", () => {
     ).toBeInTheDocument();
   });
 
-  it("a11y: known component gap — dialog has no accessible name", async () => {
-    // ShortcutSheet renders via Dialog → Portal; running axe on `container`
-    // (as the previous version of this test did) only sees the wrapper and
-    // misses the dialog entirely. Running it on `document.body` correctly
-    // surfaces the real issue: ShortcutSheet passes `title="…"` to Dialog,
-    // but Dialog's prop-driven title API was removed — the dialog is rendered
-    // with `aria-labelledby` pointing to an empty <DialogTitle>. To fix,
-    // ShortcutSheet should render `<DialogTitle>Keyboard shortcuts</DialogTitle>`
-    // as a child of Dialog instead of passing the dropped `title` prop.
+  it("a11y: names the dialog for assistive technology", async () => {
     renderWithHarbor(
       <ShortcutSheet open={true} onClose={vi.fn()} groups={groups} />,
     );
     const results = await axe(document.body);
-    expect(
-      results.violations.some((v) => v.id === "aria-dialog-name"),
-    ).toBe(true);
+    expect(results).toHaveNoViolations();
   });
 });

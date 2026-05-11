@@ -1,6 +1,8 @@
 # MacScape
 
-"macOS wallpaper" background — a small number of large, slow color hills that morph into each other. Closer to Big Sur / Monterey dynamic wallpapers than to `<Waves>` or `<Aurora>`.
+`MacScape` renders large animated color hills inspired by desktop wallpaper. It is slower, broader, and more scenic than `Waves`, making it useful for first-run screens, product showcases, hero backdrops, presentation slides, and polished empty states.
+
+Like the other Harbor backgrounds, it is decorative and should sit behind real UI.
 
 ## Import
 
@@ -8,29 +10,53 @@
 import { MacScape } from "@infinibay/harbor/backgrounds";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<div className="relative h-screen">
-  <MacScape layers={5} blur={10} intensity={0.6} />
-</div>
+import { MacScape } from "@infinibay/harbor/backgrounds";
+
+export function WelcomePanel() {
+  return (
+    <div className="relative overflow-hidden rounded-xl">
+      <MacScape layers={5} blur={10} intensity={0.55} />
+      <div className="relative p-8">Welcome to Harbor Studio</div>
+    </div>
+  );
+}
 ```
 
 ## Props
 
-- **layers** — `number`. Number of color hills. Default: `4`.
-- **baseY** — `readonly number[]`. Per-layer base vertical position (0=top, 1=bottom). Default: derived (`0.28 + i * 0.24`).
-- **blur** — `number`. Ambient blur on the SVG, in px. `0` for sharp layered look. Default: `6`.
-- **resolution** — `number`. Points per layer's path. Default: `48`.
-- **speed** — `number`. Default: `1`.
-- **intensity** — `number`. 0..1, drives layer opacity. Default: `0.5`.
-- **palette** — `readonly string[]`. Default: Harbor accents.
-- **paused**, **respectReducedMotion**, **pauseWhenHidden**, **pauseWhenOutOfView** — animation guards.
-- **className**, **style** — applied to the wrapper.
+- **layers** - `number`. Number of color hill layers. Default `4`.
+- **baseY** - `readonly number[]`. Base vertical positions as fractions of height.
+- **blur** - `number`. SVG blur in pixels. Default `6`.
+- **resolution** - `number`. Path resolution per layer. Default `48`.
+- **speed** - `number`. Animation speed multiplier.
+- **intensity** - `number`. Layer opacity control.
+- **palette** - `readonly string[]`. Layer and background colors.
+- **paused** - `boolean`. Externally pauses animation.
+- **respectReducedMotion**, **pauseWhenHidden**, **pauseWhenOutOfView** - animation controls from background common props.
+- **className**, **style** - wrapper customization.
 
-## Notes
+## Behavior
 
-- Renders `position: absolute inset-0`. Parent must be positioned.
-- A vertical gradient backdrop is set on the wrapper using the first three palette colors with low alpha — visible above/below the hills. Override via `style.background`.
-- Sine-summed paths are recomputed in JS each frame but are cheap (default 48 segments × 4 layers).
-- Prefer `<Waves>` for thinner parallax bands; `<Aurora>` for diffuse blurred ribbons.
+The wrapper paints a palette-based vertical gradient, then SVG paths draw layered hills over it. Each layer has its own phase, amplitude, and sine frequencies. On animation frames, Harbor recomputes each layer path and writes it to the SVG.
+
+`baseY` lets you place layers manually. If omitted, Harbor stacks them progressively from the upper third downward.
+
+## Accessibility
+
+`MacScape` is `aria-hidden` and ignores pointer events. Keep important UI in a positioned foreground layer and verify text contrast against the brightest palette combinations.
+
+## Gotchas
+
+- The component expects a positioned, clipped parent.
+- High `layers` and `resolution` values increase per-frame work.
+- `respectReducedMotion` is optional here; pass it explicitly if you need strict reduced-motion behavior.
+- The implementation resizes its path ref array with a deferred state bump when layer count changes.
+
+## Related
+
+- `Aurora` for soft light ribbons.
+- `Waves` for more explicit animated waves.
+- `AnimatedBackground` for a higher-level background wrapper.

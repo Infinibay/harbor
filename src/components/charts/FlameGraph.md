@@ -1,41 +1,77 @@
 # FlameGraph
 
-Hierarchical flame graph for perf profiles and call stacks. Click a frame to zoom in; breadcrumbs above let you zoom back out. Use for CPU profiles, allocation traces, or any tree of self-inclusive costs; for span timelines (parallel async work) prefer `TraceWaterfall`.
+`FlameGraph` renders hierarchical cost data as stacked horizontal frames. It is built for CPU profiles, allocation traces, resolver timing, build-step cost, and other trees where every node has a self-inclusive value.
+
+Click a frame to zoom into that subtree. Use the breadcrumbs to move back toward the root.
 
 ## Import
 
 ```tsx
-import { FlameGraph } from "@infinibay/harbor/charts";
+import { FlameGraph, type FlameFrame } from "@infinibay/harbor/charts";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-<FlameGraph
-  formatValue={(v) => `${v.toFixed(1)} ms`}
-  frames={[
-    { id: "root", label: "request",       value: 120 },
-    { id: "auth", label: "verifyToken",   value:  18, parent: "root" },
-    { id: "db",   label: "query users",   value:  72, parent: "root" },
-    { id: "io",   label: "fs.readFile",   value:  20, parent: "db" },
-    { id: "tpl",  label: "renderTemplate", value: 26, parent: "root" },
-  ]}
-  onFrameClick={(f) => console.log("zoom", f.id)}
-/>
+import { FlameGraph, type FlameFrame } from "@infinibay/harbor/charts";
+
+const frames: FlameFrame[] = [
+  { id: "request", label: "request", value: 120 },
+  { id: "auth", parent: "request", label: "verifyToken", value: 18 },
+  { id: "db", parent: "request", label: "query users", value: 72 },
+  { id: "io", parent: "db", label: "fs.readFile", value: 20 },
+  { id: "render", parent: "request", label: "renderTemplate", value: 26 },
+];
+
+export function ProfilePanel() {
+  return (
+    <FlameGraph
+      frames={frames}
+      formatValue={(value) => `${value.toFixed(1)} ms`}
+      onFrameClick={(frame) => console.log("selected", frame.id)}
+    />
+  );
+}
 ```
+
+## Data Model
+
+```ts
+type FlameFrame = {
+  id: string;
+  parent?: string | null;
+  label: string;
+  value: number;
+  color?: string;
+};
+```
+
+Frames without a parent are roots. Multiple roots are automatically wrapped under a synthetic `<all>` root so the graph can still render a single tree.
 
 ## Props
 
-- **frames** — `readonly FlameFrame[]`. Each `{ id, parent?, label, value, color? }`. Multiple roots get wrapped under a synthetic `<all>` parent.
-- **rowHeight** — vertical slot height in px. Default: `22`.
-- **minPixelWidth** — minimum bar width in px (perf knob). Default: `1`.
-- **onFrameClick** — `(frame) => void`. Called before zoom.
-- **formatValue** — formatter for the value (ms, bytes, %). Default: `String(v)`.
-- **className** — wrapper class.
+- **frames**: `readonly FlameFrame[]`. Required profile tree.
+- **rowHeight**: `number`. Vertical slot height in pixels. Defaults to `22`.
+- **minPixelWidth**: `number`. CSS minimum frame width. Defaults to `1`.
+- **onFrameClick**: `(frame: FlameFrame) => void`. Called before zooming into a frame.
+- **formatValue**: `(v: number) => string`. Formats hover labels and titles.
+- **className**: custom class on the wrapper.
 
-## Notes
+## Accessibility
 
-- Layout is percentage-based (CSS), so the graph reflows with container width.
-- Hovering highlights the frame's full ancestor chain (others fade to 30 %).
-- Colors auto-cycle through 8 defaults; per-frame `color` overrides.
-- Frame width uses `max(child sum, parent value)` to stay consistent when a parent's reported value disagrees with the sum of its children.
+Frames and breadcrumbs are rendered as buttons, so they can receive focus and expose their label/value. Still provide a textual performance summary near the graph, especially when the graph is used in diagnostics or reports.
+
+Color is only an aid. The frame labels, values, and hover summary carry the actual meaning.
+
+## Gotchas
+
+- Values are treated as self-inclusive costs. If child totals exceed parent values, layout uses the larger denominator so children remain visible.
+- Very tiny frames may still be hard to inspect. Use zoom, filtering, or aggregation for large traces.
+- The component does not virtualize thousands of frames. Pre-aggregate profiles before rendering huge traces.
+- Clicking a leaf calls `onFrameClick` but does not zoom because there are no children.
+
+## Related
+
+- [`TraceWaterfall`](./TraceWaterfall.md) for async spans over time.
+- [`LineChart`](./LineChart.md) for trends across runs.
+- [`LogViewer`](../dev/LogViewer.md) for surrounding diagnostic output.

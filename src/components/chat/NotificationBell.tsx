@@ -64,10 +64,12 @@ export function NotificationBell({
   return (
     <>
       <motion.button
+        type="button"
         ref={anchorRef}
         onClick={() => setOpen((o) => !o)}
         whileTap={{ scale: 0.92 }}
         aria-label="Notifications"
+        aria-expanded={open}
         className={cn(
           "relative w-10 h-10 rounded-xl grid place-items-center text-white/75 hover:bg-white/5 hover:text-white",
           className,
@@ -126,6 +128,7 @@ export function NotificationBell({
                 </span>
                 {unread > 0 && onReadAll ? (
                   <button
+                    type="button"
                     onClick={onReadAll}
                     className="text-xs text-fuchsia-300 hover:text-fuchsia-200"
                   >
@@ -143,6 +146,14 @@ export function NotificationBell({
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -6 }}
                       onClick={() => onRead?.(n.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onRead?.(n.id);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
                       className={cn(
                         "relative px-4 py-3 flex items-start gap-3 cursor-pointer border-b border-white/5 hover:bg-white/[0.03]",
                       )}

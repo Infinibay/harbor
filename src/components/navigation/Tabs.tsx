@@ -59,6 +59,7 @@ export function TabList({
   if (ctx.variant === "pill")
     return (
       <div
+        role="tablist"
         className={cn(
           "relative inline-flex items-center gap-1 bg-black/30 border border-white/8 rounded-xl p-1",
           className,
@@ -70,6 +71,7 @@ export function TabList({
   if (ctx.variant === "underline")
     return (
       <div
+        role="tablist"
         className={cn(
           "relative inline-flex items-center gap-6 border-b border-white/8",
           className,
@@ -79,7 +81,7 @@ export function TabList({
       </div>
     );
   return (
-    <div className={cn("relative inline-flex items-end gap-1", className)}>
+    <div role="tablist" className={cn("relative inline-flex items-end gap-1", className)}>
       {children}
     </div>
   );
@@ -100,8 +102,12 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
   if (ctx.variant === "pill")
     return (
       <button type="button"
+        role="tab"
         onClick={() => !disabled && ctx.onChange(value)}
         disabled={disabled}
+        aria-selected={active}
+        aria-controls={`${ctx.layoutId}-${value}-panel`}
+        id={`${ctx.layoutId}-${value}-tab`}
         data-cursor="button"
         className={cn(
           "relative px-3.5 py-1.5 text-sm font-medium rounded-lg inline-flex items-center gap-2 transition-colors",
@@ -126,8 +132,12 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
   if (ctx.variant === "underline")
     return (
       <button type="button"
+        role="tab"
         onClick={() => !disabled && ctx.onChange(value)}
         disabled={disabled}
+        aria-selected={active}
+        aria-controls={`${ctx.layoutId}-${value}-panel`}
+        id={`${ctx.layoutId}-${value}-tab`}
         data-cursor="button"
         className={cn(
           "relative pb-2.5 text-sm font-medium inline-flex items-center gap-2",
@@ -152,8 +162,12 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
 
   return (
     <button type="button"
+      role="tab"
       onClick={() => !disabled && ctx.onChange(value)}
       disabled={disabled}
+      aria-selected={active}
+      aria-controls={`${ctx.layoutId}-${value}-panel`}
+      id={`${ctx.layoutId}-${value}-tab`}
       data-cursor="button"
       className={cn(
         "relative px-4 py-2 text-sm font-medium rounded-t-lg inline-flex items-center gap-2 border border-b-0 transition-colors",
@@ -187,13 +201,19 @@ export function TabPanel({
   // skip `exit` work because siblings mean the old panel is already
   // gone by the time we render.
   return (
-    <ContentSwap
-      id={value}
-      variant="fade-up"
-      duration={180}
-      className={cn("mt-4", className)}
+    <div
+      role="tabpanel"
+      id={`${ctx.layoutId}-${value}-panel`}
+      aria-labelledby={`${ctx.layoutId}-${value}-tab`}
     >
-      {children}
-    </ContentSwap>
+      <ContentSwap
+        id={value}
+        variant="fade-up"
+        duration={180}
+        className={cn("mt-4", className)}
+      >
+        {children}
+      </ContentSwap>
+    </div>
   );
 }

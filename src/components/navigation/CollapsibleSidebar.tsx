@@ -55,8 +55,10 @@ export function CollapsibleSidebar({
           <div className="flex-1 min-w-0">{header}</div>
         ) : null}
         <button
+          type="button"
           onClick={() => setCollapsed((c) => !c)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
           data-cursor="button"
           className="w-8 h-8 grid place-items-center rounded-lg text-white/55 hover:text-white hover:bg-white/5"
         >
@@ -86,7 +88,9 @@ export function CollapsibleSidebar({
               const active = value === it.id;
               const btn = (
                 <button
+                  type="button"
                   onClick={() => onChange?.(it.id)}
+                  aria-current={active ? "page" : undefined}
                   data-cursor="button"
                   className={cn(
                     "relative w-full flex items-center gap-3 rounded-lg text-left text-sm transition-colors",

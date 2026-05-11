@@ -1,10 +1,9 @@
 # NumberField
 
-Compact stepper input — minus / number / plus — with an animated
-digit roll on change. Use this for bounded integer quantities (memory
-GB, replica count, retention days) where dragging or typing freely
-would be overkill. For continuous values use `Slider`; for unbounded
-free typing use a `TextField` with `type="number"`.
+`NumberField` is a compact numeric stepper with decrement/increment buttons,
+optional label, optional unit, min/max clamping, and animated value transitions.
+Use it for quantities, memory size, retry counts, replicas, timeouts, limits, and
+other small numeric settings where stepping is safer than free typing.
 
 ## Import
 
@@ -12,38 +11,62 @@ free typing use a `TextField` with `type="number"`.
 import { NumberField } from "@infinibay/harbor/inputs";
 ```
 
-## Example
+## Basic Usage
 
 ```tsx
-const [count, setCount] = useState(8);
+const [replicas, setReplicas] = useState(3);
 
 <NumberField
-  label="Memory"
-  unit="GB"
+  label="Replicas"
+  value={replicas}
   min={1}
-  max={64}
+  max={12}
   step={1}
-  value={count}
-  onChange={setCount}
-/>
+  onChange={setReplicas}
+/>;
+```
+
+With units:
+
+```tsx
+<NumberField label="Memory" value={memoryGb} unit="GB" step={2} onChange={setMemoryGb} />
 ```
 
 ## Props
 
-- **value** — `number`. Controlled value.
-- **defaultValue** — `number`. Uncontrolled default. Default `0`.
-- **onChange** — `(v: number) => void`.
-- **min** — `number`. Default `-Infinity`.
-- **max** — `number`. Default `Infinity`.
-- **step** — `number`. Default `1`.
-- **label** — `string`. Optional caption above the field.
-- **unit** — `string`. Suffix shown next to the number.
-- **className** — extra classes on the wrapper.
+- **value** - `number`. Controlled value.
+- **defaultValue** - `number`. Initial uncontrolled value. Default `0`.
+- **min** - `number`. Minimum allowed value. Default `-Infinity`.
+- **max** - `number`. Maximum allowed value. Default `Infinity`.
+- **step** - `number`. Amount added or subtracted per click. Default `1`.
+- **onChange** - `(value: number) => void`. Fires with the clamped next value.
+- **label** - `string`. Optional visible label.
+- **unit** - `string`. Optional suffix rendered beside the value.
+- **className** - extra classes on the wrapper.
 
-## Notes
+## Behavior
 
-- The number itself is read-only — to allow typing wrap a `TextField`
-  in your own form. Keeping it pure-stepper avoids edge cases like
-  partial input ("1." or "-").
-- The roll-up / roll-down direction follows the trend of the change,
-  driven by Framer Motion `popLayout`.
+Clicking `-` or `+` computes the next value, clamps it between `min` and `max`,
+updates internal state in uncontrolled mode, and calls `onChange`. The displayed
+number animates up or down based on the previous value.
+
+## Accessibility
+
+Use `label` or an external `FormField` so users understand what the number
+controls. The component uses buttons, so pointer and keyboard activation work,
+but it is not a native text input and does not support manual typing.
+
+## Gotchas
+
+- This is a stepper, not a numeric text field.
+- In controlled mode, the parent must update `value`.
+- `step` should match the domain; avoid allowing invalid values that the backend
+  later rejects.
+- Very large values may not fit the compact center display.
+
+## Related
+
+- `Slider` and `RangeSlider` for continuous numeric adjustment.
+- `TextField` for typed numeric input.
+- `FormField` for labels, hints, and errors.
+- `InspectorNumber` for canvas/editor property panels.
