@@ -55,17 +55,17 @@ export function RackDiagram({
   return (
     <div
       className={cn(
-        "inline-flex flex-col gap-2 p-3 rounded-xl border border-white/10 bg-surface-2/80",
+        "inline-flex flex-col gap-2 rounded-xl border border-[color:var(--harbor-overlay-border)] bg-[rgb(var(--harbor-bg-elev-1))] p-3 shadow-[var(--harbor-shadow-sm)]",
         className,
       )}
     >
       {name ? (
-        <div className="text-[10px] uppercase tracking-widest text-white/50 px-1">
+        <div className="px-1 text-[10px] uppercase tracking-widest text-[rgb(var(--harbor-text-subtle))]">
           {name}
         </div>
       ) : null}
       <div
-        className="relative border border-white/10 rounded-md bg-black/40"
+        className="relative rounded-md border border-[color:var(--harbor-overlay-border)] bg-[rgb(var(--harbor-bg-elev-2))]"
         style={{ width: 184 }}
       >
         {rows.map((u) => {
@@ -75,7 +75,7 @@ export function RackDiagram({
             return (
               <div
                 key={u}
-                className="flex items-center border-t border-white/5 first:border-t-0 text-[9px] text-white/20 tabular-nums font-mono px-1"
+                className="flex items-center border-t border-[rgb(var(--harbor-border)/0.06)] px-1 font-mono text-[9px] tabular-nums text-[rgb(var(--harbor-text-subtle))] first:border-t-0"
                 style={{ height: unitHeight }}
               >
                 {u}
@@ -91,27 +91,26 @@ export function RackDiagram({
               onMouseEnter={() => setHover(host.name)}
               onMouseLeave={() => setHover(null)}
               className={cn(
-                "flex items-center gap-1.5 border-t border-white/10 first:border-t-0 px-1.5 rounded-sm relative overflow-hidden",
+                "relative flex items-center gap-1.5 overflow-hidden rounded-sm border-t border-[rgb(var(--harbor-border)/0.10)] px-1.5 first:border-t-0",
                 onHostClick && "cursor-pointer",
-                isHover && "ring-1 ring-fuchsia-400/60",
+                isHover && "ring-1 ring-[color:var(--harbor-border-focus)]",
               )}
               style={{
                 height: unitHeight * h,
-                background:
-                  host.color ?? "linear-gradient(90deg, rgba(168,85,247,0.1), rgba(56,189,248,0.1))",
+                background: host.color ?? hostBackground(host.status),
               }}
             >
-              <span className="text-[9px] text-white/40 tabular-nums font-mono shrink-0 w-5">
+              <span className="w-5 shrink-0 font-mono text-[9px] tabular-nums text-[rgb(var(--harbor-text-subtle))]">
                 {u}
               </span>
               {host.status ? (
                 <StatusDot status={host.status} size={6} label={null} pulse={false} />
               ) : null}
-              <span className="text-[11px] text-white/90 truncate flex-1">
+              <span className="flex-1 truncate text-[11px] text-[rgb(var(--harbor-text))]">
                 {host.name}
               </span>
               {host.subtitle && h >= 2 ? (
-                <span className="text-[10px] text-white/50 truncate">{host.subtitle}</span>
+                <span className="truncate text-[10px] text-[rgb(var(--harbor-text-muted))]">{host.subtitle}</span>
               ) : null}
             </div>
           );
@@ -119,6 +118,19 @@ export function RackDiagram({
       </div>
     </div>
   );
+}
+
+function hostBackground(status?: Status): string {
+  if (status === "online") {
+    return "linear-gradient(90deg, rgb(var(--harbor-success) / 0.14), rgb(var(--harbor-info) / 0.10))";
+  }
+  if (status === "degraded" || status === "provisioning") {
+    return "linear-gradient(90deg, rgb(var(--harbor-warning) / 0.16), rgb(var(--harbor-info) / 0.09))";
+  }
+  if (status === "offline") {
+    return "linear-gradient(90deg, rgb(var(--harbor-danger) / 0.14), rgb(var(--harbor-bg-elev-3)))";
+  }
+  return "rgb(var(--harbor-bg-elev-3))";
 }
 
 // =====================================================================

@@ -36,15 +36,15 @@ export function WindowFrame({
     <motion.div
       layout
       className={cn(
-        "relative flex flex-col rounded-xl overflow-hidden border border-white/10 bg-surface-2 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]",
+        "relative flex flex-col overflow-hidden rounded-xl border border-[color:var(--harbor-window-border)] bg-[var(--harbor-window-bg)] shadow-[var(--harbor-window-shadow)]",
         className,
       )}
     >
       <div
         className={cn(
           "group relative flex items-center gap-3 px-3 select-none",
-          chromeStyle === "macos" ? "h-8 bg-surface-2" : "h-9 bg-surface-2",
-          "border-b border-white/[0.06]",
+          chromeStyle === "macos" ? "h-8 bg-[var(--harbor-window-header-bg)]" : "h-9 bg-[var(--harbor-window-header-bg)]",
+          "border-b border-[color:var(--harbor-window-separator)]",
         )}
       >
         {chromeStyle === "macos" ? (
@@ -99,14 +99,14 @@ export function WindowFrame({
           </div>
         ) : null}
         <div className="absolute inset-x-0 flex items-center gap-2 justify-center pointer-events-none">
-          {icon ? <span className="text-white/55">{icon}</span> : null}
+          {icon ? <span className="text-[color:var(--harbor-window-icon-fg)]">{icon}</span> : null}
           {title ? (
-            <span className="text-[13px] font-medium text-white/80 tracking-tight truncate max-w-[60%]">
+            <span className="text-[13px] font-medium text-[color:var(--harbor-window-title-fg)] tracking-tight truncate max-w-[60%]">
               {title}
             </span>
           ) : null}
           {subtitle ? (
-            <span className="text-[11px] text-white/35 truncate">
+            <span className="text-[11px] text-[color:var(--harbor-window-subtitle-fg)] truncate">
               {subtitle}
             </span>
           ) : null}
@@ -145,7 +145,7 @@ export function WindowFrame({
         ) : null}
       </div>
       {toolbar ? (
-        <div className="border-b border-white/8 px-2 py-1.5 bg-white/[0.02]">
+        <div className="border-b border-[color:var(--harbor-window-separator)] bg-[var(--harbor-window-toolbar-bg)] px-2 py-1.5">
           {toolbar}
         </div>
       ) : null}
@@ -153,7 +153,7 @@ export function WindowFrame({
         {children}
       </div>
       {statusBar ? (
-        <div className="border-t border-white/8 px-3 py-1 bg-white/[0.02]">
+        <div className="border-t border-[color:var(--harbor-window-separator)] bg-[var(--harbor-window-toolbar-bg)] px-3 py-1">
           {statusBar}
         </div>
       ) : null}
@@ -212,8 +212,8 @@ function WinChromeBtn({
       onClick={onClick}
       aria-label={label}
       className={cn(
-        "w-8 h-7 grid place-items-center text-white/70",
-        danger ? "hover:bg-rose-500/70 hover:text-white" : "hover:bg-white/10",
+        "w-8 h-7 grid place-items-center text-[color:var(--harbor-window-control-fg)]",
+        danger ? "hover:bg-rose-500/70 hover:text-white" : "hover:bg-[var(--harbor-window-control-hover-bg)]",
       )}
     >
       {children}

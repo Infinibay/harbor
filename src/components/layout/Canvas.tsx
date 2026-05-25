@@ -531,10 +531,11 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(function Canvas(
       <div
         ref={viewportRef}
         className={cn(
-          // `w-full h-full` by default because the world is absolutely
-          // positioned and collapses the viewport otherwise. Users can
-          // still override with their own width/height classes.
-          "relative w-full h-full overflow-hidden select-none",
+          // The world layer is absolutely positioned, so the viewport
+          // needs a real default height. Avoid `h-full` here: it can beat
+          // consumer classes like `h-[420px]` and collapse inside auto-height
+          // showcase cards.
+          "relative w-full min-h-[240px] overflow-hidden select-none",
           className,
         )}
         style={{ cursor, touchAction: "none", ...style }}
