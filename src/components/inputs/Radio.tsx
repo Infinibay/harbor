@@ -68,8 +68,8 @@ export function Radio({
       className={cn(
         "relative flex cursor-pointer select-none items-start gap-[var(--harbor-target-gap)] rounded-[var(--harbor-target-radius)] border p-[var(--harbor-target-panel-padding)] transition-colors",
         checked
-          ? "border-fuchsia-400/50 bg-fuchsia-500/10"
-          : "border-white/10 hover:border-white/20 hover:bg-white/[0.03]",
+          ? "border-[color:var(--harbor-focus-ring)] bg-[var(--harbor-state-selected)]"
+          : "border-[color:var(--harbor-border-default)] hover:border-[color:var(--harbor-border-strong)] hover:bg-[var(--harbor-state-hover)]",
         disabled && "opacity-50 cursor-not-allowed",
         className,
       )}
@@ -83,7 +83,7 @@ export function Radio({
         onChange={() => ctx.onChange(value)}
         className="sr-only peer"
       />
-      <span className="relative w-5 h-5 rounded-full border-2 border-white/25 flex-shrink-0 mt-0.5 peer-focus-visible:ring-2 peer-focus-visible:ring-fuchsia-400/60 grid place-items-center">
+      <span className="relative w-5 h-5 rounded-full border-2 border-[color:var(--harbor-border-strong)] flex-shrink-0 mt-0.5 peer-focus-visible:shadow-[var(--harbor-focus-shadow)] grid place-items-center">
         <motion.span
           initial={false}
           animate={{
@@ -93,14 +93,14 @@ export function Radio({
           transition={{ type: "spring", stiffness: 500, damping: 25 }}
           className="w-2.5 h-2.5 rounded-full"
           style={{
-            background: "linear-gradient(135deg,#a855f7,#38bdf8)",
+            background: "linear-gradient(135deg,rgb(var(--harbor-brand)),rgb(var(--harbor-accent-2)))",
           }}
         />
       </span>
       <span className="flex flex-col gap-0.5">
-        <span className="text-[length:var(--harbor-target-font-size)] leading-tight text-white">{label}</span>
+        <span className="text-[length:var(--harbor-target-font-size)] leading-tight text-[rgb(var(--harbor-text))]">{label}</span>
         {description ? (
-          <span className="text-xs text-white/50 leading-snug">
+          <span className="text-xs text-[rgb(var(--harbor-text-muted))] leading-snug">
             {description}
           </span>
         ) : null}

@@ -28,7 +28,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import { harborDark, harborLight } from "./builtins";
+import { harborBuiltInThemes } from "./builtins";
 import { HarborThemeContext, type HarborThemeContextValue } from "./context";
 import { resolveTheme, themeToCss } from "./resolve";
 import type { HarborTheme, ResolvedTheme } from "./types";
@@ -523,8 +523,7 @@ export function HarborProvider({
 }: HarborProviderProps) {
   const registry = useMemo(() => {
     const r = new Map<string, HarborTheme>();
-    r.set(harborDark.name, harborDark);
-    r.set(harborLight.name, harborLight);
+    for (const t of harborBuiltInThemes) r.set(t.name, t);
     for (const t of themes) r.set(t.name, t);
     return r;
   }, [themes]);

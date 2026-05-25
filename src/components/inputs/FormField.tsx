@@ -22,6 +22,7 @@ const FormFieldContext = createContext<FormFieldCtx | null>(null);
 /** Read the enclosing FormField's auto-generated id + ARIA attrs, so a
  *  custom input can wire `id` and `aria-describedby` without prop
  *  drilling. Returns `null` outside of a FormField. */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useFormField(): FormFieldCtx | null {
   return useContext(FormFieldContext);
 }
@@ -84,16 +85,16 @@ export function FormField({
   const labelEl = label ? (
     <label
       htmlFor={labelless ? undefined : id}
-      className="text-sm text-white/75 flex items-center gap-1 select-none"
+      className="text-sm text-[color:var(--harbor-field-muted-fg)] flex items-center gap-1 select-none"
     >
       <span>{label}</span>
       {required ? (
-        <span className="text-rose-300" aria-hidden>
+        <span className="text-[rgb(var(--harbor-danger))]" aria-hidden>
           {t("harbor.field.requiredMark")}
         </span>
       ) : null}
       {optional ? (
-        <span className="text-white/30 text-xs font-normal">
+        <span className="text-[color:var(--harbor-text-tertiary)] text-xs font-normal">
           {t("harbor.field.optional")}
         </span>
       ) : null}
@@ -109,7 +110,7 @@ export function FormField({
           initial={{ opacity: 0, y: -3, height: 0 }}
           animate={{ opacity: 1, y: 0, height: "auto" }}
           exit={{ opacity: 0, y: -3, height: 0 }}
-          className="text-xs text-rose-300"
+          className="text-xs text-[rgb(var(--harbor-danger))]"
         >
           {error}
         </motion.p>
@@ -120,7 +121,7 @@ export function FormField({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="text-xs text-white/40"
+          className="text-xs text-[color:var(--harbor-text-tertiary)]"
         >
           {helper}
         </motion.p>

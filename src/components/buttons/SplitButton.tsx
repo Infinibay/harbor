@@ -63,8 +63,8 @@ export function SplitButton({
 
   const baseStyle =
     variant === "primary"
-      ? "bg-white text-black hover:bg-white/90"
-      : "bg-white/10 text-white border border-white/15 hover:bg-white/15";
+      ? "bg-[rgb(var(--harbor-brand))] text-[rgb(var(--harbor-brand-fg))] hover:bg-[rgb(var(--harbor-accent-2))]"
+      : "border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel-muted)] text-[rgb(var(--harbor-text))] hover:bg-[var(--harbor-state-hover)]";
 
   return (
     <div className={cn("inline-flex", className)}>
@@ -73,7 +73,7 @@ export function SplitButton({
         whileTap={{ scale: 0.95 }}
         onClick={primary.onSelect}
         className={cn(
-          "h-10 px-4 rounded-l-xl font-medium text-sm inline-flex items-center gap-2 border-r border-black/10",
+          "h-10 px-4 rounded-l-xl font-medium text-sm inline-flex items-center gap-2 border-r border-[color:var(--harbor-border-default)] outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
           baseStyle,
         )}
       >
@@ -87,7 +87,7 @@ export function SplitButton({
         onClick={() => setOpen((o) => !o)}
         aria-label="Open additional actions"
         className={cn(
-          "h-10 px-2.5 rounded-r-xl inline-flex items-center justify-center",
+          "h-10 px-2.5 rounded-r-xl inline-flex items-center justify-center outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
           baseStyle,
         )}
       >
@@ -122,7 +122,7 @@ export function SplitButton({
                 width: pos.w,
                 zIndex: Z.POPOVER,
               }}
-              className="rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1"
+              className="rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
               {options.map((o) => (
                 <button
@@ -132,17 +132,17 @@ export function SplitButton({
                     o.onSelect();
                     setOpen(false);
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-md flex items-start gap-2.5 hover:bg-white/5 transition-colors"
+                  className="w-full text-left px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] rounded-[var(--harbor-menu-item-radius)] flex items-start gap-[var(--harbor-menu-item-gap)] text-[length:var(--harbor-menu-item-font-size)] hover:bg-[var(--harbor-menu-item-hover-bg)] transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]"
                 >
                   {o.icon ? (
-                    <span className="text-white/55 mt-0.5">{o.icon}</span>
+                    <span className="text-[rgb(var(--harbor-text-muted))] mt-0.5">{o.icon}</span>
                   ) : null}
                   <span className="flex-1">
-                    <span className="block text-sm text-white">
+                    <span className="block text-sm text-[rgb(var(--harbor-text))]">
                       {o.label}
                     </span>
                     {o.description ? (
-                      <span className="block text-xs text-white/45 mt-0.5">
+                      <span className="block text-xs text-[rgb(var(--harbor-text-muted))] mt-0.5">
                         {o.description}
                       </span>
                     ) : null}

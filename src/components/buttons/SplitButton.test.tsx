@@ -70,7 +70,7 @@ describe("SplitButton", () => {
       <SplitButton primary={primary} options={options} variant="primary" />,
     );
     const btn = container.querySelector("button");
-    expect(btn?.className).toContain("bg-white");
+    expect(btn?.className).toContain("bg-[rgb(var(--harbor-brand))]");
   });
 
   it("applies variant secondary style", () => {
@@ -78,7 +78,7 @@ describe("SplitButton", () => {
       <SplitButton primary={primary} options={options} variant="secondary" />,
     );
     const btn = container.querySelector("button");
-    expect(btn?.className).toContain("bg-white/10");
+    expect(btn?.className).toContain("bg-[var(--harbor-surface-panel-muted)]");
   });
 
   it("labels the caret button for assistive technology", () => {

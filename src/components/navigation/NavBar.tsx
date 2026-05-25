@@ -35,12 +35,12 @@ export function NavBar({
     <header
       style={{ zIndex: Z.STICKY }}
       className={cn(
-        "sticky top-0 flex items-center gap-6 px-4 h-14 rounded-2xl glass",
+        "sticky top-0 flex items-center gap-6 px-4 h-14 rounded-2xl border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-toolbar)] text-[rgb(var(--harbor-text))] shadow-[var(--harbor-target-shadow)] backdrop-blur-xl",
         className,
       )}
     >
       {brand ? (
-        <div className="text-white font-semibold text-sm tracking-tight">
+        <div className="text-[rgb(var(--harbor-text))] font-semibold text-sm tracking-tight">
           {brand}
         </div>
       ) : null}
@@ -59,14 +59,16 @@ export function NavBar({
               data-cursor="button"
               whileHover={{ y: -1 }}
               className={cn(
-                "relative px-3 py-1.5 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-colors",
-                active ? "text-white" : "text-white/60 hover:text-white",
+                "relative px-3 py-1.5 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
+                active
+                  ? "text-[var(--harbor-state-selected-fg)]"
+                  : "text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))]",
               )}
             >
               {active ? (
                 <motion.span
                   layoutId={`${layoutId}-nav`}
-                  className="absolute inset-0 rounded-lg bg-white/8 border border-white/10"
+                  className="absolute inset-0 rounded-lg border border-[color:var(--harbor-border-default)] bg-[var(--harbor-state-selected)]"
                   transition={{
                     type: "spring",
                     stiffness: 400,

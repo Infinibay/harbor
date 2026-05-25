@@ -65,7 +65,7 @@ export interface KanbanColumnProps {
 }
 
 const accents = {
-  neutral: "bg-white/50",
+  neutral: "bg-fg-muted",
   sky: "bg-sky-400",
   amber: "bg-amber-400",
   green: "bg-emerald-400",
@@ -189,17 +189,17 @@ export function KanbanColumn({
       onDragLeave={onColumnDragLeave}
       onDrop={onColumnDrop}
       className={cn(
-        "flex flex-col min-w-[240px] rounded-2xl bg-white/[0.02] border p-2 transition-colors",
+        "flex flex-col min-w-[240px] rounded-2xl bg-[var(--harbor-surface-panel)] border p-2 transition-colors",
         isHover && !isDragSource
-          ? "border-fuchsia-400/40 bg-fuchsia-500/[0.04]"
-          : "border-white/8",
+          ? "border-[var(--harbor-border-focus)] bg-[var(--harbor-state-selected)]"
+          : "border-[var(--harbor-border-subtle)]",
         className,
       )}
     >
       <div className="flex items-center gap-2 px-2 py-2">
         <span className={cn("w-2 h-2 rounded-full", accents[accent])} />
-        <span className="text-sm font-semibold text-white">{title}</span>
-        <span className="ml-auto text-xs text-white/40 tabular-nums">
+        <span className="text-sm font-semibold text-fg">{title}</span>
+        <span className="ml-auto text-xs text-fg-subtle tabular-nums">
           {count ?? cards.length}
         </span>
       </div>
@@ -313,11 +313,11 @@ function KanbanCard({
         onDragEnd={() => ctx.setDrag(null)}
         onDragOver={onDragOverCard}
         onDrop={onDropOnCard}
-        className="group relative rounded-xl bg-surface-2 border border-white/10 p-3 cursor-grab active:cursor-grabbing"
+        className="group relative rounded-xl bg-[var(--harbor-surface-panel-muted)] border border-[var(--harbor-border-default)] p-3 cursor-grab active:cursor-grabbing"
       >
-      <div className="text-sm text-white font-medium pr-6">{card.title}</div>
+      <div className="text-sm text-fg font-medium pr-6">{card.title}</div>
       {card.meta ? (
-        <div className="text-xs text-white/50 mt-1">{card.meta}</div>
+        <div className="text-xs text-fg-muted mt-1">{card.meta}</div>
       ) : null}
       {card.tags && card.tags.length > 0 ? (
         <div className="mt-2 flex flex-wrap gap-1.5">{card.tags}</div>
@@ -333,7 +333,7 @@ function KanbanCard({
             aria-label={`Move card ${card.id} to another column`}
             aria-haspopup="menu"
             aria-expanded={menu}
-            className="w-6 h-6 grid place-items-center rounded-md text-white/50 hover:text-white hover:bg-white/5"
+            className="w-6 h-6 grid place-items-center rounded-md text-fg-muted hover:text-fg hover:bg-[var(--harbor-state-hover)]"
           >
             ⋯
           </button>
@@ -343,7 +343,7 @@ function KanbanCard({
                 initial={{ opacity: 0, y: -4, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.95 }}
-                className="absolute right-0 mt-1 min-w-[140px] rounded-lg bg-surface-3 border border-white/10 shadow-xl p-1 z-10"
+                className="absolute right-0 mt-1 min-w-[140px] rounded-lg bg-[var(--harbor-overlay-surface)] border border-[var(--harbor-overlay-border)] shadow-xl p-1 z-10"
               >
                 {moveTo.map((t) => (
                   <button
@@ -358,7 +358,7 @@ function KanbanCard({
                       });
                       setMenu(false);
                     }}
-                    className="w-full text-left text-xs text-white/80 hover:bg-white/5 rounded px-2 py-1.5"
+                    className="w-full text-left text-xs text-fg hover:bg-[var(--harbor-state-hover)] rounded px-2 py-1.5"
                   >
                     Move to {t.label}
                   </button>

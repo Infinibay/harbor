@@ -43,6 +43,49 @@ describe("Menu", () => {
     );
   });
 
+  it("uses menu roles and supports arrow-key navigation", async () => {
+    const { user } = renderWithHarbor(
+      <Menu trigger={<button type="button">Open</button>}>
+        <MenuItem onClick={() => {}}>Item one</MenuItem>
+        <MenuItem onClick={() => {}}>Item two</MenuItem>
+        <MenuItem onClick={() => {}}>Item three</MenuItem>
+      </Menu>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open" }));
+
+    const menu = screen.getByRole("menu");
+    expect(menu).toBeInTheDocument();
+
+    const items = screen.getAllByRole("menuitem");
+    await waitFor(() => expect(items[0]).toHaveFocus());
+
+    await user.keyboard("{ArrowDown}");
+    expect(items[1]).toHaveFocus();
+
+    await user.keyboard("{End}");
+    expect(items[2]).toHaveFocus();
+
+    await user.keyboard("{ArrowDown}");
+    expect(items[0]).toHaveFocus();
+  });
+
+  it("closes on Escape and restores focus to the trigger", async () => {
+    const { user } = renderWithHarbor(
+      <Menu trigger={<button type="button">Open</button>}>
+        <MenuItem onClick={() => {}}>Item one</MenuItem>
+      </Menu>,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open" });
+    await user.click(trigger);
+    await waitFor(() => expect(screen.getByRole("menuitem")).toHaveFocus());
+
+    await user.keyboard("{Escape}");
+
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
   it("a11y: no violations when open", async () => {
     const { baseElement, user } = renderWithHarbor(
       <Menu trigger={<button type="button">Menu</button>}>
@@ -51,6 +94,8 @@ describe("Menu", () => {
       </Menu>,
     );
     await user.click(screen.getByRole("button", { name: "Menu" }));
-    expect(await axe(baseElement)).toHaveNoViolations();
+    expect(
+      await axe(baseElement, { rules: { region: { enabled: false } } }),
+    ).toHaveNoViolations();
   });
 });

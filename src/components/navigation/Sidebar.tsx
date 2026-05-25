@@ -38,7 +38,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "flex flex-col w-60 shrink-0 bg-surface-1/85 backdrop-blur-xl border-r border-white/10 p-3",
+        "flex flex-col w-60 shrink-0 bg-[var(--harbor-surface-panel)] text-[rgb(var(--harbor-text))] backdrop-blur-xl border-r border-[color:var(--harbor-border-default)] p-3",
         sticky ? "sticky top-0 h-screen" : "h-full",
         className,
       )}
@@ -48,7 +48,7 @@ export function Sidebar({
         {sections.map((s, i) => (
           <div key={i}>
             {s.label ? (
-              <div className="px-2 mb-1 text-[10px] uppercase tracking-wider font-semibold text-white/35">
+              <div className="px-2 mb-1 text-[10px] uppercase tracking-wider font-semibold text-[rgb(var(--harbor-text-subtle))]">
                 {s.label}
               </div>
             ) : null}
@@ -83,10 +83,10 @@ export function Sidebar({
                       aria-current={active ? "page" : undefined}
                       data-cursor="button"
                       className={cn(
-                        "relative flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm transition-colors",
+                        "relative flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
                         active
-                          ? "text-white"
-                          : "text-white/60 hover:text-white hover:bg-white/5",
+                          ? "text-[var(--harbor-state-selected-fg)]"
+                          : "text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))] hover:bg-[var(--harbor-state-hover)]",
                       )}
                     >
                       {active ? (
@@ -97,10 +97,10 @@ export function Sidebar({
                             stiffness: 400,
                             damping: 30,
                           }}
-                          className="absolute inset-0 rounded-lg bg-white/8 border border-white/10"
+                          className="absolute inset-0 rounded-lg bg-[var(--harbor-state-selected)] border border-[color:var(--harbor-border-default)]"
                         />
                       ) : null}
-                      <span className="relative text-white/70 grid place-items-center">
+                      <span className="relative text-[rgb(var(--harbor-text-muted))] grid place-items-center">
                         {it.icon}
                       </span>
                       <span className="relative flex-1 truncate">
@@ -118,7 +118,7 @@ export function Sidebar({
         ))}
       </nav>
       {footer ? (
-        <div className="pt-3 mt-3 border-t border-white/8">{footer}</div>
+        <div className="pt-3 mt-3 border-t border-[color:var(--harbor-border-subtle)]">{footer}</div>
       ) : null}
     </aside>
   );

@@ -44,9 +44,8 @@ describe("NavBar", () => {
 
   it("supports controlled value", () => {
     renderWithHarbor(<NavBar items={items} value="about" />);
-    // Active item should have text-white class
     const aboutLink = screen.getByText("About").closest("a");
-    expect(aboutLink?.className).toContain("text-white");
+    expect(aboutLink?.className).toContain("text-[var(--harbor-state-selected-fg)]");
   });
 
   it("renders href on items", () => {
@@ -63,10 +62,10 @@ describe("NavBar", () => {
     expect(document.querySelector("header")).toBeTruthy();
   });
 
-  it("applies glass class", () => {
+  it("applies toolbar surface class", () => {
     renderWithHarbor(<NavBar items={items} />);
     const header = document.querySelector("header");
-    expect(header?.className).toContain("glass");
+    expect(header?.className).toContain("bg-[var(--harbor-surface-toolbar)]");
   });
 
   it("applies custom className", () => {

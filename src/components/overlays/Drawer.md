@@ -55,7 +55,9 @@ Panel position and rounded corners change based on `side`. Motion enters from th
 
 ## Accessibility
 
-The panel uses `role="dialog"` and `aria-modal="true"`. When `title` is provided, it is connected with `aria-labelledby`. The component does not currently trap focus or restore focus to the opener. For production modal flows, add focus management in the surrounding app.
+The panel uses `role="dialog"` and `aria-modal="true"`. When `title` is provided, it is connected with `aria-labelledby`.
+
+When opened, `Drawer` moves focus into the panel, traps Tab navigation inside the drawer, dismisses on Escape or outside pointer interaction, and restores focus to the opener when it closes.
 
 ## Gotchas
 

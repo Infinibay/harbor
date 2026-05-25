@@ -33,8 +33,14 @@ interface LaidFrame {
 }
 
 const DEFAULT_COLORS = [
-  "#a855f7", "#38bdf8", "#f472b6", "#34d399",
-  "#fbbf24", "#fb7185", "#818cf8", "#22d3ee",
+  "rgb(var(--harbor-chart-1))",
+  "rgb(var(--harbor-chart-2))",
+  "rgb(var(--harbor-chart-3))",
+  "rgb(var(--harbor-chart-4))",
+  "rgb(var(--harbor-chart-5))",
+  "rgb(var(--harbor-chart-positive))",
+  "rgb(var(--harbor-chart-warning))",
+  "rgb(var(--harbor-chart-neutral))",
 ];
 
 function colorFor(frame: FlameFrame, idx: number): string {
@@ -151,7 +157,7 @@ export function FlameGraph({
 
   if (!tree) {
     return (
-      <div className={cn("text-white/40 text-sm p-4", className)}>
+      <div className={cn("p-4 text-sm text-[color:var(--harbor-text-tertiary)]", className)}>
         No frames to render.
       </div>
     );
@@ -159,24 +165,24 @@ export function FlameGraph({
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="flex items-center gap-1 text-xs text-white/60 mb-2">
+      <div className="mb-2 flex items-center gap-1 text-xs text-[color:var(--harbor-text-secondary)]">
         <button
           type="button"
           onClick={() => setRootId(null)}
           disabled={rootId === null}
-          className="px-1.5 py-0.5 rounded hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="rounded px-1.5 py-0.5 hover:bg-[var(--harbor-state-hover)] disabled:cursor-not-allowed disabled:opacity-40"
         >
           root
         </button>
         {breadcrumbs.map((b, i) => (
           <span key={b.id} className="inline-flex items-center gap-1">
-            <span className="text-white/30">›</span>
+            <span className="text-[color:var(--harbor-text-tertiary)]">›</span>
             <button
               type="button"
               onClick={() => setRootId(i === breadcrumbs.length - 1 ? null : b.id)}
               className={cn(
-                "px-1.5 py-0.5 rounded hover:bg-white/5",
-                i === breadcrumbs.length - 1 && "text-white font-medium",
+                "rounded px-1.5 py-0.5 hover:bg-[var(--harbor-state-hover)]",
+                i === breadcrumbs.length - 1 && "font-medium text-[color:var(--harbor-text-primary)]",
               )}
             >
               {b.label}
@@ -185,7 +191,7 @@ export function FlameGraph({
         ))}
       </div>
       <div
-        className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-black/30"
+        className="relative w-full overflow-hidden rounded-lg border border-[color:var(--harbor-border-subtle)] bg-[var(--harbor-surface-sunken)]"
         style={{ height: totalHeight }}
       >
         {laid.map((n, i) => {
@@ -217,7 +223,7 @@ export function FlameGraph({
                   hoverId === null ? 0.85 : ancestorSet.has(n.frame.id) ? 1 : 0.3,
                 minWidth: minPixelWidth,
               }}
-              className="text-left text-[10px] text-white/95 font-mono truncate px-1 cursor-pointer border-r border-black/20 hover:brightness-110 transition-opacity"
+              className="cursor-pointer truncate border-r border-[color:var(--harbor-border-subtle)] px-1 text-left font-mono text-[10px] text-[rgb(var(--harbor-brand-fg))] transition-opacity hover:brightness-110"
               title={`${n.frame.label} · ${formatValue(n.frame.value)}`}
               aria-label={`${n.frame.label}, ${formatValue(n.frame.value)}`}
             >
@@ -226,16 +232,16 @@ export function FlameGraph({
           );
         })}
       </div>
-      <div className="mt-2 text-xs text-white/60 min-h-[1.25rem]">
+      <div className="mt-2 min-h-[1.25rem] text-xs text-[color:var(--harbor-text-secondary)]">
         {hoverId ? (
           <>
             <span className="font-mono">{byId.get(hoverId)?.label}</span>
-            <span className="text-white/40 ml-2">
+            <span className="ml-2 text-[color:var(--harbor-text-tertiary)]">
               {formatValue(byId.get(hoverId)?.value ?? 0)}
             </span>
           </>
         ) : (
-          <span className="text-white/40">Hover a frame · click to zoom</span>
+          <span className="text-[color:var(--harbor-text-tertiary)]">Hover a frame · click to zoom</span>
         )}
       </div>
     </div>

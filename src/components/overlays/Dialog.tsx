@@ -3,10 +3,13 @@ import {
   useContext,
   useEffect,
   useId,
+  useRef,
   type HTMLAttributes,
+  type KeyboardEvent,
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { focusFirst, trapFocus, useDismissableLayer } from "../../lib/a11y";
 import { cn } from "../../lib/cn";
 import { useT } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
@@ -79,15 +82,31 @@ export function Dialog({
   const descId = useId();
   const { t } = useT();
   const legacy = title !== undefined || description !== undefined || footer !== undefined;
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+
+  useDismissableLayer({
+    ref: dialogRef,
+    enabled: open,
+    onDismiss: onClose,
+  });
 
   useEffect(() => {
     if (!open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+    restoreFocusRef.current = document.activeElement as HTMLElement | null;
+    const id = window.setTimeout(() => {
+      if (dialogRef.current) focusFirst(dialogRef.current);
+    });
+    return () => {
+      window.clearTimeout(id);
+      restoreFocusRef.current?.focus?.();
+      restoreFocusRef.current = null;
+    };
+  }, [open]);
+
+  function onDialogKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    if (dialogRef.current) trapFocus(dialogRef.current, e);
+  }
 
   return (
     <DialogCtx.Provider value={{ titleId, descId }}>
@@ -103,21 +122,22 @@ export function Dialog({
                 backdropFilter: "blur(10px)",
                 WebkitBackdropFilter: "blur(10px)",
               }}
-              className="fixed inset-0 grid place-items-center bg-black/55 p-[var(--harbor-target-panel-padding)]"
-              onClick={onClose}
+              className="fixed inset-0 grid place-items-center bg-[var(--harbor-overlay-scrim)] p-[var(--harbor-target-panel-padding)]"
             >
               <motion.div
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={titleId}
                 aria-describedby={descId}
+                ref={dialogRef}
+                tabIndex={-1}
                 initial={{ opacity: 0, y: 24, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 12, scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 300, damping: 28 }}
-                onClick={(e) => e.stopPropagation()}
+                onKeyDown={onDialogKeyDown}
                 className={cn(
-                  "relative flex w-full flex-col overflow-hidden rounded-[var(--harbor-target-radius)] border border-white/10 bg-surface-2 text-fg shadow-[var(--harbor-target-shadow)]",
+                  "relative flex w-full flex-col overflow-hidden rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-border-default)] bg-[var(--harbor-overlay-surface)] text-fg shadow-[var(--harbor-target-shadow)] outline-none",
                   sizes[size],
                   className,
                 )}
@@ -131,7 +151,7 @@ export function Dialog({
                   aria-label={t("harbor.action.close")}
                   onClick={onClose}
                   data-cursor="button"
-                  className="absolute end-3 top-3 grid h-[calc(var(--harbor-target-control-height)-4px)] w-[calc(var(--harbor-target-control-height)-4px)] place-items-center rounded-[var(--harbor-target-radius)] text-fg-muted hover:bg-white/5 hover:text-fg"
+                  className="absolute end-3 top-3 grid h-[calc(var(--harbor-target-control-height)-4px)] w-[calc(var(--harbor-target-control-height)-4px)] place-items-center rounded-[var(--harbor-target-radius)] text-fg-muted outline-none hover:bg-[var(--harbor-state-hover)] hover:text-fg focus-visible:shadow-[var(--harbor-focus-shadow)]"
                 >
                   <span aria-hidden>×</span>
                 </button>
@@ -242,7 +262,7 @@ export function DialogButtons({
   return (
     <div
       className={cn(
-        "mt-auto flex items-center gap-[var(--harbor-target-gap)] border-t border-white/5 bg-white/[0.02] px-[calc(var(--harbor-target-panel-padding)+4px)] py-[var(--harbor-target-panel-padding)]",
+        "mt-auto flex items-center gap-[var(--harbor-target-gap)] border-t border-[color:var(--harbor-border-subtle)] bg-[var(--harbor-surface-panel-muted)] px-[calc(var(--harbor-target-panel-padding)+4px)] py-[var(--harbor-target-panel-padding)]",
         alignClass[align],
         className,
       )}

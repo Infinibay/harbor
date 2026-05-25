@@ -25,15 +25,13 @@ export interface MetricHeatmapProps {
   className?: string;
 }
 
-const COLOR_COLD = [14, 116, 144]; // sky-700ish
-const COLOR_MID = [168, 85, 247]; // fuchsia
-const COLOR_HOT = [244, 63, 94]; // rose
+const COLOR_COLD = "rgb(var(--harbor-chart-1))";
+const COLOR_MID = "rgb(var(--harbor-chart-2))";
+const COLOR_HOT = "rgb(var(--harbor-chart-negative))";
 
-function lerpColor(a: number[], b: number[], t: number): string {
-  const r = Math.round(a[0] + (b[0] - a[0]) * t);
-  const g = Math.round(a[1] + (b[1] - a[1]) * t);
-  const bl = Math.round(a[2] + (b[2] - a[2]) * t);
-  return `rgb(${r} ${g} ${bl})`;
+function mixColor(a: string, b: string, t: number): string {
+  const pct = Math.round(Math.max(0, Math.min(1, t)) * 100);
+  return `color-mix(in srgb, ${b} ${pct}%, ${a})`;
 }
 
 /** Hour × day (or any 2D categorical) heatmap. Distinct from the
@@ -76,14 +74,14 @@ export function MetricHeatmap({
 
   function colorFor(v: number): string {
     if (!isFinite(v)) return "transparent";
-    if (v <= min) return lerpColor(COLOR_COLD, COLOR_MID, 0);
-    if (v >= max) return lerpColor(COLOR_MID, COLOR_HOT, 1);
+    if (v <= min) return COLOR_COLD;
+    if (v >= max) return COLOR_HOT;
     if (v < mid) {
       const t = (v - min) / Math.max(1e-9, mid - min);
-      return lerpColor(COLOR_COLD, COLOR_MID, t);
+      return mixColor(COLOR_COLD, COLOR_MID, t);
     }
     const t = (v - mid) / Math.max(1e-9, max - mid);
-    return lerpColor(COLOR_MID, COLOR_HOT, t);
+    return mixColor(COLOR_MID, COLOR_HOT, t);
   }
 
   const leftGutter = 72;
@@ -104,7 +102,7 @@ export function MetricHeatmap({
             y={topGutter - 8}
             textAnchor="middle"
             fontSize={10}
-            fill="rgba(255,255,255,0.5)"
+            fill="var(--harbor-chart-axis)"
             fontFamily="ui-monospace, monospace"
           >
             {label}
@@ -118,7 +116,7 @@ export function MetricHeatmap({
               y={topGutter + r * cellSize + cellSize / 2 + 3}
               textAnchor="end"
               fontSize={10}
-              fill="rgba(255,255,255,0.5)"
+              fill="var(--harbor-chart-axis)"
               fontFamily="ui-monospace, monospace"
             >
               {label}
@@ -134,9 +132,9 @@ export function MetricHeatmap({
                   width={cellSize - 2}
                   height={cellSize - 2}
                   rx={2}
-                  fill={cell ? colorFor(cell.v) : "rgba(255,255,255,0.04)"}
+                  fill={cell ? colorFor(cell.v) : "var(--harbor-surface-sunken)"}
                   fillOpacity={cell ? 0.85 : 1}
-                  stroke={highlighted ? "rgba(255,255,255,0.9)" : "transparent"}
+                  stroke={highlighted ? "var(--harbor-focus-ring)" : "transparent"}
                   strokeWidth={1}
                   onMouseEnter={() => setHover({ r, c })}
                   onMouseLeave={() => setHover(null)}
@@ -148,25 +146,25 @@ export function MetricHeatmap({
           </g>
         ))}
       </svg>
-      <div className="text-xs text-white/60 tabular-nums font-mono min-h-[1.25rem]">
+      <div className="text-xs text-[color:var(--harbor-text-secondary)] tabular-nums font-mono min-h-[1.25rem]">
         {hover ? (
           <>
-            <span className="text-white/40">
+            <span className="text-[color:var(--harbor-text-tertiary)]">
               {rows[hover.r]} · {cols[hover.c]}
             </span>
             {hoverCell ? (
-              <span className="text-white ml-3">{formatV(hoverCell.v)}</span>
+              <span className="text-[color:var(--harbor-text-primary)] ml-3">{formatV(hoverCell.v)}</span>
             ) : (
-              <span className="text-white/30 ml-3">(no data)</span>
+              <span className="text-[color:var(--harbor-text-tertiary)] ml-3">(no data)</span>
             )}
           </>
         ) : (
           <>
             <span>
-              min <span className="text-white/40">{formatV(min)}</span>
+              min <span className="text-[color:var(--harbor-text-tertiary)]">{formatV(min)}</span>
             </span>
             <span className="ml-4">
-              max <span className="text-white/40">{formatV(max)}</span>
+              max <span className="text-[color:var(--harbor-text-tertiary)]">{formatV(max)}</span>
             </span>
           </>
         )}

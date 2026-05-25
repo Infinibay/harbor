@@ -79,7 +79,7 @@ export function ExportMenu({
         aria-haspopup="dialog"
         aria-expanded={open}
         className={cn(
-          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/10 bg-white/[0.04] text-sm text-white/80 hover:bg-white/[0.08] hover:text-white",
+          "inline-flex items-center gap-1.5 rounded-md border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel-muted)] px-3 py-1.5 text-sm text-[rgb(var(--harbor-text-muted))] outline-none hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))] focus-visible:shadow-[var(--harbor-focus-shadow)]",
           className,
         )}
       >
@@ -108,9 +108,9 @@ export function ExportMenu({
                   top: pos.y,
                   zIndex: Z.POPOVER,
                 }}
-                className="w-[280px] rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-3 flex flex-col gap-2"
+                className="w-[280px] rounded-xl border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-3 shadow-[var(--harbor-menu-surface-shadow)] flex flex-col gap-2"
               >
-                <div className="text-[10px] uppercase tracking-widest text-white/40">
+                <div className="text-[10px] uppercase tracking-widest text-[rgb(var(--harbor-text-subtle))]">
                   Format
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -122,21 +122,21 @@ export function ExportMenu({
                       className={cn(
                         "p-2 rounded-md border text-left",
                         format === f
-                          ? "border-fuchsia-400/50 bg-fuchsia-500/10"
-                          : "border-white/10 hover:bg-white/[0.03]",
+                          ? "border-[color:var(--harbor-focus-ring)] bg-[var(--harbor-state-selected)]"
+                          : "border-[color:var(--harbor-border-default)] hover:bg-[var(--harbor-state-hover)]",
                       )}
                     >
-                      <div className="text-xs text-white font-semibold">
+                      <div className="text-xs text-[rgb(var(--harbor-text))] font-semibold">
                         {FMT_LABEL[f]}
                       </div>
-                      <div className="text-[10px] text-white/50 mt-0.5 leading-tight">
+                      <div className="text-[10px] text-[rgb(var(--harbor-text-muted))] mt-0.5 leading-tight">
                         {FMT_DESC[f]}
                       </div>
                     </button>
                   ))}
                 </div>
-                <div className="flex flex-col gap-1.5 pt-1 border-t border-white/8">
-                  <label className="flex items-center gap-2 text-xs text-white/70">
+                <div className="flex flex-col gap-1.5 pt-1 border-t border-[color:var(--harbor-border-subtle)]">
+                  <label className="flex items-center gap-2 text-xs text-[rgb(var(--harbor-text-muted))]">
                     <input
                       type="checkbox"
                       checked={includeHeaders}
@@ -145,7 +145,7 @@ export function ExportMenu({
                     />
                     Include headers
                   </label>
-                  <label className="flex items-center gap-2 text-xs text-white/70">
+                  <label className="flex items-center gap-2 text-xs text-[rgb(var(--harbor-text-muted))]">
                     <input
                       type="checkbox"
                       checked={currentFilterOnly}
@@ -154,7 +154,7 @@ export function ExportMenu({
                     />
                     Current filter only
                   </label>
-                  <label className="flex items-center gap-2 text-xs text-white/70">
+                  <label className="flex items-center gap-2 text-xs text-[rgb(var(--harbor-text-muted))]">
                     <input
                       type="checkbox"
                       checked={allColumns}
@@ -168,14 +168,14 @@ export function ExportMenu({
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="text-xs text-white/60 hover:text-white px-2 py-1"
+                    className="text-xs text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))] px-2 py-1"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={submit}
-                    className="text-xs font-medium px-3 py-1 rounded-md bg-fuchsia-500/20 text-fuchsia-100 hover:bg-fuchsia-500/30"
+                    className="text-xs font-medium px-3 py-1 rounded-md bg-[rgb(var(--harbor-brand))] text-[rgb(var(--harbor-brand-fg))] hover:bg-[rgb(var(--harbor-accent-2))]"
                   >
                     Export
                   </button>

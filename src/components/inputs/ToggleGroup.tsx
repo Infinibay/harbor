@@ -70,15 +70,17 @@ export function ToggleGroup({
             aria-pressed={on}
             onClick={() => toggle(it.value)}
             className={cn(
-              "relative inline-flex items-center justify-center gap-1.5 rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-control-padding-x)] font-medium transition-colors",
+              "relative inline-flex items-center justify-center gap-1.5 rounded-[var(--harbor-target-radius)] px-[var(--harbor-target-control-padding-x)] font-medium transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
               h,
-              on ? "text-black" : "text-white/65 hover:text-white",
+              on
+                ? "text-[var(--harbor-state-selected-fg)]"
+                : "text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))]",
             )}
           >
             {on && !multiple ? (
               <motion.span
                 layoutId={`${layoutId}-tg`}
-                className="absolute inset-0 rounded-[var(--harbor-target-radius)] bg-white shadow-[var(--harbor-target-shadow)]"
+                className="absolute inset-0 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-focus-ring)] bg-[var(--harbor-state-selected)] shadow-[var(--harbor-target-shadow)]"
                 transition={{ type: "spring", stiffness: 500, damping: 35 }}
               />
             ) : null}
@@ -86,7 +88,7 @@ export function ToggleGroup({
               <motion.span
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="absolute inset-0 rounded-[var(--harbor-target-radius)] bg-white shadow-[var(--harbor-target-shadow)]"
+                className="absolute inset-0 rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-focus-ring)] bg-[var(--harbor-state-selected)] shadow-[var(--harbor-target-shadow)]"
               />
             ) : null}
             <span className="relative inline-flex items-center gap-1.5">

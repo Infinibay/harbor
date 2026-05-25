@@ -31,11 +31,11 @@ export interface DiskAllocatorProps {
 }
 
 const TONE_COLOR: Record<SlabTone, string> = {
-  used: "rgb(168 85 247)",
-  reserved: "rgb(56 189 248)",
-  backup: "rgb(52 211 153)",
-  warn: "rgb(251 191 36)",
-  custom: "rgb(244 114 182)",
+  used: "rgb(var(--harbor-accent))",
+  reserved: "rgb(var(--harbor-info))",
+  backup: "rgb(var(--harbor-success))",
+  warn: "rgb(var(--harbor-warning))",
+  custom: "rgb(var(--harbor-accent-3))",
 };
 
 /** Horizontal slab allocator bar. Drag across free space to reserve a
@@ -113,9 +113,15 @@ export function DiskAllocator({
       {header ? (
         <div className="flex items-baseline justify-between">
           {header}
-          <span className="text-xs text-white/50 tabular-nums font-mono">
+          <span className="text-xs text-[color:var(--harbor-text-tertiary)] tabular-nums font-mono">
             {formatBytes(consumed)} / {formatBytes(total)} ·{" "}
-            <span className={cn(free < minSize ? "text-rose-300" : "text-emerald-300")}>
+            <span
+              className={cn(
+                free < minSize
+                  ? "text-[rgb(var(--harbor-danger))]"
+                  : "text-[rgb(var(--harbor-success))]",
+              )}
+            >
               {formatBytes(free)} free
             </span>
           </span>
@@ -124,7 +130,7 @@ export function DiskAllocator({
       <div
         ref={wrapRef}
         onMouseDown={onDown}
-        className="relative w-full rounded-lg overflow-hidden bg-white/[0.04] border border-white/10 cursor-crosshair"
+        className="relative w-full rounded-lg overflow-hidden bg-[var(--harbor-surface-panel)] border border-[color:var(--harbor-border-subtle)] cursor-crosshair"
         style={{ height }}
       >
         <div className="absolute inset-0 flex">
@@ -150,7 +156,7 @@ export function DiskAllocator({
               >
                 <div
                   className={cn(
-                    "absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-white/95",
+                    "absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-[rgb(var(--harbor-brand-fg))]",
                     "pointer-events-none",
                   )}
                 >
@@ -164,7 +170,7 @@ export function DiskAllocator({
                       e.stopPropagation();
                       removeAlloc(a.id);
                     }}
-                    className="absolute top-1/2 right-1 -translate-y-1/2 text-[10px] text-white/90 bg-black/50 rounded px-1"
+                    className="absolute top-1/2 right-1 -translate-y-1/2 text-[10px] text-[rgb(var(--harbor-brand-fg))] bg-[var(--harbor-overlay-scrim)] rounded px-1"
                     data-slab
                   >
                     ×
@@ -178,7 +184,7 @@ export function DiskAllocator({
               className="h-full relative"
               style={{ width: `${(free / total) * 100}%` }}
             >
-              <div className="absolute inset-0 flex items-center justify-center text-[10px] text-white/40 pointer-events-none">
+              <div className="absolute inset-0 flex items-center justify-center text-[10px] text-[color:var(--harbor-text-tertiary)] pointer-events-none">
                 {formatBytes(free)} free — drag to reserve
               </div>
             </div>
@@ -186,7 +192,7 @@ export function DiskAllocator({
         </div>
         {dragRect ? (
           <div
-            className="absolute top-0 bottom-0 bg-fuchsia-400/25 border border-fuchsia-400/70 pointer-events-none"
+            className="absolute top-0 bottom-0 bg-[var(--harbor-state-selected)] border border-[color:var(--harbor-border-focus)] pointer-events-none"
             style={{ left: dragRect.left, width: dragRect.width }}
           />
         ) : null}

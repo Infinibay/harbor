@@ -1,15 +1,18 @@
 import {
   cloneElement,
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
+  type KeyboardEvent,
   type MouseEvent,
   type ReactElement,
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { focusFirst, focusNextMenuItem, useDismissableLayer } from "../../lib/a11y";
 import { cn } from "../../lib/cn";
 import { Z } from "../../lib/z";
 import { Portal } from "../../lib/Portal";
@@ -40,6 +43,10 @@ export function Menu({
   const anchorRef = useRef<HTMLElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+  const closeAndRestoreFocus = useCallback(() => {
+    setOpen(false);
+    anchorRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -63,25 +70,18 @@ export function Menu({
       setPos({ x, y });
     }
     place();
-    function click(e: globalThis.MouseEvent) {
-      if (
-        !menuRef.current?.contains(e.target as Node) &&
-        !anchorRef.current?.contains(e.target as Node)
-      )
-        setOpen(false);
-    }
-    function key(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("mousedown", click);
-    document.addEventListener("keydown", key);
     window.addEventListener("resize", place);
     return () => {
-      document.removeEventListener("mousedown", click);
-      document.removeEventListener("keydown", key);
       window.removeEventListener("resize", place);
     };
   }, [open, side, align]);
+
+  useDismissableLayer({
+    ref: menuRef,
+    ignoreRefs: [anchorRef],
+    enabled: open,
+    onDismiss: closeAndRestoreFocus,
+  });
 
   const clone = cloneElement(trigger, {
     ref: (el: HTMLElement | null) => {
@@ -94,7 +94,37 @@ export function Menu({
       trigger.props.onClick?.(e);
       setOpen((o) => !o);
     },
+    "aria-haspopup": "menu",
+    "aria-expanded": open,
   } as any);
+
+  useEffect(() => {
+    if (!open) return;
+    const id = window.setTimeout(() => {
+      if (menuRef.current) focusFirst(menuRef.current);
+    });
+    return () => window.clearTimeout(id);
+  }, [open]);
+
+  function onMenuKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    if (!menuRef.current) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      focusNextMenuItem(menuRef.current, 1);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      focusNextMenuItem(menuRef.current, -1);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      menuRef.current.querySelector<HTMLElement>("[role='menuitem']:not([aria-disabled='true'])")?.focus();
+    } else if (e.key === "End") {
+      e.preventDefault();
+      const items = menuRef.current.querySelectorAll<HTMLElement>("[role='menuitem']:not([aria-disabled='true'])");
+      items[items.length - 1]?.focus();
+    } else if (e.key === "Tab") {
+      setOpen(false);
+    }
+  }
 
   return (
     <MenuCtx.Provider value={{ close: () => setOpen(false) }}>
@@ -104,6 +134,8 @@ export function Menu({
           {open ? (
             <motion.div
               ref={menuRef}
+              role="menu"
+              onKeyDown={onMenuKeyDown}
               initial={{ opacity: 0, y: -4, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.97 }}
@@ -194,11 +226,15 @@ export function MenuItem({
       <button
         type="button"
         ref={itemRef}
+        role="menuitem"
+        tabIndex={-1}
         onClick={handle}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
         disabled={disabled}
+        aria-disabled={disabled || undefined}
         aria-expanded={submenu ? open : undefined}
+        aria-haspopup={submenu ? "menu" : undefined}
         data-cursor="button"
         className={cn(
           "flex w-full items-center gap-[var(--harbor-menu-item-gap)] rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-left text-[length:var(--harbor-menu-item-font-size)] outline-none transition-colors",

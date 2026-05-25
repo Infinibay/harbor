@@ -1,5 +1,10 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useTransform } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useMotionTemplate,
+  useTransform,
+} from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useT } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
@@ -73,11 +78,9 @@ export function Select({
   const selected = options.find((o) => o.value === current);
   const { localX, localY, proximity } = useCursorProximity(anchorRef, 100);
   const glowOpacity = useTransform(proximity, (v) => v * 0.35);
-  const glowBg = useTransform(
-    [localX, localY] as any,
-    ([lx, ly]: any) =>
-      `radial-gradient(140px circle at ${lx * 100}% ${ly * 100}%, rgba(255,255,255,0.25), transparent 60%)`,
-  );
+  const glowX = useTransform(localX, (v) => `${v * 100}%`);
+  const glowY = useTransform(localY, (v) => `${v * 100}%`);
+  const glowBg = useMotionTemplate`radial-gradient(140px circle at ${glowX} ${glowY}, var(--harbor-state-hover), transparent 60%)`;
 
   // Synchronous initial placement — prevents a first-frame flash at
   // {0,0} while the rect-measuring effect catches up.
@@ -139,7 +142,7 @@ export function Select({
   return (
     <div className={cn("relative w-full", className)}>
       {label ? (
-        <label className="block text-xs text-fg-muted mb-1.5">{label}</label>
+        <label className="block text-xs text-[color:var(--harbor-field-muted-fg)] mb-1.5">{label}</label>
       ) : null}
       <button
         ref={anchorRef}
@@ -152,7 +155,7 @@ export function Select({
           SIZE_TRIGGER[size],
           "border-[color:var(--harbor-field-border)] transition-colors hover:bg-[var(--harbor-field-bg-hover)]",
           open && "border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg-focus)]",
-          "focus-visible:ring-2 focus-visible:ring-fuchsia-400/60 focus-bloom disabled:opacity-50",
+          "focus-visible:shadow-[var(--harbor-focus-shadow)] focus-bloom disabled:opacity-50",
         )}
       >
         <motion.span
@@ -164,7 +167,9 @@ export function Select({
           className={cn(
             "relative truncate flex items-center gap-2",
             SIZE_LABEL[size],
-            selected ? "text-fg" : "text-fg-subtle",
+            selected
+              ? "text-[color:var(--harbor-field-fg)]"
+              : "text-[color:var(--harbor-field-muted-fg)]",
           )}
         >
           {selected?.icon}
@@ -179,7 +184,7 @@ export function Select({
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
-          className="relative text-fg-muted"
+          className="relative text-[color:var(--harbor-field-muted-fg)]"
         >
           <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
         </motion.svg>
@@ -216,14 +221,14 @@ export function Select({
                       onMouseEnter={() => setFocusIdx(i)}
                       className={cn(
                         "relative flex w-full items-center gap-[var(--harbor-menu-item-gap)] rounded-[var(--harbor-menu-item-radius)] py-[var(--harbor-menu-item-padding-y)] ps-[var(--harbor-menu-item-padding-x)] pe-3 text-start text-[length:var(--harbor-menu-item-font-size)] transition-colors",
-                        focusIdx === i ? "bg-surface-3/80" : "",
+                        focusIdx === i ? "bg-[var(--harbor-menu-item-hover-bg)]" : "",
                         o.disabled && "opacity-40 cursor-not-allowed",
                       )}
                     >
                       {current === o.value ? (
                         <motion.span
                           layoutId={`${layoutId}-select-ind`}
-                          className="absolute start-1 inset-y-0 my-auto h-4 w-0.5 rounded-full bg-fuchsia-400 pointer-events-none"
+                          className="absolute start-1 inset-y-0 my-auto h-4 w-0.5 rounded-full bg-[rgb(var(--harbor-accent))] pointer-events-none"
                           transition={{
                             type: "spring",
                             stiffness: 500,
@@ -232,18 +237,18 @@ export function Select({
                         />
                       ) : null}
                       {o.icon ? (
-                        <span className="text-fg-muted mt-0.5">{o.icon}</span>
+                        <span className="text-[color:var(--harbor-menu-item-muted-fg)] mt-0.5">{o.icon}</span>
                       ) : null}
                       <span className="flex-1 flex flex-col gap-0.5">
-                        <span className="text-fg">{o.label}</span>
+                        <span className="text-[color:var(--harbor-menu-item-fg)]">{o.label}</span>
                         {o.description ? (
-                          <span className="text-xs text-fg-muted">
+                          <span className="text-xs text-[color:var(--harbor-menu-item-muted-fg)]">
                             {o.description}
                           </span>
                         ) : null}
                       </span>
                       {current === o.value ? (
-                        <span className="text-fuchsia-300 text-xs mt-0.5">
+                        <span className="text-[color:var(--harbor-focus-ring)] text-xs mt-0.5">
                           ✓
                         </span>
                       ) : null}

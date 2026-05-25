@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { cn } from "../../lib/cn";
 import { formatAbsolute } from "../../lib/format";
 
@@ -115,13 +115,14 @@ export function CronBuilder({
         <div className="flex flex-wrap gap-1.5">
           {PRESETS.map((p) => (
             <button
+              type="button"
               key={p.label}
               onClick={() => onChange(p.expr)}
               className={cn(
                 "text-xs px-2 py-1 rounded-md border transition-colors",
                 value.trim() === p.expr
-                  ? "bg-fuchsia-500/20 border-fuchsia-400/40 text-fuchsia-100"
-                  : "bg-white/[0.03] border-white/10 text-white/70 hover:bg-white/5 hover:text-white",
+                  ? "bg-[var(--harbor-state-selected)] border-[color:var(--harbor-border-focus)] text-[color:var(--harbor-state-selected-fg)]"
+                  : "bg-[var(--harbor-field-bg)] border-[color:var(--harbor-field-border)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-state-hover)] hover:text-[color:var(--harbor-field-fg)]",
               )}
             >
               {p.label}
@@ -139,25 +140,26 @@ export function CronBuilder({
       </div>
 
       <div className="flex items-center justify-between">
-        <code className="text-sm font-mono text-fuchsia-200 tabular-nums px-2 py-1 rounded bg-fuchsia-500/10 border border-fuchsia-400/30">
+        <code className="text-sm font-mono text-[color:var(--harbor-state-selected-fg)] tabular-nums px-2 py-1 rounded bg-[var(--harbor-state-selected)] border border-[color:var(--harbor-border-focus)]">
           {value.trim() || "* * * * *"}
         </code>
         <button
+          type="button"
           onClick={() => setHumanReadable((v) => !v)}
-          className="text-xs text-white/50 hover:text-white"
+          className="text-xs text-[color:var(--harbor-text-tertiary)] hover:text-[color:var(--harbor-field-fg)]"
         >
           {humanReadable ? "hide next runs" : "show next runs"}
         </button>
       </div>
 
       {humanReadable ? (
-        <div className="text-xs text-white/60 flex flex-col gap-0.5 bg-white/[0.02] border border-white/10 rounded-md p-3">
-          <span className="text-[10px] uppercase tracking-widest text-white/40">
+        <div className="text-xs text-[color:var(--harbor-field-muted-fg)] flex flex-col gap-0.5 bg-[var(--harbor-surface-panel)] border border-[color:var(--harbor-border-subtle)] rounded-md p-3">
+          <span className="text-[10px] uppercase tracking-widest text-[color:var(--harbor-text-tertiary)]">
             Next runs
           </span>
           {[next1, next2, next3].map((d, i) =>
             d ? (
-              <span key={i} className="tabular-nums font-mono text-white/80">
+              <span key={i} className="tabular-nums font-mono text-[color:var(--harbor-field-fg)]">
                 {formatAbsolute(d, { preset: "datetime" })}
               </span>
             ) : null,
@@ -181,12 +183,17 @@ function Field({
   max: number;
   min?: number;
 }) {
+  const labelId = useId();
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-[10px] uppercase tracking-widest text-[color:var(--harbor-field-muted-fg)]">
+      <div
+        id={labelId}
+        className="text-[10px] uppercase tracking-widest text-[color:var(--harbor-field-muted-fg)]"
+      >
         {label}
       </div>
       <select
+        aria-labelledby={labelId}
         value={state.mode}
         onChange={(e) => onChange({ ...state, mode: e.target.value as Mode })}
         className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
@@ -197,6 +204,7 @@ function Field({
       </select>
       {state.mode === "every" ? (
         <input
+          aria-labelledby={labelId}
           type="number"
           min={1}
           max={max}
@@ -207,6 +215,7 @@ function Field({
       ) : null}
       {state.mode === "list" ? (
         <input
+          aria-labelledby={labelId}
           type="text"
           value={(state.list ?? []).join(",")}
           onChange={(e) =>

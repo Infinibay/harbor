@@ -47,7 +47,7 @@ describe("FAB", () => {
       <FAB icon={<span>+</span>} label="Add" variant="secondary" />,
     );
     const btn = container.querySelector("button");
-    expect(btn?.className).toContain("bg-surface-3");
+    expect(btn?.className).toContain("bg-[var(--harbor-surface-panel-muted)]");
   });
 
   it("applies custom className", () => {

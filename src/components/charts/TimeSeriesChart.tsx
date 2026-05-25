@@ -52,7 +52,13 @@ export interface TimeSeriesChartProps {
   className?: string;
 }
 
-const DEFAULT_COLORS = ["#a855f7", "#38bdf8", "#f472b6", "#34d399", "#fbbf24"];
+const DEFAULT_COLORS = [
+  "rgb(var(--harbor-chart-1))",
+  "rgb(var(--harbor-chart-2))",
+  "rgb(var(--harbor-chart-3))",
+  "rgb(var(--harbor-chart-4))",
+  "rgb(var(--harbor-chart-5))",
+];
 
 // =====================================================================
 // TimeSeriesMarker — vertical annotation line
@@ -67,7 +73,8 @@ export interface TimeSeriesMarkerProps {
 }
 
 // Marker is a marker: rendered by TimeSeriesChart, not directly into DOM.
-export function TimeSeriesMarker(_props: TimeSeriesMarkerProps): null {
+export function TimeSeriesMarker(props: TimeSeriesMarkerProps): null {
+  void props;
   return null;
 }
 
@@ -137,7 +144,7 @@ export function TimeSeriesChart({
       if (p.t < lo) lo = p.t;
       if (p.t > hi) hi = p.t;
     }
-    if (!isFinite(lo)) return [Date.now() - 3600_000, Date.now()];
+    if (!isFinite(lo)) return [0, 3600_000];
     return [lo, hi];
   }, [pointsBySeries, xDomain]);
 
@@ -300,7 +307,7 @@ export function TimeSeriesChart({
                 x2={width - padRight}
                 y1={y}
                 y2={y}
-                stroke="rgba(255,255,255,0.06)"
+                stroke="var(--harbor-chart-grid)"
                 strokeWidth={1}
               />
               <text
@@ -308,7 +315,7 @@ export function TimeSeriesChart({
                 y={y + 3}
                 textAnchor="end"
                 fontSize={10}
-                fill="rgba(255,255,255,0.45)"
+                fill="var(--harbor-chart-axis)"
                 fontFamily="ui-monospace, monospace"
               >
                 {formatY(t)}
@@ -325,7 +332,7 @@ export function TimeSeriesChart({
             y={height - 6}
             textAnchor="middle"
             fontSize={10}
-            fill="rgba(255,255,255,0.4)"
+            fill="var(--harbor-chart-axis)"
             fontFamily="ui-monospace, monospace"
           >
             {defaultFormatT(t)}
@@ -379,7 +386,7 @@ export function TimeSeriesChart({
         {/* Markers */}
         {markers.map((m, i) => {
           const x = xFor(toMs(m.at));
-          const color = m.color ?? "rgba(244,114,182,0.85)";
+          const color = m.color ?? "rgb(var(--harbor-chart-5))";
           return (
             <g key={`marker-${i}`}>
               <line
@@ -414,7 +421,7 @@ export function TimeSeriesChart({
               x2={xFor(hover)}
               y1={padTop}
               y2={padTop + innerH}
-              stroke="rgba(255,255,255,0.25)"
+              stroke="var(--harbor-chart-axis)"
               strokeDasharray="2 3"
             />
             {hoverValues?.map(({ s, value, t }, si) => (
@@ -436,8 +443,8 @@ export function TimeSeriesChart({
             y={padTop}
             width={Math.max(1, xFor(Math.max(brush.from, brush.to)) - xFor(Math.min(brush.from, brush.to)))}
             height={innerH}
-            fill="rgba(168,85,247,0.18)"
-            stroke="rgba(168,85,247,0.5)"
+            fill="rgb(var(--harbor-chart-2) / 0.18)"
+            stroke="rgb(var(--harbor-chart-2) / 0.50)"
             strokeWidth={1}
             pointerEvents="none"
           />
@@ -446,22 +453,22 @@ export function TimeSeriesChart({
 
       {hoverValues ? (
         <div className="mt-2 flex flex-wrap gap-4 text-xs">
-          <span className="text-white/55 font-mono tabular-nums">
+          <span className="text-[color:var(--harbor-text-tertiary)] font-mono tabular-nums">
             {formatAbsolute(hover!, { preset: "datetime" })}
           </span>
           {hoverValues.map(({ s, value }, si) => {
             const color = s.color ?? DEFAULT_COLORS[si % DEFAULT_COLORS.length];
             return (
-              <span key={s.id} className="inline-flex items-center gap-1.5 text-white/85">
+              <span key={s.id} className="inline-flex items-center gap-1.5 text-[color:var(--harbor-text-secondary)]">
                 <span className="w-2 h-2 rounded-full" style={{ background: color }} />
                 {s.label ?? s.id}
-                <span className="font-mono text-white tabular-nums">{formatY(value)}</span>
+                <span className="font-mono text-[color:var(--harbor-text-primary)] tabular-nums">{formatY(value)}</span>
               </span>
             );
           })}
         </div>
       ) : series.length > 1 ? (
-        <div className="mt-2 flex flex-wrap gap-4 text-xs text-white/55">
+        <div className="mt-2 flex flex-wrap gap-4 text-xs text-[color:var(--harbor-text-tertiary)]">
           {series.map((s, si) => {
             const color = s.color ?? DEFAULT_COLORS[si % DEFAULT_COLORS.length];
             return (

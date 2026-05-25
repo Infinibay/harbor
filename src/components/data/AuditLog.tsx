@@ -91,7 +91,7 @@ export function AuditLog({
       {hasChildren ? (
         content
       ) : (
-        <div className="text-sm text-white/40 py-6 text-center border border-dashed border-white/10 rounded-xl">
+        <div className="text-sm text-fg-subtle py-6 text-center border border-dashed border-[var(--harbor-border-default)] rounded-xl">
           {empty ?? "No entries."}
         </div>
       )}
@@ -100,7 +100,7 @@ export function AuditLog({
 }
 
 const SEV_META: Record<AuditSeverity, { color: string; bg: string }> = {
-  info: { color: "text-white/50", bg: "bg-white/[0.02]" },
+  info: { color: "text-fg-muted", bg: "bg-[var(--harbor-surface-panel)]" },
   warn: { color: "text-amber-300", bg: "bg-amber-500/[0.06]" },
   critical: { color: "text-rose-300", bg: "bg-rose-500/[0.06]" },
 };
@@ -162,25 +162,25 @@ export function AuditEntry({
       className={cn(
         "flex flex-col rounded-lg px-3 py-2 transition-colors outline-none",
         meta.bg,
-        (canExpand || onClick) && "cursor-pointer hover:bg-white/[0.05] focus-visible:ring-1 focus-visible:ring-fuchsia-400/60",
+        (canExpand || onClick) && "cursor-pointer hover:bg-[var(--harbor-state-hover)] focus-visible:ring-1 focus-visible:ring-[var(--harbor-focus-ring)]",
         className,
       )}
       {...rest}
     >
       <div className="flex items-center gap-3 text-xs">
         <Avatar name={actor.name} size="sm" />
-        <span className="text-white/85">{actor.name}</span>
+        <span className="text-fg">{actor.name}</span>
         <span className={cn("font-semibold", meta.color)}>{verb}</span>
-        <span className="text-white/80 truncate">{target}</span>
+        <span className="text-fg truncate">{target}</span>
         <span className="flex-1" />
         {kind ? (
-          <span className="text-[10px] uppercase tracking-widest text-white/35">
+          <span className="text-[10px] uppercase tracking-widest text-fg-subtle">
             {kind}
           </span>
         ) : null}
-        <Timestamp value={at} className="text-white/40" />
+        <Timestamp value={at} className="text-fg-subtle" />
         {canExpand ? (
-          <span className="text-white/40 text-xs w-3 text-right">
+          <span className="text-fg-subtle text-xs w-3 text-right">
             {open ? "▾" : "▸"}
           </span>
         ) : null}
@@ -194,7 +194,7 @@ export function AuditEntry({
             transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
             className="overflow-hidden"
           >
-            <div className="pt-2 pl-10 text-xs text-white/65 flex flex-col gap-2">
+            <div className="pt-2 pl-10 text-xs text-fg-muted flex flex-col gap-2">
               {children}
             </div>
           </motion.div>
@@ -219,7 +219,7 @@ export function AuditDiff({ from, to, className }: AuditDiffProps) {
           {from}
         </code>
       ) : null}
-      <span className="text-white/30">→</span>
+      <span className="text-fg-subtle">→</span>
       {to !== undefined ? (
         <code className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-200 border border-emerald-400/20 font-mono">
           {to}

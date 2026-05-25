@@ -23,7 +23,7 @@ export function AppHeader({
     <header
       style={sticky ? { zIndex: Z.STICKY } : undefined}
       className={cn(
-        "w-full flex items-center gap-4 px-6 py-3 bg-surface-2/80 backdrop-blur-md border-b border-white/8",
+        "w-full flex items-center gap-4 px-6 py-3 bg-[var(--harbor-surface-toolbar)] text-[rgb(var(--harbor-text))] backdrop-blur-md border-b border-[color:var(--harbor-border-default)]",
         sticky && "sticky top-0",
         className,
       )}

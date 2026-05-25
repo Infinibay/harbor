@@ -15,6 +15,7 @@ import {
 } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useCursorProximity } from "../../lib/cursor";
+import { useReducedMotionPreference } from "../../lib/a11y";
 
 type Variant =
   | "primary"
@@ -45,24 +46,26 @@ type MotionButtonProps = ComponentPropsWithoutRef<typeof motion.button>;
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-white text-black hover:bg-white/90 shadow-[0_8px_24px_-8px_rgba(255,255,255,0.25)]",
+    "bg-[rgb(var(--harbor-brand))] text-[rgb(var(--harbor-brand-fg))] shadow-[0_8px_24px_-8px_rgb(var(--harbor-brand)/0.42)] hover:bg-[rgb(var(--harbor-accent-2))]",
   secondary:
-    "bg-white/10 text-white border border-white/15 hover:bg-white/15",
-  ghost: "text-white/80 hover:text-white hover:bg-white/5",
+    "border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel-muted)] text-[rgb(var(--harbor-text))] hover:bg-[var(--harbor-state-hover)] hover:border-[color:var(--harbor-border-strong)]",
+  ghost:
+    "bg-transparent text-[rgb(var(--harbor-text-muted))] hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))]",
   destructive:
-    "bg-rose-500/15 text-rose-200 border border-rose-400/30 hover:bg-rose-500/25",
+    "border border-[rgb(var(--harbor-danger)/0.32)] bg-[rgb(var(--harbor-danger)/0.12)] text-[rgb(var(--harbor-danger))] hover:bg-[rgb(var(--harbor-danger)/0.18)]",
   glass:
-    "glass text-white hover:bg-white/10 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.4)]",
-  link: "text-fuchsia-300 hover:text-fuchsia-200 underline-offset-2 hover:underline bg-transparent",
+    "border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-toolbar)] text-[rgb(var(--harbor-text))] shadow-[0_8px_24px_-8px_rgb(var(--harbor-bg)/0.45)] backdrop-blur-xl hover:bg-[var(--harbor-state-hover)]",
+  link:
+    "bg-transparent text-[var(--harbor-text-link)] underline-offset-2 hover:underline hover:text-[rgb(var(--harbor-accent))]",
 };
 
 const glowColors: Record<Variant, string> = {
-  primary: "rgba(0, 0, 0, 0.15)",
-  secondary: "rgba(255, 255, 255, 0.4)",
-  ghost: "rgba(255, 255, 255, 0.35)",
-  destructive: "rgba(244, 63, 94, 0.4)",
-  glass: "rgba(255, 255, 255, 0.35)",
-  link: "rgba(168, 85, 247, 0.25)",
+  primary: "rgb(var(--harbor-brand-fg) / 0.24)",
+  secondary: "rgb(var(--harbor-accent-2) / 0.20)",
+  ghost: "rgb(var(--harbor-accent-2) / 0.16)",
+  destructive: "rgb(var(--harbor-danger) / 0.24)",
+  glass: "rgb(var(--harbor-accent-2) / 0.18)",
+  link: "rgb(var(--harbor-accent) / 0.18)",
 };
 
 const sizes: Record<Size, string> = {
@@ -93,6 +96,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) {
     const localRef = useRef<HTMLButtonElement | null>(null);
+    const reducedMotion = useReducedMotionPreference();
     const setRefs = (el: HTMLButtonElement | null) => {
       localRef.current = el;
       if (typeof ref === "function") ref(el);
@@ -139,7 +143,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={setRefs}
         onClick={handleClick}
         style={{ x, y }}
-        whileTap={disabled || loading ? undefined : { scale: 0.94 }}
+        whileTap={disabled || loading || reducedMotion ? undefined : { scale: 0.94 }}
         transition={{ type: "spring", stiffness: 300, damping: 22 }}
         disabled={disabled || loading}
         className={cn(
@@ -151,16 +155,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             : align === "end"
               ? "justify-end"
               : "justify-center",
-          "transition-colors outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/60",
+          "transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           sizes[size],
           variants[variant],
           className,
         )}
-        {...(rest as MotionButtonProps)}
+        {...(rest as unknown as MotionButtonProps)}
       >
         {/* inner light that follows the cursor */}
-        {reactive ? (
+        {reactive && !reducedMotion ? (
           <motion.span
             aria-hidden
             style={{
@@ -196,7 +200,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           {iconRight}
         </motion.span>
 
-        {ripples.map((r) => (
+        {!reducedMotion && ripples.map((r) => (
           <motion.span
             key={r.id}
             initial={{ width: 0, height: 0, opacity: 0.45 }}

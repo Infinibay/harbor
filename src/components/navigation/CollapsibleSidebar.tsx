@@ -46,7 +46,7 @@ export function CollapsibleSidebar({
       animate={{ width }}
       transition={{ type: "spring", stiffness: 400, damping: 36 }}
       className={cn(
-        "h-full flex flex-col gap-2 bg-surface-2 border-r border-white/8 overflow-hidden",
+        "h-full flex flex-col gap-2 bg-[var(--harbor-surface-panel)] border-r border-[color:var(--harbor-border-default)] overflow-hidden",
         className,
       )}
     >
@@ -60,7 +60,7 @@ export function CollapsibleSidebar({
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-expanded={!collapsed}
           data-cursor="button"
-          className="w-8 h-8 grid place-items-center rounded-lg text-white/55 hover:text-white hover:bg-white/5"
+          className="w-8 h-8 grid place-items-center rounded-lg text-[rgb(var(--harbor-text-muted))] outline-none hover:text-[rgb(var(--harbor-text))] hover:bg-[var(--harbor-state-hover)] focus-visible:shadow-[var(--harbor-focus-shadow)]"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path
@@ -80,7 +80,7 @@ export function CollapsibleSidebar({
         {sections.map((s, si) => (
           <div key={si} className="flex flex-col gap-0.5">
             {s.label && !collapsed ? (
-              <div className="text-[10px] uppercase tracking-wider text-white/35 px-2 pt-1 pb-1">
+              <div className="text-[10px] uppercase tracking-wider text-[rgb(var(--harbor-text-subtle))] px-2 pt-1 pb-1">
                 {s.label}
               </div>
             ) : null}
@@ -93,15 +93,15 @@ export function CollapsibleSidebar({
                   aria-current={active ? "page" : undefined}
                   data-cursor="button"
                   className={cn(
-                    "relative w-full flex items-center gap-3 rounded-lg text-left text-sm transition-colors",
+                    "relative w-full flex items-center gap-3 rounded-lg text-left text-sm transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
                     collapsed ? "h-10 justify-center px-0" : "h-9 px-2",
                     active
-                      ? "bg-fuchsia-500/15 text-white"
-                      : "text-white/70 hover:bg-white/5 hover:text-white",
+                      ? "bg-[var(--harbor-state-selected)] text-[var(--harbor-state-selected-fg)]"
+                      : "text-[rgb(var(--harbor-text-muted))] hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))]",
                   )}
                 >
                   {active && !collapsed ? (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r bg-fuchsia-400" />
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r bg-[var(--harbor-focus-ring)]" />
                   ) : null}
                   <span className="shrink-0">{it.icon}</span>
                   {!collapsed ? (
@@ -125,7 +125,7 @@ export function CollapsibleSidebar({
       </div>
 
       {footer ? (
-        <div className={cn("px-2 py-3 border-t border-white/5", collapsed && "flex justify-center")}>
+        <div className={cn("px-2 py-3 border-t border-[color:var(--harbor-border-subtle)]", collapsed && "flex justify-center")}>
           {footer}
         </div>
       ) : null}

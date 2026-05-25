@@ -70,10 +70,6 @@ export function CommandPalette({
   }, [commands, q]);
 
   useEffect(() => {
-    setIdx(0);
-  }, [q]);
-
-  useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (!open) return;
       if (e.key === "ArrowDown") {
@@ -119,7 +115,7 @@ export function CommandPalette({
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
           }}
-          className="fixed inset-0 flex items-start justify-center bg-black/55 px-[var(--harbor-target-panel-padding)] pt-[calc(50vh-28px)]"
+          className="fixed inset-0 flex items-start justify-center bg-[var(--harbor-overlay-scrim)] px-[var(--harbor-target-panel-padding)] pt-[calc(50vh-28px)]"
           onClick={() => onOpenChange(false)}
         >
           <motion.div
@@ -133,7 +129,7 @@ export function CommandPalette({
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-xl overflow-hidden rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] text-fg shadow-[var(--harbor-menu-surface-shadow)]"
           >
-            <div className="flex items-center gap-[var(--harbor-target-gap)] border-b border-white/8 px-[var(--harbor-target-panel-padding)] py-[var(--harbor-target-control-padding-y)]">
+            <div className="flex items-center gap-[var(--harbor-target-gap)] border-b border-[color:var(--harbor-border-subtle)] px-[var(--harbor-target-panel-padding)] py-[var(--harbor-target-control-padding-y)]">
               <svg
                 width="16"
                 height="16"
@@ -151,12 +147,15 @@ export function CommandPalette({
                 autoFocus
                 aria-label={effectivePlaceholder}
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                  setIdx(0);
+                }}
                 placeholder={effectivePlaceholder}
                 data-cursor="text"
                 className="flex-1 appearance-none bg-transparent text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] outline-none placeholder:text-[color:var(--harbor-field-placeholder)]"
               />
-              <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-fg-muted">
+              <kbd className="rounded border border-[color:var(--harbor-border-subtle)] bg-[var(--harbor-state-hover)] px-1.5 py-0.5 font-mono text-[10px] text-fg-muted">
                 {t("harbor.commandPalette.escKey")}
               </kbd>
             </div>
@@ -192,7 +191,7 @@ export function CommandPalette({
                               data-cursor="button"
                               className={`flex w-full items-center gap-[var(--harbor-menu-item-gap)] rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-left text-[length:var(--harbor-menu-item-font-size)] ${
                                 idx === i ? "bg-[var(--harbor-menu-item-hover-bg)]" : ""
-                              }`}
+                              } outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]`}
                             >
                               {c.icon ? (
                                 <span className="text-fg-muted">{c.icon}</span>

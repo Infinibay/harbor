@@ -40,7 +40,7 @@ const CELL_META: Record<
 > = {
   allow: { label: "Allow", color: "text-emerald-200", bg: "bg-emerald-500/20", symbol: "✓" },
   deny: { label: "Deny", color: "text-rose-200", bg: "bg-rose-500/20", symbol: "✗" },
-  inherit: { label: "Inherit", color: "text-white/35", bg: "bg-white/[0.03]", symbol: "·" },
+  inherit: { label: "Inherit", color: "text-fg-subtle", bg: "bg-[var(--harbor-surface-panel)]", symbol: "·" },
 };
 
 const NEXT_STATE: Record<PermissionCell, PermissionCell> = {
@@ -118,12 +118,12 @@ export function PermissionMatrix({
 
   const totalCols = resources.length;
   return (
-    <div className={cn("w-full overflow-auto rounded-xl border border-white/10", className)}>
+    <div className={cn("w-full overflow-auto rounded-xl border border-[var(--harbor-border-default)]", className)}>
       <table className="text-xs w-full border-collapse">
         <thead>
           <tr>
             <th
-              className="sticky left-0 top-0 z-20 bg-surface-2 border-b border-r border-white/10 px-3 py-2 text-left text-[10px] uppercase tracking-widest text-white/40"
+              className="sticky left-0 top-0 z-20 bg-[var(--harbor-surface-toolbar)] border-b border-r border-[var(--harbor-border-default)] px-3 py-2 text-left text-[10px] uppercase tracking-widest text-fg-subtle"
               style={{ minWidth: 180 }}
             >
               Principal
@@ -132,7 +132,7 @@ export function PermissionMatrix({
               <th
                 key={`grp-${group}`}
                 colSpan={items.length}
-                className="sticky top-0 z-10 bg-surface-2 border-b border-white/10 px-2 py-1 text-[10px] uppercase tracking-widest text-white/35"
+                className="sticky top-0 z-10 bg-[var(--harbor-surface-toolbar)] border-b border-[var(--harbor-border-default)] px-2 py-1 text-[10px] uppercase tracking-widest text-fg-subtle"
               >
                 {group || "\u00A0"}
               </th>
@@ -140,12 +140,14 @@ export function PermissionMatrix({
           </tr>
           <tr>
             <th
-              className="sticky left-0 top-8 z-20 bg-surface-2 border-b border-r border-white/10 px-3 py-1"
-            />
+              className="sticky left-0 top-8 z-20 bg-[var(--harbor-surface-toolbar)] border-b border-r border-[var(--harbor-border-default)] px-3 py-1"
+            >
+              <span className="sr-only">Resources</span>
+            </th>
             {resources.map((r) => (
               <th
                 key={`rh-${r.id}`}
-                className="sticky top-8 z-10 bg-surface-2 border-b border-r border-white/5 px-2 py-1 text-[10px] text-white/60 text-center whitespace-nowrap cursor-pointer hover:bg-white/[0.04]"
+                className="sticky top-8 z-10 bg-[var(--harbor-surface-toolbar)] border-b border-r border-[var(--harbor-border-subtle)] px-2 py-1 text-[10px] text-fg-muted text-center whitespace-nowrap cursor-pointer hover:bg-[var(--harbor-state-hover)]"
                 onClick={() => bulkCol(r.id)}
                 title="Click to toggle entire column"
               >
@@ -159,17 +161,17 @@ export function PermissionMatrix({
             <tr key={p.id} style={{ height: rowH }}>
               <th
                 onClick={() => bulkRow(p.id)}
-                className="sticky left-0 z-10 bg-surface-2 border-r border-white/10 text-left px-3 cursor-pointer hover:bg-white/[0.04]"
+                className="sticky left-0 z-10 bg-[var(--harbor-surface-toolbar)] border-r border-[var(--harbor-border-default)] text-left px-3 cursor-pointer hover:bg-[var(--harbor-state-hover)]"
                 style={{ minWidth: 180 }}
               >
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-white/10 grid place-items-center text-[10px] uppercase font-bold">
+                  <span className="w-6 h-6 rounded-full bg-[var(--harbor-state-hover)] grid place-items-center text-[10px] uppercase font-bold">
                     {p.avatar ?? p.label.slice(0, 2)}
                   </span>
                   <span className="flex flex-col gap-0">
-                    <span className="text-white/90 font-medium">{p.label}</span>
+                    <span className="text-fg font-medium">{p.label}</span>
                     {p.kind ? (
-                      <span className="text-[9px] text-white/40 uppercase tracking-widest">
+                      <span className="text-[9px] text-fg-subtle uppercase tracking-widest">
                         {p.kind}
                       </span>
                     ) : null}
@@ -185,7 +187,7 @@ export function PermissionMatrix({
                   <td
                     key={r.id}
                     className={cn(
-                      "text-center cursor-pointer border-r border-b border-white/5",
+                      "text-center cursor-pointer border-r border-b border-[var(--harbor-border-subtle)]",
                       meta.bg,
                       meta.color,
                       isHover && "brightness-110",
@@ -203,7 +205,7 @@ export function PermissionMatrix({
           ))}
         </tbody>
       </table>
-      <div className="px-3 py-2 border-t border-white/5 bg-surface-2 text-[10px] text-white/40 flex items-center gap-3">
+      <div className="px-3 py-2 border-t border-[var(--harbor-border-subtle)] bg-[var(--harbor-surface-toolbar)] text-[10px] text-fg-subtle flex items-center gap-3">
         <span>
           {principals.length} principals × {totalCols} resources
         </span>

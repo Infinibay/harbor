@@ -18,7 +18,13 @@ export interface LineChartProps {
   formatY?: (v: number) => string;
 }
 
-const defaultColors = ["#a855f7", "#38bdf8", "#f472b6", "#34d399", "#fbbf24"];
+const defaultColors = [
+  "rgb(var(--harbor-chart-1))",
+  "rgb(var(--harbor-chart-2))",
+  "rgb(var(--harbor-chart-3))",
+  "rgb(var(--harbor-chart-4))",
+  "rgb(var(--harbor-chart-5))",
+];
 
 export function LineChart({
   series,
@@ -78,7 +84,7 @@ export function LineChart({
                 x2={width - 8}
                 y1={y}
                 y2={y}
-                stroke="rgba(255,255,255,0.06)"
+                stroke="var(--harbor-chart-grid)"
                 strokeWidth={1}
               />
               <text
@@ -86,7 +92,7 @@ export function LineChart({
                 y={y + 3}
                 textAnchor="end"
                 fontSize={10}
-                fill="rgba(255,255,255,0.45)"
+                fill="var(--harbor-chart-axis)"
                 fontFamily="ui-monospace, monospace"
               >
                 {formatY(t)}
@@ -129,7 +135,7 @@ export function LineChart({
               x2={xFor(hover)}
               y1={padY}
               y2={padY + innerH}
-              stroke="rgba(255,255,255,0.25)"
+              stroke="var(--harbor-chart-axis)"
               strokeDasharray="2 3"
             />
             {series.map((s, si) => {
@@ -162,7 +168,7 @@ export function LineChart({
             y={height - 4}
             textAnchor="middle"
             fontSize={10}
-            fill="rgba(255,255,255,0.4)"
+            fill="var(--harbor-chart-axis)"
           >
             {i % Math.ceil(labels.length / 6) === 0 ? lb : ""}
           </text>
@@ -171,14 +177,14 @@ export function LineChart({
 
       {hover !== null ? (
         <div className="mt-2 flex flex-wrap gap-4 text-xs">
-          <span className="text-white/55 font-mono">{labels?.[hover] ?? `#${hover}`}</span>
+          <span className="text-[color:var(--harbor-text-tertiary)] font-mono">{labels?.[hover] ?? `#${hover}`}</span>
           {series.map((s, si) => {
             const color = s.color ?? defaultColors[si % defaultColors.length];
             return (
-              <span key={s.id} className="inline-flex items-center gap-1.5 text-white/85">
+              <span key={s.id} className="inline-flex items-center gap-1.5 text-[color:var(--harbor-text-secondary)]">
                 <span className="w-2 h-2 rounded-full" style={{ background: color }} />
                 {s.label ?? s.id}
-                <span className="font-mono text-white tabular-nums">
+                <span className="font-mono text-[color:var(--harbor-text-primary)] tabular-nums">
                   {formatY(s.data[hover])}
                 </span>
               </span>
@@ -186,7 +192,7 @@ export function LineChart({
           })}
         </div>
       ) : series.length > 1 ? (
-        <div className="mt-2 flex flex-wrap gap-4 text-xs text-white/55">
+        <div className="mt-2 flex flex-wrap gap-4 text-xs text-[color:var(--harbor-text-tertiary)]">
           {series.map((s, si) => {
             const color = s.color ?? defaultColors[si % defaultColors.length];
             return (

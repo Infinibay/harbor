@@ -35,8 +35,7 @@ describe("Breadcrumbs", () => {
 
   it("does not render an extra separator after the last item", () => {
     const { container } = renderWithHarbor(<Breadcrumbs items={items} />);
-    // Separators are spans with the className "px-1 text-white/30" emitted
-    // BETWEEN items only — for N items there should be exactly N-1 of them.
+    // Separators are emitted BETWEEN items only, so N items should have N-1 separators.
     const sepGlyphSpans = Array.from(container.querySelectorAll("span")).filter(
       (s) => s.textContent === "›",
     );
@@ -44,17 +43,17 @@ describe("Breadcrumbs", () => {
     expect(sepGlyphSpans.length).toBe(linkCount - 1);
   });
 
-  it("renders last item with text-white class", () => {
+  it("renders last item with primary text token class", () => {
     const { container } = renderWithHarbor(<Breadcrumbs items={items} />);
     const links = container.querySelectorAll("a");
     const lastLink = links[links.length - 1];
-    expect(lastLink?.className).toContain("text-white");
+    expect(lastLink?.className).toContain("text-[rgb(var(--harbor-text))]");
   });
 
-  it("renders non-last items with text-white/60", () => {
+  it("renders non-last items with muted text token class", () => {
     const { container } = renderWithHarbor(<Breadcrumbs items={items} />);
     const links = container.querySelectorAll("a");
-    expect(links[0].className).toContain("text-white/60");
+    expect(links[0].className).toContain("text-[rgb(var(--harbor-text-muted))]");
   });
 
   it("renders icon when provided", () => {

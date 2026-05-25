@@ -28,9 +28,9 @@ const sizes = {
 
 const variants = {
   primary:
-    "text-white bg-gradient-to-br from-fuchsia-500 to-sky-500 shadow-[0_12px_40px_-8px_rgba(168,85,247,0.55)]",
+    "bg-[rgb(var(--harbor-brand))] text-[rgb(var(--harbor-brand-fg))] shadow-[0_12px_40px_-8px_rgb(var(--harbor-brand)/0.42)] hover:bg-[rgb(var(--harbor-accent-2))]",
   secondary:
-    "text-white bg-surface-3 border border-white/10 shadow-[0_12px_30px_-8px_rgba(0,0,0,0.6)]",
+    "border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel-muted)] text-[rgb(var(--harbor-text))] shadow-[0_12px_30px_-8px_rgb(var(--harbor-bg)/0.35)] hover:bg-[var(--harbor-state-hover)]",
 };
 
 export function FAB({
@@ -58,7 +58,7 @@ export function FAB({
       whileTap={{ scale: 0.94 }}
       transition={{ type: "spring", stiffness: 400, damping: 24 }}
       className={cn(
-        "rounded-full grid place-items-center z-50",
+        "rounded-full grid place-items-center z-50 outline-none transition-colors focus-visible:shadow-[var(--harbor-focus-shadow)]",
         sizes[size],
         variants[variant],
         positions[position],

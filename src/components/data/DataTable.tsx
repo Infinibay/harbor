@@ -11,6 +11,7 @@ import {
 } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/cn";
+import { useReducedMotionPreference } from "../../lib/a11y";
 import { useT } from "../../lib/i18n";
 import { Skeleton } from "../display/Skeleton";
 import { Menu, MenuItem, MenuSeparator } from "../overlays/Menu";
@@ -577,7 +578,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
   return (
     <div
       className={cn(
-        "relative rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden flex flex-col",
+        "relative rounded-2xl border border-[var(--harbor-border-default)] bg-[var(--harbor-surface-panel)] overflow-hidden flex flex-col",
         className,
       )}
       style={style}
@@ -587,7 +588,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
       showColumnPicker ||
       showDensityToggle ||
       showExport ? (
-        <div className="border-b border-white/8 px-4 py-2 flex items-center gap-3 print:hidden">
+        <div className="border-b border-[var(--harbor-border-subtle)] bg-[var(--harbor-surface-toolbar)] px-4 py-2 flex items-center gap-3 print:hidden">
           {showGlobalSearch ? (
             <GlobalSearchInput
               value={table.state.globalFilter}
@@ -621,7 +622,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
         aria-activedescendant={activeCellId}
         tabIndex={keyboardNavigation ? 0 : undefined}
         onKeyDown={keyboardNavigation ? onGridKeyDown : undefined}
-        className="relative overflow-auto min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/40 focus-visible:ring-inset print:overflow-visible print:max-h-none"
+        className="relative overflow-auto min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--harbor-focus-ring)] focus-visible:ring-inset print:overflow-visible print:max-h-none"
         style={maxHeight != null ? { maxHeight } : undefined}
         ref={scrollRef}
       >
@@ -634,7 +635,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
             <div
               role="row"
               aria-rowindex={1}
-              className="grid border-b border-white/8"
+              className="grid border-b border-[var(--harbor-border-subtle)]"
               style={gridStyle}
             >
               {selectable ? (
@@ -730,7 +731,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
           ) : loading ? (
             <>
               {loadingLabel ? (
-                <div className="px-4 py-3 text-xs text-white/45">
+                <div className="px-4 py-3 text-xs text-fg-subtle">
                   {loadingLabel}
                 </div>
               ) : null}
@@ -756,7 +757,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
               {pageRows.length === 0 ? (
                 <div className="p-10 grid place-items-center">
                   {emptyState ?? (
-                    <span className="text-white/40 text-sm">
+                    <span className="text-fg-subtle text-sm">
                       {t("harbor.datatable.empty") || "No data"}
                     </span>
                   )}
@@ -780,7 +781,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
                       <div
                         key={item.id}
                         role="row"
-                        className="border-b border-white/5 bg-white/[0.02]"
+                        className="border-b border-[var(--harbor-border-subtle)] bg-[var(--harbor-surface-panel-muted)]"
                         style={{
                           height: virtualized ? expandedRowHeight : undefined,
                           paddingInlineStart: item.level > 0 ? 24 : 0,
@@ -809,9 +810,9 @@ export function DataTable<T>(props: DataTableProps<T>) {
                       aria-selected={selectable ? selected : undefined}
                       initial={false}
                       className={cn(
-                        "group/row grid border-b border-white/5 transition-colors",
-                        "hover:bg-white/[0.03]",
-                        selected && "bg-fuchsia-500/[0.08]",
+                        "group/row grid border-b border-[var(--harbor-border-subtle)] transition-colors",
+                        "hover:bg-[var(--harbor-state-hover)]",
+                        selected && "bg-[var(--harbor-state-selected)]",
                         onRowClick && "cursor-pointer",
                       )}
                       style={
@@ -1124,7 +1125,7 @@ function HeaderCell({
         insetInlineStart: stickyStart,
         insetInlineEnd: stickyEnd,
         zIndex,
-        background: "rgb(15 15 22 / 0.95)",
+        background: "rgb(var(--harbor-bg-elev-1) / 0.96)",
       }
     : undefined;
 
@@ -1137,10 +1138,10 @@ function HeaderCell({
         "group relative flex items-center",
         CELL_PADDING_X[density],
         ROW_HEIGHT_CLASS[density],
-        "text-[11px] uppercase tracking-wider font-medium text-white/45 select-none",
+        "text-[11px] uppercase tracking-wider font-medium text-fg-subtle select-none",
         ALIGN_CLASS[align],
-        sortable && "cursor-pointer hover:text-white/85 transition-colors",
-        sortEntry && "text-white",
+        sortable && "cursor-pointer hover:text-fg transition-colors",
+        sortEntry && "text-fg",
       )}
       style={style}
       onClick={onClick}
@@ -1216,19 +1217,19 @@ function BodyCell({
       aria-colindex={ariaColIndex}
       data-col-id={colId}
       className={cn(
-        "flex items-center text-sm text-white/85",
+        "flex items-center text-sm text-fg",
         CELL_PADDING_X[density],
         ROW_HEIGHT_CLASS[density],
         ALIGN_CLASS[align],
         // Sticky cells need an opaque base + overlays that mirror the row's
         // hover / selected tints, otherwise they paint as a dark stripe that
         // ignores row state. The row sets `group/row` and data-selected.
-        sticky && "relative bg-[rgb(15_15_22)]",
+        sticky && "relative bg-[var(--harbor-surface-panel)]",
         sticky && "before:content-[''] before:absolute before:inset-0 before:pointer-events-none before:transition-colors",
-        sticky && "group-hover/row:before:bg-white/[0.03]",
-        sticky && "group-data-[selected=true]/row:before:bg-fuchsia-500/[0.08]",
+        sticky && "group-hover/row:before:bg-[var(--harbor-state-hover)]",
+        sticky && "group-data-[selected=true]/row:before:bg-[var(--harbor-state-selected)]",
         active &&
-          "outline outline-2 outline-offset-[-2px] outline-fuchsia-400/70",
+          "outline outline-2 outline-offset-[-2px] outline-[var(--harbor-focus-ring)]",
       )}
       style={style}
       onClick={onClick}
@@ -1256,8 +1257,8 @@ function ResizeHandle({ onPointerDown, onDoubleClick }: ResizeHandleProps) {
       className={cn(
         "absolute inset-y-0 end-0 cursor-col-resize select-none",
         "opacity-0 group-hover:opacity-100 transition-opacity",
-        "before:absolute before:inset-y-2 before:end-0 before:w-px before:bg-white/25",
-        "hover:before:bg-fuchsia-400/70",
+        "before:absolute before:inset-y-2 before:end-0 before:w-px before:bg-[var(--harbor-border-strong)]",
+        "hover:before:bg-[var(--harbor-border-focus)]",
       )}
       style={{ width: RESIZE_HANDLE_WIDTH }}
     />
@@ -1269,14 +1270,24 @@ function SortIndicator({
 }: {
   direction: "asc" | "desc" | null;
 }) {
+  const reducedMotion = useReducedMotionPreference();
+
   if (direction === "asc") {
+    if (reducedMotion) {
+      return (
+        <span className="inline-block text-accent" aria-hidden>
+          ↑
+        </span>
+      );
+    }
+
     return (
       <motion.span
         key="asc"
         initial={{ opacity: 0, y: -2 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15 }}
-        className="inline-block text-fuchsia-300"
+        className="inline-block text-accent"
         aria-hidden
       >
         ↑
@@ -1284,13 +1295,21 @@ function SortIndicator({
     );
   }
   if (direction === "desc") {
+    if (reducedMotion) {
+      return (
+        <span className="inline-block text-accent" aria-hidden>
+          ↓
+        </span>
+      );
+    }
+
     return (
       <motion.span
         key="desc"
         initial={{ opacity: 0, y: 2 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15 }}
-        className="inline-block text-fuchsia-300"
+        className="inline-block text-accent"
         aria-hidden
       >
         ↓
@@ -1299,7 +1318,7 @@ function SortIndicator({
   }
   return (
     <span
-      className="inline-block text-white/40 group-hover:text-white/70 transition-colors leading-none"
+      className="inline-block text-fg-subtle group-hover:text-fg-muted transition-colors leading-none"
       aria-hidden
     >
       ↕
@@ -1320,6 +1339,8 @@ function CheckCell({
   disabled?: boolean;
   ariaLabel: string;
 }) {
+  const reducedMotion = useReducedMotionPreference();
+
   return (
     <motion.button
       type="button"
@@ -1327,33 +1348,25 @@ function CheckCell({
       aria-checked={indeterminate ? "mixed" : checked}
       aria-label={ariaLabel}
       onClick={onChange}
-      whileTap={disabled ? undefined : { scale: 0.85 }}
+      whileTap={disabled || reducedMotion ? undefined : { scale: 0.85 }}
       disabled={disabled}
-      animate={{
-        // Motion cannot interpolate `rgb(var(--x) / ...)` — the browser
-        // resolves CSS vars at render time, so the color string isn't
-        // parseable. Use literal rgba for the off-state.
-        background:
-          checked || indeterminate
-            ? "linear-gradient(135deg,#a855f7,#38bdf8)"
-            : "rgba(148,163,184,0.08)",
-        borderColor:
-          checked || indeterminate
-            ? "transparent"
-            : "rgba(148,163,184,0.35)",
-        opacity: disabled ? 0.35 : 1,
-      }}
-      className="w-4 h-4 rounded border grid place-items-center disabled:cursor-not-allowed"
+      className={cn(
+        "w-4 h-4 rounded border grid place-items-center disabled:cursor-not-allowed disabled:opacity-35",
+        checked || indeterminate
+          ? "border-transparent bg-gradient-to-br from-accent to-accent-2"
+          : "border-[var(--harbor-border-strong)] bg-[var(--harbor-state-hover)]",
+      )}
     >
       {indeterminate ? (
-        <span className="block w-2 h-0.5 bg-white rounded" aria-hidden />
+        <span className="block w-2 h-0.5 bg-brand-fg rounded" aria-hidden />
       ) : checked ? (
         <svg
+          className="text-brand-fg"
           width="12"
           height="12"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="white"
+          stroke="currentColor"
           strokeWidth="3.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -1391,7 +1404,7 @@ function Pagination({
   const canNext = page < totalPages - 1;
 
   return (
-    <div className="border-t border-white/8 px-4 py-2 flex items-center justify-between gap-3 text-xs text-white/60">
+    <div className="border-t border-[var(--harbor-border-subtle)] bg-[var(--harbor-surface-toolbar)] px-4 py-2 flex items-center justify-between gap-3 text-xs text-fg-muted">
       <div className="flex items-center gap-2">
         <span>
           {t("harbor.datatable.showingRange", { start, end, total }) ||
@@ -1418,7 +1431,7 @@ function Pagination({
             type="button"
             onClick={() => onPageChange(0)}
             disabled={!canPrev}
-            className="w-7 h-7 rounded grid place-items-center hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-7 h-7 rounded grid place-items-center hover:bg-[var(--harbor-state-hover)] disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label={t("harbor.datatable.firstPage") || "First page"}
           >
             «
@@ -1427,7 +1440,7 @@ function Pagination({
             type="button"
             onClick={() => onPageChange(page - 1)}
             disabled={!canPrev}
-            className="w-7 h-7 rounded grid place-items-center hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-7 h-7 rounded grid place-items-center hover:bg-[var(--harbor-state-hover)] disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label={t("harbor.datatable.prevPage") || "Previous page"}
           >
             ‹
@@ -1439,7 +1452,7 @@ function Pagination({
             type="button"
             onClick={() => onPageChange(page + 1)}
             disabled={!canNext}
-            className="w-7 h-7 rounded grid place-items-center hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-7 h-7 rounded grid place-items-center hover:bg-[var(--harbor-state-hover)] disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label={t("harbor.datatable.nextPage") || "Next page"}
           >
             ›
@@ -1448,7 +1461,7 @@ function Pagination({
             type="button"
             onClick={() => onPageChange(totalPages - 1)}
             disabled={!canNext}
-            className="w-7 h-7 rounded grid place-items-center hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-7 h-7 rounded grid place-items-center hover:bg-[var(--harbor-state-hover)] disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label={t("harbor.datatable.lastPage") || "Last page"}
           >
             »
@@ -1511,7 +1524,7 @@ function HeaderMenu<T>({ table, col, pinSide, offsetEnd }: HeaderMenuProps<T>) {
           style={{ insetInlineEnd: offsetEnd }}
           className={cn(
             "absolute inset-y-0 my-auto w-5 h-5 rounded grid place-items-center",
-            "text-white/45 hover:text-white hover:bg-white/10",
+            "text-fg-subtle hover:text-fg hover:bg-[var(--harbor-state-hover)]",
             "opacity-0 group-hover:opacity-100 transition-opacity",
           )}
         >
@@ -1623,7 +1636,7 @@ function DensityToggle({ density, onChange }: DensityToggleProps) {
     <div
       role="group"
       aria-label={t("harbor.datatable.density.label") || "Density"}
-      className="inline-flex rounded-md border border-white/10 overflow-hidden text-[11px]"
+      className="inline-flex rounded-md border border-[var(--harbor-border-default)] overflow-hidden text-[11px]"
     >
       {options.map((o, i) => (
         <button
@@ -1633,10 +1646,10 @@ function DensityToggle({ density, onChange }: DensityToggleProps) {
           onClick={() => onChange(o.key)}
           className={cn(
             "px-2.5 h-8 transition-colors",
-            i > 0 && "border-s border-white/10",
+            i > 0 && "border-s border-[var(--harbor-border-default)]",
             density === o.key
-              ? "bg-fuchsia-500/20 text-fuchsia-100"
-              : "bg-white/[0.02] text-white/65 hover:bg-white/5 hover:text-white",
+              ? "bg-[var(--harbor-state-selected)] text-[var(--harbor-state-selected-fg)]"
+              : "bg-surface-1/80 text-fg-muted hover:bg-[var(--harbor-state-hover)] hover:text-fg",
           )}
         >
           {o.label}
@@ -1665,8 +1678,8 @@ function ExportMenu({ onExport }: ExportMenuProps) {
           type="button"
           className={cn(
             "inline-flex items-center gap-2 px-3 h-8 rounded-md text-xs",
-            "bg-white/5 border border-white/10 text-white/75",
-            "hover:bg-white/[0.08] hover:text-white transition-colors",
+            "bg-surface-1/80 border border-[var(--harbor-border-default)] text-fg-muted",
+            "hover:bg-[var(--harbor-state-hover)] hover:text-fg transition-colors",
           )}
         >
           <svg
@@ -1724,7 +1737,7 @@ function RowActionsMenu<T>({ items, row }: RowActionsMenuProps<T>) {
           onClick={(e) => e.stopPropagation()}
           className={cn(
             "w-7 h-7 rounded grid place-items-center",
-            "text-white/55 hover:text-white hover:bg-white/10 transition-colors",
+            "text-fg-muted hover:text-fg hover:bg-[var(--harbor-state-hover)] transition-colors",
           )}
         >
           <svg
@@ -1847,9 +1860,9 @@ function EditingCellInput<T>({
     onBlur: () => attempt(draft),
     "aria-invalid": error ? true : undefined,
     className: cn(
-      "w-full h-7 px-2 rounded-md text-sm text-white outline-none",
-      "bg-surface-2 border",
-      error ? "border-rose-400/70" : "border-fuchsia-400/60",
+      "w-full h-7 px-2 rounded-md text-sm text-fg outline-none",
+      "bg-[var(--harbor-surface-panel-muted)] border",
+      error ? "border-rose-400/70" : "border-[var(--harbor-border-focus)]",
     ),
   } as const;
 
@@ -1926,7 +1939,7 @@ function ExpandToggle({ expanded, indent, onToggle }: ExpandToggleProps) {
       aria-label={expanded ? "Collapse row" : "Expand row"}
       className={cn(
         "me-1.5 w-5 h-5 rounded grid place-items-center shrink-0",
-        "text-white/55 hover:text-white hover:bg-white/10 transition-colors",
+        "text-fg-muted hover:text-fg hover:bg-[var(--harbor-state-hover)] transition-colors",
       )}
       style={{ marginInlineStart: indent > 0 ? indent * 20 : 0 }}
     >
@@ -2000,9 +2013,9 @@ function GroupRow<T>({
       role="row"
       aria-expanded={item.expanded}
       className={cn(
-        "border-b border-white/8 bg-white/[0.03]",
+        "border-b border-[var(--harbor-border-subtle)] bg-[var(--harbor-surface-panel-muted)]",
         "flex items-center gap-3 min-w-max",
-        "text-[11px] uppercase tracking-wider text-white/70",
+        "text-[11px] uppercase tracking-wider text-fg-muted",
         CELL_PADDING_X[density],
         ROW_HEIGHT_CLASS[density],
       )}
@@ -2019,7 +2032,7 @@ function GroupRow<T>({
         }}
         aria-label={item.expanded ? "Collapse group" : "Expand group"}
         aria-expanded={item.expanded}
-        className="w-5 h-5 rounded grid place-items-center text-white/55 hover:text-white hover:bg-white/10"
+        className="w-5 h-5 rounded grid place-items-center text-fg-muted hover:text-fg hover:bg-[var(--harbor-state-hover)]"
       >
         <svg
           width="10"
@@ -2038,17 +2051,17 @@ function GroupRow<T>({
           <path d="M9 6 L15 12 L9 18" />
         </svg>
       </button>
-      <span className="text-white/55 font-normal normal-case">
+      <span className="text-fg-muted font-normal normal-case">
         {groupLabel}
       </span>
-      <span className="text-white font-medium normal-case">{groupValue}</span>
-      <span className="text-white/40 normal-case">· {item.count}</span>
+      <span className="text-fg font-medium normal-case">{groupValue}</span>
+      <span className="text-fg-subtle normal-case">· {item.count}</span>
       {aggregates.length > 0 ? (
-        <span className="flex items-center gap-3 normal-case text-white/55 font-normal">
+        <span className="flex items-center gap-3 normal-case text-fg-muted font-normal">
           {aggregates.map((a) => (
             <span key={a.id}>
-              <span className="text-white/40">{a.label}:</span>{" "}
-              <span className="text-white/80">{formatAggregate(a.value)}</span>
+              <span className="text-fg-subtle">{a.label}:</span>{" "}
+              <span className="text-fg">{formatAggregate(a.value)}</span>
             </span>
           ))}
         </span>
@@ -2094,7 +2107,7 @@ function SkeletonRows<T>({
           key={rowIdx}
           role="row"
           aria-hidden
-          className="grid border-b border-white/5"
+          className="grid border-b border-[var(--harbor-border-subtle)]"
           style={gridStyle}
         >
           {selectable ? (
@@ -2173,15 +2186,15 @@ function ErrorPanel({ error, onRetry }: ErrorPanelProps) {
           <path d="M12 17h.01" />
         </svg>
       </div>
-      <div className="text-sm text-white/85">{message}</div>
+      <div className="text-sm text-fg">{message}</div>
       {onRetry ? (
         <button
           type="button"
           onClick={onRetry}
           className={cn(
             "mt-1 px-3 h-8 rounded-md text-xs",
-            "bg-white/5 border border-white/10 text-white/85",
-            "hover:bg-white/10 transition-colors",
+            "bg-[var(--harbor-surface-panel-muted)] border border-[var(--harbor-border-default)] text-fg",
+            "hover:bg-[var(--harbor-state-hover)] transition-colors",
           )}
         >
           {t("harbor.action.retry") || "Retry"}
@@ -2245,7 +2258,7 @@ function GlobalSearchInput({
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
-        className="absolute inset-y-0 start-2.5 my-auto text-white/40"
+        className="absolute inset-y-0 start-2.5 my-auto text-fg-subtle"
       >
         <circle cx="11" cy="11" r="7" />
         <path d="m20 20-3.5-3.5" />
@@ -2261,10 +2274,10 @@ function GlobalSearchInput({
           placeholder ?? t("harbor.search.placeholder") ?? "Search"
         }
         className={cn(
-          "w-full h-8 ps-8 pe-3 rounded-md text-sm text-white",
-          "bg-white/5 border border-white/10",
-          "placeholder:text-white/30",
-          "focus:outline-none focus:border-fuchsia-400/60",
+          "w-full h-8 ps-8 pe-3 rounded-md text-sm text-fg",
+          "bg-[var(--harbor-surface-panel-muted)] border border-[var(--harbor-border-default)]",
+          "placeholder:text-fg-subtle",
+          "focus:outline-none focus:border-[var(--harbor-border-focus)]",
         )}
       />
     </div>
@@ -2300,8 +2313,8 @@ function ColumnVisibilityPicker<T>({ table }: ColumnVisibilityPickerProps<T>) {
           type="button"
           className={cn(
             "inline-flex items-center gap-2 px-3 h-8 rounded-md text-xs",
-            "bg-white/5 border border-white/10 text-white/75",
-            "hover:bg-white/[0.08] hover:text-white transition-colors",
+            "bg-surface-1/80 border border-[var(--harbor-border-default)] text-fg-muted",
+            "hover:bg-[var(--harbor-state-hover)] hover:text-fg transition-colors",
           )}
         >
           <svg
@@ -2345,16 +2358,17 @@ function ColumnVisibilityPicker<T>({ table }: ColumnVisibilityPickerProps<T>) {
                   "w-3.5 h-3.5 rounded border grid place-items-center",
                   isVisible
                     ? "bg-fuchsia-500 border-fuchsia-400"
-                    : "border-white/30",
+                    : "border-[var(--harbor-border-strong)]",
                 )}
               >
                 {isVisible ? (
                   <svg
+                    className="text-brand-fg"
                     width="10"
                     height="10"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="white"
+                    stroke="currentColor"
                     strokeWidth="3.5"
                     strokeLinecap="round"
                   >

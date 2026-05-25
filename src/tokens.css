@@ -26,7 +26,7 @@
   /* === Colors ============================================== */
 
   /* Brand accents (RGB triplets) */
-  --harbor-accent: 168 85 247;       /* fuchsia-500 — system / interaction */
+  --harbor-accent: 147 51 234;       /* violet-600 — system / interaction */
   --harbor-accent-2: 56 189 248;     /* sky-400 */
   --harbor-accent-3: 244 114 182;    /* pink-400 */
 
@@ -203,6 +203,56 @@
   --harbor-field-selection-fg: rgb(var(--harbor-text));
   --harbor-field-disabled-opacity: 0.50;
   --harbor-native-color-scheme: dark;
+
+  /* === Semantic product tokens =============================
+     These aliases give product code stable UI roles instead of forcing
+     every component to recombine base colors, alphas, and states. */
+
+  --harbor-surface-canvas: rgb(var(--harbor-bg));
+  --harbor-surface-panel: rgb(var(--harbor-bg-elev-1));
+  --harbor-surface-panel-muted: rgb(var(--harbor-bg-elev-2));
+  --harbor-surface-toolbar: rgb(var(--harbor-bg-elev-1) / 0.92);
+  --harbor-surface-raised: rgb(var(--harbor-bg-elev-3));
+  --harbor-surface-sunken: rgb(6 6 10);
+
+  --harbor-text-primary: rgb(var(--harbor-text));
+  --harbor-text-secondary: rgb(var(--harbor-text-muted));
+  --harbor-text-tertiary: rgb(var(--harbor-text-subtle));
+  --harbor-text-disabled: rgb(var(--harbor-text) / 0.34);
+  --harbor-text-inverse: rgb(var(--harbor-brand-fg));
+  --harbor-text-link: rgb(var(--harbor-accent-2));
+
+  --harbor-border-subtle: rgb(var(--harbor-border) / 0.08);
+  --harbor-border-default: rgb(var(--harbor-border) / 0.12);
+  --harbor-border-strong: rgb(var(--harbor-border) / 0.18);
+  --harbor-border-focus: rgb(var(--harbor-accent) / 0.70);
+
+  --harbor-focus-ring: rgb(var(--harbor-accent) / 0.78);
+  --harbor-focus-ring-offset: rgb(var(--harbor-bg));
+  --harbor-focus-shadow: 0 0 0 1px rgb(var(--harbor-bg)),
+    0 0 0 3px rgb(var(--harbor-accent) / 0.55);
+
+  --harbor-state-hover: rgb(var(--harbor-text) / 0.06);
+  --harbor-state-active: rgb(var(--harbor-text) / 0.10);
+  --harbor-state-selected: rgb(var(--harbor-accent) / 0.22);
+  --harbor-state-selected-fg: rgb(var(--harbor-text));
+  --harbor-state-disabled-fg: rgb(var(--harbor-text) / 0.34);
+
+  --harbor-overlay-scrim: rgb(2 2 6 / 0.70);
+  --harbor-overlay-surface: rgb(var(--harbor-bg-elev-3));
+  --harbor-overlay-border: rgb(var(--harbor-border) / 0.16);
+
+  --harbor-chart-1: 56 189 248;
+  --harbor-chart-2: 168 85 247;
+  --harbor-chart-3: 52 211 153;
+  --harbor-chart-4: 251 191 36;
+  --harbor-chart-5: 244 114 182;
+  --harbor-chart-positive: var(--harbor-success);
+  --harbor-chart-negative: var(--harbor-danger);
+  --harbor-chart-warning: var(--harbor-warning);
+  --harbor-chart-neutral: 148 163 184;
+  --harbor-chart-grid: rgb(var(--harbor-border) / 0.10);
+  --harbor-chart-axis: rgb(var(--harbor-text-muted) / 0.66);
 
   /* === Desktop app / workbench tokens ======================
      Used by editor-style shells, file explorers, tab strips and other
@@ -427,6 +477,35 @@
      best with white text on either theme. */
   --harbor-brand-fg: 255 255 255;
   --harbor-native-color-scheme: light;
+
+  --harbor-surface-toolbar: rgb(255 255 255 / 0.92);
+  --harbor-surface-raised: rgb(255 255 255);
+  --harbor-surface-sunken: rgb(236 239 246);
+  --harbor-text-disabled: rgb(var(--harbor-text) / 0.38);
+  --harbor-text-link: rgb(var(--harbor-accent));
+  --harbor-border-focus: rgb(var(--harbor-accent) / 0.72);
+  --harbor-focus-ring: rgb(var(--harbor-accent) / 0.86);
+  --harbor-focus-ring-offset: rgb(var(--harbor-bg-elev-1));
+  --harbor-focus-shadow: 0 0 0 1px rgb(255 255 255),
+    0 0 0 3px rgb(var(--harbor-accent) / 0.50);
+  --harbor-state-hover: rgb(15 23 42 / 0.045);
+  --harbor-state-active: rgb(15 23 42 / 0.075);
+  --harbor-state-selected: rgb(var(--harbor-accent) / 0.14);
+  --harbor-state-disabled-fg: rgb(var(--harbor-text) / 0.38);
+  --harbor-overlay-scrim: rgb(15 23 42 / 0.48);
+  --harbor-overlay-surface: rgb(var(--harbor-bg-elev-1));
+  --harbor-overlay-border: rgb(var(--harbor-border) / 0.14);
+  --harbor-chart-1: 2 132 199;
+  --harbor-chart-2: 126 34 206;
+  --harbor-chart-3: 5 150 105;
+  --harbor-chart-4: 180 83 9;
+  --harbor-chart-5: 190 18 60;
+  --harbor-chart-positive: 5 150 105;
+  --harbor-chart-negative: 225 29 72;
+  --harbor-chart-warning: 180 83 9;
+  --harbor-chart-neutral: 100 116 139;
+  --harbor-chart-grid: rgb(15 23 42 / 0.10);
+  --harbor-chart-axis: rgb(51 65 85 / 0.72);
 
   /* Syntax colors — darker variants so they carry weight on white
      surfaces. Same semantic roles as the dark defaults. */

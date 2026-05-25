@@ -34,7 +34,7 @@ export function SegmentedControl({
   return (
     <div
       className={cn(
-        "relative inline-flex bg-white/5 border border-white/10 rounded-xl p-0.5",
+        "relative inline-flex rounded-xl border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel-muted)] p-0.5",
         h,
         className,
       )}
@@ -50,14 +50,16 @@ export function SegmentedControl({
             }}
             data-cursor="button"
             className={cn(
-              "relative flex-1 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors whitespace-nowrap",
-              active ? "text-black" : "text-white/65 hover:text-white",
+              "relative flex-1 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors whitespace-nowrap outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
+              active
+                ? "text-[var(--harbor-state-selected-fg)]"
+                : "text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))]",
             )}
           >
             {active ? (
               <motion.span
                 layoutId={`${id}-seg`}
-                className="absolute inset-0 rounded-lg bg-white shadow-[0_2px_10px_rgba(0,0,0,0.3)]"
+                className="absolute inset-0 rounded-lg border border-[color:var(--harbor-focus-ring)] bg-[var(--harbor-state-selected)] shadow-[var(--harbor-target-shadow)]"
                 transition={{ type: "spring", stiffness: 500, damping: 35 }}
               />
             ) : null}

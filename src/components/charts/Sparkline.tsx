@@ -15,8 +15,8 @@ export function Sparkline({
   data,
   width = 100,
   height = 28,
-  stroke = "#a855f7",
-  fill = "rgba(168,85,247,0.15)",
+  stroke = "rgb(var(--harbor-chart-2))",
+  fill = "rgb(var(--harbor-chart-2) / 0.16)",
   showDot = true,
   className,
 }: SparklineProps) {

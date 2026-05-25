@@ -70,7 +70,7 @@ export function Calendar({
             setDir(-1);
             setCursor((c) => addMonths(c, -1));
           }}
-          className="grid h-[calc(var(--harbor-target-control-height)-6px)] w-[calc(var(--harbor-target-control-height)-6px)] place-items-center rounded-[var(--harbor-target-radius)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-white"
+          className="grid h-[calc(var(--harbor-target-control-height)-6px)] w-[calc(var(--harbor-target-control-height)-6px)] place-items-center rounded-[var(--harbor-target-radius)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]"
         >
           ‹
         </button>
@@ -82,7 +82,7 @@ export function Calendar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: dir >= 0 ? -8 : 8 }}
             transition={{ duration: 0.2 }}
-            className="text-[length:var(--harbor-target-font-size)] font-medium capitalize text-white"
+            className="text-[length:var(--harbor-target-font-size)] font-medium capitalize text-[color:var(--harbor-field-fg)]"
           >
             {monthLabel}
           </motion.div>
@@ -92,7 +92,7 @@ export function Calendar({
             setDir(1);
             setCursor((c) => addMonths(c, 1));
           }}
-          className="grid h-[calc(var(--harbor-target-control-height)-6px)] w-[calc(var(--harbor-target-control-height)-6px)] place-items-center rounded-[var(--harbor-target-radius)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-white"
+          className="grid h-[calc(var(--harbor-target-control-height)-6px)] w-[calc(var(--harbor-target-control-height)-6px)] place-items-center rounded-[var(--harbor-target-radius)] text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] hover:text-[color:var(--harbor-field-fg)]"
         >
           ›
         </button>
@@ -101,7 +101,7 @@ export function Calendar({
         {WEEKDAYS.map((d) => (
           <div
             key={d}
-            className="text-center text-[10px] uppercase tracking-wider text-white/35 py-1"
+            className="text-center text-[10px] uppercase tracking-wider text-[color:var(--harbor-text-tertiary)] py-1"
           >
             {d}
           </div>
@@ -121,9 +121,11 @@ export function Calendar({
               whileTap={disabled ? undefined : { scale: 0.88 }}
               className={cn(
                 "relative h-[var(--harbor-target-control-height)] rounded-[var(--harbor-target-radius)] text-[length:var(--harbor-target-font-size)] transition-colors",
-                inMonth ? "text-white/80" : "text-white/25",
-                !disabled && !isSelected && "hover:bg-white/5",
-                isSelected && "text-white",
+                inMonth
+                  ? "text-[color:var(--harbor-field-fg)]"
+                  : "text-[color:var(--harbor-text-tertiary)]",
+                !disabled && !isSelected && "hover:bg-[var(--harbor-menu-item-hover-bg)]",
+                isSelected && "text-[rgb(var(--harbor-brand-fg))]",
                 disabled && "opacity-30 cursor-not-allowed",
               )}
             >
@@ -137,13 +139,13 @@ export function Calendar({
                   }}
                   className="absolute inset-1 rounded-md"
                   style={{
-                    background: "linear-gradient(135deg,#a855f7,#38bdf8)",
+                    background: "linear-gradient(135deg,rgb(var(--harbor-brand)),rgb(var(--harbor-accent-2)))",
                   }}
                 />
               ) : null}
               <span className="relative">{d.getDate()}</span>
               {isToday && !isSelected ? (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-fuchsia-400" />
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[rgb(var(--harbor-accent))]" />
               ) : null}
             </motion.button>
           );

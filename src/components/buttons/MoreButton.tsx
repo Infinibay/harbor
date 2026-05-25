@@ -22,7 +22,7 @@ export const MoreButton = forwardRef<HTMLButtonElement, MoreButtonProps>(
         aria-label="More actions"
         data-cursor="button"
         className={cn(
-          "grid place-items-center rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors",
+          "grid place-items-center rounded-lg text-[rgb(var(--harbor-text-muted))] outline-none transition-colors hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))] focus-visible:shadow-[var(--harbor-focus-shadow)] disabled:cursor-not-allowed disabled:opacity-50",
           dim,
           className,
         )}

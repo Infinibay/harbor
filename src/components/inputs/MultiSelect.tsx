@@ -73,7 +73,7 @@ export function MultiSelect({
   return (
     <div className={cn("relative w-full", className)}>
       {label ? (
-        <label className="block text-xs text-white/60 mb-1.5">{label}</label>
+        <label className="block text-xs text-[color:var(--harbor-field-muted-fg)] mb-1.5">{label}</label>
       ) : null}
       <button
         ref={anchorRef}
@@ -96,18 +96,15 @@ export function MultiSelect({
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-fuchsia-500/15 border border-fuchsia-400/30 text-fuchsia-200 text-xs"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border bg-[var(--harbor-state-selected)] border-[color:var(--harbor-border-focus)] text-[color:var(--harbor-state-selected-fg)] text-xs"
               >
                 {o.label}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggle(o.value);
-                  }}
-                  className="text-fuchsia-300/70 hover:text-white"
+                <span
+                  aria-hidden
+                  className="text-[color:var(--harbor-field-muted-fg)]"
                 >
                   ×
-                </button>
+                </span>
               </motion.span>
             ))
           )}
@@ -147,20 +144,20 @@ export function MultiSelect({
                         onClick={() => toggle(o.value)}
                         className="flex w-full items-center justify-between rounded-[var(--harbor-menu-item-radius)] px-[var(--harbor-menu-item-padding-x)] py-[var(--harbor-menu-item-padding-y)] text-left text-[length:var(--harbor-menu-item-font-size)] hover:bg-[var(--harbor-menu-item-hover-bg)]"
                       >
-                        <span className="inline-flex items-center gap-2 text-white">
+                        <span className="inline-flex items-center gap-2 text-[color:var(--harbor-menu-item-fg)]">
                           {o.icon}
                           {o.label}
                         </span>
-                        <motion.span
-                          animate={{
+                        <span
+                          className="w-4 h-4 rounded border grid place-items-center"
+                          style={{
                             background: on
-                              ? "linear-gradient(135deg,#a855f7,#38bdf8)"
-                              : "rgba(255,255,255,0.03)",
+                              ? "linear-gradient(135deg,rgb(var(--harbor-brand)),rgb(var(--harbor-accent-2)))"
+                              : "var(--harbor-field-bg)",
                             borderColor: on
                               ? "transparent"
-                              : "rgba(255,255,255,0.18)",
+                              : "var(--harbor-field-border)",
                           }}
-                          className="w-4 h-4 rounded border grid place-items-center"
                         >
                           {on ? (
                             <svg
@@ -168,7 +165,7 @@ export function MultiSelect({
                               height="10"
                               viewBox="0 0 24 24"
                               fill="none"
-                              stroke="white"
+                              stroke="rgb(var(--harbor-brand-fg))"
                               strokeWidth="4"
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -176,13 +173,13 @@ export function MultiSelect({
                               <path d="M5 12 L10 17 L19 7" />
                             </svg>
                           ) : null}
-                        </motion.span>
+                        </span>
                       </button>
                     </li>
                   );
                 })}
                 {filtered.length === 0 ? (
-                  <li className="px-3 py-3 text-sm text-white/40">
+                  <li className="px-3 py-3 text-sm text-[color:var(--harbor-menu-item-muted-fg)]">
                     No matches
                   </li>
                 ) : null}

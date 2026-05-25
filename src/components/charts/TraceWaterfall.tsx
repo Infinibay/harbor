@@ -37,9 +37,9 @@ export interface SpanBarProps {
 }
 
 const STATUS_COLOR: Record<SpanStatus, string> = {
-  ok: "#34d399",
-  error: "#f43f5e",
-  pending: "#fbbf24",
+  ok: "rgb(var(--harbor-chart-positive))",
+  error: "rgb(var(--harbor-chart-negative))",
+  pending: "rgb(var(--harbor-chart-warning))",
 };
 
 export function SpanBar({
@@ -79,7 +79,7 @@ export function SpanBar({
         tags ? "\n" + JSON.stringify(tags, null, 2) : ""
       }`}
     >
-      <div className="absolute inset-0 rounded bg-white/[0.03]" />
+      <div className="absolute inset-0 rounded bg-[var(--harbor-surface-sunken)]" />
       <div
         className="absolute top-0 bottom-0 rounded"
         style={{
@@ -90,11 +90,11 @@ export function SpanBar({
         }}
       />
       <div
-        className="absolute top-0 bottom-0 flex items-center text-[10px] font-mono text-white/90 whitespace-nowrap px-1.5 pointer-events-none"
+        className="absolute top-0 bottom-0 flex items-center text-[10px] font-mono text-[color:var(--harbor-text-primary)] whitespace-nowrap px-1.5 pointer-events-none"
         style={{ left: `${leftPct}%`, maxWidth: `${Math.max(widthPct, 40)}%` }}
       >
         <span className="truncate">{name}</span>
-        <span className="text-white/70 ml-2 shrink-0">
+        <span className="text-[color:var(--harbor-text-secondary)] ml-2 shrink-0">
           {formatDuration(duration, { includeMs: true })}
         </span>
       </div>
@@ -188,7 +188,7 @@ export function TraceWaterfall({
   return (
     <div className={cn("w-full", className)}>
       {header}
-      <div className="flex items-center gap-3 text-[10px] text-white/40 tabular-nums font-mono px-2 py-1 border-b border-white/8">
+      <div className="flex items-center gap-3 border-b border-[color:var(--harbor-border-subtle)] px-2 py-1 font-mono text-[10px] tabular-nums text-[color:var(--harbor-text-tertiary)]">
         <span className="w-64 shrink-0">Span</span>
         <span className="flex-1 flex items-center justify-between">
           {[0, 0.25, 0.5, 0.75, 1].map((f) => (
@@ -203,7 +203,7 @@ export function TraceWaterfall({
           return (
             <div key={row.span.id} className="flex items-center gap-3 px-2">
               <div
-                className="w-64 shrink-0 flex items-center gap-1.5 text-xs text-white/85"
+                className="w-64 shrink-0 flex items-center gap-1.5 text-xs text-[color:var(--harbor-text-secondary)]"
                 style={{ paddingLeft: row.depth * 12 }}
               >
                 {hasChildren ? (
@@ -212,7 +212,7 @@ export function TraceWaterfall({
                     onClick={() => toggle(row.span.id)}
                     aria-expanded={open}
                     aria-label={`${open ? "Collapse" : "Expand"} ${row.span.name}`}
-                    className="w-3 text-[10px] text-white/50 hover:text-white text-left"
+                    className="w-3 text-left text-[10px] text-[color:var(--harbor-text-tertiary)] hover:text-[color:var(--harbor-text-primary)]"
                   >
                     {open ? "▾" : "▸"}
                   </button>

@@ -79,7 +79,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           />
           {maxChars ? (
             <div className="flex items-center gap-2 px-[var(--harbor-target-control-padding-x)] pb-[var(--harbor-target-control-padding-y)]">
-              <div className="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
+              <div className="flex-1 h-1 rounded-full bg-[var(--harbor-state-hover)] overflow-hidden">
                 <motion.div
                   animate={{ width: `${pct * 100}%` }}
                   transition={{ type: "spring", stiffness: 200, damping: 30 }}
@@ -87,12 +87,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                   style={{
                     background:
                       pct > 0.9
-                        ? "rgb(244, 63, 94)"
-                        : "linear-gradient(90deg, #a855f7, #38bdf8)",
+                        ? "rgb(var(--harbor-danger))"
+                        : "linear-gradient(90deg, rgb(var(--harbor-accent)), rgb(var(--harbor-accent-2)))",
                   }}
                 />
               </div>
-              <span className="text-[10px] text-white/40 font-mono tabular-nums">
+              <span className="text-[10px] text-[color:var(--harbor-text-tertiary)] font-mono tabular-nums">
                 {count}/{maxChars}
               </span>
             </div>

@@ -116,6 +116,42 @@ describe("Tabs", () => {
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
+  it("uses roving tabindex and arrow keys to switch tabs", async () => {
+    const onValueChange = vi.fn();
+    const { user } = renderWithHarbor(
+      <Tabs defaultValue="a" onValueChange={onValueChange}>
+        <TabList>
+          <Tab value="a">Alpha</Tab>
+          <Tab value="b">Beta</Tab>
+          <Tab value="c">Gamma</Tab>
+        </TabList>
+        <TabPanel value="a">Panel A</TabPanel>
+        <TabPanel value="b">Panel B</TabPanel>
+        <TabPanel value="c">Panel C</TabPanel>
+      </Tabs>,
+    );
+
+    const alpha = screen.getByRole("tab", { name: "Alpha" });
+    const beta = screen.getByRole("tab", { name: "Beta" });
+    const gamma = screen.getByRole("tab", { name: "Gamma" });
+
+    expect(alpha).toHaveAttribute("tabindex", "0");
+    expect(beta).toHaveAttribute("tabindex", "-1");
+
+    alpha.focus();
+    await user.keyboard("{ArrowRight}");
+
+    expect(beta).toHaveFocus();
+    expect(onValueChange).toHaveBeenLastCalledWith("b");
+    expect(screen.getByText("Panel B")).toBeInTheDocument();
+    expect(alpha).toHaveAttribute("tabindex", "-1");
+    expect(beta).toHaveAttribute("tabindex", "0");
+
+    await user.keyboard("{End}");
+    expect(gamma).toHaveFocus();
+    expect(onValueChange).toHaveBeenLastCalledWith("c");
+  });
+
   it("applies custom className to Tabs", () => {
     const { container } = renderWithHarbor(
       <Tabs defaultValue="a" className="my-tabs">

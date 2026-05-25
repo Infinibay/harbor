@@ -61,9 +61,9 @@ The panel renders `role="dialog"` and `aria-modal="true"`, and title/description
 wired automatically when the matching subcomponents are used. The close button is labeled via
 Harbor i18n.
 
-The current implementation does not trap focus or restore focus to the opener. For
-high-stakes production workflows, manage initial focus and restoration in the parent or add a
-focus-management wrapper.
+When opened, `Dialog` moves focus to the first focusable control, traps Tab navigation inside
+the panel, dismisses on Escape or outside pointer interaction, and restores focus to the opener
+when it closes.
 
 ## Gotchas
 

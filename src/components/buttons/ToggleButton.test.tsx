@@ -71,7 +71,7 @@ describe("ToggleButton", () => {
       <ToggleButton pressed={true}>Active</ToggleButton>,
     );
     const btn = container.querySelector("button");
-    expect(btn?.className).toContain("bg-fuchsia-500/20");
+    expect(btn?.className).toContain("bg-[var(--harbor-state-selected)]");
   });
 
   it("applies unpressed style when pressed=false", () => {
@@ -79,7 +79,7 @@ describe("ToggleButton", () => {
       <ToggleButton pressed={false}>Inactive</ToggleButton>,
     );
     const btn = container.querySelector("button");
-    expect(btn?.className).toContain("bg-white/[0.04]");
+    expect(btn?.className).toContain("bg-[var(--harbor-surface-panel-muted)]");
   });
 
   it("applies size class", () => {

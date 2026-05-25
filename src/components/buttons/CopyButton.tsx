@@ -21,7 +21,9 @@ export function CopyButton({
       await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {}
+    } catch {
+      setCopied(false);
+    }
   }
   const s = size === "sm" ? "h-7 px-2 text-[11px]" : "h-8 px-2.5 text-xs";
   return (
@@ -29,7 +31,7 @@ export function CopyButton({
       onClick={copy}
       whileTap={{ scale: 0.9 }}
       className={cn(
-        "relative inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 font-medium overflow-hidden",
+        "relative inline-flex items-center gap-1.5 overflow-hidden rounded-md border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel-muted)] font-medium text-[rgb(var(--harbor-text-muted))] outline-none transition-colors hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))] focus-visible:shadow-[var(--harbor-focus-shadow)]",
         s,
         className,
       )}

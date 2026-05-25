@@ -31,7 +31,7 @@ export function RailSidebar({
   return (
     <aside
       className={cn(
-        "w-14 h-full flex flex-col items-center py-3 gap-1 rounded-2xl bg-surface-2 border border-white/8",
+        "w-14 h-full flex flex-col items-center py-3 gap-1 rounded-2xl bg-[var(--harbor-surface-panel)] border border-[color:var(--harbor-border-default)]",
         className,
       )}
     >
@@ -44,14 +44,14 @@ export function RailSidebar({
               aria-label={it.label}
               data-cursor="button"
               className={cn(
-                "relative w-10 h-10 rounded-xl grid place-items-center transition-colors",
+                "relative w-10 h-10 rounded-xl grid place-items-center transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
                 value === it.id
-                  ? "bg-fuchsia-500/15 text-white"
-                  : "text-white/55 hover:text-white hover:bg-white/5",
+                  ? "bg-[var(--harbor-state-selected)] text-[var(--harbor-state-selected-fg)]"
+                  : "text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))] hover:bg-[var(--harbor-state-hover)]",
               )}
             >
               {value === it.id ? (
-                <span className="absolute -left-[7px] top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r bg-fuchsia-400" />
+                <span className="absolute -left-[7px] top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r bg-[var(--harbor-focus-ring)]" />
               ) : null}
               {it.icon}
               {it.badge ? (

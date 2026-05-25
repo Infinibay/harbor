@@ -60,7 +60,7 @@ describe("IconButton", () => {
       <IconButton label="Ghost" icon={<span>G</span>} variant="ghost" />,
     );
     const btn = container.querySelector("button");
-    expect(btn?.className).toContain("hover:bg-white/10");
+    expect(btn?.className).toContain("hover:bg-[var(--harbor-state-hover)]");
   });
 
   it("has title attribute matching label", () => {

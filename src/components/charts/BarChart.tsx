@@ -16,7 +16,7 @@ export interface BarChartProps {
   className?: string;
 }
 
-const defaultColor = "#a855f7";
+const defaultColor = "rgb(var(--harbor-chart-2))";
 
 export function BarChart({
   bars,
@@ -42,18 +42,18 @@ export function BarChart({
               onMouseEnter={() => setHover(b.id)}
               onMouseLeave={() => setHover(null)}
             >
-              <span className="w-24 text-xs text-fg-muted truncate">{b.label}</span>
-              <div className="flex-1 h-5 rounded bg-white/[0.04] overflow-hidden relative">
+              <span className="w-24 text-xs text-[color:var(--harbor-text-tertiary)] truncate">{b.label}</span>
+              <div className="flex-1 h-5 rounded bg-[var(--harbor-surface-sunken)] overflow-hidden relative">
                 <div
                   className="h-full rounded transition-all"
                   style={{
                     width: `${pct}%`,
-                    background: `linear-gradient(90deg, ${color}cc, ${color}88)`,
-                    boxShadow: hover === b.id ? `0 0 0 1px ${color}66` : undefined,
+                    background: `linear-gradient(90deg, ${color}, color-mix(in srgb, ${color} 62%, transparent))`,
+                    boxShadow: hover === b.id ? `0 0 0 1px color-mix(in srgb, ${color} 48%, transparent)` : undefined,
                   }}
                 />
               </div>
-              <span className="w-14 text-right text-xs text-fg-muted font-mono tabular-nums">
+              <span className="w-14 text-right text-xs text-[color:var(--harbor-text-tertiary)] font-mono tabular-nums">
                 {formatValue(b.value)}
               </span>
             </div>
@@ -84,14 +84,14 @@ export function BarChart({
                 x2={width - 8}
                 y1={y}
                 y2={y}
-                stroke="rgb(var(--harbor-border) / 0.08)"
+                stroke="var(--harbor-chart-grid)"
               />
               <text
                 x={padX - 6}
                 y={y + 3}
                 textAnchor="end"
                 fontSize={10}
-                fill="rgb(var(--harbor-text-subtle))"
+                fill="var(--harbor-chart-axis)"
                 fontFamily="ui-monospace, monospace"
               >
                 {formatValue(t * max)}
@@ -128,7 +128,7 @@ export function BarChart({
                   y={y - 4}
                   textAnchor="middle"
                   fontSize={11}
-                  fill="rgb(var(--harbor-text))"
+                  fill="var(--harbor-text-primary)"
                   fontFamily="ui-monospace, monospace"
                 >
                   {formatValue(b.value)}
@@ -139,7 +139,7 @@ export function BarChart({
                 y={height - 6}
                 textAnchor="middle"
                 fontSize={10}
-                fill="rgb(var(--harbor-text-muted))"
+                fill="var(--harbor-text-tertiary)"
               >
                 {b.label}
               </text>

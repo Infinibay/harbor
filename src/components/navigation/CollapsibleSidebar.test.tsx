@@ -94,7 +94,9 @@ describe("CollapsibleSidebar", () => {
     const { container } = renderWithHarbor(
       <CollapsibleSidebar sections={sections} value="home" />,
     );
-    const activeBtn = container.querySelector(".bg-fuchsia-500\\/15");
+    const activeBtn = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.className.includes("bg-[var(--harbor-state-selected)]"),
+    );
     expect(activeBtn).toBeTruthy();
   });
 

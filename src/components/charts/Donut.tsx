@@ -17,7 +17,14 @@ export interface DonutProps {
   className?: string;
 }
 
-const defaultColors = ["#a855f7", "#38bdf8", "#f472b6", "#34d399", "#fbbf24", "#fb7185"];
+const defaultColors = [
+  "rgb(var(--harbor-chart-1))",
+  "rgb(var(--harbor-chart-2))",
+  "rgb(var(--harbor-chart-3))",
+  "rgb(var(--harbor-chart-4))",
+  "rgb(var(--harbor-chart-5))",
+  "rgb(var(--harbor-chart-neutral))",
+];
 
 export function Donut({
   slices,
@@ -33,11 +40,10 @@ export function Donut({
   const cx = size / 2;
   const cy = size / 2;
 
-  let acc = 0;
-  const arcs = slices.map((s, i) => {
-    const start = acc / total;
-    const end = (acc + s.value) / total;
-    acc += s.value;
+  const arcs = slices.reduce<Array<DonutSlice & { d: string; color: string }>>((items, s, i) => {
+    const previous = items.reduce((sum, item) => sum + item.value, 0);
+    const start = previous / total;
+    const end = (previous + s.value) / total;
     const a0 = start * Math.PI * 2 - Math.PI / 2;
     const a1 = end * Math.PI * 2 - Math.PI / 2;
     const x0 = cx + r * Math.cos(a0);
@@ -46,8 +52,8 @@ export function Donut({
     const y1 = cy + r * Math.sin(a1);
     const large = end - start > 0.5 ? 1 : 0;
     const d = `M${x0} ${y0} A${r} ${r} 0 ${large} 1 ${x1} ${y1}`;
-    return { ...s, d, color: s.color ?? defaultColors[i % defaultColors.length] };
-  });
+    return [...items, { ...s, d, color: s.color ?? defaultColors[i % defaultColors.length] }];
+  }, []);
 
   const activeSlice = hover ? slices.find((s) => s.id === hover) : null;
 
@@ -55,7 +61,7 @@ export function Donut({
     <div className={cn("inline-flex flex-col items-center gap-3", className)}>
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size}>
-          <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={thickness} />
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--harbor-chart-grid)" strokeWidth={thickness} />
           {arcs.map((a) => (
             <path
               key={a.id}
@@ -75,17 +81,17 @@ export function Donut({
           ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-[10px] uppercase tracking-wider text-white/45">
+          <span className="text-[10px] uppercase tracking-wider text-[color:var(--harbor-text-tertiary)]">
             {activeSlice ? activeSlice.label : centerLabel}
           </span>
-          <span className="text-2xl font-semibold text-white font-mono tabular-nums">
+          <span className="text-2xl font-semibold text-[color:var(--harbor-text-primary)] font-mono tabular-nums">
             {activeSlice
               ? `${Math.round((activeSlice.value / total) * 100)}%`
               : centerValue}
           </span>
         </div>
       </div>
-      <div className="flex flex-wrap gap-3 text-xs text-white/75 justify-center">
+      <div className="flex flex-wrap gap-3 text-xs text-[color:var(--harbor-text-secondary)] justify-center">
         {arcs.map((a) => (
           <span
             key={a.id}
@@ -96,7 +102,7 @@ export function Donut({
           >
             <span className="w-2 h-2 rounded-full" style={{ background: a.color }} />
             {a.label}
-            <span className="text-white/45 font-mono">
+            <span className="text-[color:var(--harbor-text-tertiary)] font-mono">
               {Math.round((a.value / total) * 100)}%
             </span>
           </span>

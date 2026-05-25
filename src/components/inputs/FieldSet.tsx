@@ -25,12 +25,12 @@ export function FieldSet({
       )}
     >
       {legend ? (
-        <legend className="px-2 -ml-1 text-[11px] uppercase tracking-wider text-white/60">
+        <legend className="px-2 -ml-1 text-[11px] uppercase tracking-wider text-[color:var(--harbor-field-muted-fg)]">
           {legend}
         </legend>
       ) : null}
       {description ? (
-        <p className="text-sm text-white/50 -mt-2">{description}</p>
+        <p className="text-sm text-[color:var(--harbor-text-tertiary)] -mt-2">{description}</p>
       ) : null}
       {children}
     </fieldset>

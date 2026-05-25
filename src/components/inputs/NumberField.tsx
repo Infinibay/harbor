@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 
@@ -28,9 +28,6 @@ export function NumberField({
   const [internal, setInternal] = useState(value ?? defaultValue);
   const current = value ?? internal;
   const [last, setLast] = useState(current);
-  useEffect(() => {
-    if (value !== undefined) setInternal(value);
-  }, [value]);
 
   function set(v: number) {
     const clamped = Math.min(max, Math.max(min, v));
@@ -44,7 +41,7 @@ export function NumberField({
   return (
     <div className={cn("w-full", className)}>
       {label ? (
-        <label className="block text-xs text-white/60 mb-1.5">{label}</label>
+        <label className="block text-xs text-[color:var(--harbor-field-muted-fg)] mb-1.5">{label}</label>
       ) : null}
       <div className="flex min-h-[var(--harbor-target-input-height)] items-center overflow-hidden rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] text-[color:var(--harbor-field-fg)] transition-colors focus-within:border-[color:var(--harbor-field-border-focus)] focus-within:bg-[var(--harbor-field-bg-focus)]">
         <button
@@ -73,7 +70,7 @@ export function NumberField({
             >
               {current}
               {unit ? (
-                <span className="text-white/40 ms-1">{unit}</span>
+                <span className="text-[color:var(--harbor-text-tertiary)] ms-1">{unit}</span>
               ) : null}
             </motion.span>
           </AnimatePresence>

@@ -14,11 +14,13 @@ describe("Pagination", () => {
     expect(buttons.length).toBe(7); // ‹ 1 2 3 4 5 ›
   });
 
-  it("renders active page with bg-white class", () => {
+  it("renders active page with selected state token class", () => {
     const { container } = renderWithHarbor(
       <Pagination page={3} total={5} onChange={vi.fn()} />,
     );
-    const activeBtn = container.querySelector("button.bg-white");
+    const activeBtn = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.className.includes("bg-[var(--harbor-state-selected)]"),
+    );
     expect(activeBtn).toBeTruthy();
     expect(activeBtn?.textContent).toBe("3");
   });

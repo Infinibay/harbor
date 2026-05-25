@@ -59,8 +59,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             "relative flex min-h-[var(--harbor-target-input-height)] items-center rounded-[var(--harbor-target-radius)] border bg-[var(--harbor-field-bg)] text-[color:var(--harbor-field-fg)] transition-all",
             "border-[color:var(--harbor-field-border)]",
             focus && !error && "border-[color:var(--harbor-field-border-focus)] bg-[var(--harbor-field-bg-focus)]",
-            error && "border-rose-400/60",
-            valid && !error && "border-emerald-400/50",
+            error && "border-[rgb(var(--harbor-danger)/0.60)]",
+            valid && !error && "border-[rgb(var(--harbor-success)/0.55)]",
           )}
         >
           {icon ? (
@@ -144,7 +144,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="rgb(74, 222, 128)"
+                  stroke="rgb(var(--harbor-success))"
                   strokeWidth={3}
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -167,7 +167,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="rgb(244, 63, 94)"
+                  stroke="rgb(var(--harbor-danger))"
                   strokeWidth={2.5}
                   strokeLinecap="round"
                 >
@@ -186,7 +186,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
               initial={{ opacity: 0, y: -4, height: 0 }}
               animate={{ opacity: 1, y: 0, height: "auto" }}
               exit={{ opacity: 0, y: -4, height: 0 }}
-              className="text-xs mt-1.5 text-rose-300"
+              className="text-xs mt-1.5 text-[rgb(var(--harbor-danger))]"
             >
               {error}
             </motion.p>
@@ -195,7 +195,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
               key="hint"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-xs mt-1.5 text-white/40"
+              className="text-xs mt-1.5 text-[color:var(--harbor-text-tertiary)]"
             >
               {hint}
             </motion.p>

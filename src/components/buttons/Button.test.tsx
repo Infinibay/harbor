@@ -55,4 +55,30 @@ describe("Button", () => {
     );
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it("renders every variant against the default light theme", () => {
+    const variants = [
+      "primary",
+      "secondary",
+      "ghost",
+      "destructive",
+      "glass",
+      "link",
+    ] as const;
+
+    renderWithHarbor(
+      <>
+        {variants.map((variant) => (
+          <Button key={variant} variant={variant}>
+            {variant}
+          </Button>
+        ))}
+      </>,
+      { theme: "harbor-light" },
+    );
+
+    for (const variant of variants) {
+      expect(screen.getByRole("button", { name: variant })).toBeInTheDocument();
+    }
+  });
 });

@@ -28,6 +28,14 @@ export default {
           muted: "rgb(var(--harbor-text-muted) / <alpha-value>)",
           subtle: "rgb(var(--harbor-text-subtle) / <alpha-value>)",
         },
+        "text-semantic": {
+          primary: "var(--harbor-text-primary)",
+          secondary: "var(--harbor-text-secondary)",
+          tertiary: "var(--harbor-text-tertiary)",
+          disabled: "var(--harbor-text-disabled)",
+          inverse: "var(--harbor-text-inverse)",
+          link: "var(--harbor-text-link)",
+        },
       },
       borderRadius: {
         sm: "var(--harbor-radius-sm)",

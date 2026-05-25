@@ -25,10 +25,10 @@ export function FormSection({
     title || description ? (
       <header className="flex flex-col gap-1">
         {title ? (
-          <h3 className="text-white text-base font-semibold">{title}</h3>
+          <h3 className="text-[color:var(--harbor-text-primary)] text-base font-semibold">{title}</h3>
         ) : null}
         {description ? (
-          <p className="text-sm text-white/50">{description}</p>
+          <p className="text-sm text-[color:var(--harbor-text-tertiary)]">{description}</p>
         ) : null}
       </header>
     ) : null;

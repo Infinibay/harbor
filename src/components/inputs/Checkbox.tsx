@@ -40,24 +40,18 @@ export function Checkbox({
         onChange={onChange}
         {...rest}
       />
-      {/* Motion cannot interpolate colors expressed via CSS var() —
-          rgb(var(--harbor-text) / ...) is computed by the browser at
-          render time, not a parseable color string. Use literal rgba
-          for the off-state so animation stays smooth. The tone is
-          close to both the dark and light harbor-text defaults, so
-          theme switching remains visually acceptable. */}
       <motion.span
-        animate={{
+        style={{
           background: isChecked
-            ? "linear-gradient(135deg,#a855f7,#38bdf8)"
-            : "rgba(148,163,184,0.08)",
+            ? "linear-gradient(135deg,rgb(var(--harbor-brand)),rgb(var(--harbor-accent-2)))"
+            : "var(--harbor-field-bg)",
           borderColor: isChecked
-            ? "rgba(168, 85, 247, 0.5)"
-            : "rgba(148,163,184,0.35)",
+            ? "var(--harbor-focus-ring)"
+            : "var(--harbor-field-border)",
         }}
         whileTap={{ scale: 0.85 }}
         transition={{ type: "spring", stiffness: 400, damping: 20 }}
-        className="relative mt-0.5 grid h-[var(--harbor-target-icon-size)] w-[var(--harbor-target-icon-size)] flex-shrink-0 place-items-center rounded-[calc(var(--harbor-target-radius)/2)] border peer-focus-visible:ring-2 peer-focus-visible:ring-fuchsia-400/60 focus-bloom"
+        className="relative mt-0.5 grid h-[var(--harbor-target-icon-size)] w-[var(--harbor-target-icon-size)] flex-shrink-0 place-items-center rounded-[calc(var(--harbor-target-radius)/2)] border peer-focus-visible:shadow-[var(--harbor-focus-shadow)]"
       >
         <AnimatePresence>
           {isChecked ? (
@@ -69,7 +63,7 @@ export function Checkbox({
               height="14"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="white"
+              stroke="rgb(var(--harbor-brand-fg))"
               strokeWidth="3.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -88,10 +82,10 @@ export function Checkbox({
       {label || description ? (
         <span className="flex flex-col gap-0.5">
           {label ? (
-            <span className="text-[length:var(--harbor-target-font-size)] leading-tight text-white/90">{label}</span>
+            <span className="text-[length:var(--harbor-target-font-size)] leading-tight text-[rgb(var(--harbor-text))]">{label}</span>
           ) : null}
           {description ? (
-            <span className="text-xs text-white/50 leading-snug">
+            <span className="text-xs text-[rgb(var(--harbor-text-muted))] leading-snug">
               {description}
             </span>
           ) : null}

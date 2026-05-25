@@ -1,10 +1,13 @@
 import {
   cloneElement,
+  useCallback,
   useEffect,
   useRef,
   useState,
+  type MouseEvent,
   type ReactElement,
   type ReactNode,
+  type Ref,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
@@ -12,11 +15,25 @@ import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
 
 export interface HoverCardProps {
-  children: ReactElement<any>;
+  children: ReactElement<HoverCardTriggerProps>;
   content: ReactNode;
   side?: "top" | "bottom";
   delay?: number;
   className?: string;
+}
+
+type HoverCardTriggerProps = {
+  onMouseEnter?: (event: MouseEvent<HTMLElement>) => void;
+  onMouseLeave?: (event: MouseEvent<HTMLElement>) => void;
+};
+
+type TriggerElement = ReactElement<HoverCardTriggerProps> & {
+  ref?: Ref<HTMLElement>;
+};
+
+function assignRef(ref: Ref<HTMLElement> | undefined, el: HTMLElement | null) {
+  if (typeof ref === "function") ref(el);
+  else if (ref) ref.current = el;
 }
 
 export function HoverCard({
@@ -32,18 +49,18 @@ export function HoverCard({
   const timer = useRef<number | null>(null);
   const closeTimer = useRef<number | null>(null);
 
-  function place() {
+  const place = useCallback(() => {
     const el = target.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
     const cardW = 280;
     const cardH = 140;
     let x = r.left + r.width / 2 - cardW / 2;
-    let y = side === "bottom" ? r.bottom + 10 : r.top - cardH - 10;
+    const y = side === "bottom" ? r.bottom + 10 : r.top - cardH - 10;
     if (x < 8) x = 8;
     if (x + cardW > window.innerWidth - 8) x = window.innerWidth - cardW - 8;
     setPos({ x, y });
-  }
+  }, [side]);
 
   useEffect(() => {
     if (!open) return;
@@ -55,7 +72,7 @@ export function HoverCard({
       window.removeEventListener("scroll", on, true);
       window.removeEventListener("resize", on);
     };
-  }, [open, side]);
+  }, [open, place]);
 
   function cancelClose() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -65,24 +82,23 @@ export function HoverCard({
     closeTimer.current = window.setTimeout(() => setOpen(false), 140);
   }
 
+  // eslint-disable-next-line react-hooks/refs
   const child = cloneElement(children, {
     ref: (el: HTMLElement | null) => {
       target.current = el;
-      const ref = (children as any).ref;
-      if (typeof ref === "function") ref(el);
-      else if (ref) (ref as any).current = el;
+      assignRef((children as TriggerElement).ref, el);
     },
-    onMouseEnter: (e: any) => {
+    onMouseEnter: (e: MouseEvent<HTMLElement>) => {
       children.props.onMouseEnter?.(e);
       cancelClose();
       timer.current = window.setTimeout(() => setOpen(true), delay);
     },
-    onMouseLeave: (e: any) => {
+    onMouseLeave: (e: MouseEvent<HTMLElement>) => {
       children.props.onMouseLeave?.(e);
       if (timer.current) clearTimeout(timer.current);
       scheduleClose();
     },
-  } as any);
+  } as Partial<HoverCardTriggerProps> & { ref: Ref<HTMLElement> });
 
   return (
     <>
@@ -105,7 +121,7 @@ export function HoverCard({
                 zIndex: Z.HOVER_CARD,
               }}
               className={cn(
-                "rounded-2xl bg-surface-2 border border-white/10 shadow-2xl p-4",
+                "rounded-2xl border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel)] p-4 text-[rgb(var(--harbor-text))] shadow-2xl",
                 className,
               )}
             >

@@ -68,13 +68,14 @@ export function Switch({
       />
       <motion.span
         ref={trackRef}
-        animate={{
+        style={{
+          width: w,
+          height: h,
           background: isOn
-            ? "linear-gradient(135deg,#a855f7,#38bdf8)"
-            : "rgb(var(--harbor-text) / 0.18)",
+            ? "linear-gradient(135deg,rgb(var(--harbor-brand)),rgb(var(--harbor-accent-2)))"
+            : "var(--harbor-field-bg)",
         }}
-        style={{ width: w, height: h }}
-        className="relative rounded-full flex-shrink-0 peer-focus-visible:ring-2 peer-focus-visible:ring-fuchsia-400/60 focus-bloom overflow-hidden"
+        className="relative rounded-full flex-shrink-0 border border-[color:var(--harbor-field-border)] peer-focus-visible:shadow-[var(--harbor-focus-shadow)] overflow-hidden"
         whileTap={{ scale: 0.95 }}
       >
         <motion.span
@@ -82,7 +83,7 @@ export function Switch({
           style={{ opacity: glow }}
           className="absolute inset-0 rounded-full pointer-events-none"
         >
-          <span className="absolute inset-0 rounded-full bg-white/30 blur-sm" />
+          <span className="absolute inset-0 rounded-full bg-[rgb(var(--harbor-brand-fg)/0.24)] blur-sm" />
         </motion.span>
         <motion.span
           animate={{ x: isOn ? w - h : 0 }}
@@ -91,7 +92,7 @@ export function Switch({
         >
           <motion.span
             style={{ x: nudge, width: h - 4, height: h - 4 }}
-            className="block rounded-full bg-white shadow-md"
+            className="block rounded-full bg-[rgb(var(--harbor-brand-fg))] shadow-md"
           />
         </motion.span>
       </motion.span>
@@ -99,10 +100,10 @@ export function Switch({
       {label || description ? (
         <span className="flex flex-col gap-0.5">
           {label ? (
-            <span className="text-[length:var(--harbor-target-font-size)] leading-tight text-white/90">{label}</span>
+            <span className="text-[length:var(--harbor-target-font-size)] leading-tight text-[rgb(var(--harbor-text))]">{label}</span>
           ) : null}
           {description ? (
-            <span className="text-xs text-white/50 leading-snug">
+            <span className="text-xs text-[rgb(var(--harbor-text-muted))] leading-snug">
               {description}
             </span>
           ) : null}

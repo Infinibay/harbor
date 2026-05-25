@@ -9,7 +9,21 @@
  */
 
 export { defineTheme } from "./defineTheme";
-export { harborDark, harborLight } from "./builtins";
+export {
+  harborAiWorkbenchDark,
+  harborAiWorkbenchLight,
+  harborBuiltInThemes,
+  harborDark,
+  harborDataDark,
+  harborDataLight,
+  harborDevDark,
+  harborDevLight,
+  harborEnterpriseDark,
+  harborEnterpriseLight,
+  harborLight,
+  harborNeutralDark,
+  harborNeutralLight,
+} from "./builtins";
 export { normalizeColor } from "./color";
 export {
   HarborProvider,
@@ -27,14 +41,41 @@ export {
 export { useHarborTheme, useOptionalHarborTheme } from "./useHarborTheme";
 export { resolveTheme, themeToCss } from "./resolve";
 export { cssVarMap } from "./tokens-map";
+export {
+  formatThemeAuditReport,
+  formatThemePairValidationReport,
+  formatThemeValidationReport,
+  validateThemeAudit,
+  validateTheme,
+  validateThemePair,
+  type ThemeAuditPair,
+  type ThemeAuditReport,
+  type ThemeAuditSummary,
+  type ThemeContrastCheck,
+  type ThemeFocusCheck,
+  type ThemePairValidationReport,
+  type ThemePairValidationSummary,
+  type ThemeTokenCoverage,
+  type ThemeValidationIssue,
+  type ThemeValidationLevel,
+  type ThemeValidationReport,
+  type ThemeValidationSummary,
+} from "./validateTheme";
 export type {
   ColorTokens,
+  BorderTokens,
+  ChartTokens,
+  CodeTokens,
+  FocusTokens,
   HarborTheme,
   MotionTokens,
+  OverlayTokens,
   RadiusTokens,
   ResolvedTheme,
   ShadowTokens,
   SpacingTokens,
+  StateTokens,
+  SurfaceTokens,
   ThemeTokens,
   TypographyTokens,
 } from "./types";

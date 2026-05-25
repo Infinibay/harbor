@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { screen } from "@testing-library/react";
+import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { WindowFrame } from "./WindowFrame";
 
@@ -86,14 +87,16 @@ describe("WindowFrame", () => {
     expect(container.querySelector(".my-body")).toBeTruthy();
   });
 
-  it("a11y: known component gap — traffic light buttons have no accessible name", () => {
-    // macOS traffic light buttons have no aria-label, which axe flags as
-    // "button-name". This is an existing a11y gap. Verify the component renders.
+  it("a11y: macOS traffic light buttons have accessible names", async () => {
     const { container } = renderWithHarbor(
       <WindowFrame title="Window" chromeStyle="macos">
         Content
       </WindowFrame>,
     );
-    expect(container.querySelector("button")).toBeTruthy();
+
+    expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Minimize" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Maximize" })).toBeInTheDocument();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

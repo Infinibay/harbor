@@ -1,15 +1,18 @@
 import {
   forwardRef,
   useRef,
+  type ComponentPropsWithoutRef,
   type ButtonHTMLAttributes,
   type ReactNode,
 } from "react";
-import { motion, useTransform } from "framer-motion";
+import { motion, useMotionTemplate, useTransform } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { useCursorProximity } from "../../lib/cursor";
+import { useReducedMotionPreference } from "../../lib/a11y";
 
 type Size = "sm" | "md" | "lg";
 type Variant = "solid" | "ghost" | "glass";
+type MotionButtonProps = ComponentPropsWithoutRef<typeof motion.button>;
 
 export interface IconButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "ref"> {
@@ -32,9 +35,12 @@ const sizes: Record<Size, string> = {
 };
 
 const variants: Record<Variant, string> = {
-  solid: "bg-white/10 hover:bg-white/15 text-white border border-white/10",
-  ghost: "hover:bg-white/10 text-white/75 hover:text-white",
-  glass: "glass text-white hover:bg-white/10",
+  solid:
+    "border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel-muted)] text-[rgb(var(--harbor-text))] hover:bg-[var(--harbor-state-hover)] hover:border-[color:var(--harbor-border-strong)]",
+  ghost:
+    "bg-transparent text-[rgb(var(--harbor-text-muted))] hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))]",
+  glass:
+    "border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-toolbar)] text-[rgb(var(--harbor-text))] backdrop-blur-xl hover:bg-[var(--harbor-state-hover)]",
 };
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -53,7 +59,8 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   ) {
     // Default behavior: sm size runs quiet (dense contexts), md/lg reactive.
     const isQuiet = quiet ?? (reactive === false ? true : size === "sm");
-    const reactiveOn = reactive ?? !isQuiet;
+    const reducedMotion = useReducedMotionPreference();
+    const reactiveOn = (reactive ?? !isQuiet) && !reducedMotion;
     const localRef = useRef<HTMLButtonElement | null>(null);
     const setRefs = (el: HTMLButtonElement | null) => {
       localRef.current = el;
@@ -72,11 +79,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     const glowOpacity = useTransform(proximity, (v) =>
       reactiveOn ? v * 0.5 : 0,
     );
-    const glowBg = useTransform(
-      [localX, localY] as any,
-      ([lx, ly]: any) =>
-        `radial-gradient(60px circle at ${lx * 100}% ${ly * 100}%, rgba(255,255,255,0.4), transparent 55%)`,
-    );
+    const glowX = useTransform(localX, (v) => `${v * 100}%`);
+    const glowY = useTransform(localY, (v) => `${v * 100}%`);
+    const glowBg = useMotionTemplate`radial-gradient(60px circle at ${glowX} ${glowY}, rgb(var(--harbor-accent-2) / 0.22), transparent 55%)`;
 
     return (
       <motion.button
@@ -84,16 +89,16 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         aria-label={label}
         title={label}
         style={{ x, y }}
-        whileTap={{ scale: 0.88, rotate: -5 }}
-        whileHover={{ scale: 1.06 }}
+        whileTap={reducedMotion ? undefined : { scale: 0.88, rotate: -5 }}
+        whileHover={reducedMotion ? undefined : { scale: 1.06 }}
         transition={{ type: "spring", stiffness: 400, damping: 18 }}
         className={cn(
-          "relative overflow-hidden grid place-items-center outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/60 transition-colors",
+          "relative overflow-hidden grid place-items-center outline-none focus-visible:shadow-[var(--harbor-focus-shadow)] transition-colors disabled:cursor-not-allowed disabled:opacity-50",
           sizes[size],
           variants[variant],
           className,
         )}
-        {...(rest as any)}
+        {...(rest as unknown as MotionButtonProps)}
       >
         {reactiveOn ? (
           <motion.span

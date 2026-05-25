@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useRef,
   useState,
   type PointerEvent as RPointerEvent,
@@ -39,10 +38,6 @@ export function Knob({
   const current = value ?? internal;
   const [dragging, setDragging] = useState(false);
   const dragStart = useRef<{ y: number; v: number } | null>(null);
-
-  useEffect(() => {
-    if (value !== undefined) setInternal(value);
-  }, [value]);
 
   const pct = (current - min) / (max - min);
   const startAngle = -arc / 2;
@@ -106,13 +101,13 @@ export function Knob({
         <svg width={size} height={size}>
           <defs>
             <linearGradient id="knob-grad" x1="0" x2="1">
-              <stop offset="0%" stopColor="#a855f7" />
-              <stop offset="100%" stopColor="#38bdf8" />
+              <stop offset="0%" stopColor="rgb(var(--harbor-accent))" />
+              <stop offset="100%" stopColor="rgb(var(--harbor-accent-2))" />
             </linearGradient>
           </defs>
           <path
             d={arcPath(startAngle, startAngle + arc)}
-            stroke="rgba(255,255,255,0.08)"
+            stroke="var(--harbor-border-subtle)"
             strokeWidth={stroke}
             fill="none"
             strokeLinecap="round"
@@ -128,15 +123,15 @@ export function Knob({
             cx={r}
             cy={r}
             r={trackR - 4}
-            fill="#14141c"
-            stroke="rgba(255,255,255,0.08)"
+            fill="var(--harbor-surface-panel)"
+            stroke="var(--harbor-border-subtle)"
           />
           <motion.line
             x1={r}
             y1={r}
             x2={ix}
             y2={iy}
-            stroke="white"
+            stroke="rgb(var(--harbor-brand-fg))"
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -145,15 +140,15 @@ export function Knob({
           <motion.div
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute -top-7 left-1/2 -translate-x-1/2 text-[11px] font-mono text-white bg-surface-3 border border-white/10 px-2 py-0.5 rounded-md"
+            className="absolute -top-7 left-1/2 -translate-x-1/2 text-[11px] font-mono text-[color:var(--harbor-menu-item-fg)] bg-[var(--harbor-menu-surface-bg)] border border-[color:var(--harbor-menu-surface-border)] px-2 py-0.5 rounded-md"
           >
             {current}
-            {unit ? <span className="text-white/40 ml-0.5">{unit}</span> : null}
+            {unit ? <span className="text-[color:var(--harbor-text-tertiary)] ml-0.5">{unit}</span> : null}
           </motion.div>
         ) : null}
       </div>
       {label ? (
-        <span className="text-[10px] uppercase tracking-wider text-white/55">
+        <span className="text-[10px] uppercase tracking-wider text-[color:var(--harbor-field-muted-fg)]">
           {label}
         </span>
       ) : null}

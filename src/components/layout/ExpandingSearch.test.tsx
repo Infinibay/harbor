@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
+import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
 import { ExpandingSearch } from "./ExpandingSearch";
 
@@ -62,11 +63,22 @@ describe("ExpandingSearch", () => {
     expect(container.querySelector(".my-search")).toBeTruthy();
   });
 
-  it("a11y: known component gap — search button has no accessible name", () => {
-    // The ExpandingSearch toggle button has no aria-label, which axe flags as
-    // "button-name". This is an existing a11y gap in the component. Verify it
-    // renders instead.
-    const { container } = renderWithHarbor(<ExpandingSearch />);
-    expect(container.querySelector("button")).toBeTruthy();
+  it("a11y: search controls have accessible names", async () => {
+    const { container, user } = renderWithHarbor(<ExpandingSearch />);
+
+    expect(screen.getByRole("button", { name: "Open search" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open search" }));
+    expect(screen.getByRole("button", { name: "Close search" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+
+    await user.type(screen.getByRole("textbox"), "test");
+    expect(screen.getByRole("button", { name: "Clear search" })).toBeInTheDocument();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

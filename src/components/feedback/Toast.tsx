@@ -34,7 +34,7 @@ export function useToast() {
 }
 
 const toneStyles: Record<Tone, string> = {
-  default: "border-white/10",
+  default: "border-[var(--harbor-border-default)]",
   success: "border-emerald-400/40",
   warning: "border-amber-400/40",
   danger: "border-rose-400/40",
@@ -42,7 +42,7 @@ const toneStyles: Record<Tone, string> = {
 };
 
 const toneBar: Record<Tone, string> = {
-  default: "bg-white/20",
+  default: "bg-fg-muted",
   success: "bg-emerald-400",
   warning: "bg-amber-400",
   danger: "bg-rose-400",
@@ -83,7 +83,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               exit={{ opacity: 0, x: 30, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 28 }}
               className={cn(
-                "pointer-events-auto relative overflow-hidden rounded-xl border bg-surface-2/95 backdrop-blur-xl shadow-2xl min-w-[280px] max-w-sm",
+                "pointer-events-auto relative overflow-hidden rounded-xl border bg-[var(--harbor-overlay-surface)] backdrop-blur-xl shadow-2xl min-w-[280px] max-w-sm",
                 toneStyles[t.tone ?? "default"],
               )}
             >
@@ -95,11 +95,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               />
               <div className="pl-4 pr-3 py-3 flex items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-white">
+                  <div className="text-sm font-medium text-fg">
                     {t.title}
                   </div>
                   {t.description ? (
-                    <div className="text-xs text-white/60 mt-0.5">
+                    <div className="text-xs text-fg-muted mt-0.5">
                       {t.description}
                     </div>
                   ) : null}
@@ -120,7 +120,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   onClick={() => dismiss(t.id)}
                   data-cursor="button"
                   aria-label="Dismiss"
-                  className="text-white/40 hover:text-white text-lg leading-none"
+                  className="text-fg-subtle hover:text-fg text-lg leading-none"
                 >
                   ×
                 </button>

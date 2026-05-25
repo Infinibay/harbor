@@ -32,6 +32,82 @@ export interface ColorTokens {
   border: string;
 }
 
+export interface SurfaceTokens {
+  canvas: string;
+  panel: string;
+  panelMuted: string;
+  toolbar: string;
+  raised: string;
+  sunken: string;
+}
+
+export interface TextTokens {
+  primary: string;
+  secondary: string;
+  tertiary: string;
+  disabled: string;
+  inverse: string;
+  link: string;
+}
+
+export interface BorderTokens {
+  subtle: string;
+  default: string;
+  strong: string;
+  focus: string;
+}
+
+export interface FocusTokens {
+  ring: string;
+  ringOffset: string;
+  shadow: string;
+}
+
+export interface StateTokens {
+  hover: string;
+  active: string;
+  selected: string;
+  selectedFg: string;
+  disabledFg: string;
+}
+
+export interface OverlayTokens {
+  scrim: string;
+  surface: string;
+  border: string;
+}
+
+export interface ChartTokens {
+  1: string;
+  2: string;
+  3: string;
+  4: string;
+  5: string;
+  positive: string;
+  negative: string;
+  warning: string;
+  neutral: string;
+  grid: string;
+  axis: string;
+}
+
+export interface CodeTokens {
+  keyword: string;
+  string: string;
+  comment: string;
+  number: string;
+  function: string;
+  type: string;
+  variable: string;
+  operator: string;
+  property: string;
+  attribute: string;
+  tag: string;
+  regex: string;
+  meta: string;
+  error: string;
+}
+
 export interface TypographyTokens {
   fontSans: string;
   fontMono: string;
@@ -104,6 +180,14 @@ export interface MotionTokens {
 
 export interface ThemeTokens {
   color?: Partial<ColorTokens>;
+  surface?: Partial<SurfaceTokens>;
+  text?: Partial<TextTokens>;
+  border?: Partial<BorderTokens>;
+  focus?: Partial<FocusTokens>;
+  state?: Partial<StateTokens>;
+  overlay?: Partial<OverlayTokens>;
+  chart?: Partial<ChartTokens>;
+  code?: Partial<CodeTokens>;
   typography?: Partial<TypographyTokens>;
   spacing?: Partial<SpacingTokens>;
   radius?: Partial<RadiusTokens>;

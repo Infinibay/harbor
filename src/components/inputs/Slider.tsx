@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useRef,
   useState,
   type PointerEvent as RPointerEvent,
@@ -37,10 +36,6 @@ export function Slider({
   const pct = ((current - min) / (max - min)) * 100;
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
-
-  useEffect(() => {
-    if (value !== undefined) setInternal(value);
-  }, [value]);
 
   function update(clientX: number) {
     const el = trackRef.current;
@@ -80,10 +75,10 @@ export function Slider({
       {(label || showValue) && (
         <div className="flex justify-between items-baseline mb-2">
           {label ? (
-            <span className="text-xs text-white/60">{label}</span>
+            <span className="text-xs text-[color:var(--harbor-field-muted-fg)]">{label}</span>
           ) : null}
           {showValue ? (
-            <span className="text-xs font-mono text-white tabular-nums">
+            <span className="text-xs font-mono text-[color:var(--harbor-field-fg)] tabular-nums">
               {current}
             </span>
           ) : null}
@@ -97,13 +92,13 @@ export function Slider({
         data-cursor="drag"
         className="relative h-9 flex items-center cursor-pointer select-none"
       >
-        <div className="absolute inset-x-0 h-1.5 rounded-full bg-white/5 overflow-hidden">
+        <div className="absolute inset-x-0 h-1.5 rounded-full bg-[var(--harbor-state-hover)] overflow-hidden">
           <motion.div
             animate={{ width: `${pct}%` }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
             className="h-full rounded-full"
             style={{
-              background: "linear-gradient(90deg,#a855f7,#38bdf8)",
+              background: "linear-gradient(90deg,rgb(var(--harbor-accent)),rgb(var(--harbor-accent-2)))",
             }}
           />
         </div>
@@ -112,7 +107,7 @@ export function Slider({
           return (
             <span
               key={s}
-              className="absolute w-0.5 h-3 bg-white/20 rounded-full"
+              className="absolute w-0.5 h-3 bg-[var(--harbor-border-strong)] rounded-full"
               style={{ left: `${p}%`, translate: "-50% 0" }}
             />
           );
@@ -123,7 +118,7 @@ export function Slider({
             scale: dragging ? 1.3 : 1,
           }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className="absolute w-5 h-5 rounded-full bg-white shadow-lg ring-2 ring-fuchsia-400/40"
+          className="absolute w-5 h-5 rounded-full bg-[var(--harbor-surface-raised)] shadow-lg ring-2 ring-[color:var(--harbor-focus-ring)]"
           style={{ translate: "-50% 0" }}
         />
         <AnimatePresence>
@@ -132,7 +127,7 @@ export function Slider({
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
-              className="absolute -top-9 text-xs font-mono text-white bg-surface-3 border border-white/10 px-2 py-1 rounded-md"
+              className="absolute -top-9 text-xs font-mono text-[color:var(--harbor-menu-item-fg)] bg-[var(--harbor-menu-surface-bg)] border border-[color:var(--harbor-menu-surface-border)] px-2 py-1 rounded-md"
               style={{ left: `${pct}%`, translate: "-50% 0" }}
             >
               {current}

@@ -15,6 +15,14 @@ import type { HarborTheme, ResolvedTheme, ThemeTokens } from "./types";
 function emptyResolvedTokens(): ResolvedTheme["tokens"] {
   return {
     color: {},
+    surface: {},
+    text: {},
+    border: {},
+    focus: {},
+    state: {},
+    overlay: {},
+    chart: {},
+    code: {},
     typography: {},
     spacing: {},
     radius: {},
@@ -39,6 +47,14 @@ function mergeTokens(
 ): ResolvedTheme["tokens"] {
   return {
     color: mergeCategory(base.color, overlay.color),
+    surface: mergeCategory(base.surface, overlay.surface),
+    text: mergeCategory(base.text, overlay.text),
+    border: mergeCategory(base.border, overlay.border),
+    focus: mergeCategory(base.focus, overlay.focus),
+    state: mergeCategory(base.state, overlay.state),
+    overlay: mergeCategory(base.overlay, overlay.overlay),
+    chart: mergeCategory(base.chart, overlay.chart),
+    code: mergeCategory(base.code, overlay.code),
     typography: mergeCategory(base.typography, overlay.typography),
     spacing: mergeCategory(base.spacing, overlay.spacing),
     radius: mergeCategory(base.radius, overlay.radius),

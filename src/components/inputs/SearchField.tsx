@@ -33,12 +33,8 @@ export function SearchField({
   const [rect, setRect] = useState({ x: 0, y: 0, w: 0 });
 
   useEffect(() => {
-    if (!q || !onSearch) {
-      setResults([]);
-      return;
-    }
+    if (!q || !onSearch) return;
     let cancelled = false;
-    setLoading(true);
     const id = setTimeout(async () => {
       const r = await onSearch(q);
       if (!cancelled) {
@@ -95,7 +91,11 @@ export function SearchField({
         </svg>
         <input
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => {
+            const nextQuery = e.target.value;
+            setQ(nextQuery);
+            setLoading(Boolean(nextQuery && onSearch));
+          }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
           data-cursor="text"
@@ -108,7 +108,7 @@ export function SearchField({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute right-3 w-4 h-4 rounded-full border-2 border-fuchsia-300 border-t-transparent animate-spin"
+              className="absolute right-3 w-4 h-4 rounded-full border-2 border-[rgb(var(--harbor-accent))] border-t-transparent animate-spin"
             />
           ) : q ? (
             <motion.button
@@ -117,7 +117,7 @@ export function SearchField({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setQ("")}
-              className="absolute right-3 text-white/40 hover:text-white text-lg"
+              className="absolute right-3 text-[color:var(--harbor-text-tertiary)] hover:text-[color:var(--harbor-text)] text-lg"
             >
               ×
             </motion.button>
@@ -141,7 +141,7 @@ export function SearchField({
               width: rect.w,
               zIndex: Z.POPOVER,
             }}
-            className="overflow-hidden rounded-[var(--harbor-target-radius)] border border-white/10 bg-surface-2 shadow-[var(--harbor-target-shadow)]"
+            className="overflow-hidden rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] shadow-[var(--harbor-target-shadow)]"
           >
             <ul className="max-h-72 overflow-auto p-1">
               <AnimatePresence initial={false}>
@@ -159,13 +159,13 @@ export function SearchField({
                         setOpen(false);
                       }}
                       data-cursor="button"
-                      className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-start gap-2.5 hover:bg-white/5"
+                      className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-start gap-2.5 text-[color:var(--harbor-menu-item-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)]"
                     >
                       {r.icon}
                       <span className="flex-1 flex flex-col gap-0.5">
                         <HighlightMatch text={r.title} q={q} />
                         {r.subtitle ? (
-                          <span className="text-xs text-white/45">
+                          <span className="text-xs text-[color:var(--harbor-menu-item-muted-fg)]">
                             {r.subtitle}
                           </span>
                         ) : null}
@@ -175,7 +175,7 @@ export function SearchField({
                 ))}
               </AnimatePresence>
               {!loading && results.length === 0 ? (
-                <li className="px-3 py-3 text-sm text-white/40">
+                <li className="px-3 py-3 text-sm text-[color:var(--harbor-menu-item-muted-fg)]">
                   No results for “{q}”
                 </li>
               ) : null}
@@ -191,11 +191,11 @@ export function SearchField({
 function HighlightMatch({ text, q }: { text: string; q: string }) {
   const idx = text.toLowerCase().indexOf(q.toLowerCase());
   if (idx === -1 || !q)
-    return <span className="text-white">{text}</span>;
+    return <span className="text-[color:var(--harbor-menu-item-fg)]">{text}</span>;
   return (
-    <span className="text-white">
+    <span className="text-[color:var(--harbor-menu-item-fg)]">
       {text.slice(0, idx)}
-      <span className="bg-fuchsia-400/25 text-fuchsia-200 rounded px-0.5">
+      <span className="rounded px-0.5 bg-[var(--harbor-state-selected)] text-[color:var(--harbor-state-selected-fg)]">
         {text.slice(idx, idx + q.length)}
       </span>
       {text.slice(idx + q.length)}

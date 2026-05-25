@@ -43,7 +43,9 @@ describe("RailSidebar", () => {
     const { container } = renderWithHarbor(
       <RailSidebar items={items} value="search" />,
     );
-    const indicator = container.querySelector(".bg-fuchsia-400");
+    const indicator = Array.from(container.querySelectorAll("span")).find(
+      (span) => span.className.includes("bg-[var(--harbor-focus-ring)]"),
+    );
     expect(indicator).toBeTruthy();
   });
 

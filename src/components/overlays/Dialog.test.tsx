@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { useState } from "react";
 import { screen, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { renderWithHarbor } from "../../test/renderWithHarbor";
@@ -70,6 +71,63 @@ describe("Dialog", () => {
     // Click the "×" close button
     await user.click(screen.getByLabelText("Close"));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("moves focus into the dialog and restores it when closed", async () => {
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Launch
+          </button>
+          <Dialog open={open} onClose={() => setOpen(false)}>
+            <DialogTitle>Focusable dialog</DialogTitle>
+            <DialogBody>
+              <button type="button">First action</button>
+              <button type="button">Second action</button>
+            </DialogBody>
+          </Dialog>
+        </>
+      );
+    }
+
+    const { user } = renderWithHarbor(<Harness />);
+    const trigger = screen.getByRole("button", { name: "Launch" });
+    await user.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "First action" })).toHaveFocus();
+    });
+
+    await user.keyboard("{Escape}");
+
+    await waitFor(() => {
+      expect(trigger).toHaveFocus();
+    });
+  });
+
+  it("traps Tab navigation inside the dialog", async () => {
+    const { user } = renderWithHarbor(
+      <Dialog open onClose={() => {}}>
+        <DialogTitle>Trapped dialog</DialogTitle>
+        <DialogBody>
+          <button type="button">First action</button>
+          <button type="button">Second action</button>
+        </DialogBody>
+      </Dialog>,
+    );
+
+    const first = screen.getByRole("button", { name: "First action" });
+    const second = screen.getByRole("button", { name: "Second action" });
+
+    await waitFor(() => expect(first).toHaveFocus());
+    await user.tab();
+    expect(second).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+    await user.tab();
+    expect(first).toHaveFocus();
   });
 
   it("a11y: no violations when open", async () => {

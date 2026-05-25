@@ -68,6 +68,8 @@ export function ExpandingSearch({
       <motion.button
         layout
         type="button"
+        aria-label={isOpen ? "Close search" : "Open search"}
+        aria-expanded={isOpen}
         onClick={() => setOpen(!isOpen)}
         className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-white/70 hover:bg-white/10 transition-colors"
       >
@@ -110,6 +112,7 @@ export function ExpandingSearch({
             {q ? (
               <button
                 type="button"
+                aria-label="Clear search"
                 onClick={(e) => {
                   e.stopPropagation();
                   setQ("");

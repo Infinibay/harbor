@@ -69,19 +69,19 @@ export function MFASetup({
       description: "Scan the QR code with your authenticator app.",
       content: (
         <div className="flex flex-col gap-3 items-center">
-          <div className="w-40 h-40 rounded-lg border border-white/10 bg-white/5 grid place-items-center overflow-hidden">
+          <div className="w-40 h-40 rounded-lg border border-[color:var(--harbor-border-subtle)] bg-[var(--harbor-surface-panel)] grid place-items-center overflow-hidden">
             {renderQR ? (
               renderQR(uri)
             ) : (
-              <code className="text-[10px] text-white/60 font-mono text-center break-all px-2">
+              <code className="text-[10px] text-[color:var(--harbor-field-muted-fg)] font-mono text-center break-all px-2">
                 {uri}
               </code>
             )}
           </div>
-          <details className="text-xs text-white/60 cursor-pointer self-start">
+          <details className="text-xs text-[color:var(--harbor-field-muted-fg)] cursor-pointer self-start">
             <summary>Can't scan? Enter secret manually</summary>
             <div className="mt-2 flex items-center gap-2">
-              <code className="text-xs font-mono tabular-nums bg-white/5 border border-white/10 rounded px-2 py-1 text-white">
+              <code className="text-xs font-mono tabular-nums bg-[var(--harbor-field-bg)] border border-[color:var(--harbor-field-border)] rounded px-2 py-1 text-[color:var(--harbor-field-fg)]">
                 {secret}
               </code>
               <button
@@ -91,7 +91,7 @@ export function MFASetup({
                   setCopiedSecret(true);
                   setTimeout(() => setCopiedSecret(false), 1500);
                 }}
-                className="text-xs text-white/70 hover:text-white"
+                className="text-xs text-[color:var(--harbor-field-muted-fg)] hover:text-[color:var(--harbor-field-fg)]"
               >
                 {copiedSecret ? "✓ copied" : "Copy"}
               </button>
@@ -120,7 +120,7 @@ export function MFASetup({
             className="rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-control-padding-x)] py-[var(--harbor-target-panel-padding)] text-center font-mono text-2xl tracking-[0.6em] text-[color:var(--harbor-field-fg)] caret-[color:var(--harbor-field-caret)] tabular-nums outline-none placeholder:text-[color:var(--harbor-field-placeholder)] focus:border-[color:var(--harbor-field-border-focus)]"
           />
           {verifyError ? (
-            <div className="text-xs text-rose-300">{verifyError}</div>
+            <div className="text-xs text-[rgb(var(--harbor-danger))]">{verifyError}</div>
           ) : null}
         </div>
       ),
@@ -157,11 +157,11 @@ export function MFASetup({
                   ?.writeText(recoveryCodes.join("\n"))
                   .catch(() => {});
               }}
-              className="text-white/70 hover:text-white"
+              className="text-[color:var(--harbor-field-muted-fg)] hover:text-[color:var(--harbor-field-fg)]"
             >
               Copy all
             </button>
-            <label className="flex items-center gap-2 text-white/70 cursor-pointer">
+            <label className="flex items-center gap-2 text-[color:var(--harbor-field-muted-fg)] cursor-pointer">
               <input
                 type="checkbox"
                 checked={savedCodes}

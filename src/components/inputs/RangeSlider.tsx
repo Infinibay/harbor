@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useRef,
   useState,
   type PointerEvent as RPointerEvent,
@@ -37,10 +36,6 @@ export function RangeSlider({
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState<"a" | "b" | null>(null);
 
-  useEffect(() => {
-    if (value !== undefined) setInternal(value);
-  }, [value]);
-
   const pctA = ((current[0] - min) / (max - min)) * 100;
   const pctB = ((current[1] - min) / (max - min)) * 100;
 
@@ -62,7 +57,7 @@ export function RangeSlider({
     let v = min + ratio * (max - min);
     v = Math.round(v / step) * step;
     v = Math.max(min, Math.min(max, v));
-    let next: [number, number] = [...current];
+    const next: [number, number] = [...current];
     if (thumb === "a") next[0] = Math.min(v, current[1]);
     else next[1] = Math.max(v, current[0]);
     if (value === undefined) setInternal(next);
@@ -90,10 +85,10 @@ export function RangeSlider({
       {(label || showValue) && (
         <div className="flex justify-between items-baseline mb-2">
           {label ? (
-            <span className="text-xs text-white/60">{label}</span>
+            <span className="text-xs text-[color:var(--harbor-field-muted-fg)]">{label}</span>
           ) : null}
           {showValue ? (
-            <span className="text-xs font-mono text-white tabular-nums">
+            <span className="text-xs font-mono text-[color:var(--harbor-field-fg)] tabular-nums">
               {current[0]} – {current[1]}
             </span>
           ) : null}
@@ -106,13 +101,13 @@ export function RangeSlider({
         onPointerUp={onUp}
         className="relative h-9 flex items-center select-none cursor-pointer"
       >
-        <div className="absolute inset-x-0 h-1.5 rounded-full bg-white/5 overflow-hidden">
+        <div className="absolute inset-x-0 h-1.5 rounded-full bg-[var(--harbor-state-hover)] overflow-hidden">
           <motion.div
             animate={{ left: `${pctA}%`, right: `${100 - pctB}%` }}
             transition={{ type: "spring", stiffness: 500, damping: 32 }}
             className="absolute top-0 h-full"
             style={{
-              background: "linear-gradient(90deg,#a855f7,#38bdf8)",
+              background: "linear-gradient(90deg,rgb(var(--harbor-accent)),rgb(var(--harbor-accent-2)))",
             }}
           />
         </div>
@@ -136,14 +131,14 @@ function Thumb({
     <motion.span
       animate={{ left: `${pct}%`, scale: dragging ? 1.3 : 1 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      className="absolute w-5 h-5 rounded-full bg-white shadow-lg ring-2 ring-fuchsia-400/40"
+      className="absolute w-5 h-5 rounded-full bg-[var(--harbor-surface-raised)] shadow-lg ring-2 ring-[color:var(--harbor-focus-ring)]"
       style={{ translate: "-50% 0" }}
     >
       {dragging ? (
         <motion.span
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-mono text-white bg-surface-3 border border-white/10 px-2 py-0.5 rounded-md"
+          className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-mono text-[color:var(--harbor-menu-item-fg)] bg-[var(--harbor-menu-surface-bg)] border border-[color:var(--harbor-menu-surface-border)] px-2 py-0.5 rounded-md"
         >
           {label}
         </motion.span>

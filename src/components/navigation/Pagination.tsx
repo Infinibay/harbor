@@ -22,7 +22,7 @@ export function Pagination({
       </PagBtn>
       {pages.map((p, i) =>
         p === "…" ? (
-          <span key={i} className="px-2 text-white/40">
+          <span key={i} className="px-2 text-[rgb(var(--harbor-text-subtle))]">
             …
           </span>
         ) : (
@@ -61,10 +61,10 @@ function PagBtn({
       whileTap={!disabled ? { scale: 0.92 } : undefined}
       data-cursor="button"
       className={cn(
-        "relative min-w-[32px] h-8 px-2 rounded-lg text-xs font-medium grid place-items-center transition-colors",
+        "relative min-w-[32px] h-8 px-2 rounded-lg text-xs font-medium grid place-items-center transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
         active
-          ? "bg-white text-black"
-          : "text-white/70 hover:bg-white/5 hover:text-white",
+          ? "border border-[color:var(--harbor-focus-ring)] bg-[var(--harbor-state-selected)] text-[var(--harbor-state-selected-fg)]"
+          : "text-[rgb(var(--harbor-text-muted))] hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))]",
         disabled && "opacity-30 cursor-not-allowed",
       )}
     >

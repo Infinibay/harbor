@@ -3,6 +3,7 @@ import {
   useContext,
   useId,
   useState,
+  type KeyboardEvent,
   type ReactNode,
 } from "react";
 import { motion } from "framer-motion";
@@ -61,7 +62,7 @@ export function TabList({
       <div
         role="tablist"
         className={cn(
-          "relative inline-flex items-center gap-1 bg-black/30 border border-white/8 rounded-xl p-1",
+          "relative inline-flex items-center gap-1 bg-[var(--harbor-surface-panel-muted)] border border-[color:var(--harbor-border-default)] rounded-xl p-1",
           className,
         )}
       >
@@ -73,7 +74,7 @@ export function TabList({
       <div
         role="tablist"
         className={cn(
-          "relative inline-flex items-center gap-6 border-b border-white/8",
+          "relative inline-flex items-center gap-6 border-b border-[color:var(--harbor-border-default)]",
           className,
         )}
       >
@@ -99,26 +100,52 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
   if (!ctx) throw new Error();
   const active = ctx.value === value;
 
+  function onKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
+    const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
+    if (!keys.includes(e.key)) return;
+
+    const list = e.currentTarget.closest("[role='tablist']");
+    const tabs = Array.from(
+      list?.querySelectorAll<HTMLButtonElement>("[role='tab']:not(:disabled)") ?? [],
+    );
+    if (tabs.length === 0) return;
+
+    e.preventDefault();
+    const current = Math.max(0, tabs.indexOf(e.currentTarget));
+    let next = current;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (current + 1) % tabs.length;
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (current - 1 + tabs.length) % tabs.length;
+    if (e.key === "Home") next = 0;
+    if (e.key === "End") next = tabs.length - 1;
+
+    tabs[next]?.focus();
+    tabs[next]?.click();
+  }
+
   if (ctx.variant === "pill")
     return (
       <button type="button"
         role="tab"
         onClick={() => !disabled && ctx.onChange(value)}
+        onKeyDown={onKeyDown}
         disabled={disabled}
         aria-selected={active}
+        tabIndex={active ? 0 : -1}
         aria-controls={`${ctx.layoutId}-${value}-panel`}
         id={`${ctx.layoutId}-${value}-tab`}
         data-cursor="button"
         className={cn(
-          "relative px-3.5 py-1.5 text-sm font-medium rounded-lg inline-flex items-center gap-2 transition-colors",
-          active ? "text-white" : "text-white/60 hover:text-white/80",
+          "relative px-3.5 py-1.5 text-sm font-medium rounded-lg inline-flex items-center gap-2 transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
+          active
+            ? "text-[var(--harbor-state-selected-fg)]"
+            : "text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))]",
           disabled && "opacity-40 cursor-not-allowed",
         )}
       >
         {active ? (
           <motion.span
             layoutId={`${ctx.layoutId}-pill`}
-            className="absolute inset-0 rounded-lg bg-surface-2/90 border border-fuchsia-400/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+            className="absolute inset-0 rounded-lg bg-[var(--harbor-state-selected)] border border-[color:var(--harbor-focus-ring)]"
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         ) : null}
@@ -134,14 +161,18 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
       <button type="button"
         role="tab"
         onClick={() => !disabled && ctx.onChange(value)}
+        onKeyDown={onKeyDown}
         disabled={disabled}
         aria-selected={active}
+        tabIndex={active ? 0 : -1}
         aria-controls={`${ctx.layoutId}-${value}-panel`}
         id={`${ctx.layoutId}-${value}-tab`}
         data-cursor="button"
         className={cn(
-          "relative pb-2.5 text-sm font-medium inline-flex items-center gap-2",
-          active ? "text-white" : "text-white/55 hover:text-white/80",
+          "relative pb-2.5 text-sm font-medium inline-flex items-center gap-2 outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
+          active
+            ? "text-[rgb(var(--harbor-text))]"
+            : "text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))]",
           disabled && "opacity-40 cursor-not-allowed",
         )}
       >
@@ -152,7 +183,7 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
             layoutId={`${ctx.layoutId}-underline`}
             className="absolute left-0 right-0 -bottom-px h-0.5 rounded-full"
             style={{
-              background: "linear-gradient(90deg,#a855f7,#38bdf8)",
+              background: "var(--harbor-focus-ring)",
             }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
@@ -164,16 +195,18 @@ export function Tab({ value, children, icon, disabled }: TabProps) {
     <button type="button"
       role="tab"
       onClick={() => !disabled && ctx.onChange(value)}
+      onKeyDown={onKeyDown}
       disabled={disabled}
       aria-selected={active}
+      tabIndex={active ? 0 : -1}
       aria-controls={`${ctx.layoutId}-${value}-panel`}
       id={`${ctx.layoutId}-${value}-tab`}
       data-cursor="button"
       className={cn(
-        "relative px-4 py-2 text-sm font-medium rounded-t-lg inline-flex items-center gap-2 border border-b-0 transition-colors",
+        "relative px-4 py-2 text-sm font-medium rounded-t-lg inline-flex items-center gap-2 border border-b-0 transition-colors outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]",
         active
-          ? "bg-surface-2 border-white/10 text-white"
-          : "border-transparent text-white/50 hover:text-white/80",
+          ? "bg-[var(--harbor-surface-panel)] border-[color:var(--harbor-border-default)] text-[rgb(var(--harbor-text))]"
+          : "border-transparent text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))]",
       )}
     >
       {icon}

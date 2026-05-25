@@ -34,6 +34,8 @@ export function Rating({
         return (
           <motion.button
             key={i}
+            type="button"
+            aria-label={`Rate ${idx} of ${max}`}
             disabled={readOnly}
             whileHover={readOnly ? undefined : { scale: 1.2, y: -2 }}
             whileTap={readOnly ? undefined : { scale: 0.9 }}
@@ -51,16 +53,16 @@ export function Rating({
               className={cn(
                 "transition-colors",
                 filled || half
-                  ? "text-amber-300"
+                  ? "text-[rgb(var(--harbor-warning))]"
                   : readOnly
-                    ? "text-white/15"
-                    : "text-white/25",
+                    ? "text-[color:var(--harbor-text-disabled)]"
+                    : "text-[color:var(--harbor-text-tertiary)]",
               )}
             >
               <defs>
                 <linearGradient id={`half-${i}`} x1="0" x2="1">
                   <stop offset="50%" stopColor="currentColor" />
-                  <stop offset="50%" stopColor="rgba(255,255,255,0.08)" />
+                  <stop offset="50%" stopColor="var(--harbor-border-subtle)" />
                 </linearGradient>
               </defs>
               <path

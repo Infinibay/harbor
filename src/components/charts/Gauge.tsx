@@ -12,9 +12,9 @@ export interface GaugeProps {
 }
 
 const defaultThresholds = [
-  { at: 0, color: "#34d399" },
-  { at: 0.6, color: "#fbbf24" },
-  { at: 0.85, color: "#f87171" },
+  { at: 0, color: "rgb(var(--harbor-chart-positive))" },
+  { at: 0.6, color: "rgb(var(--harbor-chart-warning))" },
+  { at: 0.85, color: "rgb(var(--harbor-chart-negative))" },
 ];
 
 export function Gauge({
@@ -39,7 +39,7 @@ export function Gauge({
     return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
   }
 
-  const color = [...thresholds].reverse().find((t) => pct >= t.at)?.color ?? "#a855f7";
+  const color = [...thresholds].reverse().find((t) => pct >= t.at)?.color ?? "rgb(var(--harbor-chart-2))";
   const trackStart = pointOn(0);
   const trackEnd = pointOn(1);
   const fillEnd = pointOn(pct);
@@ -53,7 +53,7 @@ export function Gauge({
         <path
           d={`M${trackStart.x} ${trackStart.y} A${r} ${r} 0 ${largeArc} 1 ${trackEnd.x} ${trackEnd.y}`}
           fill="none"
-          stroke="rgba(255,255,255,0.08)"
+          stroke="var(--harbor-chart-grid)"
           strokeWidth={10}
           strokeLinecap="round"
         />
@@ -73,22 +73,22 @@ export function Gauge({
           y1={cy}
           x2={fillEnd.x}
           y2={fillEnd.y}
-          stroke="#fff"
+          stroke="var(--harbor-text-primary)"
           strokeWidth={2}
           strokeLinecap="round"
           opacity={0.85}
         />
-        <circle cx={cx} cy={cy} r={4} fill="#fff" />
+        <circle cx={cx} cy={cy} r={4} fill="var(--harbor-text-primary)" />
       </svg>
       <div className="flex flex-col items-center -mt-8">
-        <span className="text-3xl font-semibold text-white font-mono tabular-nums">
+        <span className="text-3xl font-semibold text-[color:var(--harbor-text-primary)] font-mono tabular-nums">
           {Math.round(value)}
           {unit ? (
-            <span className="text-sm text-white/45 ml-0.5 font-normal">{unit}</span>
+            <span className="text-sm text-[color:var(--harbor-text-tertiary)] ml-0.5 font-normal">{unit}</span>
           ) : null}
         </span>
         {label ? (
-          <span className="text-xs uppercase tracking-wider text-white/50 mt-0.5">
+          <span className="text-xs uppercase tracking-wider text-[color:var(--harbor-text-tertiary)] mt-0.5">
             {label}
           </span>
         ) : null}

@@ -24,18 +24,34 @@ app with React Router, one route per category.
 
 ## Usage
 
-Import from the root barrel:
+Import the package CSS once in the consuming app:
 
 ```tsx
-import { Button, Dialog, DataTable, LineChart } from "./components";
+import "@infinibay/harbor/index.css";
 ```
 
-Or target a specific category for finer control:
+Import from the root barrel for small apps and prototypes:
 
 ```tsx
-import { Button } from "./components/buttons";
-import { Dialog } from "./components/overlays";
+import { Button, Dialog, DataTable, LineChart } from "@infinibay/harbor";
 ```
+
+Or target a specific category for clearer ownership and easier bundle
+inspection:
+
+```tsx
+import { Button } from "@infinibay/harbor/buttons";
+import { Dialog } from "@infinibay/harbor/overlays";
+import { ProductShell } from "@infinibay/harbor/layout";
+import { HarborProvider } from "@infinibay/harbor/theme";
+```
+
+See [docs/consumer-guide.md](./docs/consumer-guide.md) for Vite, Next.js,
+Remix, SSR, package exports, Tailwind and recipe starting points.
+
+When working from the commercial site repository, run
+`npm run test:harbor:quality` at the site root to execute the package quality
+gate, package build, and showcase visual smoke together.
 
 ## Structure
 
@@ -58,6 +74,7 @@ src/
     media/           Carousel · Scrubber · CompareSlider · SignaturePad
     dev/             CodeBlock · Terminal · LogViewer · Markdown · FindBar · …
     index.ts         root barrel (re-exports all categories)
+  recipes/           Copyable product recipes for admin/data/dev workflows
   lib/
     cn.ts            class-name helper (clsx-lite)
     cursor.tsx       global cursor motion values + useCursorProximity hook
@@ -74,7 +91,47 @@ are CSS custom properties declared in `src/tokens.css`. Components read
 them either via Tailwind utilities (`bg-accent`, `rounded-lg`, `text-fg-muted`)
 or directly via `var(--harbor-*)`.
 
-**Theme at runtime** by overriding a token on any subtree:
+**Theme at runtime** with `HarborProvider`:
+
+```tsx
+import { HarborProvider } from "@infinibay/harbor/theme";
+
+<HarborProvider theme="harbor-enterprise-light">
+  <App />
+</HarborProvider>
+```
+
+**Validate production themes** before shipping custom presets:
+
+```tsx
+import {
+  formatThemeAuditReport,
+  formatThemeValidationReport,
+  resolveTheme,
+  validateThemeAudit,
+  validateTheme,
+} from "@infinibay/harbor/theme";
+
+const registry = new Map(themes.map((theme) => [theme.name, theme]));
+const report = validateTheme(resolveTheme(myTheme, registry));
+
+if (!report.passes) {
+  throw new Error(formatThemeValidationReport(report));
+}
+
+const audit = validateThemeAudit({
+  themes: resolvedThemes,
+  pairs: [{ name: "enterprise", dark: enterpriseDark, light: enterpriseLight }],
+});
+
+console.info(formatThemeAuditReport(audit));
+```
+
+The report includes token coverage, text contrast, chart contrast, focus
+affordances, missing semantic tokens, and dark/light pair parity when using
+`validateThemePair` or the aggregate `validateThemeAudit` release gate.
+
+Or override a token on any subtree:
 
 ```tsx
 <div style={{ "--harbor-accent": "34 211 238" }}>
@@ -107,7 +164,7 @@ import {
   useIsPhone, useIsTablet, useIsDesktop,
   useIsTouch, useHasHover, usePrefersReducedMotion,
   Show, Hide, ResponsiveSwap, Container, ResponsiveStack,
-} from "./components";
+} from "@infinibay/harbor";
 ```
 
 **Hooks** (from `lib/responsive.ts`):

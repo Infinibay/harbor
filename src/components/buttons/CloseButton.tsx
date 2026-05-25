@@ -13,9 +13,10 @@ const sizes = {
 };
 
 const variants = {
-  ghost: "text-white/50 hover:text-white hover:bg-white/5",
+  ghost:
+    "bg-transparent text-[rgb(var(--harbor-text-muted))] hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))]",
   solid:
-    "text-white/75 bg-white/[0.04] border border-white/10 hover:text-white hover:bg-white/10",
+    "border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel-muted)] text-[rgb(var(--harbor-text-muted))] hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))]",
 };
 
 /** Standardized × close button. Good for dialog headers, toast dismiss,
@@ -32,7 +33,7 @@ export const CloseButton = forwardRef<HTMLButtonElement, CloseButtonProps>(
         aria-label="Close"
         data-cursor="button"
         className={cn(
-          "grid place-items-center rounded-lg transition-colors",
+          "grid place-items-center rounded-lg outline-none transition-colors focus-visible:shadow-[var(--harbor-focus-shadow)] disabled:cursor-not-allowed disabled:opacity-50",
           sizes[size],
           variants[variant],
           className,

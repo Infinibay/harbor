@@ -21,8 +21,14 @@ export interface CostBreakdownProps {
 }
 
 const DEFAULT_COLORS = [
-  "#a855f7", "#38bdf8", "#f472b6", "#34d399",
-  "#fbbf24", "#fb7185", "#818cf8", "#22d3ee",
+  "rgb(var(--harbor-chart-1))",
+  "rgb(var(--harbor-chart-2))",
+  "rgb(var(--harbor-chart-3))",
+  "rgb(var(--harbor-chart-4))",
+  "rgb(var(--harbor-chart-5))",
+  "rgb(var(--harbor-chart-positive))",
+  "rgb(var(--harbor-chart-warning))",
+  "rgb(var(--harbor-chart-neutral))",
 ];
 
 /** Cost breakdown — donut with a legend (default) or a stacked
@@ -71,7 +77,7 @@ export function CostBreakdown({
         </div>
       ) : (
         <div className="w-full">
-          <div className="h-4 rounded-full overflow-hidden bg-white/[0.06] flex">
+          <div className="flex h-4 overflow-hidden rounded-full bg-[var(--harbor-surface-sunken)]">
             {withColors.map((it) => {
               const frac = total > 0 ? it.amount / total : 0;
               return (
@@ -105,18 +111,18 @@ export function CostBreakdown({
               className={cn(
                 "flex items-center gap-2 text-xs py-1 px-2 rounded transition-opacity",
                 dim && "opacity-40",
-                "hover:bg-white/[0.03]",
+                "hover:bg-[var(--harbor-state-hover)]",
               )}
             >
               <span
                 className="w-2.5 h-2.5 rounded-sm shrink-0"
                 style={{ background: it.color }}
               />
-              <span className="flex-1 truncate text-white/85">{it.label}</span>
-              <span className="text-white/45 tabular-nums font-mono w-12 text-right">
+              <span className="flex-1 truncate text-[color:var(--harbor-text-secondary)]">{it.label}</span>
+              <span className="w-12 text-right font-mono tabular-nums text-[color:var(--harbor-text-tertiary)]">
                 {(frac * 100).toFixed(0)}%
               </span>
-              <span className="text-white tabular-nums font-mono w-20 text-right">
+              <span className="w-20 text-right font-mono tabular-nums text-[color:var(--harbor-text-primary)]">
                 {fmt.format(it.amount)}
               </span>
             </div>

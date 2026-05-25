@@ -51,6 +51,7 @@ export function WindowFrame({
           <div className="flex items-center gap-[7px]">
             <TrafficLight
               tone="red"
+              label="Close"
               onClick={onClose}
               glyph={
                 <svg viewBox="0 0 10 10" width="5.5" height="5.5">
@@ -65,6 +66,7 @@ export function WindowFrame({
             />
             <TrafficLight
               tone="yellow"
+              label="Minimize"
               onClick={onMinimize}
               glyph={
                 <svg viewBox="0 0 10 10" width="5.5" height="5.5">
@@ -79,6 +81,7 @@ export function WindowFrame({
             />
             <TrafficLight
               tone="green"
+              label="Maximize"
               onClick={onMaximize}
               glyph={
                 <svg viewBox="0 0 10 10" width="5.5" height="5.5">
@@ -166,10 +169,12 @@ const trafficTones = {
 
 function TrafficLight({
   tone,
+  label,
   onClick,
   glyph,
 }: {
   tone: keyof typeof trafficTones;
+  label: string;
   onClick?: () => void;
   glyph?: ReactNode;
 }) {
@@ -177,6 +182,7 @@ function TrafficLight({
   return (
     <button
       onClick={onClick}
+      aria-label={label}
       className="relative w-3 h-3 rounded-full grid place-items-center active:brightness-90"
       style={{
         background: `radial-gradient(circle at 35% 30%, ${c.hi} 0%, ${c.base} 55%, ${c.rim} 100%)`,

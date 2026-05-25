@@ -34,21 +34,20 @@ describe("SegmentedControl", () => {
 
   it("supports controlled value", () => {
     renderWithHarbor(<SegmentedControl items={items} value="week" />);
-    // Active item has text-black class
     const weekBtn = screen.getByText("Week").closest("button");
-    expect(weekBtn?.className).toContain("text-black");
+    expect(weekBtn?.className).toContain("text-[var(--harbor-state-selected-fg)]");
   });
 
   it("uses first item as default when no value/defaultValue", () => {
     renderWithHarbor(<SegmentedControl items={items} />);
     const dayBtn = screen.getByText("Day").closest("button");
-    expect(dayBtn?.className).toContain("text-black");
+    expect(dayBtn?.className).toContain("text-[var(--harbor-state-selected-fg)]");
   });
 
   it("respects defaultValue", () => {
     renderWithHarbor(<SegmentedControl items={items} defaultValue="month" />);
     const monthBtn = screen.getByText("Month").closest("button");
-    expect(monthBtn?.className).toContain("text-black");
+    expect(monthBtn?.className).toContain("text-[var(--harbor-state-selected-fg)]");
   });
 
   it("applies sm size class", () => {

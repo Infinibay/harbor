@@ -59,10 +59,10 @@ describe("Gauge", () => {
 
   it("applies threshold-based color for high values", () => {
     const { container } = renderWithHarbor(<Gauge value={90} />);
-    // High value (>= 0.85 of range) should use red (#f87171)
+    // High value (>= 0.85 of range) should use the semantic negative chart token.
     const svg = container.querySelector("svg");
     expect(svg).toBeTruthy();
-    const coloredPath = container.querySelector('svg path[stroke="#f87171"]');
+    const coloredPath = container.querySelector('svg path[stroke="rgb(var(--harbor-chart-negative))"]');
     expect(coloredPath).toBeTruthy();
   });
 

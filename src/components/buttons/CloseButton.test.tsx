@@ -48,7 +48,7 @@ describe("CloseButton", () => {
   it("applies variant classes", () => {
     const { container } = renderWithHarbor(<CloseButton variant="solid" />);
     const btn = container.querySelector("button");
-    expect(btn?.className).toContain("bg-white/");
+    expect(btn?.className).toContain("bg-[var(--harbor-surface-panel-muted)]");
   });
 
   it("a11y: no violations", async () => {

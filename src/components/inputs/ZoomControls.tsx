@@ -28,7 +28,7 @@ export function ZoomControls({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-lg bg-surface-2 border border-white/10 p-0.5",
+        "inline-flex items-center gap-0.5 rounded-lg bg-[var(--harbor-surface-toolbar)] border border-[color:var(--harbor-border-subtle)] p-0.5",
         className,
       )}
     >
@@ -36,28 +36,33 @@ export function ZoomControls({
         −
       </ZBtn>
       <div className="relative group">
-        <button className="min-w-[56px] h-7 px-2 text-xs font-mono text-white hover:bg-white/5 rounded">
+        <button
+          type="button"
+          className="min-w-[56px] h-7 px-2 text-xs font-mono text-[color:var(--harbor-field-fg)] hover:bg-[var(--harbor-state-hover)] rounded"
+        >
           {Math.round(value)}%
         </button>
         <motion.div
           initial={false}
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity min-w-[120px] rounded-lg bg-surface-3 border border-white/10 p-1 shadow-xl z-50"
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity min-w-[120px] rounded-lg bg-[var(--harbor-menu-surface-bg)] border border-[color:var(--harbor-menu-surface-border)] p-1 shadow-xl z-50"
         >
           {presets.map((p) => (
             <button
+              type="button"
               key={p}
               onClick={() => onChange(p)}
-              className="w-full text-left px-2 py-1 rounded text-xs text-white/80 hover:bg-white/5 font-mono"
+              className="w-full text-left px-2 py-1 rounded text-xs text-[color:var(--harbor-menu-item-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)] font-mono"
             >
               {p}%
             </button>
           ))}
           {onFit ? (
             <>
-              <div className="h-px bg-white/8 my-1" />
+              <div className="h-px bg-[var(--harbor-menu-separator)] my-1" />
               <button
+                type="button"
                 onClick={onFit}
-                className="w-full text-left px-2 py-1 rounded text-xs text-white/80 hover:bg-white/5"
+                className="w-full text-left px-2 py-1 rounded text-xs text-[color:var(--harbor-menu-item-fg)] hover:bg-[var(--harbor-menu-item-hover-bg)]"
               >
                 Fit to view
               </button>
@@ -83,9 +88,10 @@ function ZBtn({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       aria-label={label}
-      className="w-7 h-7 grid place-items-center rounded text-white/70 hover:bg-white/5 hover:text-white text-sm"
+      className="w-7 h-7 grid place-items-center rounded text-[color:var(--harbor-field-muted-fg)] hover:bg-[var(--harbor-state-hover)] hover:text-[color:var(--harbor-field-fg)] text-sm"
     >
       {children}
     </button>

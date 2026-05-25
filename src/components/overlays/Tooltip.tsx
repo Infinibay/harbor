@@ -1,10 +1,14 @@
 import {
   cloneElement,
+  useCallback,
   useEffect,
   useRef,
   useState,
+  type FocusEvent,
+  type MouseEvent,
   type ReactElement,
   type ReactNode,
+  type Ref,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Portal } from "../../lib/Portal";
@@ -16,7 +20,23 @@ export interface TooltipProps {
   content: ReactNode;
   side?: Side;
   delay?: number;
-  children: ReactElement<any>;
+  children: ReactElement<TooltipTriggerProps>;
+}
+
+type TooltipTriggerProps = {
+  onMouseEnter?: (event: MouseEvent<HTMLElement>) => void;
+  onMouseLeave?: (event: MouseEvent<HTMLElement>) => void;
+  onFocus?: (event: FocusEvent<HTMLElement>) => void;
+  onBlur?: (event: FocusEvent<HTMLElement>) => void;
+};
+
+type TriggerElement = ReactElement<TooltipTriggerProps> & {
+  ref?: Ref<HTMLElement>;
+};
+
+function assignRef(ref: Ref<HTMLElement> | undefined, el: HTMLElement | null) {
+  if (typeof ref === "function") ref(el);
+  else if (ref) ref.current = el;
 }
 
 export function Tooltip({
@@ -30,7 +50,7 @@ export function Tooltip({
   const timer = useRef<number | null>(null);
   const target = useRef<HTMLElement | null>(null);
 
-  function place() {
+  const place = useCallback(() => {
     const el = target.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -41,7 +61,7 @@ export function Tooltip({
     else if (side === "bottom") setPos({ x: cx, y: r.bottom + offset });
     else if (side === "left") setPos({ x: r.left - offset, y: cy });
     else setPos({ x: r.right + offset, y: cy });
-  }
+  }, [side]);
 
   useEffect(() => {
     if (!open) return;
@@ -53,33 +73,32 @@ export function Tooltip({
       window.removeEventListener("scroll", on, true);
       window.removeEventListener("resize", on);
     };
-  }, [open, side]);
+  }, [open, place]);
 
+  // eslint-disable-next-line react-hooks/refs
   const child = cloneElement(children, {
     ref: (el: HTMLElement | null) => {
       target.current = el;
-      const ref = (children as any).ref;
-      if (typeof ref === "function") ref(el);
-      else if (ref) (ref as any).current = el;
+      assignRef((children as TriggerElement).ref, el);
     },
-    onMouseEnter: (e: any) => {
+    onMouseEnter: (e: MouseEvent<HTMLElement>) => {
       children.props.onMouseEnter?.(e);
       timer.current = window.setTimeout(() => setOpen(true), delay);
     },
-    onMouseLeave: (e: any) => {
+    onMouseLeave: (e: MouseEvent<HTMLElement>) => {
       children.props.onMouseLeave?.(e);
       if (timer.current) clearTimeout(timer.current);
       setOpen(false);
     },
-    onFocus: (e: any) => {
+    onFocus: (e: FocusEvent<HTMLElement>) => {
       children.props.onFocus?.(e);
       setOpen(true);
     },
-    onBlur: (e: any) => {
+    onBlur: (e: FocusEvent<HTMLElement>) => {
       children.props.onBlur?.(e);
       setOpen(false);
     },
-  } as any);
+  } as Partial<TooltipTriggerProps> & { ref: Ref<HTMLElement> });
 
   const translate = {
     top: "-50%, -100%",
@@ -107,7 +126,7 @@ export function Tooltip({
                 zIndex: Z.TOOLTIP,
                 pointerEvents: "none",
               }}
-              className="px-2.5 py-1.5 rounded-lg bg-surface-3 border border-white/10 text-white text-xs shadow-xl whitespace-nowrap"
+              className="px-2.5 py-1.5 rounded-lg border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel)] text-[rgb(var(--harbor-text))] text-xs shadow-xl whitespace-nowrap"
             >
               {content}
             </motion.div>

@@ -67,7 +67,7 @@ export function SliderField({
           showValue={false}
         />
         {limit !== undefined && limitLabel ? (
-          <div className="mt-1 text-xs text-white/40">
+          <div className="mt-1 text-xs text-[color:var(--harbor-text-tertiary)]">
             {limitLabel}: {limit}
             {unit ? ` ${unit}` : ""}
           </div>

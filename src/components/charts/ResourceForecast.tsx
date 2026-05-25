@@ -101,7 +101,7 @@ export function ResourceForecast({
       out.push({
         id: `${s.id}-forecast`,
         label: `${s.label ?? s.id} (forecast)`,
-        color: s.color ?? "rgba(168,85,247,0.5)",
+        color: s.color ?? "rgb(var(--harbor-chart-2) / 0.55)",
         data: projection,
       });
       if (quota !== undefined && !firstCrossing) {
@@ -117,7 +117,7 @@ export function ResourceForecast({
         <TimeSeriesMarker
           at={crossing}
           label={`projected quota @ ${quota}`}
-          color="#f43f5e"
+          color="rgb(var(--harbor-chart-negative))"
           stroke="solid"
         />
       ) : null}

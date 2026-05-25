@@ -5,11 +5,19 @@
  */
 
 import type {
+  BorderTokens,
+  ChartTokens,
+  CodeTokens,
   ColorTokens,
+  FocusTokens,
   MotionTokens,
+  OverlayTokens,
   RadiusTokens,
   ShadowTokens,
   SpacingTokens,
+  StateTokens,
+  SurfaceTokens,
+  TextTokens,
   TypographyTokens,
 } from "./types";
 
@@ -31,6 +39,82 @@ export const colorCssVar: Record<keyof ColorTokens, string> = {
   textMuted: "--harbor-text-muted",
   textSubtle: "--harbor-text-subtle",
   border: "--harbor-border",
+};
+
+export const surfaceCssVar: Record<keyof SurfaceTokens, string> = {
+  canvas: "--harbor-surface-canvas",
+  panel: "--harbor-surface-panel",
+  panelMuted: "--harbor-surface-panel-muted",
+  toolbar: "--harbor-surface-toolbar",
+  raised: "--harbor-surface-raised",
+  sunken: "--harbor-surface-sunken",
+};
+
+export const textCssVar: Record<keyof TextTokens, string> = {
+  primary: "--harbor-text-primary",
+  secondary: "--harbor-text-secondary",
+  tertiary: "--harbor-text-tertiary",
+  disabled: "--harbor-text-disabled",
+  inverse: "--harbor-text-inverse",
+  link: "--harbor-text-link",
+};
+
+export const borderCssVar: Record<keyof BorderTokens, string> = {
+  subtle: "--harbor-border-subtle",
+  default: "--harbor-border-default",
+  strong: "--harbor-border-strong",
+  focus: "--harbor-border-focus",
+};
+
+export const focusCssVar: Record<keyof FocusTokens, string> = {
+  ring: "--harbor-focus-ring",
+  ringOffset: "--harbor-focus-ring-offset",
+  shadow: "--harbor-focus-shadow",
+};
+
+export const stateCssVar: Record<keyof StateTokens, string> = {
+  hover: "--harbor-state-hover",
+  active: "--harbor-state-active",
+  selected: "--harbor-state-selected",
+  selectedFg: "--harbor-state-selected-fg",
+  disabledFg: "--harbor-state-disabled-fg",
+};
+
+export const overlayCssVar: Record<keyof OverlayTokens, string> = {
+  scrim: "--harbor-overlay-scrim",
+  surface: "--harbor-overlay-surface",
+  border: "--harbor-overlay-border",
+};
+
+export const chartCssVar: Record<keyof ChartTokens, string> = {
+  1: "--harbor-chart-1",
+  2: "--harbor-chart-2",
+  3: "--harbor-chart-3",
+  4: "--harbor-chart-4",
+  5: "--harbor-chart-5",
+  positive: "--harbor-chart-positive",
+  negative: "--harbor-chart-negative",
+  warning: "--harbor-chart-warning",
+  neutral: "--harbor-chart-neutral",
+  grid: "--harbor-chart-grid",
+  axis: "--harbor-chart-axis",
+};
+
+export const codeCssVar: Record<keyof CodeTokens, string> = {
+  keyword: "--harbor-syntax-keyword",
+  string: "--harbor-syntax-string",
+  comment: "--harbor-syntax-comment",
+  number: "--harbor-syntax-number",
+  function: "--harbor-syntax-function",
+  type: "--harbor-syntax-type",
+  variable: "--harbor-syntax-variable",
+  operator: "--harbor-syntax-operator",
+  property: "--harbor-syntax-property",
+  attribute: "--harbor-syntax-attribute",
+  tag: "--harbor-syntax-tag",
+  regex: "--harbor-syntax-regex",
+  meta: "--harbor-syntax-meta",
+  error: "--harbor-syntax-error",
 };
 
 export const typographyCssVar: Record<keyof TypographyTokens, string> = {
@@ -103,6 +187,14 @@ export const motionCssVar: Record<keyof MotionTokens, string> = {
 
 export const cssVarMap = {
   color: colorCssVar,
+  surface: surfaceCssVar,
+  text: textCssVar,
+  border: borderCssVar,
+  focus: focusCssVar,
+  state: stateCssVar,
+  overlay: overlayCssVar,
+  chart: chartCssVar,
+  code: codeCssVar,
   typography: typographyCssVar,
   spacing: spacingCssVar,
   radius: radiusCssVar,

@@ -68,5 +68,6 @@ export function safeParse<T>(
 export function parse<T>(schema: Schema<T>, value: unknown): T {
   const r = safeParse(schema, value);
   if (r.success) return r.data;
-  throw new SchemaValidationError(r.issues);
+  const issues = (r as SafeParseErr).issues;
+  throw new SchemaValidationError(issues);
 }

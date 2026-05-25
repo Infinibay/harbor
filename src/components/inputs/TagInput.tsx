@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from "react";
+import { useId, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 
@@ -23,6 +23,7 @@ export function TagInput({
   const tags = value ?? internal;
   const [q, setQ] = useState("");
   const [focus, setFocus] = useState(false);
+  const inputId = useId();
 
   function set(next: string[]) {
     if (value === undefined) setInternal(next);
@@ -48,11 +49,16 @@ export function TagInput({
   return (
     <div className={cn("w-full", className)}>
       {label ? (
-        <label className="block text-xs text-white/60 mb-1.5">{label}</label>
+        <label
+          htmlFor={inputId}
+          className="block text-xs text-[color:var(--harbor-field-muted-fg)] mb-1.5"
+        >
+          {label}
+        </label>
       ) : null}
       <div
         onClick={() => {
-          document.getElementById("tag-input-inner")?.focus();
+          document.getElementById(inputId)?.focus();
         }}
         className={cn(
           "flex min-h-[var(--harbor-target-input-height)] flex-wrap gap-1.5 rounded-[var(--harbor-target-radius)] border bg-[var(--harbor-field-bg)] p-[var(--harbor-target-control-padding-y)] text-[color:var(--harbor-field-fg)] transition-colors",
@@ -69,7 +75,7 @@ export function TagInput({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 28 }}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-fuchsia-500/15 border border-fuchsia-400/30 text-fuchsia-200 text-xs"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-md border bg-[var(--harbor-state-selected)] border-[color:var(--harbor-border-focus)] text-[color:var(--harbor-state-selected-fg)] text-xs"
             >
               {t}
               <button
@@ -78,7 +84,7 @@ export function TagInput({
                   set(tags.filter((x) => x !== t));
                 }}
                 data-cursor="button"
-                className="text-fuchsia-300/70 hover:text-white"
+                className="text-[color:var(--harbor-field-muted-fg)] hover:text-[color:var(--harbor-field-fg)]"
               >
                 ×
               </button>
@@ -86,7 +92,7 @@ export function TagInput({
           ))}
         </AnimatePresence>
         <input
-          id="tag-input-inner"
+          id={inputId}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={onKey}

@@ -19,17 +19,17 @@ const labels: Record<Level, ScoreResult> = {
 };
 
 const toneBar: Record<ScoreResult["tone"], string> = {
-  rose: "bg-rose-400",
-  amber: "bg-amber-400",
-  sky: "bg-sky-400",
-  green: "bg-emerald-400",
+  rose: "bg-[rgb(var(--harbor-danger))]",
+  amber: "bg-[rgb(var(--harbor-warning))]",
+  sky: "bg-[rgb(var(--harbor-info))]",
+  green: "bg-[rgb(var(--harbor-success))]",
 };
 
 const toneText: Record<ScoreResult["tone"], string> = {
-  rose: "text-rose-300",
-  amber: "text-amber-300",
-  sky: "text-sky-300",
-  green: "text-emerald-300",
+  rose: "text-[rgb(var(--harbor-danger))]",
+  amber: "text-[rgb(var(--harbor-warning))]",
+  sky: "text-[rgb(var(--harbor-info))]",
+  green: "text-[rgb(var(--harbor-success))]",
 };
 
 function scorePassword(pw: string): ScoreResult {
@@ -83,7 +83,7 @@ export function PasswordStrength({
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
                 "h-1 flex-1 rounded-full",
-                filled ? toneBar[result.tone] : "bg-white/10",
+                filled ? toneBar[result.tone] : "bg-[var(--harbor-state-hover)]",
               )}
             />
           );

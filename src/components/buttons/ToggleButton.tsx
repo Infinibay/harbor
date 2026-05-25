@@ -44,11 +44,11 @@ export function ToggleButton({
       whileTap={{ scale: 0.96 }}
       data-cursor="button"
       className={cn(
-        "inline-flex items-center justify-center rounded-lg font-medium select-none relative transition-colors",
+        "inline-flex items-center justify-center rounded-lg font-medium select-none relative border outline-none transition-colors focus-visible:shadow-[var(--harbor-focus-shadow)]",
         sizes[size],
         pressed
-          ? "bg-fuchsia-500/20 border border-fuchsia-400/40 text-white"
-          : "bg-white/[0.04] border border-white/10 text-white/75 hover:text-white hover:bg-white/[0.08]",
+          ? "border-[color:var(--harbor-focus-ring)] bg-[var(--harbor-state-selected)] text-[var(--harbor-state-selected-fg)]"
+          : "border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel-muted)] text-[rgb(var(--harbor-text-muted))] hover:bg-[var(--harbor-state-hover)] hover:text-[rgb(var(--harbor-text))]",
         disabled && "opacity-40 cursor-not-allowed",
         className,
       )}
@@ -56,7 +56,7 @@ export function ToggleButton({
       {icon ? <span className="inline-flex shrink-0">{icon}</span> : null}
       {children}
       {pressed ? (
-        <span className="absolute inset-0 rounded-lg pointer-events-none ring-1 ring-fuchsia-400/50 shadow-[0_0_12px_-2px_rgba(168,85,247,0.5)]" />
+        <span className="absolute inset-0 rounded-lg pointer-events-none shadow-[0_0_0_1px_var(--harbor-focus-ring),0_0_14px_-4px_rgb(var(--harbor-accent)/0.58)]" />
       ) : null}
     </motion.button>
   );
