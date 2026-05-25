@@ -3,6 +3,7 @@ export * from "./AppShell";
 export * from "./Bento";
 export * from "./Page";
 export * from "./PageHeader";
+export * from "./ProductShell";
 export * from "./ResponsiveGrid";
 export * from "./BrowserTabs";
 export * from "./Canvas";

@@ -1,6 +1,7 @@
 export * from "./AuditLog";
 export * from "./BranchTree";
 export * from "./DataTable";
+export * from "./DataWorkspace";
 export * from "./DiffViewer";
 export * from "./PermissionMatrix";
 export * from "./SpreadsheetCell";

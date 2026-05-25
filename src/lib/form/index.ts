@@ -10,16 +10,40 @@ export {
   useFormError,
   useFormStatus,
   useFormAutosave,
+  useAsyncFieldValidation,
+  useFormDirtyGuard,
+  useFieldArray,
+  useFormWizard,
+  useServerErrors,
 } from "./hooks";
-export type { AutosaveOptions, FormStatus } from "./hooks";
+export type {
+  AutosaveOptions,
+  AsyncFieldValidationOptions,
+  DirtyGuardOptions,
+  FieldArrayHelpers,
+  FormWizardOptions,
+  FormWizardState,
+  FormWizardStep,
+  FormStatus,
+} from "./hooks";
 export { useForm } from "./useForm";
 export type { UseFormOptions, ValidateMode } from "./useForm";
+export {
+  fromStandardSchema,
+  fromZod,
+  toReactHookFormResolver,
+} from "./adapters";
+export type {
+  ReactHookFormResolver,
+  ReactHookFormResolverResult,
+} from "./adapters";
 export {
   HarborFormContext,
   type FormContextValue,
   type FormMethods,
   type FormState,
   type ErrorMap,
+  type ServerErrorInput,
   type TouchedMap,
   type DirtyMap,
 } from "./context";

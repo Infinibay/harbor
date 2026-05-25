@@ -23,6 +23,7 @@ export interface FormMethods<T> {
   ) => void;
   setError: (path: string, message: string | null) => void;
   setErrors: (errors: Issue[]) => void;
+  setServerErrors: (errors: ServerErrorInput) => void;
   clearErrors: () => void;
   touch: (path: string) => void;
   reset: (next?: T) => void;
@@ -32,6 +33,10 @@ export interface FormMethods<T> {
     onInvalid?: (issues: Issue[]) => void,
   ) => (e?: { preventDefault?: () => void }) => Promise<void>;
 }
+
+export type ServerErrorInput =
+  | ErrorMap
+  | Array<Issue | { path: string | readonly (string | number)[]; message: string }>;
 
 export interface FormContextValue<T = unknown>
   extends FormState<T>,

@@ -1,3 +1,4 @@
+export * from "./AgentWorkflow";
 export * from "./CodeBlock";
 export * from "./CopyCommand";
 export * from "./FindBar";

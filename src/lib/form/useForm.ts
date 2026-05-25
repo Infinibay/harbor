@@ -5,6 +5,7 @@ import {
   type ErrorMap,
   type FormMethods,
   type FormState,
+  type ServerErrorInput,
   type TouchedMap,
 } from "./context";
 import { getByPath, pathToString, setByPath, stringToPath } from "./paths";
@@ -125,6 +126,19 @@ function issuesToMap(issues: readonly Issue[]): ErrorMap {
   return out;
 }
 
+function serverErrorsToMap(errors: ServerErrorInput): ErrorMap {
+  if (!Array.isArray(errors)) return { ...errors };
+  const out: ErrorMap = {};
+  for (const issue of errors) {
+    const path =
+      typeof issue.path === "string"
+        ? issue.path
+        : pathToString(issue.path);
+    if (out[path] === undefined) out[path] = issue.message;
+  }
+  return out;
+}
+
 export function useForm<T>(options: UseFormOptions<T>): FormState<T> & FormMethods<T> & {
   schema: Schema<T>;
   initial: T;
@@ -196,6 +210,10 @@ export function useForm<T>(options: UseFormOptions<T>): FormState<T> & FormMetho
     dispatch({ type: "SET_ERRORS", errors: issuesToMap(issues) });
   }, []);
 
+  const setServerErrors = useCallback<FormMethods<T>["setServerErrors"]>((errors) => {
+    dispatch({ type: "SET_ERRORS", errors: serverErrorsToMap(errors) });
+  }, []);
+
   const clearErrors = useCallback<FormMethods<T>["clearErrors"]>(() => {
     dispatch({ type: "CLEAR_ERRORS" });
   }, []);
@@ -255,6 +273,7 @@ export function useForm<T>(options: UseFormOptions<T>): FormState<T> & FormMetho
     setValue,
     setError,
     setErrors,
+    setServerErrors,
     clearErrors,
     touch,
     reset,
