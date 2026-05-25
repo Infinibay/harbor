@@ -35,7 +35,7 @@ export function HeroSection({
       {eyebrow ? (
         <div
           className={cn(
-            "inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-white/70 mb-5",
+            "mb-5 inline-flex items-center gap-2 rounded-full border border-[color:var(--harbor-overlay-border)] bg-[var(--harbor-state-hover)] px-3 py-1 text-xs text-[rgb(var(--harbor-text-muted))]",
           )}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -43,13 +43,7 @@ export function HeroSection({
         </div>
       ) : null}
       <h1
-        className="text-4xl md:text-6xl font-semibold tracking-tight leading-[1.05]"
-        style={{
-          background:
-            "linear-gradient(180deg, #fff 0%, color-mix(in oklch, #fff 60%, transparent) 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}
+        className="text-4xl font-semibold tracking-tight leading-[1.05] text-[rgb(var(--harbor-text))] md:text-6xl"
       >
         {title}
         {highlight ? (
@@ -72,7 +66,7 @@ export function HeroSection({
       {description ? (
         <p
           className={cn(
-            "mt-5 text-white/65 text-lg leading-relaxed",
+            "mt-5 text-lg leading-relaxed text-[rgb(var(--harbor-text-muted))]",
             layout === "centered" && "mx-auto max-w-xl",
           )}
         >

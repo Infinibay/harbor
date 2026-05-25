@@ -1,6 +1,7 @@
 import type { FormEvent, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { DiffViewer } from "../data/DiffViewer";
+import { Select } from "../inputs/Select";
 
 export interface AgentWorkflowProps {
   children?: ReactNode;
@@ -124,28 +125,28 @@ export function ModelPicker({
   const active = models.find((model) => model.id === value);
 
   return (
-    <label className={cn("grid gap-1 text-sm", className)}>
+    <div className={cn("grid gap-1 text-sm", className)}>
       <span className="text-xs font-medium text-[rgb(var(--harbor-text-muted))]">
         {label}
       </span>
-      <select
-        aria-label={typeof label === "string" ? label : "Model"}
+      <Select
+        size="sm"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-[var(--harbor-target-input-height)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-border-default)] bg-[var(--harbor-field-bg)] px-2 text-[rgb(var(--harbor-text))] outline-none focus-visible:shadow-[var(--harbor-focus-shadow)]"
-      >
-        {models.map((model) => (
-          <option key={model.id} value={model.id}>
-            {model.label}
-          </option>
-        ))}
-      </select>
+        onChange={onChange}
+        aria-label={typeof label === "string" ? label : "Model"}
+        options={models.map((model) => ({
+          value: model.id,
+          label: model.label,
+          description: model.description,
+        }))}
+        placeholder={typeof label === "string" ? label : "Model"}
+      />
       {active?.description ? (
         <span className="text-xs text-[rgb(var(--harbor-text-subtle))]">
           {active.description}
         </span>
       ) : null}
-    </label>
+    </div>
   );
 }
 

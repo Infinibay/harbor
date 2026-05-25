@@ -37,10 +37,10 @@ describe("Prose", () => {
     expect(div?.className).toContain("mx-auto");
   });
 
-  it("applies text-white/80 base class", () => {
+  it("uses semantic text color for the base class", () => {
     const { container } = renderWithHarbor(<Prose>X</Prose>);
     const div = container.querySelector("div");
-    expect(div?.className).toContain("text-white/80");
+    expect(div?.className).toContain("text-[rgb(var(--harbor-text-muted))]");
   });
 
   it("renders heading children", () => {

@@ -1,6 +1,7 @@
 import { useId, useMemo, useState } from "react";
 import { cn } from "../../lib/cn";
 import { formatAbsolute } from "../../lib/format";
+import { Select } from "./Select";
 
 export interface CronBuilderProps {
   value: string;
@@ -192,16 +193,17 @@ function Field({
       >
         {label}
       </div>
-      <select
-        aria-labelledby={labelId}
+      <Select
+        size="sm"
         value={state.mode}
-        onChange={(e) => onChange({ ...state, mode: e.target.value as Mode })}
-        className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
-      >
-        <option value="any">Any</option>
-        <option value="every">Every N</option>
-        <option value="list">List</option>
-      </select>
+        onChange={(mode) => onChange({ ...state, mode: mode as Mode })}
+        options={[
+          { value: "any", label: "Any" },
+          { value: "every", label: "Every N" },
+          { value: "list", label: "List" },
+        ]}
+        className="w-full"
+      />
       {state.mode === "every" ? (
         <input
           aria-labelledby={labelId}

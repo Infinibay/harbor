@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { cn } from "../../lib/cn";
+import { Checkbox } from "./Checkbox";
 import { Wizard } from "./Wizard";
 
 export interface MFASetupProps {
@@ -161,14 +162,11 @@ export function MFASetup({
             >
               Copy all
             </button>
-            <label className="flex items-center gap-2 text-[color:var(--harbor-field-muted-fg)] cursor-pointer">
-              <input
-                type="checkbox"
-                checked={savedCodes}
-                onChange={(e) => setSavedCodes(e.target.checked)}
-              />
-              I've saved these codes somewhere safe
-            </label>
+            <Checkbox
+              checked={savedCodes}
+              onChange={(e) => setSavedCodes(e.target.checked)}
+              label="I've saved these codes somewhere safe"
+            />
           </div>
         </div>
       ),

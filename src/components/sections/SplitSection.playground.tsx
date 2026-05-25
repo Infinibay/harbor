@@ -3,7 +3,7 @@ import { Button } from "../../components/buttons/Button";
 import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 const fakeMedia = (
-  <div className="aspect-[4/3] w-full rounded-xl border border-white/10 bg-gradient-to-br from-fuchsia-500/40 via-sky-500/30 to-emerald-500/40" />
+  <div className="aspect-[4/3] w-full rounded-xl border border-[color:var(--harbor-overlay-border)] bg-gradient-to-br from-fuchsia-500/40 via-sky-500/30 to-emerald-500/40" />
 );
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

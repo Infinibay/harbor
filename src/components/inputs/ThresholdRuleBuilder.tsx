@@ -1,5 +1,6 @@
 import { useMemo, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import { Select } from "./Select";
 
 export type ConditionOp = ">" | ">=" | "<" | "<=" | "==" | "!=";
 
@@ -127,31 +128,27 @@ function ConditionEditor({
   const unit = metric?.unit;
   return (
     <div className="flex flex-wrap items-center gap-1.5 py-1">
-      <select
+      <Select
+        size="sm"
         value={value.metric}
-        onChange={(e) => onChange({ ...value, metric: e.target.value })}
-        aria-label="Metric"
-        className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
-      >
-        <option value="">metric…</option>
-        {metrics.map((m) => (
-          <option key={m.value} value={m.value}>
-            {m.label}
-          </option>
-        ))}
-      </select>
-      <select
+        onChange={(metric) => onChange({ ...value, metric })}
+        placeholder="metric"
+        options={[
+          { value: "", label: "metric..." },
+          ...metrics.map((m) => ({ value: m.value, label: m.label })),
+        ]}
+        className="min-w-[150px]"
+      />
+      <Select
+        size="sm"
         value={value.op}
-        onChange={(e) => onChange({ ...value, op: e.target.value as ConditionOp })}
-        aria-label="Operator"
-        className="min-h-[calc(var(--harbor-target-input-height)-8px)] rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-field-border)] bg-[var(--harbor-field-bg)] px-[var(--harbor-target-menu-item-padding-x)] py-[var(--harbor-target-menu-item-padding-y)] font-mono text-[length:var(--harbor-target-font-size)] text-[color:var(--harbor-field-fg)] outline-none focus:border-[color:var(--harbor-field-border-focus)]"
-      >
-        {([">", ">=", "<", "<=", "==", "!="] as ConditionOp[]).map((op) => (
-          <option key={op} value={op}>
-            {op}
-          </option>
-        ))}
-      </select>
+        onChange={(op) => onChange({ ...value, op: op as ConditionOp })}
+        options={([">", ">=", "<", "<=", "==", "!="] as ConditionOp[]).map((op) => ({
+          value: op,
+          label: op,
+        }))}
+        className="w-24 font-mono"
+      />
       <input
         type="number"
         value={value.value}

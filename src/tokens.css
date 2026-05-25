@@ -495,6 +495,18 @@
   --harbor-overlay-scrim: rgb(15 23 42 / 0.48);
   --harbor-overlay-surface: rgb(var(--harbor-bg-elev-1));
   --harbor-overlay-border: rgb(var(--harbor-border) / 0.14);
+  --harbor-menu-trigger-active-bg: rgb(15 23 42 / 0.075);
+  --harbor-menu-trigger-hover-bg: rgb(15 23 42 / 0.045);
+  --harbor-menu-trigger-fg: rgb(var(--harbor-text-muted));
+  --harbor-menu-trigger-active-fg: rgb(var(--harbor-text));
+  --harbor-menu-surface-bg: rgb(var(--harbor-bg-elev-1));
+  --harbor-menu-surface-border: rgb(var(--harbor-border) / 0.12);
+  --harbor-menu-item-fg: rgb(var(--harbor-text) / 0.88);
+  --harbor-menu-item-muted-fg: rgb(var(--harbor-text-muted) / 0.78);
+  --harbor-menu-item-disabled-fg: rgb(var(--harbor-text) / 0.32);
+  --harbor-menu-item-danger-fg: rgb(225 29 72);
+  --harbor-menu-item-hover-bg: rgb(15 23 42 / 0.055);
+  --harbor-menu-separator: rgb(var(--harbor-border) / 0.10);
   --harbor-chart-1: 2 132 199;
   --harbor-chart-2: 126 34 206;
   --harbor-chart-3: 5 150 105;

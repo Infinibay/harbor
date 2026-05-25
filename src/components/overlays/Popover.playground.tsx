@@ -10,7 +10,7 @@ function PopoverDemo(props: any) {
       content={
         <div className="p-3 text-sm">
           <div className="font-medium mb-1">Quick actions</div>
-          <div className="text-white/60">Click anywhere outside to dismiss.</div>
+          <div className="text-[rgb(var(--harbor-text-muted))]">Click anywhere outside to dismiss.</div>
         </div>
       }
     >

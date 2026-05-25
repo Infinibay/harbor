@@ -1,4 +1,5 @@
 import { ContextMenu } from "./ContextMenu";
+import { MenuItem } from "./Menu";
 import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -9,18 +10,14 @@ function ContextMenuDemo(props: any) {
       menu={
         <div className="py-1 text-sm w-44">
           {["Cut", "Copy", "Paste", "Delete"].map((l) => (
-            <button
-              key={l}
-              type="button"
-              className="block w-full text-left px-3 py-1.5 text-white/80 hover:bg-white/5 hover:text-white"
-            >
+            <MenuItem key={l} danger={l === "Delete"}>
               {l}
-            </button>
+            </MenuItem>
           ))}
         </div>
       }
     >
-      <div className="rounded-xl border border-dashed border-white/15 px-10 py-12 text-center text-sm text-white/60">
+      <div className="rounded-xl border border-dashed border-[color:var(--harbor-overlay-border)] bg-[var(--harbor-state-hover)] px-10 py-12 text-center text-sm text-[rgb(var(--harbor-text-muted))]">
         Right-click anywhere inside this box.
       </div>
     </ContextMenu>

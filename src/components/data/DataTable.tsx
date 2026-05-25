@@ -1807,7 +1807,7 @@ function EditingCellInput<T>({
     initial as string | number,
   );
   const [error, setError] = useState<string | null>(null);
-  const ref = useRef<HTMLInputElement | HTMLSelectElement | null>(null);
+  const ref = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     // Auto-focus + select-all so a second click doesn't land caret
@@ -1855,7 +1855,7 @@ function EditingCellInput<T>({
   }
 
   const common = {
-    ref: ref as React.Ref<HTMLInputElement & HTMLSelectElement>,
+    ref: ref as React.Ref<HTMLInputElement>,
     onKeyDown: onKey,
     onBlur: () => attempt(draft),
     "aria-invalid": error ? true : undefined,
@@ -1869,17 +1869,18 @@ function EditingCellInput<T>({
   if (config.type === "select") {
     return (
       <span className="relative block w-full">
-        <select
-          {...common}
+        <Select
+          size="sm"
           value={String(draft ?? "")}
-          onChange={(e) => setDraft(e.target.value)}
-        >
-          {(config.options ?? []).map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+          onChange={(next) => {
+            setDraft(next);
+            attempt(next);
+          }}
+          options={(config.options ?? []).map((o) => ({
+            value: o.value,
+            label: o.label,
+          }))}
+        />
         {error ? (
           <span
             role="alert"

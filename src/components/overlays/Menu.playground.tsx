@@ -1,4 +1,4 @@
-import { Menu } from "./Menu";
+import { Menu, MenuItem } from "./Menu";
 import { Button } from "../buttons/Button";
 import type { PlaygroundManifest } from "../../../src/harbor/lib/playground";
 
@@ -11,13 +11,9 @@ function MenuDemo(props: any) {
     >
       <div className="py-1 text-sm w-44">
         {["Open", "Rename", "Duplicate", "Move to…", "Delete"].map((label) => (
-          <button
-            key={label}
-            type="button"
-            className="block w-full text-left px-3 py-1.5 text-white/80 hover:bg-white/5 hover:text-white"
-          >
+          <MenuItem key={label} danger={label === "Delete"}>
             {label}
-          </button>
+          </MenuItem>
         ))}
       </div>
     </Menu>

@@ -12,7 +12,7 @@ function SectionDemo(props: any) {
       description={props.description ?? "Most libraries hand you flat building blocks. Harbor hands you a system that already knows how to behave."}
       actions={<Button variant="ghost">Read more →</Button>}
     >
-      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 text-sm text-white/60">
+      <div className="rounded-xl border border-[color:var(--harbor-overlay-border)] bg-[var(--harbor-state-hover)] p-6 text-sm text-[rgb(var(--harbor-text-muted))]">
         (Section body. Place anything here.)
       </div>
     </Section>

@@ -26,6 +26,7 @@ export interface SelectProps {
   onChange?: (v: string) => void;
   placeholder?: string;
   label?: string;
+  "aria-label"?: string;
   /** Control density. `"md"` (default) matches Harbor's standard input
    *  row (44px). `"sm"` is a compact 28px variant for toolbars,
    *  pagination bars, chrome — anywhere a full-size input would
@@ -60,6 +61,7 @@ export function Select({
   onChange,
   placeholder,
   label,
+  "aria-label": ariaLabel,
   size = "md",
   menuWidth = "trigger",
   className,
@@ -147,6 +149,7 @@ export function Select({
       <button
         ref={anchorRef}
         type="button"
+        aria-label={ariaLabel ?? label}
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKey}

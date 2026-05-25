@@ -53,12 +53,12 @@ export function Section({
               </div>
             ) : null}
             {title ? (
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-white leading-tight">
+              <h2 className="text-2xl font-semibold leading-tight tracking-tight text-[rgb(var(--harbor-text))] md:text-3xl">
                 {title}
               </h2>
             ) : null}
             {description ? (
-              <p className="text-white/60 mt-2 leading-relaxed">{description}</p>
+              <p className="mt-2 leading-relaxed text-[rgb(var(--harbor-text-muted))]">{description}</p>
             ) : null}
           </div>
           {actions ? (

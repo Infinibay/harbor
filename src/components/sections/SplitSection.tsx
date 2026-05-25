@@ -39,11 +39,11 @@ export function SplitSection({
             {kicker}
           </div>
         ) : null}
-        <h2 className="text-2xl md:text-4xl font-semibold tracking-tight text-white leading-tight">
+        <h2 className="text-2xl font-semibold leading-tight tracking-tight text-[rgb(var(--harbor-text))] md:text-4xl">
           {title}
         </h2>
         {description ? (
-          <p className="text-white/65 mt-4 leading-relaxed max-w-lg">
+          <p className="mt-4 max-w-lg leading-relaxed text-[rgb(var(--harbor-text-muted))]">
             {description}
           </p>
         ) : null}

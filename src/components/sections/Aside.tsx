@@ -15,37 +15,37 @@ const tones: Record<
   { bg: string; border: string; text: string; icon: string; label: string }
 > = {
   note: {
-    bg: "bg-white/[0.04]",
-    border: "border-white/12",
-    text: "text-white/60",
+    bg: "bg-[var(--harbor-state-hover)]",
+    border: "border-[color:var(--harbor-overlay-border)]",
+    text: "text-[rgb(var(--harbor-text-muted))]",
     icon: "📝",
     label: "Note",
   },
   tip: {
     bg: "bg-fuchsia-500/10",
     border: "border-fuchsia-400/30",
-    text: "text-fuchsia-200",
+    text: "text-[rgb(var(--harbor-accent))]",
     icon: "💡",
     label: "Tip",
   },
   info: {
     bg: "bg-sky-500/10",
     border: "border-sky-400/30",
-    text: "text-sky-200",
+    text: "text-sky-600 dark:text-sky-200",
     icon: "ℹ",
     label: "Info",
   },
   warning: {
     bg: "bg-amber-500/10",
     border: "border-amber-400/30",
-    text: "text-amber-200",
+    text: "text-amber-700 dark:text-amber-200",
     icon: "⚠",
     label: "Warning",
   },
   danger: {
     bg: "bg-rose-500/10",
     border: "border-rose-400/30",
-    text: "text-rose-200",
+    text: "text-rose-600 dark:text-rose-200",
     icon: "⛔",
     label: "Danger",
   },
@@ -69,7 +69,7 @@ export function Aside({ tone = "note", title, children, className }: AsideProps)
         <span>{t.icon}</span>
         {title ?? t.label}
       </div>
-      <div className="text-sm text-white/80 leading-relaxed">{children}</div>
+      <div className="text-sm leading-relaxed text-[rgb(var(--harbor-text-muted))]">{children}</div>
     </aside>
   );
 }

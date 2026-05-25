@@ -63,7 +63,8 @@ describe("AgentWorkflow", () => {
       />,
     );
 
-    await user.selectOptions(screen.getByLabelText("Model"), "deep");
+    await user.click(screen.getByLabelText("Model"));
+    await user.click(screen.getByRole("button", { name: "Deep" }));
 
     expect(onChange).toHaveBeenCalledWith("deep");
   });

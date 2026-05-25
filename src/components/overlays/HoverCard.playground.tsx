@@ -9,8 +9,8 @@ function HoverCardDemo(props: any) {
       content={
         <div className="p-4 text-sm w-64">
           <div className="font-medium mb-1">@ana</div>
-          <div className="text-white/60">Engineer · Infrastructure</div>
-          <p className="mt-2 text-white/70">Builds the things that build the things.</p>
+          <div className="text-[rgb(var(--harbor-text-muted))]">Engineer · Infrastructure</div>
+          <p className="mt-2 text-[rgb(var(--harbor-text-muted))]">Builds the things that build the things.</p>
         </div>
       }
     >

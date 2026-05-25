@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { Checkbox } from "../inputs/Checkbox";
 
 export type ExportFormat = "csv" | "json" | "xlsx" | "ndjson";
 
@@ -136,33 +137,24 @@ export function ExportMenu({
                   ))}
                 </div>
                 <div className="flex flex-col gap-1.5 pt-1 border-t border-[color:var(--harbor-border-subtle)]">
-                  <label className="flex items-center gap-2 text-xs text-[rgb(var(--harbor-text-muted))]">
-                    <input
-                      type="checkbox"
-                      checked={includeHeaders}
-                      disabled={disable?.includeHeaders}
-                      onChange={(e) => setIncludeHeaders(e.target.checked)}
-                    />
-                    Include headers
-                  </label>
-                  <label className="flex items-center gap-2 text-xs text-[rgb(var(--harbor-text-muted))]">
-                    <input
-                      type="checkbox"
-                      checked={currentFilterOnly}
-                      disabled={disable?.currentFilterOnly}
-                      onChange={(e) => setCurrentFilterOnly(e.target.checked)}
-                    />
-                    Current filter only
-                  </label>
-                  <label className="flex items-center gap-2 text-xs text-[rgb(var(--harbor-text-muted))]">
-                    <input
-                      type="checkbox"
-                      checked={allColumns}
-                      disabled={disable?.allColumns}
-                      onChange={(e) => setAllColumns(e.target.checked)}
-                    />
-                    All columns (not just visible)
-                  </label>
+                  <Checkbox
+                    checked={includeHeaders}
+                    disabled={disable?.includeHeaders}
+                    onChange={(e) => setIncludeHeaders(e.target.checked)}
+                    label="Include headers"
+                  />
+                  <Checkbox
+                    checked={currentFilterOnly}
+                    disabled={disable?.currentFilterOnly}
+                    onChange={(e) => setCurrentFilterOnly(e.target.checked)}
+                    label="Current filter only"
+                  />
+                  <Checkbox
+                    checked={allColumns}
+                    disabled={disable?.allColumns}
+                    onChange={(e) => setAllColumns(e.target.checked)}
+                    label="All columns (not just visible)"
+                  />
                 </div>
                 <div className="flex justify-end gap-2 pt-1">
                   <button

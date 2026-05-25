@@ -18,7 +18,7 @@ function DrawerDemo(props: any) {
         }}
         title={props.title ?? "Filters"}
       >
-        <div className="space-y-3 text-sm text-white/70">
+        <div className="space-y-3 text-sm text-[rgb(var(--harbor-text-muted))]">
           <p>Drawer body. Use it for non-modal contextual UIs like settings, filters, or details.</p>
           <p>Press Escape or click the backdrop to close.</p>
         </div>

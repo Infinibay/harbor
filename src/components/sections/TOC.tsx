@@ -43,10 +43,10 @@ export function TOC({ items, className, title = "On this page" }: TOCProps) {
       className={cn("text-sm sticky top-6 self-start", className)}
       aria-label="Table of contents"
     >
-      <div className="text-[10px] uppercase tracking-[0.25em] text-white/40 mb-3">
+      <div className="mb-3 text-[10px] uppercase tracking-[0.25em] text-[rgb(var(--harbor-text-subtle))]">
         {title}
       </div>
-      <ul className="flex flex-col gap-1.5 border-l border-white/10">
+      <ul className="flex flex-col gap-1.5 border-l border-[color:var(--harbor-overlay-border)]">
         {items.map((it) => (
           <li key={it.id}>
             <a
@@ -56,8 +56,8 @@ export function TOC({ items, className, title = "On this page" }: TOCProps) {
                 it.level === 2 && "pl-5",
                 it.level === 3 && "pl-7",
                 active === it.id
-                  ? "border-fuchsia-400 text-white"
-                  : "border-transparent text-white/55 hover:text-white",
+                  ? "border-[color:var(--harbor-border-focus)] text-[rgb(var(--harbor-text))]"
+                  : "border-transparent text-[rgb(var(--harbor-text-muted))] hover:text-[rgb(var(--harbor-text))]",
               )}
             >
               {it.label}
