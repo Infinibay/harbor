@@ -11,44 +11,176 @@
   "sideEffects": [
     "**/*.css"
   ],
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE*"
+  ],
+  "main": "./dist/components/index.js",
+  "module": "./dist/components/index.js",
+  "types": "./dist/components/index.d.ts",
   "exports": {
-    ".": "./src/components/index.ts",
-    "./buttons": "./src/components/buttons/index.ts",
-    "./inputs": "./src/components/inputs/index.ts",
-    "./display": "./src/components/display/index.ts",
-    "./data": "./src/components/data/index.ts",
-    "./charts": "./src/components/charts/index.ts",
-    "./feedback": "./src/components/feedback/index.ts",
-    "./overlays": "./src/components/overlays/index.ts",
-    "./navigation": "./src/components/navigation/index.ts",
-    "./layout": "./src/components/layout/index.ts",
-    "./chat": "./src/components/chat/index.ts",
-    "./collab": "./src/components/collab/index.ts",
-    "./media": "./src/components/media/index.ts",
-    "./dev": "./src/components/dev/index.ts",
-    "./sections": "./src/components/sections/index.ts",
-    "./theme": "./src/lib/theme/index.ts",
-    "./i18n": "./src/lib/i18n/index.ts",
-    "./form": "./src/lib/form/index.ts",
-    "./schema": "./src/lib/schema/index.ts",
-    "./lib/cursor": "./src/lib/cursor.tsx",
-    "./lib/z": "./src/lib/z.ts",
-    "./lib/cn": "./src/lib/cn.ts",
-    "./lib/Portal": "./src/lib/Portal.tsx",
-    "./lib/responsive": "./src/lib/responsive.ts",
-    "./tokens.css": "./src/tokens.css",
-    "./index.css": "./src/index.css",
-    "./tailwind-preset": "./tailwind.config.js",
+    ".": {
+      "types": "./dist/components/index.d.ts",
+      "source": "./src/components/index.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./buttons": {
+      "types": "./dist/components/buttons/index.d.ts",
+      "source": "./src/components/buttons/index.ts",
+      "import": "./dist/components/buttons/index.js"
+    },
+    "./inputs": {
+      "types": "./dist/components/inputs/index.d.ts",
+      "source": "./src/components/inputs/index.ts",
+      "import": "./dist/components/inputs/index.js"
+    },
+    "./display": {
+      "types": "./dist/components/display/index.d.ts",
+      "source": "./src/components/display/index.ts",
+      "import": "./dist/components/display/index.js"
+    },
+    "./data": {
+      "types": "./dist/components/data/index.d.ts",
+      "source": "./src/components/data/index.ts",
+      "import": "./dist/components/data/index.js"
+    },
+    "./charts": {
+      "types": "./dist/components/charts/index.d.ts",
+      "source": "./src/components/charts/index.ts",
+      "import": "./dist/components/charts/index.js"
+    },
+    "./feedback": {
+      "types": "./dist/components/feedback/index.d.ts",
+      "source": "./src/components/feedback/index.ts",
+      "import": "./dist/components/feedback/index.js"
+    },
+    "./overlays": {
+      "types": "./dist/components/overlays/index.d.ts",
+      "source": "./src/components/overlays/index.ts",
+      "import": "./dist/components/overlays/index.js"
+    },
+    "./navigation": {
+      "types": "./dist/components/navigation/index.d.ts",
+      "source": "./src/components/navigation/index.ts",
+      "import": "./dist/components/navigation/index.js"
+    },
+    "./layout": {
+      "types": "./dist/components/layout/index.d.ts",
+      "source": "./src/components/layout/index.ts",
+      "import": "./dist/components/layout/index.js"
+    },
+    "./chat": {
+      "types": "./dist/components/chat/index.d.ts",
+      "source": "./src/components/chat/index.ts",
+      "import": "./dist/components/chat/index.js"
+    },
+    "./collab": {
+      "types": "./dist/components/collab/index.d.ts",
+      "source": "./src/components/collab/index.ts",
+      "import": "./dist/components/collab/index.js"
+    },
+    "./media": {
+      "types": "./dist/components/media/index.d.ts",
+      "source": "./src/components/media/index.ts",
+      "import": "./dist/components/media/index.js"
+    },
+    "./dev": {
+      "types": "./dist/components/dev/index.d.ts",
+      "source": "./src/components/dev/index.ts",
+      "import": "./dist/components/dev/index.js"
+    },
+    "./sections": {
+      "types": "./dist/components/sections/index.d.ts",
+      "source": "./src/components/sections/index.ts",
+      "import": "./dist/components/sections/index.js"
+    },
+    "./backgrounds": {
+      "types": "./dist/components/backgrounds/index.d.ts",
+      "source": "./src/components/backgrounds/index.ts",
+      "import": "./dist/components/backgrounds/index.js"
+    },
+    "./motion": {
+      "types": "./dist/components/motion/index.d.ts",
+      "source": "./src/components/motion/index.ts",
+      "import": "./dist/components/motion/index.js"
+    },
+    "./recipes": {
+      "types": "./dist/recipes/index.d.ts",
+      "source": "./src/recipes/index.ts",
+      "import": "./dist/recipes/index.js"
+    },
+    "./theme": {
+      "types": "./dist/lib/theme/index.d.ts",
+      "source": "./src/lib/theme/index.ts",
+      "import": "./dist/lib/theme/index.js"
+    },
+    "./a11y": {
+      "types": "./dist/lib/a11y/index.d.ts",
+      "source": "./src/lib/a11y/index.ts",
+      "import": "./dist/lib/a11y/index.js"
+    },
+    "./i18n": {
+      "types": "./dist/lib/i18n/index.d.ts",
+      "source": "./src/lib/i18n/index.ts",
+      "import": "./dist/lib/i18n/index.js"
+    },
+    "./form": {
+      "types": "./dist/lib/form/index.d.ts",
+      "source": "./src/lib/form/index.ts",
+      "import": "./dist/lib/form/index.js"
+    },
+    "./schema": {
+      "types": "./dist/lib/schema/index.d.ts",
+      "source": "./src/lib/schema/index.ts",
+      "import": "./dist/lib/schema/index.js"
+    },
+    "./lib/cursor": {
+      "types": "./dist/lib/cursor.d.ts",
+      "source": "./src/lib/cursor.tsx",
+      "import": "./dist/lib/cursor.js"
+    },
+    "./lib/z": {
+      "types": "./dist/lib/z.d.ts",
+      "source": "./src/lib/z.ts",
+      "import": "./dist/lib/z.js"
+    },
+    "./lib/cn": {
+      "types": "./dist/lib/cn.d.ts",
+      "source": "./src/lib/cn.ts",
+      "import": "./dist/lib/cn.js"
+    },
+    "./lib/Portal": {
+      "types": "./dist/lib/Portal.d.ts",
+      "source": "./src/lib/Portal.tsx",
+      "import": "./dist/lib/Portal.js"
+    },
+    "./lib/responsive": {
+      "types": "./dist/lib/responsive.d.ts",
+      "source": "./src/lib/responsive.ts",
+      "import": "./dist/lib/responsive.js"
+    },
+    "./tokens.css": "./dist/tokens.css",
+    "./index.css": "./dist/index.css",
+    "./tailwind-preset": {
+      "source": "./tailwind.config.js",
+      "import": "./dist/tailwind.config.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:package": "vite build --config vite.package.config.ts && tsc -p tsconfig.build.json && cp src/index.css dist/index.css && cp src/tokens.css dist/tokens.css && cp tailwind.config.js dist/tailwind.config.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:a11y": "vitest run -t 'a11y'"
+    "test:a11y": "vitest run -t 'a11y'",
+    "test:ssr-package": "node scripts/ssr-package-smoke.mjs",
+    "test:package": "npm run build:package && npm run test:ssr-package && vitest run src/components/package-exports.test.ts src/components/package-consumer.test.tsx",
+    "test:quality": "vitest run src/components/quality-gates.test.tsx src/components/package-exports.test.ts src/components/package-consumer.test.tsx src/components/layout/ProductShell.test.tsx src/components/data/DataWorkspace.test.tsx src/components/dev/AgentWorkflow.test.tsx src/lib/a11y/a11y.test.tsx src/lib/theme/validateTheme.test.ts src/lib/form/pragmatic.test.tsx"
   },
   "peerDependencies": {
     "framer-motion": ">=11",
