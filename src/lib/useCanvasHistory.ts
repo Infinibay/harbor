@@ -28,6 +28,11 @@ export interface CanvasHistoryApi<T> {
   redo(): T | undefined;
   /** Wipe history to a single entry at `state`. */
   reset(state: T): void;
+  /** Reinstate a previously-captured multi-entry stack and cursor (e.g. when
+   *  switching documents/tabs). The cursor is clamped to the stack bounds and
+   *  any preview is cleared. Use `{ stack, cursor }` read off another
+   *  `CanvasHistoryApi` to restore its full undo/redo timeline. */
+  restore(snapshot: { stack: readonly HistoryEntry<T>[]; cursor: number }): void;
   clear(): void;
 }
 
@@ -143,6 +148,15 @@ export function useCanvasHistory<T>(
       update({ stack: [{ state, t: Date.now() }], cursor: 0, preview: null });
     };
 
+    const restore: CanvasHistoryApi<T>["restore"] = (snapshot) => {
+      if (snapshot.stack.length === 0) return;
+      const cursor = Math.min(
+        Math.max(0, snapshot.cursor),
+        snapshot.stack.length - 1,
+      );
+      update({ stack: snapshot.stack.slice(), cursor, preview: null });
+    };
+
     const clear: CanvasHistoryApi<T>["clear"] = () =>
       reset(
         snapRef.current.preview ??
@@ -175,6 +189,7 @@ export function useCanvasHistory<T>(
       undo,
       redo,
       reset,
+      restore,
       clear,
     };
   }, [update]);
