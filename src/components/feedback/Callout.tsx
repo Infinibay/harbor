@@ -41,6 +41,7 @@ export function Callout({
   className,
 }: CalloutProps) {
   const [rect, setRect] = useState<Rect | null>(null);
+  const [tipSize, setTipSize] = useState<{ w: number; h: number }>({ w: 320, h: 160 });
   const tipRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
@@ -72,26 +73,55 @@ export function Callout({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  // Measure the tip's real size so we can keep it on-screen regardless of how
+  // tall its content is (the dim cut-out + ring are positioned off `rect`, but
+  // the tip floats free and must be clamped to the viewport).
+  useLayoutEffect(() => {
+    if (!open) return;
+    const el = tipRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    setTipSize((prev) =>
+      Math.abs(prev.w - r.width) > 1 || Math.abs(prev.h - r.height) > 1
+        ? { w: r.width, h: r.height }
+        : prev,
+    );
+  }, [open, rect, placement, title, children, step, total]);
+
   if (!open) return null;
 
   const tipPos = (() => {
-    if (!rect) {
-      return { left: window.innerWidth / 2 - 160, top: window.innerHeight / 2 - 80 };
-    }
-    const tipW = 320;
-    const tipH = 140;
+    const tipW = tipSize.w;
+    const tipH = tipSize.h;
     const margin = 12;
-    switch (placement) {
-      case "top":
-        return { left: rect.left + rect.width / 2 - tipW / 2, top: rect.top - tipH - margin };
-      case "left":
-        return { left: rect.left - tipW - margin, top: rect.top + rect.height / 2 - tipH / 2 };
-      case "right":
-        return { left: rect.left + rect.width + margin, top: rect.top + rect.height / 2 - tipH / 2 };
-      case "bottom":
-      default:
-        return { left: rect.left + rect.width / 2 - tipW / 2, top: rect.top + rect.height + margin };
+    let pos: { left: number; top: number };
+    if (!rect) {
+      pos = { left: window.innerWidth / 2 - tipW / 2, top: window.innerHeight / 2 - tipH / 2 };
+    } else {
+      switch (placement) {
+        case "top":
+          pos = { left: rect.left + rect.width / 2 - tipW / 2, top: rect.top - tipH - margin };
+          break;
+        case "left":
+          pos = { left: rect.left - tipW - margin, top: rect.top + rect.height / 2 - tipH / 2 };
+          break;
+        case "right":
+          pos = { left: rect.left + rect.width + margin, top: rect.top + rect.height / 2 - tipH / 2 };
+          break;
+        case "bottom":
+        default:
+          pos = { left: rect.left + rect.width / 2 - tipW / 2, top: rect.top + rect.height + margin };
+          break;
+      }
     }
+    // Clamp inside the viewport so no tooltip is ever drawn off-screen. If the
+    // tip is larger than the viewport it pins to the top-left margin.
+    const maxLeft = Math.max(margin, window.innerWidth - tipW - margin);
+    const maxTop = Math.max(margin, window.innerHeight - tipH - margin);
+    return {
+      left: Math.min(Math.max(margin, pos.left), maxLeft),
+      top: Math.min(Math.max(margin, pos.top), maxTop),
+    };
   })();
 
   return (
