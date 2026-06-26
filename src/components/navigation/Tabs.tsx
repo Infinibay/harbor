@@ -62,7 +62,13 @@ export function TabList({
       <div
         role="tablist"
         className={cn(
+          // inline-flex keeps the pill content-sized on desktop; max-w-full +
+          // overflow-x-auto only kick in once the tab row exceeds its
+          // container (narrow viewports / 240px sidebar), turning the spill
+          // into a self-contained thin, snap-aligned horizontal scroll
+          // instead of a page-level scrollbar or clipped tabs.
           "relative inline-flex items-center gap-1 bg-[var(--harbor-surface-panel-muted)] border border-[color:var(--harbor-border-default)] rounded-xl p-1",
+          "max-w-full overflow-x-auto snap-x snap-mandatory [&>*]:snap-start [scrollbar-width:thin]",
           className,
         )}
       >
@@ -74,7 +80,9 @@ export function TabList({
       <div
         role="tablist"
         className={cn(
-          "relative inline-flex items-center gap-6 border-b border-[color:var(--harbor-border-default)]",
+          // The underline variant wraps instead of scrolling: extra tabs
+          // flow onto a second row rather than spilling past the container.
+          "relative inline-flex flex-wrap items-center gap-6 border-b border-[color:var(--harbor-border-default)] max-w-full",
           className,
         )}
       >
@@ -82,7 +90,16 @@ export function TabList({
       </div>
     );
   return (
-    <div role="tablist" className={cn("relative inline-flex items-end gap-1", className)}>
+    <div
+      role="tablist"
+      className={cn(
+        // Same content-sized-then-scroll behaviour as the pill variant so
+        // a long card-tab row stays reachable on narrow widths.
+        "relative inline-flex items-end gap-1",
+        "max-w-full overflow-x-auto snap-x snap-mandatory [&>*]:snap-start [scrollbar-width:thin]",
+        className,
+      )}
+    >
       {children}
     </div>
   );
