@@ -15,6 +15,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { focusFirst, focusNextMenuItem, useDismissableLayer } from "../../lib/a11y";
 import { cn } from "../../lib/cn";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 import { Portal } from "../../lib/Portal";
 
 /** Open/close state for the root menu. Exported so other right-click
@@ -40,6 +41,7 @@ export function Menu({
   className,
 }: MenuProps) {
   const [open, setOpen] = useState(false);
+  const popoverZ = useZIndex(Z.POPOVER);
   const anchorRef = useRef<HTMLElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -144,7 +146,7 @@ export function Menu({
                 position: "fixed",
                 left: pos.x,
                 top: pos.y,
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
               }}
               className={cn(
                 "min-w-[200px] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]",
@@ -183,6 +185,7 @@ export function MenuItem({
 }: MenuItemProps) {
   const ctx = useContext(MenuCtx);
   const [open, setOpen] = useState(false);
+  const submenuZ = useZIndex(Z.SUBMENU);
   const itemRef = useRef<HTMLButtonElement | null>(null);
   const subRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -283,7 +286,7 @@ export function MenuItem({
                 position: "fixed",
                 left: pos.x,
                 top: pos.y,
-                zIndex: Z.SUBMENU,
+                zIndex: submenuZ,
               }}
               className="min-w-[180px] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >

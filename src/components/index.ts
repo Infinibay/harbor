@@ -25,3 +25,9 @@ export * from "./dev";
 export * from "./sections";
 export * from "./backgrounds";
 export * from "./motion";
+
+// Layer system — the authoritative z-index scale and the nested-overlay helpers.
+// Exported so app code stacks against the SAME scale instead of hardcoding values.
+export { Z } from "../lib/z";
+export type { ZKey } from "../lib/z";
+export { LayerContext, useLayer, useZIndex, useLayerZ } from "../lib/layer";

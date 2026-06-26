@@ -4,6 +4,7 @@ import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Calendar } from "./Calendar";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface DatePickerProps {
   value?: Date;
@@ -24,6 +25,7 @@ export function DatePicker({
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const popRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+  const popoverZ = useZIndex(Z.POPOVER);
 
   useEffect(() => {
     if (!open) return;
@@ -101,7 +103,7 @@ export function DatePicker({
                 position: "fixed",
                 left: pos.x,
                 top: pos.y,
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
               }}
             >
               <Calendar

@@ -13,6 +13,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 type Side = "top" | "bottom" | "left" | "right";
 
@@ -49,6 +50,7 @@ export function Tooltip({
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const timer = useRef<number | null>(null);
   const target = useRef<HTMLElement | null>(null);
+  const tooltipZ = useZIndex(Z.TOOLTIP);
 
   const place = useCallback(() => {
     const el = target.current;
@@ -123,7 +125,7 @@ export function Tooltip({
                 left: pos.x,
                 top: pos.y,
                 translate,
-                zIndex: Z.TOOLTIP,
+                zIndex: tooltipZ,
                 pointerEvents: "none",
               }}
               className="px-2.5 py-1.5 rounded-lg border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel)] text-[rgb(var(--harbor-text))] text-xs shadow-xl whitespace-nowrap"

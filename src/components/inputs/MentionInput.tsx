@@ -4,6 +4,7 @@ import { cn } from "../../lib/cn";
 import { Avatar } from "../display/Avatar";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface MentionUser {
   id: string;
@@ -35,6 +36,7 @@ export function MentionInput({
   const [query, setQuery] = useState<string | null>(null);
   const [active, setActive] = useState(0);
   const [pos, setPos] = useState({ top: 0, left: 0 });
+  const popoverZ = useZIndex(Z.POPOVER);
 
   function updateTriggerFromCaret() {
     const el = taRef.current;
@@ -121,7 +123,7 @@ export function MentionInput({
                 position: "fixed",
                 top: pos.top,
                 left: pos.left,
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
                 width: 260,
               }}
               className="max-h-[240px] overflow-auto rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"

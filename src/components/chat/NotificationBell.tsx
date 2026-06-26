@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface Notification {
   id: string;
@@ -30,6 +31,7 @@ export function NotificationBell({
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+  const popoverZ = useZIndex(Z.POPOVER);
   const unread = notifications.filter((n) => n.unread).length;
 
   useEffect(() => {
@@ -118,7 +120,7 @@ export function NotificationBell({
                 left: pos.x,
                 top: pos.y,
                 width: 360,
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
               }}
               className="rounded-2xl bg-surface-2 border border-white/10 shadow-2xl overflow-hidden"
             >

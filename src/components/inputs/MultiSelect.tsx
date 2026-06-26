@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface MultiSelectOption {
   value: string;
@@ -32,6 +33,7 @@ export function MultiSelect({
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [rect, setRect] = useState({ x: 0, y: 0, w: 0 });
+  const popoverZ = useZIndex(Z.POPOVER);
 
   useEffect(() => {
     if (!open) return;
@@ -124,7 +126,7 @@ export function MultiSelect({
                 left: rect.x,
                 top: rect.y,
                 width: rect.w,
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
               }}
               className="overflow-hidden rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] shadow-[var(--harbor-menu-surface-shadow)]"
             >

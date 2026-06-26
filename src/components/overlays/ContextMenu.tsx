@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface ContextMenuProps {
   children: ReactNode;
@@ -21,6 +22,7 @@ export function ContextMenu({ children, menu, className }: ContextMenuProps) {
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const ref = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const contextMenuZ = useZIndex(Z.CONTEXT_MENU);
 
   function onContext(e: MouseEvent<HTMLDivElement>) {
     e.preventDefault();
@@ -76,7 +78,7 @@ export function ContextMenu({ children, menu, className }: ContextMenuProps) {
                 position: "fixed",
                 left: pos.x,
                 top: pos.y,
-                zIndex: Z.CONTEXT_MENU,
+                zIndex: contextMenuZ,
                 transformOrigin: "top left",
               }}
               className="min-w-[200px] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"

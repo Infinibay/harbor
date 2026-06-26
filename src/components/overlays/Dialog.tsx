@@ -14,6 +14,7 @@ import { cn } from "../../lib/cn";
 import { useT } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { LayerContext, useLayerZ } from "../../lib/layer";
 
 /* ------------------------------------------------------------------ *
  *  Dialog — composable.
@@ -80,6 +81,9 @@ export function Dialog({
 }: DialogProps) {
   const titleId = useId();
   const descId = useId();
+  // z of THIS surface (lifts above a host drawer/dialog when nested); also handed
+  // to nested anchored overlays (Select/Menu/…) so they stack above the dialog.
+  const dialogZ = useLayerZ(Z.DIALOG);
   const { t } = useT();
   const legacy = title !== undefined || description !== undefined || footer !== undefined;
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -110,6 +114,7 @@ export function Dialog({
 
   return (
     <DialogCtx.Provider value={{ titleId, descId }}>
+      <LayerContext.Provider value={dialogZ}>
       <Portal>
         <AnimatePresence>
           {open ? (
@@ -118,7 +123,7 @@ export function Dialog({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               style={{
-                zIndex: Z.DIALOG,
+                zIndex: dialogZ,
                 backdropFilter: "blur(10px)",
                 WebkitBackdropFilter: "blur(10px)",
               }}
@@ -160,6 +165,7 @@ export function Dialog({
           ) : null}
         </AnimatePresence>
       </Portal>
+      </LayerContext.Provider>
     </DialogCtx.Provider>
   );
 }

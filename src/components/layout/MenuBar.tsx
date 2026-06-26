@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface MenuBarItemDef {
   id: string;
@@ -34,6 +35,7 @@ export interface MenuBarProps {
 }
 
 export function MenuBar({ items, className }: MenuBarProps) {
+  const popoverZ = useZIndex(Z.POPOVER);
   const [active, setActive] = useState<string | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const barRef = useRef<HTMLDivElement | null>(null);
@@ -127,7 +129,7 @@ export function MenuBar({ items, className }: MenuBarProps) {
                 position: "fixed",
                 left: pos.x,
                 top: pos.y + 2,
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
                 minWidth: "var(--harbor-menu-min-width)",
               }}
               className="rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
@@ -154,6 +156,7 @@ function MenuBarRow({
   entry: MenuBarEntry;
   onClose: () => void;
 }) {
+  const submenuZ = useZIndex(Z.SUBMENU);
   const [open, setOpen] = useState(false);
   const rowRef = useRef<HTMLButtonElement | null>(null);
   const subRef = useRef<HTMLDivElement | null>(null);
@@ -225,7 +228,7 @@ function MenuBarRow({
                 position: "fixed",
                 left: pos.x,
                 top: pos.y,
-                zIndex: Z.SUBMENU,
+                zIndex: submenuZ,
                 minWidth: "var(--harbor-menu-submenu-min-width)",
               }}
               className="rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"

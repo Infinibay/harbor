@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, ty
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface FlyoutToolbarItem {
   id: string;
@@ -155,6 +156,7 @@ function GroupButton({
   orientation: "vertical" | "horizontal";
   closeDelay: number;
 }) {
+  const submenuZ = useZIndex(Z.SUBMENU);
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -263,7 +265,7 @@ function GroupButton({
             ref={flyoutRef}
             onMouseEnter={cancelClose}
             onMouseLeave={scheduleClose}
-            style={{ position: "fixed", left: coords.x, top: coords.y, zIndex: Z.SUBMENU }}
+            style={{ position: "fixed", left: coords.x, top: coords.y, zIndex: submenuZ }}
           >
             <div
               className={cn(

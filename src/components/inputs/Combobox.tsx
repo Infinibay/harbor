@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface ComboboxOption {
   value: string;
@@ -35,6 +36,7 @@ export function Combobox({
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [rect, setRect] = useState({ x: 0, y: 0, w: 0 });
+  const popoverZ = useZIndex(Z.POPOVER);
 
   // Compute position synchronously before paint when opening — if this
   // runs in a plain `useEffect` the menu flashes at {0,0} with width 0
@@ -118,7 +120,7 @@ export function Combobox({
               left: rect.x,
               top: rect.y,
               width: rect.w,
-              zIndex: Z.POPOVER,
+              zIndex: popoverZ,
             }}
             className="overflow-hidden rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] shadow-[var(--harbor-menu-surface-shadow)]"
           >

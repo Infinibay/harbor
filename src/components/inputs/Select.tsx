@@ -10,6 +10,7 @@ import { useT } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
 import { useCursorProximity } from "../../lib/cursor";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface SelectOption {
   value: string;
@@ -68,6 +69,7 @@ export function Select({
   disabled,
 }: SelectProps) {
   const { t } = useT();
+  const popoverZ = useZIndex(Z.POPOVER);
   const effectivePlaceholder = placeholder ?? t("harbor.select.placeholder");
   const layoutId = useId();
   const [internal, setInternal] = useState(defaultValue);
@@ -210,7 +212,7 @@ export function Select({
                   : menuWidth === "auto"
                     ? { minWidth: rect.w, maxWidth: "min(90vw, 480px)" }
                     : { width: typeof menuWidth === "number" ? menuWidth : menuWidth, minWidth: rect.w }),
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
               }}
               className="overflow-hidden rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >

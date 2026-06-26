@@ -9,6 +9,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 import { Portal } from "../../lib/Portal";
 
 type Side = "top" | "bottom" | "left" | "right";
@@ -33,6 +34,7 @@ export function Popover({
   const anchorRef = useRef<HTMLElement | null>(null);
   const popRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+  const popoverZ = useZIndex(Z.POPOVER);
 
   useEffect(() => {
     if (!open) return;
@@ -118,7 +120,7 @@ export function Popover({
                 position: "fixed",
                 left: pos.x,
                 top: pos.y,
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
               }}
               className={cn(
                 "rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-target-panel-padding)] shadow-[var(--harbor-menu-surface-shadow)]",

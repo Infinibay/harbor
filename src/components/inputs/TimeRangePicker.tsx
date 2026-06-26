@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 import { formatAbsolute } from "../../lib/format";
 
 export type TimeRangePreset = "15m" | "1h" | "6h" | "24h" | "7d" | "30d";
@@ -72,6 +73,7 @@ export function TimeRangePicker({
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+  const popoverZ = useZIndex(Z.POPOVER);
 
   const resolved = resolveTimeRange(value);
   const isPreset = "preset" in value;
@@ -157,7 +159,7 @@ export function TimeRangePicker({
                 position: "fixed",
                 left: pos.x,
                 top: pos.y,
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
               }}
               className="w-[320px] rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-target-panel-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >

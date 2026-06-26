@@ -11,6 +11,7 @@ import { cn } from "../../lib/cn";
 import { useT } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { LayerContext, useLayerZ } from "../../lib/layer";
 
 type Side = "right" | "left" | "bottom" | "top";
 
@@ -50,6 +51,7 @@ export function Drawer({
   className,
 }: DrawerProps) {
   const titleId = useId();
+  const drawerZ = useLayerZ(Z.DRAWER);
   const { t } = useT();
   const drawerRef = useRef<HTMLDivElement | null>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -81,6 +83,7 @@ export function Drawer({
     side === "top" || side === "bottom" ? { height: size } : { width: size };
 
   return (
+    <LayerContext.Provider value={drawerZ}>
     <Portal>
     <AnimatePresence>
       {open ? (
@@ -89,7 +92,7 @@ export function Drawer({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           style={{
-            zIndex: Z.DRAWER,
+            zIndex: drawerZ,
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
           }}
@@ -146,5 +149,6 @@ export function Drawer({
       ) : null}
     </AnimatePresence>
     </Portal>
+    </LayerContext.Provider>
   );
 }

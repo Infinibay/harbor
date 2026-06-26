@@ -13,6 +13,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface HoverCardProps {
   children: ReactElement<HoverCardTriggerProps>;
@@ -43,6 +44,7 @@ export function HoverCard({
   delay = 300,
   className,
 }: HoverCardProps) {
+  const hoverCardZ = useZIndex(Z.HOVER_CARD);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const target = useRef<HTMLElement | null>(null);
@@ -118,7 +120,7 @@ export function HoverCard({
                 left: pos.x,
                 top: pos.y,
                 width: 280,
-                zIndex: Z.HOVER_CARD,
+                zIndex: hoverCardZ,
               }}
               className={cn(
                 "rounded-2xl border border-[color:var(--harbor-border-default)] bg-[var(--harbor-surface-panel)] p-4 text-[rgb(var(--harbor-text))] shadow-2xl",

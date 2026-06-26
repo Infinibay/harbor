@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 import { Checkbox } from "../inputs/Checkbox";
 
 export type ExportFormat = "csv" | "json" | "xlsx" | "ndjson";
@@ -55,6 +56,7 @@ export function ExportMenu({
   const [allColumns, setAllColumns] = useState(false);
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+  const popoverZ = useZIndex(Z.POPOVER);
 
   function toggleOpen() {
     if (open) {
@@ -96,7 +98,7 @@ export function ExportMenu({
                 exit={{ opacity: 0 }}
                 onClick={() => setOpen(false)}
                 className="fixed inset-0"
-                style={{ zIndex: Z.POPOVER - 1 }}
+                style={{ zIndex: popoverZ - 1 }}
               />
               <motion.div
                 initial={{ opacity: 0, y: -4, scale: 0.97 }}
@@ -107,7 +109,7 @@ export function ExportMenu({
                   position: "fixed",
                   left: pos.x,
                   top: pos.y,
-                  zIndex: Z.POPOVER,
+                  zIndex: popoverZ,
                 }}
                 className="w-[280px] rounded-xl border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-3 shadow-[var(--harbor-menu-surface-shadow)] flex flex-col gap-2"
               >

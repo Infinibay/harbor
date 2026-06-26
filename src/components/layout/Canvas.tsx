@@ -24,6 +24,7 @@ import {
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 import { MenuCtx } from "../overlays/Menu";
 import {
   computeSnap,
@@ -923,6 +924,7 @@ function CanvasContextMenu({
   state: ContextMenuState;
   children: ReactNode;
 }) {
+  const contextMenuZ = useZIndex(Z.CONTEXT_MENU);
   return (
     <MenuCtx.Provider value={{ close: state.close }}>
       <Portal>
@@ -938,7 +940,7 @@ function CanvasContextMenu({
                 position: "fixed",
                 left: state.pos.x,
                 top: state.pos.y,
-                zIndex: Z.CONTEXT_MENU,
+                zIndex: contextMenuZ,
                 transformOrigin: "top left",
               }}
               className="min-w-[200px] rounded-xl bg-surface-2 border border-white/10 shadow-2xl p-1"

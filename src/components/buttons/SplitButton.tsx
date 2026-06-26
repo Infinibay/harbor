@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { Z } from "../../lib/z";
+import { useZIndex } from "../../lib/layer";
 
 export interface SplitButtonOption {
   id: string;
@@ -29,6 +30,7 @@ export function SplitButton({
   const caretRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0, w: 0 });
+  const popoverZ = useZIndex(Z.POPOVER);
 
   useEffect(() => {
     if (!open) return;
@@ -120,7 +122,7 @@ export function SplitButton({
                 left: pos.x,
                 top: pos.y,
                 width: pos.w,
-                zIndex: Z.POPOVER,
+                zIndex: popoverZ,
               }}
               className="rounded-[var(--harbor-menu-surface-radius)] border border-[color:var(--harbor-menu-surface-border)] bg-[var(--harbor-menu-surface-bg)] p-[var(--harbor-menu-surface-padding)] shadow-[var(--harbor-menu-surface-shadow)]"
             >
