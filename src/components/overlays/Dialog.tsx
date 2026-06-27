@@ -89,10 +89,16 @@ export function Dialog({
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
 
+  // Escape only. Backdrop dismissal is handled by the scrim's onPointerDown
+  // (target === currentTarget) below — a document-level "pointerdown outside the
+  // panel" listener would also fire for anchored overlays that portal out of the
+  // panel (Select/Menu/Popover), closing the dialog the moment you click one of
+  // their options.
   useDismissableLayer({
     ref: dialogRef,
     enabled: open,
     onDismiss: onClose,
+    dismissOnPointerDownOutside: false,
   });
 
   useEffect(() => {
@@ -122,6 +128,11 @@ export function Dialog({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              // Dismiss only when the press starts on the scrim itself, not when
+              // it bubbles up from the panel or a portaled child overlay.
+              onPointerDown={(e) => {
+                if (e.target === e.currentTarget) onClose();
+              }}
               style={{
                 zIndex: dialogZ,
                 backdropFilter: "blur(10px)",
