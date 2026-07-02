@@ -45,6 +45,8 @@
 [data-theme="light"] .hover\:text-white\/85:hover { color: rgb(var(--harbor-text) / 0.85); }
 [data-theme="light"] .hover\:text-white\/90:hover { color: rgb(var(--harbor-text) / 0.90); }
 
+[data-theme="light"] .group:hover .group-hover\:text-white { color: rgb(var(--harbor-text)); }
+
 /* === semantic token text family ========================== */
 /* These utilities already resolve through CSS variables, but keeping
    them here gives light-theme token text the same high-specificity
@@ -74,6 +76,7 @@
 
 [data-theme="light"] .bg-white\/\[0\.02\] { background-color: rgb(var(--harbor-text) / 0.02); }
 [data-theme="light"] .bg-white\/\[0\.03\] { background-color: rgb(var(--harbor-text) / 0.03); }
+[data-theme="light"] .bg-white\/\[0\.035\] { background-color: rgb(var(--harbor-text) / 0.035); }
 [data-theme="light"] .bg-white\/\[0\.04\] { background-color: rgb(var(--harbor-text) / 0.04); }
 [data-theme="light"] .bg-white\/\[0\.05\] { background-color: rgb(var(--harbor-text) / 0.05); }
 [data-theme="light"] .bg-white\/\[0\.06\] { background-color: rgb(var(--harbor-text) / 0.06); }
@@ -97,6 +100,8 @@
 
 [data-theme="light"] .focus\:bg-white\/\[0\.08\]:focus { background-color: rgb(var(--harbor-text) / 0.08); }
 
+[data-theme="light"] .group:hover .group-hover\:bg-white\/30 { background-color: rgb(var(--harbor-text) / 0.30); }
+
 /* === border-white family ================================= */
 [data-theme="light"] .border-white { border-color: rgb(var(--harbor-text)); }
 [data-theme="light"] .border-white\/4 { border-color: rgb(var(--harbor-text) / 0.04); }
@@ -110,11 +115,14 @@
 [data-theme="light"] .border-white\/30 { border-color: rgb(var(--harbor-text) / 0.30); }
 [data-theme="light"] .border-white\/40 { border-color: rgb(var(--harbor-text) / 0.40); }
 [data-theme="light"] .border-white\/50 { border-color: rgb(var(--harbor-text) / 0.50); }
+[data-theme="light"] .border-white\/\[0\.03\] { border-color: rgb(var(--harbor-text) / 0.03); }
+[data-theme="light"] .border-white\/\[0\.045\] { border-color: rgb(var(--harbor-text) / 0.045); }
 
 [data-theme="light"] .hover\:border-white\/15:hover { border-color: rgb(var(--harbor-text) / 0.15); }
 [data-theme="light"] .hover\:border-white\/20:hover { border-color: rgb(var(--harbor-text) / 0.20); }
 [data-theme="light"] .hover\:border-white\/25:hover { border-color: rgb(var(--harbor-text) / 0.25); }
 [data-theme="light"] .hover\:border-white\/30:hover { border-color: rgb(var(--harbor-text) / 0.30); }
+[data-theme="light"] .focus\:border-white\/20:focus { border-color: rgb(var(--harbor-text) / 0.20); }
 
 /* === placeholder:text-white family ======================= */
 [data-theme="light"] .placeholder\:text-white\/30::placeholder { color: rgb(var(--harbor-text) / 0.30); }
@@ -186,6 +194,47 @@
 [data-theme="light"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]) { border-color: rgb(var(--harbor-text) / 0.05); }
 [data-theme="light"] .divide-white\/8 > :not([hidden]) ~ :not([hidden]) { border-color: rgb(var(--harbor-text) / 0.08); }
 [data-theme="light"] .divide-white\/10 > :not([hidden]) ~ :not([hidden]) { border-color: rgb(var(--harbor-text) / 0.10); }
+
+/* === ring-white family (focus rings) ===================== */
+/* Tailwind v3 `ring-white/X` only sets the `--tw-ring-color` custom
+   property; the visible ring is the `--tw-ring-shadow` box-shadow that
+   consumes `var(--tw-ring-color)`. Compiled output (verified against the
+   app's built CSS):
+     .ring-white      → --tw-ring-opacity:1; --tw-ring-color:rgb(255 255 255/var(--tw-ring-opacity,1))
+     .ring-white\/15  → --tw-ring-color:rgb(255 255 255/0.15)
+     .ring-white\/25  → --tw-ring-color:rgb(255 255 255/0.25)
+   Un-remapped these render white-on-light (invisible focus rings) — a
+   real focus-visibility / a11y gap. Override the colour var only; the
+   shared `--tw-ring-shadow` plumbing then paints it dark-on-light. The
+   `--tw-ring-opacity` set by `.ring-white` is harmlessly unused once the
+   colour var no longer references it. */
+[data-theme="light"] .ring-white { --tw-ring-color: rgb(var(--harbor-text)); }
+[data-theme="light"] .ring-white\/15 { --tw-ring-color: rgb(var(--harbor-text) / 0.15); }
+[data-theme="light"] .ring-white\/25 { --tw-ring-color: rgb(var(--harbor-text) / 0.25); }
+
+/* === gradient color-stops (from/via/to-white) ============ */
+/* Tailwind v3 gradient utilities don't set one colour property — they
+   drive `--tw-gradient-from` / `--tw-gradient-to` / `--tw-gradient-stops`,
+   and `via-*` embeds its colour literally INSIDE `--tw-gradient-stops`
+   (there is no `--tw-gradient-via` colour var). Each rule below reproduces
+   the EXACT compiled var structure (verified against the app's built CSS)
+   with the white channel swapped for `--harbor-text` and every alpha kept
+   identical, so the gradient geometry is unchanged — only dark-on-light.
+   Order mirrors Tailwind's own emission (from, via, then to) so an
+   explicit `to-*` still wins the implicit `--tw-gradient-to` fallback that
+   `from-*`/`via-*` set, exactly as in dark mode. */
+[data-theme="light"] .from-white\/10 {
+  --tw-gradient-from: rgb(var(--harbor-text) / 0.1) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(var(--harbor-text) / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+[data-theme="light"] .via-white\/10 {
+  --tw-gradient-to: rgb(var(--harbor-text) / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(var(--harbor-text) / 0.1) var(--tw-gradient-via-position), var(--tw-gradient-to);
+}
+[data-theme="light"] .to-white\/0 { --tw-gradient-to: rgb(var(--harbor-text) / 0) var(--tw-gradient-to-position); }
+[data-theme="light"] .to-white\/5 { --tw-gradient-to: rgb(var(--harbor-text) / 0.05) var(--tw-gradient-to-position); }
+[data-theme="light"] .to-white\/10 { --tw-gradient-to: rgb(var(--harbor-text) / 0.1) var(--tw-gradient-to-position); }
 
 /* === text-black ========================================== */
 /* `bg-white text-black` (e.g. Button primary) must invert together:

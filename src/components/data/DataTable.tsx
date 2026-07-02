@@ -805,6 +805,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
                     <motion.div
                       key={id}
                       role="row"
+                      data-row-id={id}
                       data-selected={selected ? "true" : undefined}
                       aria-rowindex={rowIndex + 2}
                       aria-selected={selectable ? selected : undefined}

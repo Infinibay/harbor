@@ -172,7 +172,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:package": "vite build --config vite.package.config.ts && tsc -p tsconfig.build.json && cp src/index.css dist/index.css && cp src/tokens.css dist/tokens.css && cp tailwind.config.js dist/tailwind.config.js",
+    "build:package": "vite build --config vite.package.config.ts && tsc -p tsconfig.build.json && cp src/index.css dist/index.css && cp src/theme-light.css dist/theme-light.css && cp src/tokens.css dist/tokens.css && cp tailwind.config.js dist/tailwind.config.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",

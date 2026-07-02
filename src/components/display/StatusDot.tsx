@@ -7,6 +7,7 @@ export type Status =
   | "offline"
   | "provisioning"
   | "maintenance"
+  | "warning"
   | "unknown";
 
 export interface StatusDotProps {
@@ -66,6 +67,13 @@ export const STATUS_META: Record<Status, StatusMeta> = {
     glow: "shadow-[0_0_10px_rgba(167,139,250,0.7)]",
     defaultPulse: false,
   },
+  warning: {
+    label: "Warning",
+    dot: "bg-amber-400",
+    text: "text-amber-300",
+    glow: "shadow-[0_0_10px_rgba(251,191,36,0.7)]",
+    defaultPulse: false,
+  },
   unknown: {
     label: "Unknown",
     dot: "bg-white/30",
@@ -86,7 +94,10 @@ export function StatusDot({
   labelOverride,
   className,
 }: StatusDotProps) {
-  const meta = STATUS_META[status];
+  // Defensive fallback: the app is consumed from untyped JSX, so an
+  // unexpected status string (e.g. a raw backend enum) must never throw
+  // during render — degrade to the neutral "unknown" meta instead.
+  const meta = STATUS_META[status] ?? STATUS_META.unknown;
   const showPulse = pulse ?? meta.defaultPulse;
   const displayLabel =
     labelOverride ?? (label === undefined ? meta.label : undefined);

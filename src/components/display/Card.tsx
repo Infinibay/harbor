@@ -2,6 +2,7 @@ import {
   forwardRef,
   useRef,
   type HTMLAttributes,
+  type KeyboardEvent,
   type MouseEvent,
   type PropsWithChildren,
   type ReactNode,
@@ -97,14 +98,48 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
     ry.set(0);
   }
 
-  const { onClick: origOnClick, ...restSafe } = rest as any;
+  const {
+    onClick: origOnClick,
+    onKeyDown: origOnKeyDown,
+    role: origRole,
+    tabIndex: origTabIndex,
+    ...restSafe
+  } = rest as any;
   const handleClick = disabled ? undefined : origOnClick;
+
+  // When a Card is used as an interactive control (`interactive` + an
+  // `onClick`) it must be keyboard-operable and exposed to assistive tech —
+  // a bare motion.div is neither focusable nor activatable. We give it button
+  // semantics, Enter/Space activation and a focus ring, while still letting a
+  // caller override `role` (e.g. "radio"/"option" inside a group) and supply
+  // its own onKeyDown for arrow-key navigation.
+  const isActivatable =
+    interactive && !disabled && typeof origOnClick === "function";
+  const resolvedRole = origRole ?? (isActivatable ? "button" : undefined);
+  const resolvedTabIndex = origTabIndex ?? (isActivatable ? 0 : undefined);
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    // Only auto-activate on Enter/Space when WE own the implicit button role;
+    // when the caller sets an explicit role it also owns the key semantics.
+    if (
+      isActivatable &&
+      !origRole &&
+      (e.key === "Enter" || e.key === " " || e.key === "Spacebar")
+    ) {
+      e.preventDefault();
+      origOnClick?.(e as unknown as MouseEvent<HTMLDivElement>);
+    }
+    origOnKeyDown?.(e);
+  };
+
   const inner = (
     <motion.div
       ref={setRefs}
       onMouseMove={disabled ? undefined : onMove}
       onMouseLeave={onLeave}
       onClick={handleClick}
+      role={resolvedRole}
+      tabIndex={resolvedTabIndex}
+      onKeyDown={isActivatable || origOnKeyDown ? handleKeyDown : undefined}
       whileHover={interactive && !disabled ? { y: -2 } : undefined}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
       style={
@@ -116,7 +151,10 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
             }
           : undefined
       }
-      aria-selected={selected || undefined}
+      aria-pressed={
+        resolvedRole === "button" ? selected || undefined : undefined
+      }
+      aria-selected={!resolvedRole ? selected || undefined : undefined}
       aria-disabled={disabled || undefined}
       data-selected={selected || undefined}
       data-disabled={disabled || undefined}
@@ -131,6 +169,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
         ),
         glow && !disabled && "glow-border",
         interactive && !disabled && "cursor-pointer",
+        isActivatable &&
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--harbor-focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--harbor-focus-ring-offset)]",
         disabled && "opacity-50 cursor-not-allowed pointer-events-none",
         selected &&
           !disabled &&
