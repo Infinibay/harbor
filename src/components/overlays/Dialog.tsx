@@ -153,7 +153,11 @@ export function Dialog({
                 transition={{ type: "spring", stiffness: 300, damping: 28 }}
                 onKeyDown={onDialogKeyDown}
                 className={cn(
-                  "relative flex w-full flex-col overflow-hidden rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-border-default)] bg-[var(--harbor-overlay-surface)] text-fg shadow-[var(--harbor-target-shadow)] outline-none",
+                  // max-h-full + min-h-0 keep the panel inside the padded scrim so a
+                  // tall body can never grow past the viewport; the scrollable region
+                  // is DialogBody (flex-1 min-h-0 overflow-y-auto), keeping title and
+                  // the action row pinned while the content scrolls.
+                  "relative flex max-h-full min-h-0 w-full flex-col overflow-hidden rounded-[var(--harbor-target-radius)] border border-[color:var(--harbor-border-default)] bg-[var(--harbor-overlay-surface)] text-fg shadow-[var(--harbor-target-shadow)] outline-none",
                   sizes[size],
                   className,
                 )}
@@ -247,7 +251,7 @@ export function DialogBody({
   ...rest
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("px-[calc(var(--harbor-target-panel-padding)+4px)] py-[var(--harbor-target-panel-padding)]", className)} {...rest}>
+    <div className={cn("min-h-0 flex-1 overflow-y-auto px-[calc(var(--harbor-target-panel-padding)+4px)] py-[var(--harbor-target-panel-padding)]", className)} {...rest}>
       {children}
     </div>
   );
